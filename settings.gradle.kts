@@ -15,4 +15,5 @@ dependencyResolutionManagement {
 
 rootProject.name = "Reguerta"
 include(":app")
- 
+include(":data")
+include(":presentation")
