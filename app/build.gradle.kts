@@ -1,7 +1,7 @@
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kspPlugin)
-    kotlin("android")
+    alias(libs.plugins.kotlin.android)
     id("dagger.hilt.android.plugin")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
@@ -43,7 +43,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "17"
+        jvmTarget = "${JavaVersion.VERSION_17}"
     }
     buildFeatures {
         compose = true
@@ -59,12 +59,13 @@ android {
 }
 
 dependencies {
-    implementation(libs.androidx.activity)
-    implementation(libs.lifecycle.runtime.ktx)
-
+    implementation(project(":data"))
+    implementation(project(":presentation"))
     // Compose
     implementation(platform(libs.compose.bom))
+    implementation(libs.androidx.activity)
     implementation(libs.bundles.compose)
+    implementation(libs.lifecycle.runtime.ktx)
     implementation(libs.hilt.navigation)
     implementation(libs.splashscreen)
     implementation(libs.timber)

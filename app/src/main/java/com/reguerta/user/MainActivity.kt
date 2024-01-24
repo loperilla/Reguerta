@@ -3,43 +3,59 @@ package com.reguerta.user
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.reguerta.user.ui.theme.ReguertaTheme
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
+import androidx.navigation.compose.rememberNavController
+import com.reguerta.presentation.UiState
+import com.reguerta.presentation.ui.ReguertaTheme
+import com.reguerta.presentation.ui.Routes
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
         setContent {
             ReguertaTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Greeting("Android")
+                val viewModel: MainActivityViewModel = hiltViewModel()
+                val navController = rememberNavController()
+                val splashState = viewModel.splashState.collectAsStateWithLifecycle().value
+
+                splashScreen.setKeepOnScreenCondition {
+                    when (splashState) {
+                        UiState.Loading -> true
+                        UiState.Success -> false
+                        UiState.Error -> false
+                    }
+                }
+
+                NavHost(
+                    navController,
+                    startDestination = if (splashState is UiState.Error) Routes.AUTH.route else Routes.HOME.route
+                ) {
+                    navigation(startDestination = Routes.AUTH.FIRST_SCREEN.route, route = Routes.AUTH.route) {
+                        composable(Routes.AUTH.FIRST_SCREEN.route) {
+                            Text(text = "FirstScreen")
+                        }
+                        composable(Routes.AUTH.LOGIN.route) {
+//                            LoginScreen()
+                        }
+                        composable(Routes.AUTH.REGISTER.route) {
+//                            RegisterScreen()
+                        }
+                    }
+                    composable(Routes.HOME.route) {
+                        Text(text = "Home")
+//                            HomeScreen()
+                    }
                 }
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    ReguertaTheme {
-        Greeting("Android")
     }
 }

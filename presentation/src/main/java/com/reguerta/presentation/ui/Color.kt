@@ -1,6 +1,13 @@
-package com.reguerta.user.ui.theme
+package com.reguerta.presentation.ui
 
 import androidx.compose.ui.graphics.Color
+
+/*****
+ * Project: Reguerta
+ * From: com.reguerta.presentation.ui
+ * Created By Manuel Lopera on 23/1/24 at 20:18
+ * All rights reserved 2024
+ */
 
 val Purple80 = Color(0xFFD0BCFF)
 val PurpleGrey80 = Color(0xFFCCC2DC)

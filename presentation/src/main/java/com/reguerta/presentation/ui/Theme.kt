@@ -1,4 +1,11 @@
-package com.reguerta.user.ui.theme
+package com.reguerta.presentation.ui
+
+/*****
+ * Project: Reguerta
+ * From: com.reguerta.presentation.ui
+ * Created By Manuel Lopera on 23/1/24 at 20:20
+ * All rights reserved 2024
+ */
 
 import android.app.Activity
 import android.os.Build
