@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.reguerta.presentation.UiState
+import com.reguerta.presentation.screen.firstscreen.firstScreen
 import com.reguerta.presentation.ui.ReguertaTheme
 import com.reguerta.presentation.ui.Routes
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,13 +42,15 @@ class MainActivity : ComponentActivity() {
                 ) {
                     navigation(startDestination = Routes.AUTH.FIRST_SCREEN.route, route = Routes.AUTH.route) {
                         composable(Routes.AUTH.FIRST_SCREEN.route) {
-                            Text(text = "FirstScreen")
+                            firstScreen {
+                                navController.navigate(it)
+                            }
                         }
                         composable(Routes.AUTH.LOGIN.route) {
-//                            LoginScreen()
+                            Text(text = "LOGIN")
                         }
                         composable(Routes.AUTH.REGISTER.route) {
-//                            RegisterScreen()
+                            Text(text = "REGISTER")
                         }
                     }
                     composable(Routes.HOME.route) {

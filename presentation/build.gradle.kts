@@ -50,6 +50,9 @@ dependencies {
     implementation(libs.splashscreen)
     implementation(libs.timber)
 
+    debugImplementation(libs.compose.ui.tooling)
+    debugImplementation(libs.compose.ui.test.manifest)
+
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
