@@ -1,17 +1,14 @@
 package com.reguerta.data.di
 
-import android.content.Context
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.reguerta.data.datastore.ReguertaDataStore
-import com.reguerta.data.datastore.ReguertaDataStoreImpl
 import com.reguerta.data.firebase.AuthService
 import com.reguerta.data.firebase.AuthServiceImpl
+import com.reguerta.localdata.datastore.ReguertaDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -24,13 +21,6 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {
-    @Provides
-    fun provideContext(@ApplicationContext context: Context): Context = context
-
-    @Singleton
-    @Provides
-    fun provideReguertaDataStore(context: Context): ReguertaDataStore = ReguertaDataStoreImpl(context)
-
     @Singleton
     @Provides
     fun provideFirebaseAuth(): FirebaseAuth = Firebase.auth

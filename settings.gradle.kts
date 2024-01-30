@@ -17,3 +17,5 @@ rootProject.name = "Reguerta"
 include(":app")
 include(":data")
 include(":presentation")
+include(":testUtils")
+include(":localData")

@@ -2,7 +2,7 @@ package com.reguerta.data.firebase
 
 import com.google.firebase.auth.FirebaseAuth
 import com.reguerta.data.AuthState
-import com.reguerta.data.datastore.ReguertaDataStore
+import com.reguerta.localdata.datastore.ReguertaDataStore
 import kotlinx.coroutines.tasks.await
 
 /*****

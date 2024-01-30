@@ -3,16 +3,11 @@ package com.reguerta.user
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.Text
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
-import androidx.navigation.compose.rememberNavController
+import com.reguerta.presentation.MainNavigation
 import com.reguerta.presentation.UiState
-import com.reguerta.presentation.screen.firstscreen.firstScreen
 import com.reguerta.presentation.ui.ReguertaTheme
 import com.reguerta.presentation.ui.Routes
 import dagger.hilt.android.AndroidEntryPoint
@@ -25,7 +20,6 @@ class MainActivity : ComponentActivity() {
         setContent {
             ReguertaTheme {
                 val viewModel: MainActivityViewModel = hiltViewModel()
-                val navController = rememberNavController()
                 val splashState = viewModel.splashState.collectAsStateWithLifecycle().value
 
                 splashScreen.setKeepOnScreenCondition {
@@ -36,28 +30,9 @@ class MainActivity : ComponentActivity() {
                     }
                 }
 
-                NavHost(
-                    navController,
+                MainNavigation(
                     startDestination = if (splashState is UiState.Error) Routes.AUTH.route else Routes.HOME.route
-                ) {
-                    navigation(startDestination = Routes.AUTH.FIRST_SCREEN.route, route = Routes.AUTH.route) {
-                        composable(Routes.AUTH.FIRST_SCREEN.route) {
-                            firstScreen {
-                                navController.navigate(it)
-                            }
-                        }
-                        composable(Routes.AUTH.LOGIN.route) {
-                            Text(text = "LOGIN")
-                        }
-                        composable(Routes.AUTH.REGISTER.route) {
-                            Text(text = "REGISTER")
-                        }
-                    }
-                    composable(Routes.HOME.route) {
-                        Text(text = "Home")
-//                            HomeScreen()
-                    }
-                }
+                )
             }
         }
     }

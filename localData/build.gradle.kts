@@ -4,12 +4,11 @@ plugins {
     alias(libs.plugins.kspPlugin)
     alias(libs.plugins.kotlin.android)
     id("dagger.hilt.android.plugin")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
+
 }
 
 android {
-    namespace = "$GROUP_ID.data"
+    namespace = "$GROUP_ID.localdata"
     compileSdk = configCompileSdkVersion
 
     defaultConfig {
@@ -22,12 +21,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile(
-                    "proguard-android-optimize.txt"
-                ),
-                "proguard-rules.pro"
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -40,22 +34,10 @@ android {
 }
 
 dependencies {
-    implementation(project(":localData"))
     //Datastore
     implementation(libs.datastore)
 
     // Hilt
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
-
-    //Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.bundles.firebase)
-
-    implementation(libs.core.ktx)
-    implementation(libs.appcompat)
-    implementation(libs.material)
-    testImplementation(libs.junit.junit)
-    androidTestImplementation(libs.test.ext.junit)
-    androidTestImplementation(libs.test.espresso)
 }

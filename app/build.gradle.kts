@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kspPlugin)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.androidJUnit5)
     id("dagger.hilt.android.plugin")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
@@ -18,7 +19,7 @@ android {
         versionCode = VERSION_CODE
         versionName = VERSION_NAME
 
-        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner = hiltRunnerPackage
         vectorDrawables {
             useSupportLibrary = true
         }
@@ -78,11 +79,27 @@ dependencies {
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
 
+    //Test
     testImplementation(libs.junit)
+    testImplementation(libs.bundles.jupiter)
+    testRuntimeOnly(libs.jupiter.engine)
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk)
+    testImplementation(libs.turbine)
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.assertk)
+
+    // Android test
+    androidTestImplementation(project(":testUtils"))
+    // Hilt Testing
+    androidTestImplementation(libs.hilt.android.testing)
+    kspTest(libs.hilt.compiler)
+
     androidTestImplementation(libs.test.ext.junit)
     androidTestImplementation(libs.test.espresso)
     androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test)
+    androidTestImplementation(libs.navigation.testing)
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)
 }

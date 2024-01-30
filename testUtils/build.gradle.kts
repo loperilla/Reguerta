@@ -3,13 +3,10 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kspPlugin)
     alias(libs.plugins.kotlin.android)
-    id("dagger.hilt.android.plugin")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
 }
 
 android {
-    namespace = "$GROUP_ID.data"
+    namespace = "$GROUP_ID.testutils"
     compileSdk = configCompileSdkVersion
 
     defaultConfig {
@@ -22,12 +19,7 @@ android {
     buildTypes {
         release {
             isMinifyEnabled = false
-            proguardFiles(
-                getDefaultProguardFile(
-                    "proguard-android-optimize.txt"
-                ),
-                "proguard-rules.pro"
-            )
+            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
     compileOptions {
@@ -44,18 +36,14 @@ dependencies {
     //Datastore
     implementation(libs.datastore)
 
+    //Test
+    implementation(libs.junit)
+    implementation(libs.kotlinx.coroutines.test)
+    implementation(libs.assertk)
+    implementation(libs.androidx.runner)
     // Hilt
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
-
-    //Firebase
-    implementation(platform(libs.firebase.bom))
-    implementation(libs.bundles.firebase)
-
-    implementation(libs.core.ktx)
-    implementation(libs.appcompat)
-    implementation(libs.material)
-    testImplementation(libs.junit.junit)
-    androidTestImplementation(libs.test.ext.junit)
-    androidTestImplementation(libs.test.espresso)
+    implementation(libs.hilt.android.testing)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.bundles.jupiter)
+    testRuntimeOnly(libs.jupiter.engine)
 }

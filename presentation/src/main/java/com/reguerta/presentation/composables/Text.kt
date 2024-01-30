@@ -28,8 +28,25 @@ fun TextRegular(
         modifier,
         color = textColor,
         fontSize = textSize,
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
         fontFamily = monserratFontFamily
+    )
+}
+
+@Composable
+fun TextBody(
+    text: String,
+    textSize: TextUnit,
+    modifier: Modifier = Modifier,
+    textColor: Color = Color.Unspecified
+) {
+    Text(
+        text,
+        modifier,
+        color = textColor,
+        fontSize = textSize,
+        fontWeight = FontWeight.Normal,
+        fontFamily = cabinsketchFontFamily
     )
 }
 

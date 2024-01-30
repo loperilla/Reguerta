@@ -11,3 +11,5 @@ const val VERSION_CODE = 1
 const val configCompileSdkVersion = 34
 const val configTargetSdkVersion = 34
 const val configMinSdkVersion = 26
+
+const val hiltRunnerPackage = "$GROUP_ID.testutils.HiltRunner"
