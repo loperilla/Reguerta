@@ -1,6 +1,5 @@
 package com.reguerta.presentation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -9,7 +8,9 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.screen.firstscreen.firstScreen
+import com.reguerta.presentation.screen.home.homeScreen
 import com.reguerta.presentation.screen.login.loginScreen
+import com.reguerta.presentation.screen.register.registerScreen
 import com.reguerta.presentation.ui.Routes
 
 /*****
@@ -20,7 +21,10 @@ import com.reguerta.presentation.ui.Routes
  */
 
 @Composable
-fun MainNavigation(navController: NavHostController = rememberNavController(), startDestination: String) {
+fun MainNavigation(
+    navController: NavHostController = rememberNavController(),
+    startDestination: String
+) {
     Screen {
         NavHost(
             navController,
@@ -38,12 +42,16 @@ fun MainNavigation(navController: NavHostController = rememberNavController(), s
                     }
                 }
                 composable(Routes.AUTH.REGISTER.route) {
-                    Text(text = "REGISTER")
+                    registerScreen {
+                        navController.navigate(it)
+                    }
                 }
             }
             composable(Routes.HOME.route) {
-                Text(text = "Home")
-//                            HomeScreen()
+                homeScreen {
+                    navController
+                        .navigate(it)
+                }
             }
         }
     }

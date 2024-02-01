@@ -40,62 +40,6 @@ import com.reguerta.presentation.ui.cabinsketchFontFamily
  */
 
 @Composable
-private fun ReguertaInput(
-    text: String,
-    onTextChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    placeholderText: String = "",
-    keyboardType: KeyboardType = KeyboardType.Text,
-    imeAction: ImeAction = ImeAction.Default,
-    trailingIcon: @Composable (() -> Unit)? = null,
-    visualTransformation: VisualTransformation = VisualTransformation.None
-) {
-    val colors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = Text,
-        unfocusedTextColor = Text.copy(
-            alpha = 0.7f
-        ),
-        focusedBorderColor = Text,
-        unfocusedBorderColor = Text.copy(
-            alpha = 0.7f
-        ),
-        disabledPlaceholderColor = Text,
-        focusedPlaceholderColor = Text,
-        errorPlaceholderColor = Text,
-        unfocusedPlaceholderColor = Text.copy(
-            alpha = 0.7f
-        ),
-        focusedContainerColor = Color.White,
-        unfocusedContainerColor = Color.White,
-        disabledContainerColor = Color.White,
-        errorContainerColor = Color.White
-    )
-    OutlinedTextField(
-        value = text,
-        onValueChange = onTextChange,
-        colors = colors,
-        trailingIcon = trailingIcon,
-        textStyle = TextStyle(
-            fontFamily = cabinsketchFontFamily,
-            fontWeight = FontWeight.Normal,
-            fontSize = 20.sp
-        ),
-        visualTransformation = visualTransformation,
-        placeholder = {
-            TextBody(
-                placeholderText,
-                textSize = 16.sp
-            )
-        },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            imeAction = imeAction
-        ),
-        modifier = modifier
-    )
-}
-
-@Composable
 fun ReguertaEmailInput(
     text: String,
     onTextChange: (String) -> Unit,
@@ -146,6 +90,62 @@ fun ReguertaPasswordInput(
         } else {
             PasswordVisualTransformation()
         },
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun ReguertaInput(
+    text: String,
+    onTextChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholderText: String = "",
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Default,
+    trailingIcon: @Composable (() -> Unit)? = null,
+    visualTransformation: VisualTransformation = VisualTransformation.None
+) {
+    val colors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = Text,
+        unfocusedTextColor = Text.copy(
+            alpha = 0.7f
+        ),
+        focusedBorderColor = Text,
+        unfocusedBorderColor = Text.copy(
+            alpha = 0.7f
+        ),
+        disabledPlaceholderColor = Text,
+        focusedPlaceholderColor = Text,
+        errorPlaceholderColor = Text,
+        unfocusedPlaceholderColor = Text.copy(
+            alpha = 0.7f
+        ),
+        focusedContainerColor = Color.White,
+        unfocusedContainerColor = Color.White,
+        disabledContainerColor = Color.White,
+        errorContainerColor = Color.White
+    )
+    OutlinedTextField(
+        value = text,
+        onValueChange = onTextChange,
+        colors = colors,
+        trailingIcon = trailingIcon,
+        textStyle = TextStyle(
+            fontFamily = cabinsketchFontFamily,
+            fontWeight = FontWeight.Normal,
+            fontSize = 18.sp
+        ),
+        visualTransformation = visualTransformation,
+        placeholder = {
+            TextBody(
+                placeholderText,
+                textSize = 14.sp
+            )
+        },
+        keyboardOptions = KeyboardOptions(
+            keyboardType = keyboardType,
+            imeAction = imeAction
+        ),
         modifier = modifier
     )
 }

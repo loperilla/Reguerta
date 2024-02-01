@@ -26,6 +26,16 @@ class AuthServiceImpl(
         dataStore.saveUID("")
     }
 
+    override suspend fun createUserWithEmailAndPassword(email: String, password: String): AuthState {
+        return try {
+            firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+            dataStore.saveUID(currentUser?.uid.orEmpty())
+            AuthState.LoggedIn
+        } catch (ex: Exception) {
+            AuthState.Error(ex.message ?: "Error")
+        }
+    }
+
     override suspend fun refreshUser(): AuthState {
         return try {
             currentUser?.reload()?.await()

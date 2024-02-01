@@ -9,10 +9,9 @@ import com.reguerta.data.AuthState
  * All rights reserved 2024
  */
 interface AuthService {
-
     val isAuthenticated: Boolean
     suspend fun signOut()
-
+    suspend fun createUserWithEmailAndPassword(email: String, password: String): AuthState
     suspend fun refreshUser(): AuthState
     suspend fun logInWithUserPassword(email: String, password: String): AuthState
 }

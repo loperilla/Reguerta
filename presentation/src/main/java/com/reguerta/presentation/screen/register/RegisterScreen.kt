@@ -1,4 +1,4 @@
-package com.reguerta.presentation.screen.login
+package com.reguerta.presentation.screen.register
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,16 +32,14 @@ import com.reguerta.presentation.ui.Routes
 
 /*****
  * Project: Reguerta
- * From: com.reguerta.presentation.screen.login
- * Created By Manuel Lopera on 24/1/24 at 19:43
+ * From: com.reguerta.presentation.screen.register
+ * Created By Manuel Lopera on 30/1/24 at 20:09
  * All rights reserved 2024
  */
 
 @Composable
-fun loginScreen(
-    navigateTo: (String) -> Unit
-) {
-    val viewModel = hiltViewModel<LoginViewModel>()
+fun registerScreen(navigateTo: (String) -> Unit) {
+    val viewModel = hiltViewModel<RegisterViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     if (state.goOut) {
@@ -49,7 +48,7 @@ fun loginScreen(
     }
 
     Screen {
-        LoginScreen(
+        RegisterScreen(
             state = state,
             newEvent = viewModel::onEvent,
             navigateTo = navigateTo
@@ -59,17 +58,19 @@ fun loginScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun LoginScreen(
-    state: LoginState,
-    newEvent: (LoginEvent) -> Unit,
+private fun RegisterScreen(
+    state: RegisterState,
+    newEvent: (RegisterEvent) -> Unit,
     navigateTo: (String) -> Unit
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+
     Scaffold(
         topBar = {
             MediumTopAppBar(
                 title = {
                     TextTitle(
-                        text = "Introduce tus credenciales",
+                        text = "Regístrate",
                         textSize = 26.sp,
                         textColor = PrimaryColor
                     )
@@ -100,9 +101,9 @@ private fun LoginScreen(
             ReguertaEmailInput(
                 text = state.emailInput,
                 onTextChange = { newInputValue ->
-                    newEvent(LoginEvent.OnEmailChanged(newInputValue))
+                    newEvent(RegisterEvent.OnEmailChanged(newInputValue))
                 },
-                placeholderText = "Email",
+                placeholderText = "Escribe tu email",
                 imeAction = ImeAction.Next,
                 modifier = Modifier
                     .padding(8.dp)
@@ -110,19 +111,29 @@ private fun LoginScreen(
             ReguertaPasswordInput(
                 text = state.passwordInput,
                 onTextChange = { newInputValue ->
-                    newEvent(LoginEvent.OnPasswordChanged(newInputValue))
+                    newEvent(RegisterEvent.OnPasswordChanged(newInputValue))
                 },
-                placeholderText = "Password",
+                placeholderText = "Escribe tu contraseña",
+                imeAction = ImeAction.Next,
+                modifier = Modifier
+                    .padding(8.dp)
+            )
+            ReguertaPasswordInput(
+                text = state.repeatPasswordInput,
+                onTextChange = { newInputValue ->
+                    newEvent(RegisterEvent.OnRepeatPasswordChanged(newInputValue))
+                },
+                placeholderText = "Repite tu contraseña",
                 imeAction = ImeAction.Done,
                 modifier = Modifier
                     .padding(8.dp)
             )
-
             ReguertaButton(
-                textButton = "Login",
+                textButton = "Registrarse",
                 enabledButton = state.enabledButton,
                 onClick = {
-                    newEvent(LoginEvent.OnLoginClick)
+                    newEvent(RegisterEvent.OnRegisterClick)
+                    keyboardController?.hide()
                 },
                 modifier = Modifier
                     .padding(8.dp)
@@ -133,10 +144,10 @@ private fun LoginScreen(
 
 @Preview(showBackground = true)
 @Composable
-private fun LoginScreenPreview() {
+private fun RegisterScreenPreview() {
     Screen {
-        LoginScreen(
-            state = LoginState(),
+        RegisterScreen(
+            state = RegisterState(),
             newEvent = {},
             navigateTo = {}
         )

@@ -4,6 +4,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.data.AuthState
 import com.reguerta.data.firebase.AuthService
+import com.reguerta.presentation.type.isValidEmail
+import com.reguerta.presentation.type.isValidPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,10 +30,17 @@ class LoginViewModel @Inject constructor(
     fun onEvent(newEvent: LoginEvent) {
         viewModelScope.launch {
             when (newEvent) {
-                is LoginEvent.OnEmailChanged -> _state.update {
-                    it.copy(
-                        emailInput = newEvent.email
-                    )
+                is LoginEvent.OnEmailChanged -> {
+                    _state.update {
+                        it.copy(
+                            emailInput = newEvent.email
+                        )
+                    }
+                    _state.update {
+                        it.copy(
+                            enabledButton = checkEnabledButton()
+                        )
+                    }
                 }
 
                 LoginEvent.OnLoginClick -> {
@@ -45,17 +54,46 @@ class LoginViewModel @Inject constructor(
                         email = state.value.emailInput,
                         password = state.value.passwordInput
                     )) {
-                        is AuthState.Error -> TODO()
-                        AuthState.LoggedIn -> TODO()
+                        is AuthState.Error -> {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    errorMessage = result.message
+                                )
+                            }
+                        }
+
+                        AuthState.LoggedIn -> {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    goOut = true
+                                )
+                            }
+                        }
                     }
                 }
 
-                is LoginEvent.OnPasswordChanged -> _state.update {
-                    it.copy(
-                        passwordInput = newEvent.password
-                    )
+                is LoginEvent.OnPasswordChanged -> {
+                    _state.update {
+                        it.copy(
+                            passwordInput = newEvent.password
+                        )
+                    }
+                    _state.update {
+                        it.copy(
+                            enabledButton = checkEnabledButton()
+                        )
+                    }
                 }
             }
+        }
+    }
+
+    private fun checkEnabledButton(): Boolean {
+        return with(_state.value) {
+            emailInput.isValidEmail &&
+                    passwordInput.isValidPassword
         }
     }
 }

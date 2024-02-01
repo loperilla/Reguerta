@@ -1,5 +1,6 @@
 package com.reguerta.presentation.composables
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
@@ -23,13 +24,16 @@ import com.reguerta.presentation.ui.PrimaryColor
 fun ReguertaButton(
     textButton: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    enabledButton: Boolean = true
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
+        enabled = enabledButton,
         colors = ButtonDefaults.buttonColors(
-            containerColor = PrimaryColor
+            containerColor = PrimaryColor,
+            disabledContainerColor = Color.Gray.copy(alpha = 0.15f)
         )
     ) {
         TextRegular(
@@ -46,10 +50,19 @@ fun ReguertaButton(
 @Composable
 fun ReguertaButtonPreview() {
     Screen {
-        Column {
+        Column(
+            modifier = Modifier
+                .padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             ReguertaButton(
                 textButton = "Button",
                 onClick = {}
+            )
+            ReguertaButton(
+                textButton = "Button",
+                onClick = {},
+                enabledButton = false
             )
         }
     }
