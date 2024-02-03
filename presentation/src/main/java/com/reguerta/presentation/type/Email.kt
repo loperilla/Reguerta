@@ -1,6 +1,6 @@
 package com.reguerta.presentation.type
 
-import android.util.Patterns
+import androidx.core.util.PatternsCompat
 
 
 /*****
@@ -13,4 +13,4 @@ import android.util.Patterns
 typealias Email = String
 
 val Email.isValidEmail: Boolean
-    get() = this.isNotEmpty() && Patterns.EMAIL_ADDRESS.matcher(this).matches()
+    get() = this.isNotEmpty() && PatternsCompat.EMAIL_ADDRESS.matcher(this).matches()

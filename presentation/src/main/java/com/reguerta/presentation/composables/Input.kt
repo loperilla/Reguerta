@@ -1,5 +1,6 @@
 package com.reguerta.presentation.composables
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,8 +12,8 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -29,6 +30,8 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.reguerta.presentation.composables.input.PlaceholderTransformation
+import com.reguerta.presentation.composables.input.UiError
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.cabinsketchFontFamily
 
@@ -45,13 +48,17 @@ fun ReguertaEmailInput(
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholderText: String = "",
+    isValidEmail: Boolean = true,
+    labelText: String = "Email",
     imeAction: ImeAction = ImeAction.Default
 ) {
     ReguertaInput(
         text = text,
+        labelText = labelText,
         onTextChange = onTextChange,
         placeholderText = placeholderText,
         keyboardType = KeyboardType.Email,
+        uiError = UiError("Email no válido", isValidEmail),
         imeAction = imeAction,
         modifier = modifier
     )
@@ -63,15 +70,19 @@ fun ReguertaPasswordInput(
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
     placeholderText: String = "",
+    isValidPassword: Boolean = true,
+    labelText: String = "Contraseña",
     imeAction: ImeAction = ImeAction.Default
 ) {
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
     ReguertaInput(
         text = text,
+        labelText = labelText,
         onTextChange = onTextChange,
         placeholderText = placeholderText,
         keyboardType = KeyboardType.Password,
+        uiError = UiError("Ingrese una contraseña válida (6-16 caracteres)", isValidPassword),
         imeAction = imeAction,
         trailingIcon = {
             val endIcon = if (isPasswordVisible) {
@@ -97,19 +108,24 @@ fun ReguertaPasswordInput(
 @Composable
 private fun ReguertaInput(
     text: String,
+    labelText: String,
     onTextChange: (String) -> Unit,
     modifier: Modifier = Modifier,
+    uiError: UiError = UiError(),
     placeholderText: String = "",
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Default,
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
+    val textColor = if (text.isEmpty()) {
+        Text.copy(alpha = 0.7f)
+    } else {
+        Text
+    }
     val colors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = Text,
-        unfocusedTextColor = Text.copy(
-            alpha = 0.7f
-        ),
+        focusedTextColor = textColor,
+        unfocusedTextColor = textColor,
         focusedBorderColor = Text,
         unfocusedBorderColor = Text.copy(
             alpha = 0.7f
@@ -119,35 +135,51 @@ private fun ReguertaInput(
         errorPlaceholderColor = Text,
         unfocusedPlaceholderColor = Text.copy(
             alpha = 0.7f
-        ),
-        focusedContainerColor = Color.White,
-        unfocusedContainerColor = Color.White,
-        disabledContainerColor = Color.White,
-        errorContainerColor = Color.White
+        )
     )
-    OutlinedTextField(
-        value = text,
-        onValueChange = onTextChange,
-        colors = colors,
-        trailingIcon = trailingIcon,
-        textStyle = TextStyle(
-            fontFamily = cabinsketchFontFamily,
-            fontWeight = FontWeight.Normal,
-            fontSize = 18.sp
-        ),
-        visualTransformation = visualTransformation,
-        placeholder = {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        TextField(
+            value = text,
+            onValueChange = onTextChange,
+            colors = colors,
+            isError = text.isNotEmpty() && !uiError.isVisible,
+            singleLine = true,
+            trailingIcon = trailingIcon,
+            label = {
+                TextBody(
+                    text = labelText,
+                    textSize = 12.sp
+                )
+            },
+            textStyle = TextStyle(
+                fontFamily = cabinsketchFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 18.sp
+            ),
+            visualTransformation = if (text.isEmpty()) {
+                PlaceholderTransformation(placeholderText)
+            } else {
+                visualTransformation
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = keyboardType,
+                imeAction = imeAction
+            ),
+            modifier = modifier
+        )
+
+        if (text.isNotEmpty() && !uiError.isVisible) {
             TextBody(
-                placeholderText,
-                textSize = 14.sp
+                text = uiError.message,
+                textSize = 12.sp,
+                textColor = Color.Red,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
             )
-        },
-        keyboardOptions = KeyboardOptions(
-            keyboardType = keyboardType,
-            imeAction = imeAction
-        ),
-        modifier = modifier
-    )
+        }
+    }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
@@ -161,6 +193,7 @@ fun ReguertaInputPreview() {
             ReguertaEmailInput(
                 text = "Manuel Lopera",
                 onTextChange = {},
+                isValidEmail = false,
                 modifier = Modifier
                     .fillMaxWidth()
             )
@@ -172,7 +205,7 @@ fun ReguertaInputPreview() {
 
             ReguertaPasswordInput(
                 text = "",
-                placeholderText = "Manuel Lopera",
+                placeholderText = "Contraseña",
                 onTextChange = {},
                 modifier = Modifier
                     .fillMaxWidth()

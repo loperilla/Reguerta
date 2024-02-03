@@ -1,8 +1,10 @@
 [versions]
 agp = "8.2.2"
+android-junit5 = "1.10.0.0"
 androidx-activity = "1.8.2"
 androidx-constraintlayout = "1.0.1"
 androidx-lifecycle = "2.7.0"
+androidx-navigation = "2.7.6"
 androidx-test-espresso = "3.5.1"
 androidx-test-ext = "1.1.5"
 appcompat = "1.6.1"
@@ -11,26 +13,27 @@ compose-compiler = "1.5.8"
 core-ktx = "1.12.0"
 hilt-version = "2.50"
 junit = "4.13.2"
-ksp = "1.9.22-1.0.17"
-material = "1.11.0"
 jupiter-junit = "5.10.1"
 kotlinx-coroutines-test = "1.7.3"
-android-junit5 = "1.10.0.0"
+ksp = "1.9.22-1.0.17"
+material = "1.11.0"
 runner = "1.5.2"
 
 [libraries]
 #Compose
 activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity" }
 androidx-activity = { module = "androidx.activity:activity", version.ref = "androidx-activity" }
+androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
+assertk = "com.willowtreeapps.assertk:assertk:0.28.0"
 build-gradle = "com.android.tools.build:gradle:8.2.2"
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 compose-bom = "androidx.compose:compose-bom:2024.01.00"
 compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
 compose-constraints = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "androidx-constraintlayout" }
 compose-material3 = "androidx.compose.material3:material3:1.1.2"
-compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.5.4"
-compose-navigation = "androidx.navigation:navigation-compose:2.7.6"
+compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.6.0"
+compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 compose-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-graphics = { module = "androidx.compose.ui:ui-graphics" }
@@ -52,32 +55,29 @@ firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx" }
 firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
 google-services = "com.google.gms:google-services:4.4.0"
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt-version" }
+hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt-version" }
+hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt-version" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt-version" }
 #Hilt
 hilt-gradle = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt-version" }
 hilt-navigation = "androidx.hilt:hilt-navigation-compose:1.1.0"
-navigation-testing = "androidx.navigation:navigation-testing:2.7.6"
 junit = { module = "junit:junit", version.ref = "junit" }
-junit-junit = { module = "junit:junit", version.ref = "junit" }
+jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jupiter-junit" }
+jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "jupiter-junit" }
+jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "jupiter-junit" }
 kotlin-gradle = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
+kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
 lifecycle-compose-runtime = { module = "androidx.lifecycle:lifecycle-runtime-compose" }
 lifecycle-compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose" }
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
+mockk = "io.mockk:mockk:1.13.9"
+navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "androidx-navigation" }
 splashscreen = "androidx.core:core-splashscreen:1.0.1"
 test-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-test-espresso" }
 test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-ext" }
 timber = "com.jakewharton.timber:timber:5.0.1"
 turbine = "app.cash.turbine:turbine:1.0.0"
-mockk = "io.mockk:mockk:1.13.9"
-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jupiter-junit" }
-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "jupiter-junit" }
-jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "jupiter-junit" }
-kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
-assertk = "com.willowtreeapps.assertk:assertk:0.28.0"
-hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt-version" }
-hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt-version" }
-androidx-runner = { group = "androidx.test", name = "runner", version.ref = "runner" }
 
 [bundles]
 compose = [
@@ -107,8 +107,8 @@ jupiter = [
 ]
 
 [plugins]
-androidJUnit5 = { id = "de.mannodermaus.android-junit5", version.ref = "android-junit5" }
 androidApplication = { id = "com.android.application", version.ref = "agp" }
+androidJUnit5 = { id = "de.mannodermaus.android-junit5", version.ref = "android-junit5" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 ben-manes-versions = "com.github.ben-manes.versions:0.51.0"
 kotlin-android = "org.jetbrains.kotlin.android:1.9.22"

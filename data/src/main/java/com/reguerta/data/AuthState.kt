@@ -8,7 +8,5 @@ package com.reguerta.data
  */
 sealed class AuthState {
     data object LoggedIn : AuthState()
-
     data class Error(val message: String) : AuthState()
-
 }

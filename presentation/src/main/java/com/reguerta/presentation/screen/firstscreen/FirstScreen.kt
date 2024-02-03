@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import com.reguerta.presentation.R
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.Screen
-import com.reguerta.presentation.composables.TextRegular
+import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
@@ -78,7 +78,8 @@ fun firstScreen(
                 textButton = "Entrar a la app",
                 onClick = { navigateTo(Routes.AUTH.LOGIN.route) },
                 modifier = Modifier
-                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth()
+                    .padding(horizontal = 32.dp)
             )
 
             Spacer(
@@ -139,12 +140,12 @@ private fun FirstScreenTextBottom(
             .wrapContentHeight()
             .fillMaxWidth()
     ) {
-        TextRegular(
+        TextBody(
             "¿No tienes cuenta?",
             textSize = 14.sp,
             textColor = Text,
         )
-        TextRegular(
+        TextBody(
             "Registrate",
             textSize = 14.sp,
             textColor = PrimaryColor,

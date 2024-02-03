@@ -73,6 +73,7 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    testImplementation(project(":testUtils"))
     ksp(libs.hilt.compiler)
 
     //Firebase

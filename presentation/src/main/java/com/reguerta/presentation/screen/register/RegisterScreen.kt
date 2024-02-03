@@ -2,7 +2,10 @@ package com.reguerta.presentation.screen.register
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -27,6 +30,8 @@ import com.reguerta.presentation.composables.ReguertaEmailInput
 import com.reguerta.presentation.composables.ReguertaPasswordInput
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextTitle
+import com.reguerta.presentation.type.isValidEmail
+import com.reguerta.presentation.type.isValidPassword
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 
@@ -103,31 +108,42 @@ private fun RegisterScreen(
                 onTextChange = { newInputValue ->
                     newEvent(RegisterEvent.OnEmailChanged(newInputValue))
                 },
-                placeholderText = "Escribe tu email",
+                placeholderText = "Pulsa para escribir",
+                isValidEmail = state.emailInput.isValidEmail,
                 imeAction = ImeAction.Next,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(8.dp)
             )
             ReguertaPasswordInput(
                 text = state.passwordInput,
                 onTextChange = { newInputValue ->
-                    newEvent(RegisterEvent.OnPasswordChanged(newInputValue))
+                    if (newInputValue.length >= 6) {
+                        newEvent(RegisterEvent.OnPasswordChanged(newInputValue))
+                    }
                 },
-                placeholderText = "Escribe tu contraseña",
+                placeholderText = "Pulsa para escribir",
+                isValidPassword = state.passwordInput.isValidPassword,
                 imeAction = ImeAction.Next,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(8.dp)
             )
             ReguertaPasswordInput(
                 text = state.repeatPasswordInput,
                 onTextChange = { newInputValue ->
-                    newEvent(RegisterEvent.OnRepeatPasswordChanged(newInputValue))
+                    if (newInputValue.length >= 6) {
+                        newEvent(RegisterEvent.OnRepeatPasswordChanged(newInputValue))
+                    }
                 },
-                placeholderText = "Repite tu contraseña",
+                placeholderText = "Pulsa para escribir",
+                isValidPassword = state.repeatPasswordInput.isValidPassword,
                 imeAction = ImeAction.Done,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(8.dp)
             )
+            Spacer(modifier = Modifier.height(8.dp))
             ReguertaButton(
                 textButton = "Registrarse",
                 enabledButton = state.enabledButton,
@@ -136,7 +152,8 @@ private fun RegisterScreen(
                     keyboardController?.hide()
                 },
                 modifier = Modifier
-                    .padding(8.dp)
+                    .fillMaxWidth()
+                    .padding(24.dp)
             )
         }
     }

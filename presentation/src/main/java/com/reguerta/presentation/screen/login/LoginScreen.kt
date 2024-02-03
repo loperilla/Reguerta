@@ -3,6 +3,7 @@ package com.reguerta.presentation.screen.login
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -26,6 +27,8 @@ import com.reguerta.presentation.composables.ReguertaEmailInput
 import com.reguerta.presentation.composables.ReguertaPasswordInput
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextTitle
+import com.reguerta.presentation.type.isValidEmail
+import com.reguerta.presentation.type.isValidPassword
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 
@@ -102,29 +105,36 @@ private fun LoginScreen(
                 onTextChange = { newInputValue ->
                     newEvent(LoginEvent.OnEmailChanged(newInputValue))
                 },
-                placeholderText = "Email",
+                placeholderText = "Pulsa para escribir",
                 imeAction = ImeAction.Next,
+                isValidEmail = state.emailInput.isValidEmail,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(8.dp)
             )
             ReguertaPasswordInput(
                 text = state.passwordInput,
                 onTextChange = { newInputValue ->
-                    newEvent(LoginEvent.OnPasswordChanged(newInputValue))
+                    if (newInputValue.length >= 6) {
+                        newEvent(LoginEvent.OnPasswordChanged(newInputValue))
+                    }
                 },
-                placeholderText = "Password",
+                placeholderText = "Pulsa para escribir",
                 imeAction = ImeAction.Done,
+                isValidPassword = state.passwordInput.isValidPassword,
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(8.dp)
             )
 
             ReguertaButton(
-                textButton = "Login",
+                textButton = "Iniciar sesión",
                 enabledButton = state.enabledButton,
                 onClick = {
                     newEvent(LoginEvent.OnLoginClick)
                 },
                 modifier = Modifier
+                    .fillMaxWidth()
                     .padding(8.dp)
             )
         }
