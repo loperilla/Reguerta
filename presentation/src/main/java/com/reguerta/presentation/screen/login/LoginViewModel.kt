@@ -86,6 +86,15 @@ class LoginViewModel @Inject constructor(
                         )
                     }
                 }
+
+                LoginEvent.SnackbarHide -> {
+                    _state.update {
+                        it.copy(
+                            errorMessage = "",
+                            enabledButton = false
+                        )
+                    }
+                }
             }
         }
     }

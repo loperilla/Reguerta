@@ -55,6 +55,12 @@ class RegisterViewModel @Inject constructor(
                             enabledButton = false
                         )
                     }
+
+                    RegisterEvent.SnackbarHide -> {
+                        it.copy(
+                            errorMessage = ""
+                        )
+                    }
                 }
             }
             if (event !is RegisterEvent.OnRegisterClick) {

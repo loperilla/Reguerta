@@ -11,4 +11,5 @@ sealed class RegisterEvent {
     data class OnPasswordChanged(val password: String) : RegisterEvent()
     data class OnRepeatPasswordChanged(val repeatPassword: String) : RegisterEvent()
     data object OnRegisterClick : RegisterEvent()
+    data object SnackbarHide : RegisterEvent()
 }

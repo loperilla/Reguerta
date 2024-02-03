@@ -12,10 +12,16 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -67,6 +73,20 @@ private fun LoginScreen(
     newEvent: (LoginEvent) -> Unit,
     navigateTo: (String) -> Unit
 ) {
+    val keyboardController = LocalSoftwareKeyboardController.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    if (state.errorMessage.isNotEmpty()) {
+        LaunchedEffect(state.errorMessage.isNotEmpty()) {
+            val snackbarResult = snackbarHostState.showSnackbar(
+                message = state.errorMessage
+            )
+
+            when (snackbarResult) {
+                SnackbarResult.Dismissed -> newEvent(LoginEvent.SnackbarHide)
+                SnackbarResult.ActionPerformed -> {}
+            }
+        }
+    }
     Scaffold(
         topBar = {
             MediumTopAppBar(
@@ -90,7 +110,8 @@ private fun LoginScreen(
                     }
                 }
             )
-        }
+        },
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -115,7 +136,7 @@ private fun LoginScreen(
             ReguertaPasswordInput(
                 text = state.passwordInput,
                 onTextChange = { newInputValue ->
-                    if (newInputValue.length >= 6) {
+                    if (newInputValue.length <= 16) {
                         newEvent(LoginEvent.OnPasswordChanged(newInputValue))
                     }
                 },
@@ -132,6 +153,7 @@ private fun LoginScreen(
                 enabledButton = state.enabledButton,
                 onClick = {
                     newEvent(LoginEvent.OnLoginClick)
+                    keyboardController?.hide()
                 },
                 modifier = Modifier
                     .fillMaxWidth()

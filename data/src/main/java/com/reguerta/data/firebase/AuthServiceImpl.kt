@@ -1,5 +1,6 @@
 package com.reguerta.data.firebase
 
+import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.reguerta.data.AuthState
 import com.reguerta.localdata.datastore.ReguertaDataStore
@@ -32,6 +33,7 @@ class AuthServiceImpl(
             dataStore.saveUID(currentUser?.uid.orEmpty())
             AuthState.LoggedIn
         } catch (ex: Exception) {
+            Log.e("AuthService", ex.message.orEmpty())
             AuthState.Error(ex.message ?: "Error")
         }
     }
