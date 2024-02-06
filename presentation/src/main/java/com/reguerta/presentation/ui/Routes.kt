@@ -13,5 +13,12 @@ sealed class Routes(val route: String) {
         data object REGISTER : Routes("Register")
     }
 
-    data object HOME : Routes("HomeScreen")
+    data object HOME : Routes("HomeScreen") {
+        data object ROOT : Routes("Home")
+        data object ORDER_RECEIVED : Routes("OrderReceived")
+        data object ORDERS : Routes("Orders")
+        data object PRODUCTS : Routes("Products")
+        data object USERS : Routes("Users")
+        data object SETTINGS : Routes("Settings")
+    }
 }

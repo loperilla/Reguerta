@@ -1,5 +1,6 @@
 package com.reguerta.presentation.composables
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -12,6 +13,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reguerta.presentation.ui.PrimaryColor
+import com.reguerta.presentation.ui.SecondaryBackground
+import com.reguerta.presentation.ui.Text
 
 /*****
  * Project: Reguerta
@@ -46,6 +49,32 @@ fun ReguertaButton(
     }
 }
 
+@Composable
+fun InverseReguertaButton(
+    textButton: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabledButton: Boolean = true
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        border = BorderStroke(2.dp, PrimaryColor),
+        enabled = enabledButton,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = SecondaryBackground
+        )
+    ) {
+        TextBody(
+            text = textButton,
+            textSize = 16.sp,
+            textColor = Text,
+            modifier = Modifier
+                .padding(8.dp)
+        )
+    }
+}
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ReguertaButtonPreview() {
@@ -60,6 +89,15 @@ fun ReguertaButtonPreview() {
                 onClick = {}
             )
             ReguertaButton(
+                textButton = "Button",
+                onClick = {},
+                enabledButton = false
+            )
+            InverseReguertaButton(
+                textButton = "Button",
+                onClick = {}
+            )
+            InverseReguertaButton(
                 textButton = "Button",
                 onClick = {},
                 enabledButton = false

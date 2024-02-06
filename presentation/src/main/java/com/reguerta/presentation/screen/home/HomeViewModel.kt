@@ -32,7 +32,30 @@ class HomeViewModel @Inject constructor(
                     authService.signOut()
                     _state.update {
                         it.copy(
-                            goOut = true
+                            goOut = true,
+                            showAreYouSure = false
+                        )
+                    }
+                }
+
+                HomeEvent.GoHome -> {}
+                HomeEvent.GoOrderReceived -> {}
+                HomeEvent.GoOrders -> {}
+                HomeEvent.GoProducts -> {}
+                HomeEvent.GoSettings -> {}
+                HomeEvent.GoUsers -> {}
+                HomeEvent.HideDialog -> {
+                    _state.update {
+                        it.copy(
+                            showAreYouSure = false
+                        )
+                    }
+                }
+
+                HomeEvent.ShowDialog -> {
+                    _state.update {
+                        it.copy(
+                            showAreYouSure = true
                         )
                     }
                 }

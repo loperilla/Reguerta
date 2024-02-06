@@ -8,4 +8,12 @@ package com.reguerta.presentation.screen.home
  */
 sealed class HomeEvent {
     data object GoOut : HomeEvent()
+    data object GoHome : HomeEvent()
+    data object GoOrders : HomeEvent()
+    data object GoOrderReceived : HomeEvent()
+    data object GoProducts : HomeEvent()
+    data object GoUsers : HomeEvent()
+    data object GoSettings : HomeEvent()
+    data object ShowDialog : HomeEvent()
+    data object HideDialog : HomeEvent()
 }

@@ -7,5 +7,6 @@ package com.reguerta.presentation.screen.home
  * All rights reserved 2024
  */
 data class HomeState(
-    val goOut: Boolean = false
+    val goOut: Boolean = false,
+    val showAreYouSure: Boolean = false
 )

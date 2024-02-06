@@ -47,10 +47,11 @@ fun MainNavigation(
                     }
                 }
             }
-            composable(Routes.HOME.route) {
-                homeScreen {
-                    navController
-                        .navigate(it)
+            navigation(startDestination = Routes.HOME.ROOT.route, route = Routes.HOME.route) {
+                composable(Routes.HOME.ROOT.route) {
+                    homeScreen {
+                        navController.navigate(it)
+                    }
                 }
             }
         }
