@@ -1,5 +1,6 @@
 package com.reguerta.presentation
 
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -10,7 +11,11 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.screen.firstscreen.firstScreen
 import com.reguerta.presentation.screen.home.homeScreen
 import com.reguerta.presentation.screen.login.loginScreen
+import com.reguerta.presentation.screen.orders.ordersScreen
+import com.reguerta.presentation.screen.received_orders.receivedOrdersScreen
 import com.reguerta.presentation.screen.register.registerScreen
+import com.reguerta.presentation.screen.settings.settingsScreen
+import com.reguerta.presentation.screen.users.usersScreen
 import com.reguerta.presentation.ui.Routes
 
 /*****
@@ -52,6 +57,29 @@ fun MainNavigation(
                     homeScreen {
                         navController.navigate(it)
                     }
+                }
+                composable(Routes.HOME.ORDERS.route) {
+                    ordersScreen {
+                        navController.navigate(it)
+                    }
+                }
+                composable(Routes.HOME.ORDER_RECEIVED.route) {
+                    receivedOrdersScreen {
+                        navController.navigate(it)
+                    }
+                }
+                composable(Routes.HOME.SETTINGS.route) {
+                    settingsScreen {
+                        navController.navigate(it)
+                    }
+                }
+                composable(Routes.HOME.USERS.route) {
+                    usersScreen {
+                        navController.navigate(it)
+                    }
+                }
+                composable(Routes.HOME.PRODUCTS.route) {
+                    Text("Products")
                 }
             }
         }

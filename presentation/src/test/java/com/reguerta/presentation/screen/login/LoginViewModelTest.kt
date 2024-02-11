@@ -7,7 +7,7 @@ import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
 import com.reguerta.data.AuthState
-import com.reguerta.data.firebase.AuthService
+import com.reguerta.data.firebase.auth.AuthService
 import com.reguerta.presentation.badEmail
 import com.reguerta.presentation.badPassword
 import com.reguerta.presentation.goodEmail

@@ -2,7 +2,7 @@ package com.reguerta.presentation.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reguerta.data.firebase.AuthService
+import com.reguerta.data.firebase.auth.AuthService
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,13 +37,6 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                 }
-
-                HomeEvent.GoHome -> {}
-                HomeEvent.GoOrderReceived -> {}
-                HomeEvent.GoOrders -> {}
-                HomeEvent.GoProducts -> {}
-                HomeEvent.GoSettings -> {}
-                HomeEvent.GoUsers -> {}
                 HomeEvent.HideDialog -> {
                     _state.update {
                         it.copy(

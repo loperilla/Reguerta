@@ -1,0 +1,29 @@
+package com.reguerta.presentation.model
+
+import com.reguerta.data.firebase.firestore.users.UserModel
+
+/*****
+ * Project: Reguerta
+ * From: com.reguerta.presentation.model
+ * Created By Manuel Lopera on 8/2/24 at 17:01
+ * All rights reserved 2024
+ */
+data class User(
+    val id: String,
+    val email: String,
+    val companyName: String,
+    val isAdmin: Boolean,
+    val isProducer: Boolean,
+    val name: String,
+    val surname: String
+)
+
+fun UserModel.toDomain() = User(
+    id = id.orEmpty(),
+    email = email.orEmpty(),
+    companyName = companyName.orEmpty(),
+    isAdmin = isAdmin,
+    isProducer = isProducer,
+    name = name.orEmpty(),
+    surname = surname.orEmpty()
+)

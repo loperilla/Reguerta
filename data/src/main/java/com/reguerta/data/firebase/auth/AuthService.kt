@@ -1,4 +1,4 @@
-package com.reguerta.data.firebase
+package com.reguerta.data.firebase.auth
 
 import com.reguerta.data.AuthState
 

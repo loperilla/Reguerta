@@ -40,5 +40,16 @@ class MainActivityTest : ReguertaAndroidTest() {
     fun firstScreenIsDisplayed() {
         FirstScreenRobot(composeRule)
             .assertIsDisplayed()
+
+        navController.assertCurrentRouteName(Routes.AUTH.LOGIN.route)
+    }
+
+    @Test
+    fun loginScreenIsDisplayed() {
+        FirstScreenRobot(composeRule)
+            .assertIsDisplayed()
+            .navigateToLogin()
+
+        navController.assertCurrentRouteName(Routes.AUTH.LOGIN.route)
     }
 }

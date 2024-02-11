@@ -2,6 +2,7 @@ package com.reguerta.user.robots
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.reguerta.user.ReguertaComposeRule
 
 /*****
@@ -13,11 +14,18 @@ import com.reguerta.user.ReguertaComposeRule
 class FirstScreenRobot(
     private val composeRule: ReguertaComposeRule
 ) {
-
     fun assertIsDisplayed(): FirstScreenRobot {
         composeRule
             .onNodeWithText("La RegÜerta")
             .assertIsDisplayed()
+
+        return this
+    }
+
+    fun navigateToLogin(): FirstScreenRobot {
+        composeRule
+            .onNodeWithText("Iniciar Sesión")
+            .performClick()
 
         return this
     }

@@ -2,14 +2,21 @@ package com.reguerta.data.di
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.reguerta.data.firebase.AuthService
-import com.reguerta.data.firebase.AuthServiceImpl
+import com.reguerta.data.firebase.auth.AuthService
+import com.reguerta.data.firebase.auth.AuthServiceImpl
+import com.reguerta.data.firebase.firestore.USERS
+import com.reguerta.data.firebase.firestore.users.UserCollectionImpl
+import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
+import javax.inject.Named
 import javax.inject.Singleton
 
 /*****
@@ -29,4 +36,19 @@ object DataModule {
     @Provides
     fun provideAuthService(firebaseAuth: FirebaseAuth, dataStore: ReguertaDataStore): AuthService =
         AuthServiceImpl(firebaseAuth, dataStore)
+
+    @Singleton
+    @Provides
+    fun provideFirestore(): FirebaseFirestore = Firebase.firestore
+
+    @Named("usersCollection")
+    @Singleton
+    @Provides
+    fun provideUsersCollection(firestore: FirebaseFirestore) = firestore.collection(USERS)
+
+    @Singleton
+    @Provides
+    fun provideUserCollectionService(
+        @Named("usersCollection") collection: CollectionReference
+    ): UsersCollectionService = UserCollectionImpl(collection)
 }

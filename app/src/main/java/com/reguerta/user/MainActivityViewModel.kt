@@ -3,7 +3,7 @@ package com.reguerta.user
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.data.AuthState
-import com.reguerta.data.firebase.AuthService
+import com.reguerta.data.firebase.auth.AuthService
 import com.reguerta.presentation.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers

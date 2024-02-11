@@ -97,7 +97,7 @@ private fun HomeScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DrawerContent(onEvent)
+            DrawerContent(onEvent, navigateTo)
         }
     ) {
         Scaffold(
@@ -190,7 +190,7 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
 }
 
 @Composable
-fun DrawerContent(onEvent: (HomeEvent) -> Unit) {
+fun DrawerContent(onEvent: (HomeEvent) -> Unit, navigateTo: (String) -> Unit) {
     ModalDrawerSheet {
         Spacer(modifier = Modifier.height(16.dp))
         Image(
@@ -200,7 +200,7 @@ fun DrawerContent(onEvent: (HomeEvent) -> Unit) {
                 .align(Alignment.CenterHorizontally)
         )
         Spacer(modifier = Modifier.height(8.dp))
-        prepareNavigationDrawerList(onEvent).forEach { info ->
+        prepareNavigationDrawerList(onEvent, navigateTo).forEach { info ->
             NavigationDrawerItem(
                 icon = {
                     Icon(
@@ -229,48 +229,51 @@ fun DrawerContent(onEvent: (HomeEvent) -> Unit) {
     }
 }
 
-private fun prepareNavigationDrawerList(onEvent: (HomeEvent) -> Unit): List<NavigationDrawerInfo> {
+private fun prepareNavigationDrawerList(
+    onEvent: (HomeEvent) -> Unit,
+    navigateTo: (String) -> Unit
+): List<NavigationDrawerInfo> {
     return listOf(
         NavigationDrawerInfo(
             title = "Home",
             icon = Icons.Outlined.Home,
             onClick = {
-                onEvent(HomeEvent.GoHome)
+                navigateTo(Routes.HOME.ROOT.route)
             }
         ),
         NavigationDrawerInfo(
             title = "Pedidos",
             icon = Icons.AutoMirrored.Filled.Toc,
             onClick = {
-                onEvent(HomeEvent.GoOrders)
+                navigateTo(Routes.HOME.ORDERS.route)
             }
         ),
         NavigationDrawerInfo(
             title = "Pedidos recibidos",
             icon = Icons.Outlined.Inventory,
             onClick = {
-                onEvent(HomeEvent.GoOrderReceived)
+                navigateTo(Routes.HOME.ORDER_RECEIVED.route)
             }
         ),
         NavigationDrawerInfo(
             title = "Productos",
             icon = Icons.Outlined.Inventory2,
             onClick = {
-                onEvent(HomeEvent.GoProducts)
+                navigateTo(Routes.HOME.PRODUCTS.route)
             }
         ),
         NavigationDrawerInfo(
             title = "Usuarios",
             icon = Icons.Outlined.AccountCircle,
             onClick = {
-                onEvent(HomeEvent.GoUsers)
+                navigateTo(Routes.HOME.USERS.route)
             }
         ),
         NavigationDrawerInfo(
             title = "Ajustes",
             icon = Icons.Outlined.Settings,
             onClick = {
-                onEvent(HomeEvent.GoSettings)
+                navigateTo(Routes.HOME.SETTINGS.route)
             }
         ),
         NavigationDrawerInfo(
