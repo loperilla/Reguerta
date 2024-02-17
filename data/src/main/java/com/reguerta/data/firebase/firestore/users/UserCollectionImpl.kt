@@ -5,6 +5,7 @@ import com.reguerta.data.firebase.firestore.CollectionResult
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 /*****
@@ -35,13 +36,43 @@ class UserCollectionImpl @Inject constructor(
                 }
                 trySend(CollectionResult.Success(userList))
             }
-            if (snapshot != null) {
-                val userList = snapshot.toObjects(UserModel::class.java)
-                trySend(CollectionResult.Success(userList)).isSuccess
-            }
         }
         awaitClose {
             subscription.remove()
         }
+    }
+
+    override suspend fun getUser(id: String): CollectionResult<UserModel> {
+        val document = collection.document(id).get().await()
+        return try {
+            CollectionResult.Success(document.toObject(UserModel::class.java)!!)
+        } catch (ex: Exception) {
+            CollectionResult.Failure(Exception("User not found"))
+        }
+    }
+
+    override suspend fun toggleAdmin(id: String, newValue: Boolean) {
+        collection
+            .document(id)
+            .update("isAdmin", newValue)
+            .await()
+    }
+
+    override suspend fun toggleProducer(id: String, newValue: Boolean) {
+        collection
+            .document(id)
+            .update("isProducer", newValue)
+            .await()
+    }
+
+    override suspend fun updateUser(user: UserModel) {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun deleteUser(id: String) {
+        collection
+            .document(id)
+            .delete()
+            .await()
     }
 }

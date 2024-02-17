@@ -9,7 +9,8 @@ import com.reguerta.presentation.model.User
  * All rights reserved 2024
  */
 data class UserScreenState(
-    val isLoading: Boolean = false,
+    val isLoading: Boolean = true,
     val goOut: Boolean = false,
+    val userToEdit: String = "",
     val userList: List<User> = emptyList()
 )

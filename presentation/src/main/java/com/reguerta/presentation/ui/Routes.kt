@@ -18,7 +18,14 @@ sealed class Routes(val route: String) {
         data object ORDERS : Routes("Orders")
         data object ORDER_RECEIVED : Routes("OrderReceived")
         data object PRODUCTS : Routes("Products")
-        data object USERS : Routes("Users")
+        data object USERS : Routes("Users") {
+            data object Add : Routes("Add")
+        }
+
+        data object EDIT_USER : Routes("EditUser/{id}") {
+            fun createRoute(id: String) = "EditUser/$id"
+        }
+
         data object SETTINGS : Routes("Settings")
     }
 }

@@ -4,16 +4,16 @@ android-junit5 = "1.10.0.0"
 androidx-activity = "1.8.2"
 androidx-constraintlayout = "1.0.1"
 androidx-lifecycle = "2.7.0"
-androidx-navigation = "2.7.6"
+androidx-navigation = "2.7.7"
 androidx-test-espresso = "3.5.1"
 androidx-test-ext = "1.1.5"
 appcompat = "1.6.1"
 coil = "2.5.0"
-compose-compiler = "1.5.8"
+compose-compiler = "1.5.9"
 core-ktx = "1.12.0"
 hilt-version = "2.50"
 junit = "4.13.2"
-jupiter-junit = "5.10.1"
+jupiter-junit = "5.10.2"
 kotlinx-coroutines-test = "1.7.3"
 ksp = "1.9.22-1.0.17"
 material = "1.11.0"
@@ -28,11 +28,11 @@ appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat"
 assertk = "com.willowtreeapps.assertk:assertk:0.28.0"
 build-gradle = "com.android.tools.build:gradle:8.2.2"
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-compose-bom = "androidx.compose:compose-bom:2024.01.00"
+compose-bom = "androidx.compose:compose-bom:2024.02.00"
 compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
 compose-constraints = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "androidx-constraintlayout" }
-compose-material3 = "androidx.compose.material3:material3:1.1.2"
-compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.6.0"
+compose-material3 = "androidx.compose.material3:material3:1.2.0"
+compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.6.1"
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 compose-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-ui = { module = "androidx.compose.ui:ui" }
@@ -45,7 +45,7 @@ crashlytics-gradle = "com.google.firebase:firebase-crashlytics-gradle:2.9.9"
 datastore = "androidx.datastore:datastore-preferences:1.0.0"
 firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
 #Firebase
-firebase-bom = "com.google.firebase:firebase-bom:32.7.1"
+firebase-bom = "com.google.firebase:firebase-bom:32.7.2"
 #crashlytics
 #auth
 #firestore
@@ -53,7 +53,7 @@ firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-database = { module = "com.google.firebase:firebase-database-ktx" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx" }
 firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
-google-services = "com.google.gms:google-services:4.4.0"
+google-services = "com.google.gms:google-services:4.4.1"
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt-version" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt-version" }
 hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt-version" }

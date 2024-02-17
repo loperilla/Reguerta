@@ -16,7 +16,9 @@ data class User(
     val isProducer: Boolean,
     val name: String,
     val surname: String
-)
+) {
+    val fullName = this.name + " " + this.surname
+}
 
 fun UserModel.toDomain() = User(
     id = id.orEmpty(),

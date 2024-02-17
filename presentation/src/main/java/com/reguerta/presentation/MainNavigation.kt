@@ -3,10 +3,12 @@ package com.reguerta.presentation
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.screen.firstscreen.firstScreen
 import com.reguerta.presentation.screen.home.homeScreen
@@ -77,6 +79,22 @@ fun MainNavigation(
                     usersScreen {
                         navController.navigate(it)
                     }
+                }
+
+                composable(Routes.HOME.USERS.Add.route) {
+                    Text(text = "Add user")
+                }
+
+                composable(
+                    route = Routes.HOME.EDIT_USER.route,
+                    arguments = listOf(
+                        navArgument("id") {
+                            type = NavType.StringType
+                        }
+                    )
+                ) {
+                    val id = it.arguments?.getString("id").orEmpty()
+                    Text(text = "Edit user: $id")
                 }
                 composable(Routes.HOME.PRODUCTS.route) {
                     Text("Products")

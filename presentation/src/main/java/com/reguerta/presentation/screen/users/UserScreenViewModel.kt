@@ -53,21 +53,38 @@ class UserScreenViewModel @Inject constructor(
                             is CollectionResult.Success -> {
                                 val userDomain = mutableListOf<User>()
                                 result.data.forEach {
-                                    Timber.tag("viewmodel").e(it.toString())
                                     userDomain.add(it.toDomain())
                                 }
-
+                                Timber.tag("viewmodel").e(userDomain.toString())
                                 _state.update {
                                     it.copy(
-                                        userList = userDomain
+                                        userList = userDomain,
+                                        isLoading = false
                                     )
                                 }
                             }
                         }
                     }
                 }
-            }
 
+                is UserScreenEvent.ToggleProducer -> {
+                    val userToggled = _state.value.userList.single { it.id == event.idToggled }
+                    usersCollection.toggleProducer(event.idToggled, !userToggled.isProducer)
+                }
+
+                is UserScreenEvent.ToggleAdmin -> {
+                    val userToggled = _state.value.userList.single { it.id == event.idToggled }
+                    usersCollection.toggleAdmin(event.idToggled, !userToggled.isAdmin)
+                }
+
+                is UserScreenEvent.DeleteUser -> {
+                    usersCollection.deleteUser(event.idToDelete)
+                }
+
+                is UserScreenEvent.EditUser -> {
+
+                }
+            }
         }
     }
 }

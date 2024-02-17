@@ -4,11 +4,19 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,6 +83,31 @@ fun InverseReguertaButton(
     }
 }
 
+@Composable
+fun ReguertaIconButton(
+    iconButton: ImageVector,
+    onClick: () -> Unit,
+    contentColor: Color,
+    modifier: Modifier = Modifier,
+    enabledButton: Boolean = true
+) {
+    FilledIconButton(
+        onClick = onClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        enabled = enabledButton,
+        colors = IconButtonDefaults.filledIconButtonColors(
+            containerColor = contentColor,
+        )
+    ) {
+        Icon(
+            iconButton,
+            contentDescription = null,
+            tint = Color.White
+        )
+    }
+}
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ReguertaButtonPreview() {
@@ -100,6 +133,18 @@ fun ReguertaButtonPreview() {
             InverseReguertaButton(
                 textButton = "Button",
                 onClick = {},
+                enabledButton = false
+            )
+            ReguertaIconButton(
+                iconButton = Icons.Filled.Delete,
+                onClick = {},
+                contentColor = Color.Red,
+                enabledButton = false
+            )
+            ReguertaIconButton(
+                iconButton = Icons.Filled.Edit,
+                onClick = {},
+                contentColor = PrimaryColor,
                 enabledButton = false
             )
         }

@@ -11,4 +11,9 @@ import kotlinx.coroutines.flow.Flow
  */
 interface UsersCollectionService {
     suspend fun getUserList(): Flow<CollectionResult<List<UserModel>>>
+    suspend fun getUser(id: String): CollectionResult<UserModel>
+    suspend fun toggleAdmin(id: String, newValue: Boolean)
+    suspend fun toggleProducer(id: String, newValue: Boolean)
+    suspend fun updateUser(user: UserModel)
+    suspend fun deleteUser(id: String)
 }
