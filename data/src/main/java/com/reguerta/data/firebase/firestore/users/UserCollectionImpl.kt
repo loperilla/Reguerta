@@ -2,6 +2,8 @@ package com.reguerta.data.firebase.firestore.users
 
 import com.google.firebase.firestore.CollectionReference
 import com.reguerta.data.firebase.firestore.CollectionResult
+import com.reguerta.data.firebase.firestore.USER_IS_ADMIN
+import com.reguerta.data.firebase.firestore.USER_IS_PRODUCER
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -54,14 +56,14 @@ class UserCollectionImpl @Inject constructor(
     override suspend fun toggleAdmin(id: String, newValue: Boolean) {
         collection
             .document(id)
-            .update("isAdmin", newValue)
+            .update(USER_IS_ADMIN, newValue)
             .await()
     }
 
     override suspend fun toggleProducer(id: String, newValue: Boolean) {
         collection
             .document(id)
-            .update("isProducer", newValue)
+            .update(USER_IS_PRODUCER, newValue)
             .await()
     }
 
@@ -74,5 +76,16 @@ class UserCollectionImpl @Inject constructor(
             .document(id)
             .delete()
             .await()
+    }
+
+    override suspend fun addUser(user: UserModel): CollectionResult<Unit> {
+        return try {
+            collection
+                .add(user)
+                .await()
+            CollectionResult.Success(Unit)
+        } catch (ex: Exception) {
+            CollectionResult.Failure(ex)
+        }
     }
 }

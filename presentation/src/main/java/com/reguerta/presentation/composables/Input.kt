@@ -2,9 +2,7 @@ package com.reguerta.presentation.composables
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -106,6 +104,27 @@ fun ReguertaPasswordInput(
 }
 
 @Composable
+fun TextReguertaInput(
+    text: String,
+    onTextChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholderText: String = "",
+    labelText: String = "",
+    imeAction: ImeAction = ImeAction.Default
+) {
+    ReguertaInput(
+        text = text,
+        labelText = labelText,
+        uiError = UiError("Este campo no puede estar vacío", text.isNotEmpty()),
+        onTextChange = onTextChange,
+        placeholderText = placeholderText,
+        keyboardType = KeyboardType.Text,
+        imeAction = imeAction,
+        modifier = modifier
+    )
+}
+
+@Composable
 private fun ReguertaInput(
     text: String,
     labelText: String,
@@ -187,6 +206,7 @@ private fun ReguertaInput(
 fun ReguertaInputPreview() {
     Screen {
         Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp),
             modifier = Modifier
                 .padding(8.dp)
         ) {
@@ -198,14 +218,17 @@ fun ReguertaInputPreview() {
                     .fillMaxWidth()
             )
 
-            Spacer(
-                modifier = Modifier
-                    .height(8.dp)
-            )
-
             ReguertaPasswordInput(
                 text = "",
                 placeholderText = "Contraseña",
+                onTextChange = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+
+            TextReguertaInput(
+                text = "Manuel Lopera",
+                labelText = "Nombre",
                 onTextChange = {},
                 modifier = Modifier
                     .fillMaxWidth()

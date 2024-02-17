@@ -10,6 +10,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.reguerta.presentation.composables.Screen
+import com.reguerta.presentation.screen.add_user.addUserScreen
 import com.reguerta.presentation.screen.firstscreen.firstScreen
 import com.reguerta.presentation.screen.home.homeScreen
 import com.reguerta.presentation.screen.login.loginScreen
@@ -75,18 +76,29 @@ fun MainNavigation(
                         navController.navigate(it)
                     }
                 }
-                composable(Routes.HOME.USERS.route) {
+                composable(Routes.HOME.PRODUCTS.route) {
+                    Text("Products")
+                }
+            }
+
+            navigation(startDestination = Routes.USERS.ROOT.route, route = Routes.USERS.route) {
+                composable(Routes.USERS.ROOT.route) {
                     usersScreen {
                         navController.navigate(it)
                     }
                 }
 
-                composable(Routes.HOME.USERS.Add.route) {
-                    Text(text = "Add user")
+                composable(Routes.USERS.ADD.route) {
+                    addUserScreen {
+                        navController.popBackStack(
+                            Routes.USERS.ROOT.route,
+                            inclusive = false
+                        )
+                    }
                 }
 
                 composable(
-                    route = Routes.HOME.EDIT_USER.route,
+                    route = Routes.USERS.EDIT.route,
                     arguments = listOf(
                         navArgument("id") {
                             type = NavType.StringType
@@ -96,10 +108,8 @@ fun MainNavigation(
                     val id = it.arguments?.getString("id").orEmpty()
                     Text(text = "Edit user: $id")
                 }
-                composable(Routes.HOME.PRODUCTS.route) {
-                    Text("Products")
-                }
             }
         }
+
     }
 }

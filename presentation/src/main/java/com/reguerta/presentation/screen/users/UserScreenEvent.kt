@@ -11,6 +11,5 @@ sealed class UserScreenEvent {
     data class ToggleProducer(val idToggled: String) : UserScreenEvent()
     data class ToggleAdmin(val idToggled: String) : UserScreenEvent()
     data class DeleteUser(val idToDelete: String) : UserScreenEvent()
-    data class EditUser(val idToEdit: String) : UserScreenEvent()
     data object GoOut : UserScreenEvent()
 }

@@ -266,7 +266,7 @@ private fun prepareNavigationDrawerList(
             title = "Usuarios",
             icon = Icons.Outlined.AccountCircle,
             onClick = {
-                navigateTo(Routes.HOME.USERS.route)
+                navigateTo(Routes.USERS.route)
             }
         ),
         NavigationDrawerInfo(

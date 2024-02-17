@@ -16,4 +16,5 @@ interface UsersCollectionService {
     suspend fun toggleProducer(id: String, newValue: Boolean)
     suspend fun updateUser(user: UserModel)
     suspend fun deleteUser(id: String)
+    suspend fun addUser(user: UserModel): CollectionResult<Unit>
 }

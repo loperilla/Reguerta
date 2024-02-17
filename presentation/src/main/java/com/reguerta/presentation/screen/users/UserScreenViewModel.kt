@@ -80,10 +80,6 @@ class UserScreenViewModel @Inject constructor(
                 is UserScreenEvent.DeleteUser -> {
                     usersCollection.deleteUser(event.idToDelete)
                 }
-
-                is UserScreenEvent.EditUser -> {
-
-                }
             }
         }
     }

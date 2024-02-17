@@ -67,7 +67,7 @@ fun usersScreen(
         return
     }
     if (state.userToEdit.isNotEmpty()) {
-        navigateTo(Routes.HOME.EDIT_USER.createRoute(state.userToEdit))
+        navigateTo(Routes.USERS.EDIT.createRoute(state.userToEdit))
         return
     }
     Screen {
@@ -119,7 +119,7 @@ fun UserScreen(
             ) {
                 ReguertaButton(
                     "Autorizar nuevo usuario",
-                    onClick = { navigateTo(Routes.HOME.USERS.Add.route) },
+                    onClick = { navigateTo(Routes.USERS.ADD.route) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
@@ -136,7 +136,8 @@ fun UserScreen(
             if (!state.isLoading) {
                 UserListScreen(
                     state.userList,
-                    onEvent
+                    onEvent,
+                    navigateTo
                 )
             }
         }
@@ -147,6 +148,7 @@ fun UserScreen(
 private fun UserListScreen(
     userList: List<User>,
     onEvent: (UserScreenEvent) -> Unit,
+    navigateTo: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -159,7 +161,8 @@ private fun UserListScreen(
         ) {
             UserItem(
                 user = userList[it],
-                onEvent = onEvent
+                onEvent = onEvent,
+                navigateTo
             )
         }
     }
@@ -168,7 +171,8 @@ private fun UserListScreen(
 @Composable
 fun UserItem(
     user: User,
-    onEvent: (UserScreenEvent) -> Unit
+    onEvent: (UserScreenEvent) -> Unit,
+    navigateTo: (String) -> Unit
 ) {
     val colors = CardDefaults.cardColors(
         containerColor = SecondaryBackground
@@ -255,7 +259,7 @@ fun UserItem(
             ReguertaIconButton(
                 iconButton = Icons.Filled.Edit,
                 onClick = {
-                    onEvent(UserScreenEvent.EditUser(user.id))
+                    navigateTo(Routes.USERS.EDIT.createRoute(user.id))
                 },
                 contentColor = PrimaryColor
             )
