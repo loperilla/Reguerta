@@ -6,8 +6,7 @@ import assertk.assertions.isEmpty
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import com.reguerta.data.AuthState
-import com.reguerta.data.firebase.auth.AuthService
+import com.reguerta.domain.usecase.auth.LoginUseCase
 import com.reguerta.presentation.badEmail
 import com.reguerta.presentation.badPassword
 import com.reguerta.presentation.goodEmail
@@ -32,12 +31,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MainCoroutineExtension::class)
 class LoginViewModelTest {
     private lateinit var viewModel: LoginViewModel
-    private lateinit var authService: AuthService
+    private lateinit var loginUseCase: LoginUseCase
 
     @BeforeEach
     fun setUp() {
-        authService = mockk()
-        viewModel = LoginViewModel(authService)
+        loginUseCase = mockk()
+        viewModel = LoginViewModel(loginUseCase)
     }
 
     @AfterEach
@@ -121,8 +120,8 @@ class LoginViewModelTest {
     fun `When user login successfully, then check that go out`() = runTest {
         // GIVEN
         coEvery {
-            authService.logInWithUserPassword(goodEmail, goodPassword)
-        } returns AuthState.LoggedIn
+            loginUseCase(goodEmail, goodPassword)
+        } returns Result.success(true)
         viewModel.state.test {
             // ignored emission
             awaitItem()
@@ -149,8 +148,8 @@ class LoginViewModelTest {
     fun `When user login fail, then check that button is disabled`() = runTest {
         // GIVEN
         coEvery {
-            authService.logInWithUserPassword(goodEmail, goodPassword)
-        } returns AuthState.Error("error")
+            loginUseCase(goodEmail, goodPassword)
+        } returns Result.failure(Exception("error"))
         // ACTION
         viewModel.state.test {
             // ignored emission

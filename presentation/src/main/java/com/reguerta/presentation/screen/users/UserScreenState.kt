@@ -1,6 +1,7 @@
 package com.reguerta.presentation.screen.users
 
-import com.reguerta.presentation.model.User
+import com.reguerta.domain.model.User
+
 
 /*****
  * Project: Reguerta

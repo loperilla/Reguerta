@@ -2,9 +2,8 @@ package com.reguerta.presentation.screen.add_user
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reguerta.data.firebase.firestore.CollectionResult
-import com.reguerta.data.firebase.firestore.users.UserModel
-import com.reguerta.data.firebase.firestore.users.UsersCollectionService
+import com.reguerta.domain.usecase.users.AddUserUseCase
+import com.reguerta.presentation.checkAllStringAreNotEmpty
 import com.reguerta.presentation.type.isValidEmail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,7 +21,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class AddUserViewModel @Inject constructor(
-    private val userCollectionService: UsersCollectionService
+    private val createUserUseCase: AddUserUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<AddUserState> = MutableStateFlow(AddUserState())
     val state: StateFlow<AddUserState> = _state
@@ -31,26 +30,26 @@ class AddUserViewModel @Inject constructor(
         viewModelScope.launch {
             when (event) {
                 AddUserEvent.AddUser -> {
-                    val userModel = UserModel(
-                        name = _state.value.name,
-                        surname = _state.value.surname,
-                        email = _state.value.email,
-                        isAdmin = _state.value.isAdmin,
-                        isProducer = _state.value.isProducer,
-                        companyName = _state.value.companyName
-                    )
-                    when (val result = userCollectionService.addUser(userModel)) {
-                        is CollectionResult.Failure -> {
-                            Timber.tag("AddUserViewModel").e(result.exception)
-
-                        }
-
-                        is CollectionResult.Success -> {
-                            _state.update {
-                                it.copy(goOut = true)
+                    with(_state.value) {
+                        createUserUseCase.invoke(
+                            name = name,
+                            surname = surname,
+                            email = email,
+                            isAdmin = isAdmin,
+                            isProducer = isProducer,
+                            companyName = companyName
+                        ).fold(
+                            onSuccess = {
+                                _state.update {
+                                    it.copy(goOut = true)
+                                }
+                            },
+                            onFailure = {
+                                Timber.tag("AddUserViewModel").e(it)
                             }
-                        }
+                        )
                     }
+
                 }
 
                 is AddUserEvent.CompanyNameInputChanges -> {
@@ -109,7 +108,7 @@ class AddUserViewModel @Inject constructor(
             } else {
                 true
             }
-            return name.isNotEmpty() && surname.isNotEmpty() && email.isValidEmail && companyCheck
+            return checkAllStringAreNotEmpty(name, surname) && email.isValidEmail && companyCheck
         }
     }
 }

@@ -2,8 +2,7 @@ package com.reguerta.presentation.screen.login
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reguerta.data.AuthState
-import com.reguerta.data.firebase.auth.AuthService
+import com.reguerta.domain.usecase.auth.LoginUseCase
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +21,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authService: AuthService
+    private val loginUseCase: LoginUseCase,
 ) : ViewModel() {
     private var _state: MutableStateFlow<LoginState> = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state.asStateFlow()
@@ -49,27 +48,24 @@ class LoginViewModel @Inject constructor(
                             isLoading = true
                         )
                     }
-
-                    when (val result = authService.logInWithUserPassword(
+                    loginUseCase(
                         email = state.value.emailInput,
                         password = state.value.passwordInput
-                    )) {
-                        is AuthState.Error -> {
-                            _state.update {
-                                it.copy(
-                                    isLoading = false,
-                                    errorMessage = result.message
-                                )
-                            }
-                        }
-
-                        AuthState.LoggedIn -> {
+                    ).fold(
+                        onSuccess = {
                             _state.update {
                                 it.copy(
                                     isLoading = false,
                                     goOut = true
                                 )
                             }
+                        }
+                    ) { result ->
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = result.message.orEmpty()
+                            )
                         }
                     }
                 }

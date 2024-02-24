@@ -2,18 +2,18 @@ package com.reguerta.presentation.screen.users
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reguerta.data.firebase.firestore.CollectionResult
-import com.reguerta.data.firebase.firestore.users.UsersCollectionService
-import com.reguerta.presentation.model.User
-import com.reguerta.presentation.model.toDomain
+import com.reguerta.domain.usecase.users.DeleteUsersUseCase
+import com.reguerta.domain.usecase.users.GetAllUsersUseCase
+import com.reguerta.domain.usecase.users.ToggleAdminUseCase
+import com.reguerta.domain.usecase.users.ToggleProducerUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 /*****
@@ -24,7 +24,10 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class UserScreenViewModel @Inject constructor(
-    private val usersCollection: UsersCollectionService
+    private val getAllUsersUseCase: GetAllUsersUseCase,
+    private val deleteUsersUseCase: DeleteUsersUseCase,
+    private val toggleProducerUseCase: ToggleProducerUseCase,
+    private val toggleAdminUseCase: ToggleAdminUseCase
 ) : ViewModel() {
 
     private var _state: MutableStateFlow<UserScreenState> = MutableStateFlow(UserScreenState())
@@ -39,46 +42,38 @@ class UserScreenViewModel @Inject constructor(
                 }
 
                 UserScreenEvent.LoadUsers -> {
-                    usersCollection.getUserList().collectLatest { result ->
-                        when (result) {
-                            is CollectionResult.Failure -> {
-                                result.exception.printStackTrace()
-                                _state.update {
-                                    it.copy(
-                                        isLoading = false
-                                    )
-                                }
-                            }
-
-                            is CollectionResult.Success -> {
-                                val userDomain = mutableListOf<User>()
-                                result.data.forEach {
-                                    userDomain.add(it.toDomain())
-                                }
-                                Timber.tag("viewmodel").e(userDomain.toString())
-                                _state.update {
-                                    it.copy(
-                                        userList = userDomain,
-                                        isLoading = false
-                                    )
-                                }
+                    getAllUsersUseCase()
+                        .catch { exception ->
+                            exception.printStackTrace()
+                            _state.update {
+                                it.copy(
+                                    isLoading = false
+                                )
                             }
                         }
-                    }
+                        .collectLatest { result ->
+                            _state.update {
+                                it.copy(
+                                    userList = result,
+                                    isLoading = false
+                                )
+                            }
+                        }
                 }
+
 
                 is UserScreenEvent.ToggleProducer -> {
                     val userToggled = _state.value.userList.single { it.id == event.idToggled }
-                    usersCollection.toggleProducer(event.idToggled, !userToggled.isProducer)
+                    toggleProducerUseCase.invoke(event.idToggled, !userToggled.isProducer)
                 }
 
                 is UserScreenEvent.ToggleAdmin -> {
                     val userToggled = _state.value.userList.single { it.id == event.idToggled }
-                    usersCollection.toggleAdmin(event.idToggled, !userToggled.isAdmin)
+                    toggleAdminUseCase(event.idToggled, !userToggled.isAdmin)
                 }
 
                 is UserScreenEvent.DeleteUser -> {
-                    usersCollection.deleteUser(event.idToDelete)
+                    deleteUsersUseCase.invoke(event.idToDelete)
                 }
             }
         }

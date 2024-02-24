@@ -5,8 +5,7 @@ import assertk.assertThat
 import assertk.assertions.isEqualTo
 import assertk.assertions.isFalse
 import assertk.assertions.isTrue
-import com.reguerta.data.AuthState
-import com.reguerta.data.firebase.auth.AuthService
+import com.reguerta.domain.usecase.auth.RegisterUseCase
 import com.reguerta.presentation.badEmail
 import com.reguerta.presentation.badPassword
 import com.reguerta.presentation.goodEmail
@@ -31,12 +30,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(MainCoroutineExtension::class)
 class RegisterViewModelTest {
     private lateinit var viewModel: RegisterViewModel
-    private lateinit var authService: AuthService
+    private lateinit var registerUseCase: RegisterUseCase
 
     @BeforeEach
     fun setUp() {
-        authService = mockk()
-        viewModel = RegisterViewModel(authService)
+        registerUseCase = mockk()
+        viewModel = RegisterViewModel(registerUseCase)
     }
 
     @AfterEach
@@ -157,8 +156,8 @@ class RegisterViewModelTest {
     @Test
     fun `When user clicks on register button, then check that register is success`() = runTest {
         coEvery {
-            authService.createUserWithEmailAndPassword(goodEmail, goodPassword)
-        } returns AuthState.LoggedIn
+            registerUseCase(goodEmail, goodPassword)
+        } returns Result.success(true)
         // GIVEN
         viewModel.state.test {
             // ignored emission
@@ -188,8 +187,8 @@ class RegisterViewModelTest {
     @Test
     fun `When user clicks on register button, then check that register is fail`() = runTest {
         coEvery {
-            authService.createUserWithEmailAndPassword(goodEmail, goodPassword)
-        } returns AuthState.Error("error")
+            registerUseCase(goodEmail, goodPassword)
+        } returns Result.failure(Exception("error"))
         // GIVEN
         viewModel.state.test {
             // ignored emission

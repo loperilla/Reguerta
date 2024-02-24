@@ -68,7 +68,7 @@ fun AddUserScreen(
             MediumTopAppBar(
                 title = {
                     TextTitle(
-                        "Autorizar reguertense",
+                        "Autorizar regüertense",
                         textSize = 26.sp,
                         textColor = Text
                     )

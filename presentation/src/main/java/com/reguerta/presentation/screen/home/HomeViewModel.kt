@@ -2,7 +2,7 @@ package com.reguerta.presentation.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reguerta.data.firebase.auth.AuthService
+import com.reguerta.domain.usecase.users.SignOutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +20,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val authService: AuthService
+    private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<HomeState> = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state.asStateFlow()
@@ -29,7 +29,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             when (event) {
                 is HomeEvent.GoOut -> {
-                    authService.signOut()
+                    signOutUseCase()
                     _state.update {
                         it.copy(
                             goOut = true,
@@ -37,6 +37,7 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                 }
+
                 HomeEvent.HideDialog -> {
                     _state.update {
                         it.copy(

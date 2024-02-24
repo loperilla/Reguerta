@@ -1,6 +1,5 @@
 package com.reguerta.data.firebase.firestore.users
 
-import com.reguerta.data.firebase.firestore.CollectionResult
 import kotlinx.coroutines.flow.Flow
 
 /*****
@@ -10,11 +9,11 @@ import kotlinx.coroutines.flow.Flow
  * All rights reserved 2024
  */
 interface UsersCollectionService {
-    suspend fun getUserList(): Flow<CollectionResult<List<UserModel>>>
-    suspend fun getUser(id: String): CollectionResult<UserModel>
+    suspend fun getUserList(): Flow<Result<List<UserModel>>>
+    suspend fun getUser(id: String): Result<UserModel>
     suspend fun toggleAdmin(id: String, newValue: Boolean)
     suspend fun toggleProducer(id: String, newValue: Boolean)
     suspend fun updateUser(user: UserModel)
     suspend fun deleteUser(id: String)
-    suspend fun addUser(user: UserModel): CollectionResult<Unit>
+    suspend fun addUser(user: UserModel): Result<Unit>
 }

@@ -1,7 +1,6 @@
 package com.reguerta.data.firebase.firestore.users
 
 import com.google.firebase.firestore.CollectionReference
-import com.reguerta.data.firebase.firestore.CollectionResult
 import com.reguerta.data.firebase.firestore.USER_IS_ADMIN
 import com.reguerta.data.firebase.firestore.USER_IS_PRODUCER
 import kotlinx.coroutines.channels.awaitClose
@@ -19,11 +18,11 @@ import javax.inject.Inject
 class UserCollectionImpl @Inject constructor(
     private val collection: CollectionReference
 ) : UsersCollectionService {
-    override suspend fun getUserList(): Flow<CollectionResult<List<UserModel>>> = callbackFlow {
+    override suspend fun getUserList(): Flow<Result<List<UserModel>>> = callbackFlow {
         val subscription = collection.addSnapshotListener { snapshot, error ->
             if (error != null) {
                 error.printStackTrace()
-                trySend(CollectionResult.Failure(error))
+                trySend(Result.failure(error))
                 close(error)
                 return@addSnapshotListener
             }
@@ -36,7 +35,7 @@ class UserCollectionImpl @Inject constructor(
                         userList.add(model)
                     }
                 }
-                trySend(CollectionResult.Success(userList))
+                trySend(Result.success(userList))
             }
         }
         awaitClose {
@@ -44,12 +43,12 @@ class UserCollectionImpl @Inject constructor(
         }
     }
 
-    override suspend fun getUser(id: String): CollectionResult<UserModel> {
+    override suspend fun getUser(id: String): Result<UserModel> {
         val document = collection.document(id).get().await()
         return try {
-            CollectionResult.Success(document.toObject(UserModel::class.java)!!)
+            Result.success(document.toObject(UserModel::class.java)!!)
         } catch (ex: Exception) {
-            CollectionResult.Failure(Exception("User not found"))
+            Result.failure(Exception("User not found"))
         }
     }
 
@@ -78,14 +77,14 @@ class UserCollectionImpl @Inject constructor(
             .await()
     }
 
-    override suspend fun addUser(user: UserModel): CollectionResult<Unit> {
+    override suspend fun addUser(user: UserModel): Result<Unit> {
         return try {
             collection
                 .add(user)
                 .await()
-            CollectionResult.Success(Unit)
+            Result.success(Unit)
         } catch (ex: Exception) {
-            CollectionResult.Failure(ex)
+            Result.failure(ex)
         }
     }
 }

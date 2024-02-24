@@ -2,8 +2,7 @@ package com.reguerta.presentation.screen.register
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reguerta.data.AuthState
-import com.reguerta.data.firebase.auth.AuthService
+import com.reguerta.domain.usecase.auth.RegisterUseCase
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -23,7 +22,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val authService: AuthService
+    private val registerUseCase: RegisterUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<RegisterState> = MutableStateFlow(RegisterState())
     val state: StateFlow<RegisterState> = _state.asStateFlow()
@@ -77,26 +76,22 @@ class RegisterViewModel @Inject constructor(
 
     private fun buttonWasClicked() {
         viewModelScope.launch(Dispatchers.IO) {
-            when (val result = authService.createUserWithEmailAndPassword(
-                state.value.emailInput,
-                state.value.passwordInput
-            )) {
-                is AuthState.Error -> {
-                    _state.update {
-                        it.copy(
-                            errorMessage = result.message
-                        )
-                    }
-                }
-
-                AuthState.LoggedIn -> {
+            registerUseCase(state.value.emailInput, state.value.passwordInput).fold(
+                onSuccess = {
                     _state.update {
                         it.copy(
                             goOut = true
                         )
                     }
+                },
+                onFailure = { result ->
+                    _state.update {
+                        it.copy(
+                            errorMessage = result.message.orEmpty()
+                        )
+                    }
                 }
-            }
+            )
         }
     }
 

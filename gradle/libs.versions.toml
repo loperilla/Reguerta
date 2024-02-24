@@ -8,8 +8,8 @@ androidx-navigation = "2.7.7"
 androidx-test-espresso = "3.5.1"
 androidx-test-ext = "1.1.5"
 appcompat = "1.6.1"
-coil = "2.5.0"
-compose-compiler = "1.5.9"
+coil = "2.6.0"
+compose-compiler = "1.5.10"
 core-ktx = "1.12.0"
 hilt-version = "2.50"
 junit = "4.13.2"
@@ -28,11 +28,11 @@ appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat"
 assertk = "com.willowtreeapps.assertk:assertk:0.28.0"
 build-gradle = "com.android.tools.build:gradle:8.2.2"
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-compose-bom = "androidx.compose:compose-bom:2024.02.00"
+compose-bom = "androidx.compose:compose-bom:2024.02.01"
 compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
 compose-constraints = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "androidx-constraintlayout" }
 compose-material3 = "androidx.compose.material3:material3:1.2.0"
-compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.6.1"
+compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.6.2"
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 compose-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-ui = { module = "androidx.compose.ui:ui" }
@@ -60,7 +60,7 @@ hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", vers
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt-version" }
 #Hilt
 hilt-gradle = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt-version" }
-hilt-navigation = "androidx.hilt:hilt-navigation-compose:1.1.0"
+hilt-navigation = "androidx.hilt:hilt-navigation-compose:1.2.0"
 junit = { module = "junit:junit", version.ref = "junit" }
 jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jupiter-junit" }
 jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "jupiter-junit" }

@@ -1,11 +1,11 @@
-package com.reguerta.presentation.model
+package com.reguerta.domain.model
 
 import com.reguerta.data.firebase.firestore.users.UserModel
 
 /*****
  * Project: Reguerta
- * From: com.reguerta.presentation.model
- * Created By Manuel Lopera on 8/2/24 at 17:01
+ * From: com.reguerta.domain.model
+ * Created By Manuel Lopera on 24/2/24 at 12:28
  * All rights reserved 2024
  */
 data class User(
