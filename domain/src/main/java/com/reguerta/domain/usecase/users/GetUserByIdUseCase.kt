@@ -1,6 +1,8 @@
 package com.reguerta.domain.usecase.users
 
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
+import com.reguerta.domain.model.User
+import com.reguerta.domain.model.toDomain
 import javax.inject.Inject
 
 /*****
@@ -12,5 +14,14 @@ import javax.inject.Inject
 class GetUserByIdUseCase @Inject constructor(
     private val repository: UsersCollectionService
 ) {
-    suspend operator fun invoke(id: String) = repository.getUser(id)
+    suspend operator fun invoke(id: String): Result<User> {
+        return repository.getUser(id).fold(
+            onSuccess = {
+                Result.success(it.toDomain())
+            },
+            onFailure = {
+                Result.failure(it)
+            }
+        )
+    }
 }

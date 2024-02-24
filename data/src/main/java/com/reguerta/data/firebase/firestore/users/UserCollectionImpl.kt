@@ -66,8 +66,11 @@ class UserCollectionImpl @Inject constructor(
             .await()
     }
 
-    override suspend fun updateUser(user: UserModel) {
-        TODO("Not yet implemented")
+    override suspend fun updateUser(id: String, user: UserModel) {
+        collection
+            .document(id)
+            .set(user)
+            .await()
     }
 
     override suspend fun deleteUser(id: String) {

@@ -13,7 +13,7 @@ interface UsersCollectionService {
     suspend fun getUser(id: String): Result<UserModel>
     suspend fun toggleAdmin(id: String, newValue: Boolean)
     suspend fun toggleProducer(id: String, newValue: Boolean)
-    suspend fun updateUser(user: UserModel)
+    suspend fun updateUser(id: String, user: UserModel)
     suspend fun deleteUser(id: String)
     suspend fun addUser(user: UserModel): Result<Unit>
 }

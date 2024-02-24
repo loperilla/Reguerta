@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.screen.add_user.addUserScreen
+import com.reguerta.presentation.screen.edit_user.editUserScreen
 import com.reguerta.presentation.screen.firstscreen.firstScreen
 import com.reguerta.presentation.screen.home.homeScreen
 import com.reguerta.presentation.screen.login.loginScreen
@@ -106,10 +107,14 @@ fun MainNavigation(
                     )
                 ) {
                     val id = it.arguments?.getString("id").orEmpty()
-                    Text(text = "Edit user: $id")
+                    editUserScreen(id) {
+                        navController.popBackStack(
+                            Routes.USERS.ROOT.route,
+                            inclusive = false
+                        )
+                    }
                 }
             }
         }
-
     }
 }

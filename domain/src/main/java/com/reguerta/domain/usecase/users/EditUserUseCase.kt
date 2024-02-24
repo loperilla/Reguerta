@@ -1,5 +1,6 @@
 package com.reguerta.domain.usecase.users
 
+import com.reguerta.data.firebase.firestore.users.UserModel
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import javax.inject.Inject
 
@@ -12,5 +13,28 @@ import javax.inject.Inject
 class EditUserUseCase @Inject constructor(
     private val repository: UsersCollectionService
 ) {
-//    suspend operator fun invoke(user: UserModel) = repository.editUser(user)
+    suspend operator fun invoke(
+        id: String,
+        name: String,
+        surname: String,
+        email: String,
+        isAdmin: Boolean,
+        isProducer: Boolean,
+        companyName: String
+    ): Result<Boolean> {
+        return try {
+            val userModel = UserModel(
+                name = name,
+                surname = surname,
+                email = email,
+                isAdmin = isAdmin,
+                isProducer = isProducer,
+                companyName = companyName
+            )
+            repository.updateUser(id, userModel)
+            Result.success(true)
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
 }
