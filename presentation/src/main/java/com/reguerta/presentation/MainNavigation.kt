@@ -1,6 +1,5 @@
 package com.reguerta.presentation
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -16,6 +15,7 @@ import com.reguerta.presentation.screen.firstscreen.firstScreen
 import com.reguerta.presentation.screen.home.homeScreen
 import com.reguerta.presentation.screen.login.loginScreen
 import com.reguerta.presentation.screen.orders.ordersScreen
+import com.reguerta.presentation.screen.products.productScreen
 import com.reguerta.presentation.screen.received_orders.receivedOrdersScreen
 import com.reguerta.presentation.screen.register.registerScreen
 import com.reguerta.presentation.screen.settings.settingsScreen
@@ -77,8 +77,38 @@ fun MainNavigation(
                         navController.navigate(it)
                     }
                 }
-                composable(Routes.HOME.PRODUCTS.route) {
-                    Text("Products")
+            }
+
+            navigation(startDestination = Routes.PRODUCTS.ROOT.route, route = Routes.PRODUCTS.route) {
+                composable(Routes.PRODUCTS.ROOT.route) {
+                    productScreen {
+                        navController.navigate(it)
+                    }
+                }
+                composable(Routes.PRODUCTS.ADD.route) {
+//                    productScreen {
+//                        navController.popBackStack(
+//                            Routes.PRODUCTS.ROOT.route,
+//                            inclusive = false
+//                        )
+//                    }
+                }
+
+                composable(
+                    route = Routes.PRODUCTS.EDIT.route,
+                    arguments = listOf(
+                        navArgument("id") {
+                            type = NavType.StringType
+                        }
+                    )
+                ) {
+//                    val id = it.arguments?.getString("id").orEmpty()
+//                    productScreen(id) {
+//                        navController.popBackStack(
+//                            Routes.PRODUCTS.ROOT.route,
+//                            inclusive = false
+//                        )
+//                    }
                 }
             }
 

@@ -8,3 +8,6 @@ package com.reguerta.data.firebase.firestore
  */
 
 const val USERS = "authUsers"
+const val USERS_COLLECTION = "usersCollection"
+const val PRODUCTS = "products"
+const val PRODUCTS_COLLECTION = "productsCollection"

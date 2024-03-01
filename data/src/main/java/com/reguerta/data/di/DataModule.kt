@@ -8,7 +8,12 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.reguerta.data.firebase.auth.AuthService
 import com.reguerta.data.firebase.auth.AuthServiceImpl
+import com.reguerta.data.firebase.firestore.PRODUCTS
+import com.reguerta.data.firebase.firestore.PRODUCTS_COLLECTION
 import com.reguerta.data.firebase.firestore.USERS
+import com.reguerta.data.firebase.firestore.USERS_COLLECTION
+import com.reguerta.data.firebase.firestore.products.ProductsService
+import com.reguerta.data.firebase.firestore.products.ProductsServiceImpl
 import com.reguerta.data.firebase.firestore.users.UserCollectionImpl
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import com.reguerta.localdata.datastore.ReguertaDataStore
@@ -41,7 +46,7 @@ object DataModule {
     @Provides
     fun provideFirestore(): FirebaseFirestore = Firebase.firestore
 
-    @Named("usersCollection")
+    @Named(USERS_COLLECTION)
     @Singleton
     @Provides
     fun provideUsersCollection(firestore: FirebaseFirestore) = firestore.collection(USERS)
@@ -49,6 +54,18 @@ object DataModule {
     @Singleton
     @Provides
     fun provideUserCollectionService(
-        @Named("usersCollection") collection: CollectionReference
+        @Named(USERS_COLLECTION) collection: CollectionReference
     ): UsersCollectionService = UserCollectionImpl(collection)
+
+    @Named(PRODUCTS_COLLECTION)
+    @Singleton
+    @Provides
+    fun provideProductsCollection(firestore: FirebaseFirestore) = firestore.collection(PRODUCTS)
+
+    @Singleton
+    @Provides
+    fun provideProductsCollectionService(
+        @Named(PRODUCTS_COLLECTION) collection: CollectionReference,
+        dataStore: ReguertaDataStore
+    ): ProductsService = ProductsServiceImpl(collection, dataStore)
 }

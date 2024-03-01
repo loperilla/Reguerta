@@ -259,7 +259,7 @@ private fun prepareNavigationDrawerList(
             title = "Productos",
             icon = Icons.Outlined.Inventory2,
             onClick = {
-                navigateTo(Routes.HOME.PRODUCTS.route)
+                navigateTo(Routes.PRODUCTS.route)
             }
         ),
         NavigationDrawerInfo(

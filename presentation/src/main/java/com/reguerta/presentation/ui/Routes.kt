@@ -17,17 +17,27 @@ sealed class Routes(val route: String) {
         data object ROOT : Routes("Home")
         data object ORDERS : Routes("Orders")
         data object ORDER_RECEIVED : Routes("OrderReceived")
-        data object PRODUCTS : Routes("Products")
 
         data object SETTINGS : Routes("Settings")
+    }
+
+    data object PRODUCTS : Routes("ProductsScreen") {
+
+        data object ROOT : Routes("Products")
+
+        data object ADD : Routes("Add")
+
+        data object EDIT : Routes("EditProduct/{id}") {
+            fun createRoute(id: String) = "EditProduct/$id"
+        }
     }
 
     data object USERS : Routes("UserScreen") {
         data object ROOT : Routes("Users")
         data object ADD : Routes("Add")
 
-        data object EDIT : Routes("Edit/{id}") {
-            fun createRoute(id: String) = "Edit/$id"
+        data object EDIT : Routes("EditUser/{id}") {
+            fun createRoute(id: String) = "EditUser/$id"
         }
     }
 }
