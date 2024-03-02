@@ -1,5 +1,5 @@
 [versions]
-agp = "8.2.2"
+agp = "8.3.0"
 android-junit5 = "1.10.0.0"
 androidx-activity = "1.8.2"
 androidx-constraintlayout = "1.0.1"
@@ -11,11 +11,11 @@ appcompat = "1.6.1"
 coil = "2.6.0"
 compose-compiler = "1.5.10"
 core-ktx = "1.12.0"
-hilt-version = "2.50"
+hilt-version = "2.51"
 junit = "4.13.2"
 jupiter-junit = "5.10.2"
 kotlinx-coroutines-test = "1.8.0"
-ksp = "1.9.22-1.0.17"
+ksp = "1.9.22-1.0.18"
 material = "1.11.0"
 runner = "1.5.2"
 
@@ -26,7 +26,7 @@ androidx-activity = { module = "androidx.activity:activity", version.ref = "andr
 androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 assertk = "com.willowtreeapps.assertk:assertk:0.28.0"
-build-gradle = "com.android.tools.build:gradle:8.2.2"
+build-gradle = "com.android.tools.build:gradle:8.3.0"
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
 compose-bom = "androidx.compose:compose-bom:2024.02.01"
 compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
@@ -45,7 +45,7 @@ crashlytics-gradle = "com.google.firebase:firebase-crashlytics-gradle:2.9.9"
 datastore = "androidx.datastore:datastore-preferences:1.0.0"
 firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
 #Firebase
-firebase-bom = "com.google.firebase:firebase-bom:32.7.2"
+firebase-bom = "com.google.firebase:firebase-bom:32.7.3"
 #crashlytics
 #auth
 #firestore
@@ -71,7 +71,7 @@ lifecycle-compose-runtime = { module = "androidx.lifecycle:lifecycle-runtime-com
 lifecycle-compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose" }
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-mockk = "io.mockk:mockk:1.13.9"
+mockk = "io.mockk:mockk:1.13.10"
 navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "androidx-navigation" }
 splashscreen = "androidx.core:core-splashscreen:1.0.1"
 test-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-test-espresso" }

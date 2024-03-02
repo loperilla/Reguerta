@@ -1,11 +1,16 @@
 package com.reguerta.domain.di
 
 import com.reguerta.data.firebase.auth.AuthService
+import com.reguerta.data.firebase.firestore.container.ContainerService
+import com.reguerta.data.firebase.firestore.measures.MeasureService
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import com.reguerta.domain.usecase.auth.LoginUseCase
 import com.reguerta.domain.usecase.auth.RefreshUserUseCase
 import com.reguerta.domain.usecase.auth.RegisterUseCase
+import com.reguerta.domain.usecase.container.GetAllContainerUseCase
+import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
+import com.reguerta.domain.usecase.products.AddProductUseCase
 import com.reguerta.domain.usecase.products.DeleteProductUseCase
 import com.reguerta.domain.usecase.products.GetAllProductsUseCase
 import com.reguerta.domain.usecase.users.AddUserUseCase
@@ -70,4 +75,13 @@ object DomainDi {
 
     @Provides
     fun providesDeleteProductUseCase(productsService: ProductsService) = DeleteProductUseCase(productsService)
+
+    @Provides
+    fun providesAddProductUseCase(productsService: ProductsService) = AddProductUseCase(productsService)
+
+    @Provides
+    fun providesAllMeasuresUseCase(measureService: MeasureService) = GetAllMeasuresUseCase(measureService)
+
+    @Provides
+    fun providesAllContainerUseCase(containerService: ContainerService) = GetAllContainerUseCase(containerService)
 }

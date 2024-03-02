@@ -10,6 +10,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -30,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reguerta.presentation.composables.input.PlaceholderTransformation
 import com.reguerta.presentation.composables.input.UiError
+import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.cabinsketchFontFamily
 
@@ -110,7 +112,9 @@ fun TextReguertaInput(
     modifier: Modifier = Modifier,
     placeholderText: String = "",
     labelText: String = "",
-    imeAction: ImeAction = ImeAction.Default
+    imeAction: ImeAction = ImeAction.Default,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    suffixValue: String = ""
 ) {
     ReguertaInput(
         text = text,
@@ -118,10 +122,101 @@ fun TextReguertaInput(
         uiError = UiError("Este campo no puede estar vacío", text.isNotEmpty()),
         onTextChange = onTextChange,
         placeholderText = placeholderText,
-        keyboardType = KeyboardType.Text,
+        keyboardType = keyboardType,
         imeAction = imeAction,
-        modifier = modifier
+        modifier = modifier,
+        suffixValue = suffixValue
     )
+}
+
+@Composable
+fun SecondaryTextReguertaInput(
+    text: String,
+    onTextChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholderText: String = "",
+    imeAction: ImeAction = ImeAction.Default,
+    keyboardType: KeyboardType = KeyboardType.Text,
+) {
+    SecondaryReguertaInput(
+        text = text,
+        uiError = UiError("Este campo no puede estar vacío", text.isNotEmpty()),
+        onTextChange = onTextChange,
+        placeholderText = placeholderText,
+        keyboardType = keyboardType,
+        imeAction = imeAction,
+        modifier = modifier,
+    )
+}
+
+@Composable
+private fun SecondaryReguertaInput(
+    text: String,
+    onTextChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    uiError: UiError = UiError(),
+    placeholderText: String = "",
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Default,
+    visualTransformation: VisualTransformation = VisualTransformation.None
+) {
+    val textColor = if (text.isEmpty()) {
+        Text.copy(alpha = 0.7f)
+    } else {
+        Text
+    }
+    val colors = OutlinedTextFieldDefaults.colors(
+        focusedTextColor = textColor,
+        unfocusedTextColor = textColor,
+        focusedBorderColor = PrimaryColor,
+        unfocusedBorderColor = PrimaryColor,
+        disabledPlaceholderColor = Text,
+        focusedPlaceholderColor = Text,
+        errorPlaceholderColor = Text,
+        unfocusedPlaceholderColor = Text.copy(
+            alpha = 0.7f
+        ),
+        focusedContainerColor = Color.White,
+        unfocusedContainerColor = Color.White,
+        disabledContainerColor = Color.White,
+        errorContainerColor = Color.White,
+    )
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        OutlinedTextField(
+            value = text,
+            onValueChange = onTextChange,
+            colors = colors,
+            isError = text.isNotEmpty() && !uiError.isVisible,
+            singleLine = true,
+            textStyle = TextStyle(
+                fontFamily = cabinsketchFontFamily,
+                fontWeight = FontWeight.Normal,
+                fontSize = 18.sp
+            ),
+            visualTransformation = if (text.isEmpty()) {
+                PlaceholderTransformation(placeholderText)
+            } else {
+                visualTransformation
+            },
+            keyboardOptions = KeyboardOptions(
+                keyboardType = keyboardType,
+                imeAction = imeAction
+            ),
+            modifier = modifier
+        )
+
+        if (text.isNotEmpty() && !uiError.isVisible) {
+            TextBody(
+                text = uiError.message,
+                textSize = 12.sp,
+                textColor = Color.Red,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            )
+        }
+    }
 }
 
 @Composable
@@ -134,6 +229,7 @@ private fun ReguertaInput(
     placeholderText: String = "",
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Default,
+    suffixValue: String = "",
     trailingIcon: @Composable (() -> Unit)? = null,
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
@@ -186,6 +282,15 @@ private fun ReguertaInput(
                 keyboardType = keyboardType,
                 imeAction = imeAction
             ),
+            suffix = {
+                if (suffixValue.isNotEmpty()) {
+                    TextBody(
+                        text = suffixValue,
+                        18.sp,
+                        textColor = Text
+                    )
+                }
+            },
             modifier = modifier
         )
 
@@ -229,6 +334,13 @@ fun ReguertaInputPreview() {
             TextReguertaInput(
                 text = "Manuel Lopera",
                 labelText = "Nombre",
+                onTextChange = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+
+            SecondaryReguertaInput(
+                text = "Manuel Lopera",
                 onTextChange = {},
                 modifier = Modifier
                     .fillMaxWidth()

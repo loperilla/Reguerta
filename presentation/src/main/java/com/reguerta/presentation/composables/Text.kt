@@ -12,6 +12,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.cabinsketchFontFamily
 import com.reguerta.presentation.ui.monserratFontFamily
 
@@ -24,10 +25,7 @@ import com.reguerta.presentation.ui.monserratFontFamily
 
 @Composable
 fun TextRegular(
-    text: String,
-    textSize: TextUnit,
-    modifier: Modifier = Modifier,
-    textColor: Color = Color.Unspecified
+    text: String, textSize: TextUnit, modifier: Modifier = Modifier, textColor: Color = Color.Unspecified
 ) {
     Text(
         text,
@@ -41,10 +39,7 @@ fun TextRegular(
 
 @Composable
 fun TextBody(
-    text: String,
-    textSize: TextUnit,
-    modifier: Modifier = Modifier,
-    textColor: Color = Color.Unspecified
+    text: String, textSize: TextUnit, modifier: Modifier = Modifier, textColor: Color = Color.Unspecified
 ) {
     Text(
         text,
@@ -57,11 +52,25 @@ fun TextBody(
 }
 
 @Composable
+fun StockText(
+    stockCount: Int, textSize: TextUnit, modifier: Modifier = Modifier
+) {
+    val colorToDraw: Color = when (stockCount) {
+        0 -> Color.Red
+        in 1..10 -> Color(0xFFffa500) // Orange
+        else -> Text
+    }
+    TextBody(
+        text = "Stock: $stockCount",
+        textSize,
+        modifier,
+        textColor = colorToDraw,
+    )
+}
+
+@Composable
 fun TextTitle(
-    text: String,
-    textSize: TextUnit,
-    textColor: Color = Color.Unspecified,
-    modifier: Modifier = Modifier
+    text: String, textSize: TextUnit, textColor: Color = Color.Unspecified, modifier: Modifier = Modifier
 ) {
     Text(
         text,
@@ -78,13 +87,14 @@ fun TextTitle(
 fun TextPreviews() {
     Screen {
         Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier
-                .fillMaxSize()
+            verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxSize()
         ) {
             TextRegular("Manuel Lopera", textSize = 14.sp)
             TextBody("Manuel Lopera", textSize = 14.sp)
             TextTitle("Manuel Lopera", textSize = 14.sp)
+            StockText(0, textSize = 14.sp)
+            StockText(4, textSize = 14.sp)
+            StockText(34, textSize = 14.sp)
         }
     }
 }

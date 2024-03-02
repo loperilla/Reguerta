@@ -9,6 +9,7 @@ import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.reguerta.presentation.composables.Screen
+import com.reguerta.presentation.screen.add_product.addProductScreen
 import com.reguerta.presentation.screen.add_user.addUserScreen
 import com.reguerta.presentation.screen.edit_user.editUserScreen
 import com.reguerta.presentation.screen.firstscreen.firstScreen
@@ -86,12 +87,12 @@ fun MainNavigation(
                     }
                 }
                 composable(Routes.PRODUCTS.ADD.route) {
-//                    productScreen {
-//                        navController.popBackStack(
-//                            Routes.PRODUCTS.ROOT.route,
-//                            inclusive = false
-//                        )
-//                    }
+                    addProductScreen {
+                        navController.popBackStack(
+                            Routes.PRODUCTS.ROOT.route,
+                            inclusive = false
+                        )
+                    }
                 }
 
                 composable(

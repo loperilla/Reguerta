@@ -8,10 +8,18 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.reguerta.data.firebase.auth.AuthService
 import com.reguerta.data.firebase.auth.AuthServiceImpl
+import com.reguerta.data.firebase.firestore.CONTAINER
+import com.reguerta.data.firebase.firestore.CONTAINERS_COLLECTION
+import com.reguerta.data.firebase.firestore.MEASURES
+import com.reguerta.data.firebase.firestore.MEASURES_COLLECTION
 import com.reguerta.data.firebase.firestore.PRODUCTS
 import com.reguerta.data.firebase.firestore.PRODUCTS_COLLECTION
 import com.reguerta.data.firebase.firestore.USERS
 import com.reguerta.data.firebase.firestore.USERS_COLLECTION
+import com.reguerta.data.firebase.firestore.container.ContainerService
+import com.reguerta.data.firebase.firestore.container.ContainerServiceImpl
+import com.reguerta.data.firebase.firestore.measures.MeasureService
+import com.reguerta.data.firebase.firestore.measures.MeasureServiceImpl
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.firestore.products.ProductsServiceImpl
 import com.reguerta.data.firebase.firestore.users.UserCollectionImpl
@@ -68,4 +76,26 @@ object DataModule {
         @Named(PRODUCTS_COLLECTION) collection: CollectionReference,
         dataStore: ReguertaDataStore
     ): ProductsService = ProductsServiceImpl(collection, dataStore)
+
+    @Named(CONTAINERS_COLLECTION)
+    @Singleton
+    @Provides
+    fun provideContainerCollection(firestore: FirebaseFirestore) = firestore.collection(CONTAINER)
+
+    @Singleton
+    @Provides
+    fun provideContainerCollectionService(
+        @Named(CONTAINERS_COLLECTION) collection: CollectionReference
+    ): ContainerService = ContainerServiceImpl(collection)
+
+    @Named(MEASURES_COLLECTION)
+    @Singleton
+    @Provides
+    fun provideMeasuresCollection(firestore: FirebaseFirestore) = firestore.collection(MEASURES)
+
+    @Singleton
+    @Provides
+    fun provideMeasuresCollectionService(
+        @Named(MEASURES_COLLECTION) collection: CollectionReference,
+    ): MeasureService = MeasureServiceImpl(collection)
 }

@@ -9,15 +9,15 @@ package com.reguerta.data.firebase.firestore.products
 data class ProductModel(
     var id: String? = null,
     val userId: String? = null,
+    val name: String? = null,
     val container: String? = null,
     val description: String? = null,
-    val name: String? = null,
-    val price: Double? = null,
+    val price: Float? = null,
     val available: Boolean? = null,
     val companyName: String? = null,
     val urlImage: String? = null,
     val stock: Int? = null,
     val quantityContainer: Int? = null,
-    val quantityWeight: Double? = null,
+    val quantityWeight: Int? = null,
     val unity: String? = null
 )

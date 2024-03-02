@@ -1,6 +1,7 @@
 package com.reguerta.data.firebase.firestore.products
 
 import com.google.firebase.firestore.CollectionReference
+import com.reguerta.data.firebase.firestore.USER_ID
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -20,10 +21,10 @@ class ProductsServiceImpl @Inject constructor(
 ) : ProductsService {
     override suspend fun getProducts(): Flow<Result<List<ProductModel>>> = callbackFlow {
         val subscription = collection
-//            .whereEqualTo(
-//                USER_ID,
-//                dataStore.getUID()
-//            )
+            .whereEqualTo(
+                USER_ID,
+                dataStore.getUID()
+            )
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     error.printStackTrace()
@@ -53,5 +54,22 @@ class ProductsServiceImpl @Inject constructor(
             .document(id)
             .delete()
             .await()
+    }
+
+    override suspend fun addProduct(product: ProductModel, byteArray: ByteArray?): Result<Unit> {
+        return try {
+            val productToCreate = product.copy(
+                userId = dataStore.getUID()
+            )
+            if (byteArray != null) {
+                // Aquí subiría la imagen y haria un copy con la url
+            }
+            collection
+                .add(productToCreate)
+                .await()
+            Result.success(Unit)
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
     }
 }

@@ -13,13 +13,13 @@ data class Product(
     val container: String = "",
     val description: String = "",
     val name: String = "",
-    val price: Double = 0.0,
+    val price: Float = 0.0f,
     val available: Boolean = false,
     val companyName: String = "",
     val imageUrl: String = "",
     val stock: Int = 0,
     val quantityContainer: Int = 0,
-    val quantityWeight: Double = 0.0,
+    val quantityWeight: Int = 0,
     val unity: String = ""
 )
 
@@ -28,12 +28,12 @@ fun ProductModel.toDomain(): Product = Product(
     container = container.orEmpty(),
     description = description.orEmpty(),
     name = name.orEmpty(),
-    price = price ?: 0.0,
+    price = price ?: 0.0f,
     available = available ?: false,
     companyName = companyName.orEmpty(),
     imageUrl = urlImage.orEmpty(),
     stock = stock ?: 0,
     quantityContainer = quantityContainer ?: 0,
-    quantityWeight = quantityWeight ?: 0.0,
+    quantityWeight = quantityWeight ?: 0,
     unity = unity.orEmpty()
 )

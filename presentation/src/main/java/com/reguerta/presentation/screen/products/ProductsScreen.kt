@@ -277,13 +277,13 @@ fun ProductItemPreview() {
                         name = "Product 1",
                         description = "Description 1",
                         container = "Container 1",
-                        price = 1.0,
+                        price = 1.0f,
                         available = true,
                         companyName = "Company 1",
                         imageUrl = "",
                         stock = 1,
                         quantityContainer = 1,
-                        quantityWeight = 1.0,
+                        quantityWeight = 1,
                         unity = "Unity 1"
                     )
                 )
