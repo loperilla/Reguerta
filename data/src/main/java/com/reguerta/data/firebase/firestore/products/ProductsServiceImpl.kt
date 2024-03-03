@@ -82,4 +82,41 @@ class ProductsServiceImpl @Inject constructor(
             Result.failure(ex)
         }
     }
+
+    override suspend fun getProductById(id: String): Result<ProductModel> {
+        return try {
+            val document = collection
+                .document(id)
+                .get()
+                .await()
+            val product = document.toObject(ProductModel::class.java)!!
+            Result.success(product)
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
+
+    override suspend fun editProduct(id: String, product: ProductDTOModel, byteArray: ByteArray?): Result<Unit> {
+        return try {
+            var productToCreate = product.copy(
+                userId = dataStore.getStringByKey(UID_KEY),
+                companyName = dataStore.getStringByKey(COMPANY_NAME_KEY)
+            )
+            if (byteArray != null) {
+                val imageRef = storage.child(productToCreate.buildImageRef())
+                imageRef.putBytes(byteArray).await()
+                val url = imageRef.downloadUrl.await()
+                productToCreate = productToCreate.copy(
+                    urlImage = url.toString()
+                )
+            }
+            collection
+                .document(id)
+                .set(productToCreate)
+                .await()
+            Result.success(Unit)
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
 }

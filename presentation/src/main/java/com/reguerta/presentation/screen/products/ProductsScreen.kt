@@ -209,7 +209,7 @@ fun ProductItem(
                     ReguertaIconButton(
                         iconButton = Icons.Filled.Edit,
                         onClick = {
-//                        navigateTo(Routes.USERS.EDIT.createRoute(user.id))
+                            navigateTo(Routes.PRODUCTS.EDIT.createRoute(product.id))
                         },
                         contentColor = PrimaryColor
                     )

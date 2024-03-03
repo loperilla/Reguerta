@@ -2,6 +2,7 @@ package com.reguerta.presentation.screen.add_product
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.reguerta.domain.model.Product
 import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.products.AddProductUseCase
@@ -120,16 +121,18 @@ class AddProductViewModel @Inject constructor(
                 AddProductEvent.AddProduct -> {
                     with(_state.value) {
                         addProductUseCase(
-                            name = name,
-                            container = containerType,
-                            description = description,
-                            price = price.toFloat(),
-                            available = isAvailable,
+                            Product(
+                                container = containerType,
+                                description = description,
+                                name = name,
+                                price = price.toFloat(),
+                                available = isAvailable,
+                                stock = stock,
+                                quantityContainer = containerValue.toInt(),
+                                quantityWeight = measureValue.toInt(),
+                                unity = measureType
+                            ),
                             imageByteArray = bitmap?.toByteArray(),
-                            stock = stock,
-                            quantityContainer = containerValue.toInt(),
-                            quantityWeight = measureValue.toInt(),
-                            unity = measureType
                         ).fold(
                             onSuccess = {
                                 _state.update {
@@ -140,11 +143,6 @@ class AddProductViewModel @Inject constructor(
                             },
                             onFailure = {
                                 it.printStackTrace()
-//                                _state.update {
-//                                    it.copy(
-//                                        error = it
-//                                    )
-//                                }
                             }
                         )
                     }

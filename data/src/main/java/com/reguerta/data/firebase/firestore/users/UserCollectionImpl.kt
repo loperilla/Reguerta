@@ -8,6 +8,7 @@ import com.reguerta.localdata.datastore.COMPANY_NAME_KEY
 import com.reguerta.localdata.datastore.IS_ADMIN_KEY
 import com.reguerta.localdata.datastore.IS_PRODUCER_KEY
 import com.reguerta.localdata.datastore.ReguertaDataStore
+import com.reguerta.localdata.datastore.UID_KEY
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -66,9 +67,15 @@ class UserCollectionImpl @Inject constructor(
             )
             .get()
             .await()
-
-        val user = snapshot.documents.firstOrNull()?.toObject(UserModel::class.java)
+        val documentSearch = snapshot.documents.firstOrNull()
+        var user = documentSearch?.toObject(UserModel::class.java)
+        user = user?.copy(id = documentSearch?.id)
         user?.let { model ->
+            model.id?.let {
+                dataStore.saveStringValue(
+                    UID_KEY, it
+                )
+            }
             model.companyName?.let { company ->
                 dataStore.saveStringValue(
                     COMPANY_NAME_KEY, company

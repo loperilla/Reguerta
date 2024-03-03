@@ -11,6 +11,7 @@ import androidx.navigation.navArgument
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.screen.add_product.addProductScreen
 import com.reguerta.presentation.screen.add_user.addUserScreen
+import com.reguerta.presentation.screen.edit_product.editProductScreen
 import com.reguerta.presentation.screen.edit_user.editUserScreen
 import com.reguerta.presentation.screen.firstscreen.firstScreen
 import com.reguerta.presentation.screen.home.homeScreen
@@ -103,13 +104,13 @@ fun MainNavigation(
                         }
                     )
                 ) {
-//                    val id = it.arguments?.getString("id").orEmpty()
-//                    productScreen(id) {
-//                        navController.popBackStack(
-//                            Routes.PRODUCTS.ROOT.route,
-//                            inclusive = false
-//                        )
-//                    }
+                    val id = it.arguments?.getString("id").orEmpty()
+                    editProductScreen(id) {
+                        navController.popBackStack(
+                            Routes.PRODUCTS.ROOT.route,
+                            inclusive = false
+                        )
+                    }
                 }
             }
 

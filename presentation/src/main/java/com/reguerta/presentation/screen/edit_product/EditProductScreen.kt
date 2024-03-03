@@ -1,4 +1,4 @@
-package com.reguerta.presentation.screen.add_product
+package com.reguerta.presentation.screen.edit_product
 
 import android.content.Intent
 import android.net.Uri
@@ -66,30 +66,33 @@ import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.getStoragePermissionBySdk
-import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.uriToBitmap
 import kotlinx.coroutines.launch
 
 /*****
  * Project: Reguerta
- * From: com.reguerta.presentation.screen.add_product
- * Created By Manuel Lopera on 1/3/24 at 17:02
+ * From: com.reguerta.presentation.screen.edit_product
+ * Created By Manuel Lopera on 3/3/24 at 15:02
  * All rights reserved 2024
  */
 
 @Composable
-fun addProductScreen(
-    navigateTo: (String) -> Unit
+fun editProductScreen(
+    id: String,
+    navigateTo: () -> Unit
 ) {
-    val viewModel = hiltViewModel<AddProductViewModel>()
+    val viewModel = hiltViewModel<EditProductViewModel, EditProductViewModelFactory> { factory ->
+        factory.create(id)
+    }
+
     val state by viewModel.state.collectAsStateWithLifecycle()
     if (state.goOut) {
-        navigateTo(Routes.PRODUCTS.route)
+        navigateTo()
         return
     }
     Screen {
-        AddProductScreen(
+        EditProductScreen(
             state = state,
             onEvent = viewModel::onEvent
         )
@@ -98,9 +101,9 @@ fun addProductScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun AddProductScreen(
-    state: AddProductState,
-    onEvent: (AddProductEvent) -> Unit
+fun EditProductScreen(
+    state: EditProductState,
+    onEvent: (EditProductEvent) -> Unit
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -113,9 +116,9 @@ private fun AddProductScreen(
     Scaffold(
         topBar = {
             MediumTopAppBar(
-                title = { TextTitle(text = "Añadir producto", textSize = 26.sp, textColor = Text) },
+                title = { TextTitle(text = "Editar producto", textSize = 26.sp, textColor = Text) },
                 navigationIcon = {
-                    IconButton(onClick = { onEvent(AddProductEvent.GoOut) }) {
+                    IconButton(onClick = { onEvent(EditProductEvent.GoOut) }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = "Back"
@@ -140,7 +143,7 @@ private fun AddProductScreen(
             TextReguertaInput(
                 text = state.name,
                 onTextChange = { newName ->
-                    onEvent(AddProductEvent.OnNameChanged(newName))
+                    onEvent(EditProductEvent.OnNameChanged(newName))
                 },
                 labelText = "Nombre del producto",
                 placeholderText = "Pulsa para escribir",
@@ -153,7 +156,7 @@ private fun AddProductScreen(
             TextReguertaInput(
                 text = state.description,
                 onTextChange = { newDescription ->
-                    onEvent(AddProductEvent.OnDescriptionChanged(newDescription))
+                    onEvent(EditProductEvent.OnDescriptionChanged(newDescription))
                 },
                 imeAction = ImeAction.Next,
                 labelText = "Descripción del producto",
@@ -172,7 +175,7 @@ private fun AddProductScreen(
                 text = state.price,
                 onTextChange = { newPrice ->
                     onEvent(
-                        AddProductEvent.OnPriceChanged(newPrice)
+                        EditProductEvent.OnPriceChanged(newPrice)
                     )
                 },
                 imeAction = ImeAction.Next,
@@ -186,9 +189,9 @@ private fun AddProductScreen(
             )
 
             ReguertaButton(
-                textButton = "Añadir producto",
+                textButton = "Editar producto",
                 enabledButton = state.isButtonEnabled,
-                onClick = { onEvent(AddProductEvent.AddProduct) },
+                onClick = { onEvent(EditProductEvent.SaveProduct) },
                 modifier = Modifier
                     .padding(8.dp)
                     .fillMaxWidth()
@@ -198,9 +201,9 @@ private fun AddProductScreen(
 }
 
 @Composable
-private fun HeaderAddProductForm(
-    state: AddProductState,
-    onEvent: (AddProductEvent) -> Unit,
+fun HeaderAddProductForm(
+    state: EditProductState,
+    onEvent: (EditProductEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -273,7 +276,7 @@ private fun HeaderAddProductForm(
                 photoUri!!
             )?.let {
                 onEvent(
-                    AddProductEvent.OnImageSelected(
+                    EditProductEvent.OnImageSelected(
                         it
                     )
                 )
@@ -320,7 +323,7 @@ private fun HeaderAddProductForm(
                 ReguertaCheckBox(
                     isChecked = state.isAvailable,
                     onCheckedChange = { newValue ->
-                        onEvent(AddProductEvent.OnAvailableChanges(newValue))
+                        onEvent(EditProductEvent.OnAvailableChanges(newValue))
                     }
                 )
             }
@@ -338,10 +341,10 @@ private fun HeaderAddProductForm(
                 ReguertaCounter(
                     state.stock,
                     onMinusButtonClicked = {
-                        onEvent(AddProductEvent.OnStockChanged(state.stock.minus(1)))
+                        onEvent(EditProductEvent.OnStockChanged(state.stock.minus(1)))
                     },
                     onPlusButtonClicked = {
-                        onEvent(AddProductEvent.OnStockChanged(state.stock.plus(1)))
+                        onEvent(EditProductEvent.OnStockChanged(state.stock.plus(1)))
                     }
                 )
             }
@@ -351,8 +354,8 @@ private fun HeaderAddProductForm(
 
 @Composable
 private fun UnityAndContainer(
-    state: AddProductState,
-    onEvent: (AddProductEvent) -> Unit
+    state: EditProductState,
+    onEvent: (EditProductEvent) -> Unit
 ) {
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -365,7 +368,7 @@ private fun UnityAndContainer(
         SecondaryTextReguertaInput(
             text = state.containerValue,
             onTextChange = { newContainer ->
-                onEvent(AddProductEvent.OnContainerValueChanges(newContainer))
+                onEvent(EditProductEvent.OnContainerValueChanges(newContainer))
             },
             imeAction = ImeAction.Next,
             keyboardType = KeyboardType.NumberPassword,
@@ -383,7 +386,7 @@ private fun UnityAndContainer(
                 DropDownItem(text = it.name)
             },
             onItemClick = {
-                onEvent(AddProductEvent.OnContainerTypeChanges(it.text))
+                onEvent(EditProductEvent.OnContainerTypeChanges(it.text))
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -402,7 +405,7 @@ private fun UnityAndContainer(
         SecondaryTextReguertaInput(
             text = state.measureValue,
             onTextChange = { newMeasure ->
-                onEvent(AddProductEvent.OnMeasuresValueChanges(newMeasure))
+                onEvent(EditProductEvent.OnMeasuresValueChanges(newMeasure))
             },
             imeAction = ImeAction.Next,
             keyboardType = KeyboardType.NumberPassword,
@@ -420,7 +423,7 @@ private fun UnityAndContainer(
                 DropDownItem(text = it.name)
             },
             onItemClick = {
-                onEvent(AddProductEvent.OnMeasuresTypeChanges(it.text))
+                onEvent(EditProductEvent.OnMeasuresTypeChanges(it.text))
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -431,10 +434,10 @@ private fun UnityAndContainer(
 
 @Preview
 @Composable
-fun AddProductScreenPreview() {
+fun EditProductScreenPreview() {
     Screen {
-        AddProductScreen(
-            state = AddProductState(),
+        EditProductScreen(
+            state = EditProductState(),
             onEvent = {}
         )
     }

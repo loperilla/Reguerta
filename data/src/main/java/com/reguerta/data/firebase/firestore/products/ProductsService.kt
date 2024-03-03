@@ -12,4 +12,6 @@ interface ProductsService {
     suspend fun getProducts(): Flow<Result<List<ProductModel>>>
     suspend fun deleteProduct(id: String)
     suspend fun addProduct(product: ProductDTOModel, byteArray: ByteArray?): Result<Unit>
+    suspend fun getProductById(id: String): Result<ProductModel>
+    suspend fun editProduct(id: String, product: ProductDTOModel, byteArray: ByteArray?): Result<Unit>
 }

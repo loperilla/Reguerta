@@ -12,7 +12,9 @@ import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.products.AddProductUseCase
 import com.reguerta.domain.usecase.products.DeleteProductUseCase
+import com.reguerta.domain.usecase.products.EditProductUseCase
 import com.reguerta.domain.usecase.products.GetAllProductsUseCase
+import com.reguerta.domain.usecase.products.GetProductByIdUseCase
 import com.reguerta.domain.usecase.users.AddUserUseCase
 import com.reguerta.domain.usecase.users.DeleteUsersUseCase
 import com.reguerta.domain.usecase.users.EditUserUseCase
@@ -78,6 +80,12 @@ object DomainDi {
 
     @Provides
     fun providesAddProductUseCase(productsService: ProductsService) = AddProductUseCase(productsService)
+
+    @Provides
+    fun providesGetProductByIdUseCase(productsService: ProductsService) = GetProductByIdUseCase(productsService)
+
+    @Provides
+    fun providesEditProductByIdUseCase(productsService: ProductsService) = EditProductUseCase(productsService)
 
     @Provides
     fun providesAllMeasuresUseCase(measureService: MeasureService) = GetAllMeasuresUseCase(measureService)

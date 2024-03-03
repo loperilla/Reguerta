@@ -1,5 +1,6 @@
 package com.reguerta.domain.model
 
+import com.reguerta.data.firebase.firestore.products.ProductDTOModel
 import com.reguerta.data.firebase.firestore.products.ProductModel
 
 /*****
@@ -23,6 +24,19 @@ data class Product(
     val unity: String = ""
 )
 
+fun Product.toDto(): ProductDTOModel = ProductDTOModel(
+    container = container,
+    description = description,
+    name = name,
+    price = price,
+    available = available,
+    companyName = companyName,
+    urlImage = imageUrl,
+    stock = stock,
+    quantityContainer = quantityContainer,
+    quantityWeight = quantityWeight,
+    unity = unity
+)
 fun ProductModel.toDomain(): Product = Product(
     id = id.orEmpty(),
     container = container.orEmpty(),
