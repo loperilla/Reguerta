@@ -5,6 +5,7 @@ import com.reguerta.data.firebase.firestore.container.ContainerService
 import com.reguerta.data.firebase.firestore.measures.MeasureService
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
+import com.reguerta.domain.usecase.auth.CheckAdminProducerUseCase
 import com.reguerta.domain.usecase.auth.LoginUseCase
 import com.reguerta.domain.usecase.auth.RefreshUserUseCase
 import com.reguerta.domain.usecase.auth.RegisterUseCase
@@ -71,6 +72,9 @@ object DomainDi {
 
     @Provides
     fun providesSignOutUseCase(authService: AuthService) = SignOutUseCase(authService)
+
+    @Provides
+    fun providesCheckAdminProducerUseCase(authService: AuthService) = CheckAdminProducerUseCase(authService)
 
     @Provides
     fun providesGetAllProductsUseCase(productsService: ProductsService) = GetAllProductsUseCase(productsService)

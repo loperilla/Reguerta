@@ -4,6 +4,8 @@ import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.reguerta.data.AuthState
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
+import com.reguerta.localdata.datastore.IS_ADMIN_KEY
+import com.reguerta.localdata.datastore.IS_PRODUCER_KEY
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.datastore.UID_KEY
 import kotlinx.coroutines.tasks.await
@@ -75,5 +77,11 @@ class AuthServiceImpl(
         } catch (ex: Exception) {
             AuthState.Error(ex.message ?: "Error")
         }
+    }
+
+    override suspend fun checkIfUserIsAdminAndProducer(): Pair<Boolean, Boolean> {
+        val isAdmin = dataStore.getBooleanByKey(IS_ADMIN_KEY)
+        val isProducer = dataStore.getBooleanByKey(IS_PRODUCER_KEY)
+        return Pair(isAdmin, isProducer)
     }
 }

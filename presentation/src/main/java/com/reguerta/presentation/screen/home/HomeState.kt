@@ -8,5 +8,7 @@ package com.reguerta.presentation.screen.home
  */
 data class HomeState(
     val goOut: Boolean = false,
-    val showAreYouSure: Boolean = false
+    val showAreYouSure: Boolean = false,
+    val isCurrentUserAdmin: Boolean = false,
+    val isCurrentUserProducer: Boolean = false
 )

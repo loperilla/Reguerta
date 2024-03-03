@@ -2,6 +2,7 @@ package com.reguerta.presentation.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.reguerta.domain.usecase.auth.CheckAdminProducerUseCase
 import com.reguerta.domain.usecase.users.SignOutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -20,10 +21,23 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
+    private val checkIfUserIsAdminAndProducer: CheckAdminProducerUseCase,
     private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<HomeState> = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            val pair = checkIfUserIsAdminAndProducer()
+            _state.update {
+                it.copy(
+                    isCurrentUserAdmin = pair.first,
+                    isCurrentUserProducer = pair.second
+                )
+            }
+        }
+    }
 
     fun onEvent(event: HomeEvent) {
         viewModelScope.launch(Dispatchers.IO) {

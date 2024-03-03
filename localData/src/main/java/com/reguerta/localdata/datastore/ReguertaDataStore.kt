@@ -12,5 +12,6 @@ interface ReguertaDataStore {
     suspend fun saveStringValue(key: Preferences.Key<String>, value: String)
     suspend fun saveBooleanValue(key: Preferences.Key<Boolean>, value: Boolean)
     suspend fun getStringByKey(key: Preferences.Key<String>): String
+    suspend fun getBooleanByKey(key: Preferences.Key<Boolean>): Boolean
     suspend fun clearUserDataStore()
 }

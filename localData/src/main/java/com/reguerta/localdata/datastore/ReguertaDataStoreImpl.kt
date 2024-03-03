@@ -40,4 +40,8 @@ class ReguertaDataStoreImpl @Inject constructor(private val context: Context) : 
             preferences.clear()
         }
     }
+
+    override suspend fun getBooleanByKey(key: Preferences.Key<Boolean>): Boolean = withContext(Dispatchers.IO) {
+        context.userPreferences.data.first()[key] ?: false
+    }
 }

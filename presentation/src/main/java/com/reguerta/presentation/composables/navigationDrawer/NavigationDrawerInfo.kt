@@ -11,5 +11,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 data class NavigationDrawerInfo(
     val title: String,
     val icon: ImageVector,
-    val onClick: () -> Unit
+    val onClick: () -> Unit,
+    val showInBothCase: Boolean = false,
+    val showIfUserIsAdmin: Boolean = false,
+    val showIfUserIsProducer: Boolean = false
 )

@@ -14,4 +14,5 @@ interface AuthService {
     suspend fun createUserWithEmailAndPassword(email: String, password: String): AuthState
     suspend fun refreshUser(): AuthState
     suspend fun logInWithUserPassword(email: String, password: String): AuthState
+    suspend fun checkIfUserIsAdminAndProducer(): Pair<Boolean, Boolean>
 }

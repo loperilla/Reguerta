@@ -19,6 +19,7 @@ import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerValue
@@ -97,7 +98,7 @@ private fun HomeScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DrawerContent(onEvent, navigateTo)
+            DrawerContent(state, onEvent, navigateTo)
         }
     ) {
         Scaffold(
@@ -190,7 +191,7 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
 }
 
 @Composable
-fun DrawerContent(onEvent: (HomeEvent) -> Unit, navigateTo: (String) -> Unit) {
+fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (String) -> Unit) {
     ModalDrawerSheet {
         Spacer(modifier = Modifier.height(16.dp))
         Image(
@@ -200,7 +201,12 @@ fun DrawerContent(onEvent: (HomeEvent) -> Unit, navigateTo: (String) -> Unit) {
                 .align(Alignment.CenterHorizontally)
         )
         Spacer(modifier = Modifier.height(8.dp))
-        prepareNavigationDrawerList(onEvent, navigateTo).forEach { info ->
+        prepareNavigationDrawerList(
+            state.isCurrentUserAdmin,
+            state.isCurrentUserProducer,
+            onEvent,
+            navigateTo
+        ).forEach { info ->
             NavigationDrawerItem(
                 icon = {
                     Icon(
@@ -230,68 +236,95 @@ fun DrawerContent(onEvent: (HomeEvent) -> Unit, navigateTo: (String) -> Unit) {
 }
 
 private fun prepareNavigationDrawerList(
+    isCurrentUserAdmin: Boolean,
+    isCurrentUserProducer: Boolean,
     onEvent: (HomeEvent) -> Unit,
     navigateTo: (String) -> Unit
 ): List<NavigationDrawerInfo> {
-    return listOf(
+    // Producer = home, pedidos, pedidos recibidos, productos, ajustes, cerrarsesion
+    // Admin = home, pedidos, usuarios, noticias, ajustes, cerrarsesion
+    val fullList = listOf(
         NavigationDrawerInfo(
             title = "Home",
             icon = Icons.Outlined.Home,
             onClick = {
                 navigateTo(Routes.HOME.ROOT.route)
-            }
+            },
+            showInBothCase = true
         ),
         NavigationDrawerInfo(
             title = "Pedidos",
             icon = Icons.AutoMirrored.Filled.Toc,
             onClick = {
                 navigateTo(Routes.HOME.ORDERS.route)
-            }
+            },
+            showInBothCase = true
         ),
         NavigationDrawerInfo(
             title = "Pedidos recibidos",
             icon = Icons.Outlined.Inventory,
             onClick = {
                 navigateTo(Routes.HOME.ORDER_RECEIVED.route)
-            }
+            },
+            showIfUserIsProducer = true
         ),
         NavigationDrawerInfo(
             title = "Productos",
             icon = Icons.Outlined.Inventory2,
             onClick = {
                 navigateTo(Routes.PRODUCTS.route)
-            }
+            },
+            showIfUserIsProducer = true
         ),
         NavigationDrawerInfo(
             title = "Usuarios",
             icon = Icons.Outlined.AccountCircle,
             onClick = {
                 navigateTo(Routes.USERS.route)
-            }
+            },
+            showIfUserIsAdmin = true
+        ),
+        NavigationDrawerInfo(
+            title = "Noticias",
+            icon = Icons.Outlined.Newspaper,
+            onClick = {
+
+            },
+            showIfUserIsAdmin = true
         ),
         NavigationDrawerInfo(
             title = "Ajustes",
             icon = Icons.Outlined.Settings,
             onClick = {
                 navigateTo(Routes.HOME.SETTINGS.route)
-            }
+            },
+            showInBothCase = true
         ),
         NavigationDrawerInfo(
             title = "Cerrar sesión",
             icon = Icons.AutoMirrored.Filled.Logout,
             onClick = {
                 onEvent(HomeEvent.ShowDialog)
-            }
+            },
+            showInBothCase = true
         )
     )
+    return fullList.filter {
+        it.showInBothCase || it.showIfUserIsAdmin && isCurrentUserAdmin || it.showIfUserIsProducer && isCurrentUserProducer
+    }
 }
 
 @Preview
 @Composable
 fun HomePreview() {
     Screen {
-        LogoutDialog {
-
-        }
+        HomeScreen(
+            state = HomeState(
+                isCurrentUserAdmin = false,
+                isCurrentUserProducer = false
+            ),
+            onEvent = {},
+            navigateTo = {}
+        )
     }
 }
