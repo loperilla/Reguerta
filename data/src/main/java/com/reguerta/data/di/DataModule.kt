@@ -6,6 +6,8 @@ import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.ktx.storage
 import com.reguerta.data.firebase.auth.AuthService
 import com.reguerta.data.firebase.auth.AuthServiceImpl
 import com.reguerta.data.firebase.firestore.CONTAINER
@@ -14,6 +16,7 @@ import com.reguerta.data.firebase.firestore.MEASURES
 import com.reguerta.data.firebase.firestore.MEASURES_COLLECTION
 import com.reguerta.data.firebase.firestore.PRODUCTS
 import com.reguerta.data.firebase.firestore.PRODUCTS_COLLECTION
+import com.reguerta.data.firebase.firestore.PRODUCT_IMAGE_STORAGE_PATH
 import com.reguerta.data.firebase.firestore.USERS
 import com.reguerta.data.firebase.firestore.USERS_COLLECTION
 import com.reguerta.data.firebase.firestore.container.ContainerService
@@ -47,8 +50,12 @@ object DataModule {
 
     @Singleton
     @Provides
-    fun provideAuthService(firebaseAuth: FirebaseAuth, dataStore: ReguertaDataStore): AuthService =
-        AuthServiceImpl(firebaseAuth, dataStore)
+    fun provideAuthService(
+        firebaseAuth: FirebaseAuth,
+        dataStore: ReguertaDataStore,
+        userCollection: UsersCollectionService
+    ): AuthService =
+        AuthServiceImpl(firebaseAuth, userCollection, dataStore)
 
     @Singleton
     @Provides
@@ -62,20 +69,30 @@ object DataModule {
     @Singleton
     @Provides
     fun provideUserCollectionService(
-        @Named(USERS_COLLECTION) collection: CollectionReference
-    ): UsersCollectionService = UserCollectionImpl(collection)
+        @Named(USERS_COLLECTION) collection: CollectionReference,
+        dataStore: ReguertaDataStore
+    ): UsersCollectionService = UserCollectionImpl(collection, dataStore)
 
     @Named(PRODUCTS_COLLECTION)
     @Singleton
     @Provides
     fun provideProductsCollection(firestore: FirebaseFirestore) = firestore.collection(PRODUCTS)
 
+    @Named(PRODUCT_IMAGE_STORAGE_PATH)
+    @Singleton
+    @Provides
+    fun provideProductStoragePreference(): StorageReference = Firebase
+        .storage
+        .reference
+        .child(PRODUCT_IMAGE_STORAGE_PATH)
+
     @Singleton
     @Provides
     fun provideProductsCollectionService(
         @Named(PRODUCTS_COLLECTION) collection: CollectionReference,
-        dataStore: ReguertaDataStore
-    ): ProductsService = ProductsServiceImpl(collection, dataStore)
+        dataStore: ReguertaDataStore,
+        @Named(PRODUCT_IMAGE_STORAGE_PATH) storageReference: StorageReference
+    ): ProductsService = ProductsServiceImpl(collection, dataStore, storageReference)
 
     @Named(CONTAINERS_COLLECTION)
     @Singleton

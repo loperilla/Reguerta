@@ -11,3 +11,4 @@ const val USER_IS_PRODUCER = "isProducer"
 const val USER_IS_ADMIN = "isAdmin"
 
 const val USER_ID = "userId"
+const val USER_EMAIL = "email"

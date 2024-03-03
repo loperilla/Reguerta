@@ -86,11 +86,11 @@ class AddProductViewModel @Inject constructor(
                 }
 
                 is AddProductEvent.OnImageSelected -> {
-//                    _state.update {
-//                        it.copy(
-//                            bitmap = event.uri.
-//                        )
-//                    }
+                    _state.update {
+                        it.copy(
+                            bitmap = event.bitmap
+                        )
+                    }
                 }
 
                 is AddProductEvent.OnNameChanged -> {
@@ -127,7 +127,7 @@ class AddProductViewModel @Inject constructor(
                             available = isAvailable,
                             imageByteArray = bitmap?.toByteArray(),
                             stock = stock,
-                            quantityContainer = containerValue,
+                            quantityContainer = containerValue.toInt(),
                             quantityWeight = measureValue.toInt(),
                             unity = measureType
                         ).fold(
@@ -161,7 +161,7 @@ class AddProductViewModel @Inject constructor(
                 is AddProductEvent.OnContainerValueChanges -> {
                     _state.update {
                         it.copy(
-                            containerValue = event.newContainerValue.toIntOrNull() ?: 0
+                            containerValue = event.newContainerValue
                         )
                     }
                 }
@@ -177,7 +177,7 @@ class AddProductViewModel @Inject constructor(
                 is AddProductEvent.OnMeasuresValueChanges -> {
                     _state.update {
                         it.copy(
-                            measureValue = event.newMeasureValue.toIntOrNull() ?: 0
+                            measureValue = event.newMeasureValue
                         )
                     }
                 }
@@ -195,7 +195,15 @@ class AddProductViewModel @Inject constructor(
 
     private fun checkIfButtonIsEnabled(): Boolean {
         with(_state.value) {
-            return checkAllStringAreNotEmpty(name, description, price, measureType, containerType)
+            return checkAllStringAreNotEmpty(
+                name,
+                description,
+                price,
+                measureType,
+                containerType,
+                measureValue,
+                containerValue
+            )
         }
     }
 }

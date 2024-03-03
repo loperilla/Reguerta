@@ -14,8 +14,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -34,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.domain.model.User
 import com.reguerta.presentation.composables.ReguertaButton
+import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaCheckBox
 import com.reguerta.presentation.composables.ReguertaIconButton
 import com.reguerta.presentation.composables.Screen
@@ -174,104 +173,101 @@ fun UserItem(
     onEvent: (UserScreenEvent) -> Unit,
     navigateTo: (String) -> Unit
 ) {
-    val colors = CardDefaults.cardColors(
-        containerColor = SecondaryBackground
-    )
-    Card(
+    ReguertaCard(
         modifier = Modifier
             .padding(8.dp)
             .fillMaxWidth(),
-        colors = colors
-    ) {
-        TextBody(
-            text = user.fullName,
-            textSize = 18.sp,
-            textColor = Text,
-            modifier = Modifier
-                .padding(start = 16.dp, top = 8.dp)
-        )
-
-        TextBody(
-            text = user.email,
-            textSize = 16.sp,
-            textColor = Text,
-            modifier = Modifier
-                .padding(start = 16.dp, top = 8.dp)
-        )
-
-        Row(
-            modifier = Modifier
-                .wrapContentSize()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ReguertaCheckBox(
-                isChecked = user.isProducer,
-                onCheckedChange = {
-                    onEvent(UserScreenEvent.ToggleProducer(user.id))
-                }
-            )
+        content = {
             TextBody(
-                text = "Es productor",
-                textSize = 16.sp,
-                textColor = Text
-            )
-        }
-
-        if (user.isProducer) {
-            TextBody(
-                text = user.companyName,
-                textSize = 14.sp,
+                text = user.fullName,
+                textSize = 18.sp,
                 textColor = Text,
                 modifier = Modifier
-                    .padding(start = 16.dp, top = 4.dp)
+                    .padding(start = 16.dp, top = 8.dp)
             )
-        }
 
-        Row(
-            modifier = Modifier
-                .wrapContentSize()
-                .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ReguertaCheckBox(
-                isChecked = user.isAdmin,
-                onCheckedChange = {
-                    onEvent(UserScreenEvent.ToggleAdmin(user.id))
-                }
-            )
             TextBody(
-                text = "Es admin",
+                text = user.email,
                 textSize = 16.sp,
-                textColor = Text
+                textColor = Text,
+                modifier = Modifier
+                    .padding(start = 16.dp, top = 8.dp)
             )
-        }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ReguertaIconButton(
-                iconButton = Icons.Filled.Edit,
-                onClick = {
-                    navigateTo(Routes.USERS.EDIT.createRoute(user.id))
-                },
-                contentColor = PrimaryColor
-            )
-            ReguertaIconButton(
-                iconButton = Icons.Filled.Delete,
-                onClick = {
-                    onEvent(UserScreenEvent.DeleteUser(user.id))
-                },
-                contentColor = Color.Red
-            )
+            Row(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ReguertaCheckBox(
+                    isChecked = user.isProducer,
+                    onCheckedChange = {
+                        onEvent(UserScreenEvent.ToggleProducer(user.id))
+                    }
+                )
+                TextBody(
+                    text = "Es productor",
+                    textSize = 16.sp,
+                    textColor = Text
+                )
+            }
+
+            if (user.isProducer) {
+                TextBody(
+                    text = user.companyName,
+                    textSize = 14.sp,
+                    textColor = Text,
+                    modifier = Modifier
+                        .padding(start = 16.dp, top = 4.dp)
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .wrapContentSize()
+                    .padding(top = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ReguertaCheckBox(
+                    isChecked = user.isAdmin,
+                    onCheckedChange = {
+                        onEvent(UserScreenEvent.ToggleAdmin(user.id))
+                    }
+                )
+                TextBody(
+                    text = "Es admin",
+                    textSize = 16.sp,
+                    textColor = Text
+                )
+            }
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ReguertaIconButton(
+                    iconButton = Icons.Filled.Edit,
+                    onClick = {
+                        navigateTo(Routes.USERS.EDIT.createRoute(user.id))
+                    },
+                    contentColor = PrimaryColor
+                )
+                ReguertaIconButton(
+                    iconButton = Icons.Filled.Delete,
+                    onClick = {
+                        onEvent(UserScreenEvent.DeleteUser(user.id))
+                    },
+                    contentColor = Color.Red
+                )
+            }
         }
-    }
+    )
 }
 
 

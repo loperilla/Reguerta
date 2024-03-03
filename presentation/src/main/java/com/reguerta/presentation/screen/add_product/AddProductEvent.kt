@@ -1,6 +1,6 @@
 package com.reguerta.presentation.screen.add_product
 
-import android.net.Uri
+import android.graphics.Bitmap
 
 /*****
  * Project: Reguerta
@@ -10,7 +10,7 @@ import android.net.Uri
  */
 sealed class AddProductEvent {
     data object GoOut : AddProductEvent()
-    data class OnImageSelected(val uri: Uri?) : AddProductEvent()
+    data class OnImageSelected(val bitmap: Bitmap) : AddProductEvent()
     data class OnAvailableChanges(val newValue: Boolean) : AddProductEvent()
     data class OnNameChanged(val newValue: String) : AddProductEvent()
     data class OnDescriptionChanged(val newValue: String) : AddProductEvent()

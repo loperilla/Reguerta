@@ -1,5 +1,6 @@
 package com.reguerta.presentation.screen.products
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -17,8 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,16 +28,20 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.domain.model.Product
+import com.reguerta.presentation.R
 import com.reguerta.presentation.composables.ImageUrl
 import com.reguerta.presentation.composables.ReguertaButton
+import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaIconButton
 import com.reguerta.presentation.composables.Screen
+import com.reguerta.presentation.composables.StockText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.ui.PrimaryColor
@@ -112,7 +115,7 @@ private fun ProductsScreen(
             ) {
                 ReguertaButton(
                     "Añadir nuevo producto",
-                    onClick = { navigateTo(Routes.USERS.ADD.route) },
+                    onClick = { navigateTo(Routes.PRODUCTS.ADD.route) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
@@ -168,101 +171,107 @@ fun ProductItem(
     navigateTo: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val colors = CardDefaults.cardColors(
-        containerColor = SecondaryBackground
-    )
-    Card(
+    ReguertaCard(
         modifier = modifier
             .padding(8.dp)
             .wrapContentSize(),
-        colors = colors
-    ) {
-        Row(
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            ImageUrl(
-                imageUrl = product.imageUrl,
-                name = product.name,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .size(96.dp)
-            )
+        content = {
             Row(
+                verticalAlignment = Alignment.Top,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
-                verticalAlignment = Alignment.CenterVertically
+                    .fillMaxWidth()
+                    .wrapContentHeight()
             ) {
-                ReguertaIconButton(
-                    iconButton = Icons.Filled.Edit,
-                    onClick = {
+                if (product.imageUrl.isEmpty()) {
+                    Image(
+                        painter = painterResource(id = R.mipmap.product_no_available),
+                        contentDescription = product.name,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(96.dp)
+                    )
+                } else {
+                    ImageUrl(
+                        imageUrl = product.imageUrl,
+                        name = product.name,
+                        modifier = Modifier
+                            .padding(8.dp)
+                            .size(96.dp)
+                    )
+                }
+                Row(
+                    modifier = Modifier
+                        .padding(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ReguertaIconButton(
+                        iconButton = Icons.Filled.Edit,
+                        onClick = {
 //                        navigateTo(Routes.USERS.EDIT.createRoute(user.id))
-                    },
-                    contentColor = PrimaryColor
-                )
-                ReguertaIconButton(
-                    iconButton = Icons.Filled.Delete,
-                    onClick = {
-                        onEvent(ProductsEvent.DeleteProduct(product.id))
-                    },
-                    contentColor = Color.Red
-                )
+                        },
+                        contentColor = PrimaryColor
+                    )
+                    ReguertaIconButton(
+                        iconButton = Icons.Filled.Delete,
+                        onClick = {
+                            onEvent(ProductsEvent.DeleteProduct(product.id))
+                        },
+                        contentColor = Color.Red
+                    )
+                }
             }
-        }
-        Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
-            Column(
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxHeight()
+                    .fillMaxWidth()
+                    .wrapContentHeight()
             ) {
-                TextBody(
-                    text = product.name,
-                    textSize = 18.sp,
-                    textColor = Text,
+                Column(
                     modifier = Modifier
-                        .padding(start = 16.dp, top = 4.dp)
-                )
-                TextBody(
-                    text = product.description,
-                    textSize = 16.sp,
-                    textColor = Text,
-                    modifier = Modifier
-                        .padding(start = 16.dp, top = 4.dp)
-                )
-                TextBody(
-                    text = "${product.price} €",
-                    textSize = 16.sp,
-                    textColor = Text,
-                    modifier = Modifier
-                        .padding(start = 16.dp, top = 4.dp)
-                )
-            }
+                        .padding(8.dp)
+                        .fillMaxHeight()
+                ) {
+                    TextBody(
+                        text = product.name,
+                        textSize = 18.sp,
+                        textColor = Text,
+                        modifier = Modifier
+                            .padding(start = 16.dp, top = 4.dp)
+                    )
+                    TextBody(
+                        text = product.description,
+                        textSize = 16.sp,
+                        textColor = Text,
+                        modifier = Modifier
+                            .padding(start = 16.dp, top = 4.dp)
+                    )
+                    TextBody(
+                        text = "${"%.2f".format(product.price)} €",
+                        textSize = 16.sp,
+                        textColor = Text,
+                        modifier = Modifier
+                            .padding(start = 16.dp, top = 4.dp)
+                    )
+                }
 
-            Column(
-                verticalArrangement = Arrangement.Bottom,
-                modifier = Modifier
-                    .padding(8.dp)
-                    .fillMaxHeight()
-            ) {
-                TextBody(
-                    text = "Stock: ${product.stock}",
-                    textSize = 16.sp,
-                    textColor = Text,
+                Column(
+                    verticalArrangement = Arrangement.Bottom,
                     modifier = Modifier
-                        .padding(start = 16.dp, top = 8.dp)
-                )
+                        .padding(8.dp)
+                        .fillMaxHeight()
+                ) {
+                    StockText(
+                        product.stock,
+                        textSize = 16.sp,
+                        modifier = Modifier
+                            .padding(start = 16.dp, top = 8.dp)
+                    )
+                }
             }
         }
-    }
+    )
 }
 
 @Preview(showBackground = true, showSystemUi = true)

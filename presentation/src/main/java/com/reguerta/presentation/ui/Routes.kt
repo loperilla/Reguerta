@@ -25,7 +25,7 @@ sealed class Routes(val route: String) {
 
         data object ROOT : Routes("Products")
 
-        data object ADD : Routes("Add")
+        data object ADD : Routes("AddProduct")
 
         data object EDIT : Routes("EditProduct/{id}") {
             fun createRoute(id: String) = "EditProduct/$id"
@@ -34,7 +34,7 @@ sealed class Routes(val route: String) {
 
     data object USERS : Routes("UserScreen") {
         data object ROOT : Routes("Users")
-        data object ADD : Routes("Add")
+        data object ADD : Routes("AddUser")
 
         data object EDIT : Routes("EditUser/{id}") {
             fun createRoute(id: String) = "EditUser/$id"

@@ -1,6 +1,6 @@
 package com.reguerta.domain.usecase.products
 
-import com.reguerta.data.firebase.firestore.products.ProductModel
+import com.reguerta.data.firebase.firestore.products.ProductDTOModel
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import javax.inject.Inject
 
@@ -26,7 +26,7 @@ class AddProductUseCase @Inject constructor(
         unity: String
     ): Result<Unit> {
         return try {
-            val product = ProductModel(
+            val product = ProductDTOModel(
                 name = name,
                 container = container,
                 description = description,

@@ -1,8 +1,13 @@
 package com.reguerta.data.firebase.firestore.users
 
 import com.google.firebase.firestore.CollectionReference
+import com.reguerta.data.firebase.firestore.USER_EMAIL
 import com.reguerta.data.firebase.firestore.USER_IS_ADMIN
 import com.reguerta.data.firebase.firestore.USER_IS_PRODUCER
+import com.reguerta.localdata.datastore.COMPANY_NAME_KEY
+import com.reguerta.localdata.datastore.IS_ADMIN_KEY
+import com.reguerta.localdata.datastore.IS_PRODUCER_KEY
+import com.reguerta.localdata.datastore.ReguertaDataStore
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -16,7 +21,8 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 class UserCollectionImpl @Inject constructor(
-    private val collection: CollectionReference
+    private val collection: CollectionReference,
+    private val dataStore: ReguertaDataStore
 ) : UsersCollectionService {
     override suspend fun getUserList(): Flow<Result<List<UserModel>>> = callbackFlow {
         val subscription = collection.addSnapshotListener { snapshot, error ->
@@ -50,6 +56,32 @@ class UserCollectionImpl @Inject constructor(
         } catch (ex: Exception) {
             Result.failure(Exception("User not found"))
         }
+    }
+
+    override suspend fun saveLoggedUserInfo(email: String) {
+        val snapshot = collection
+            .whereEqualTo(
+                USER_EMAIL,
+                email
+            )
+            .get()
+            .await()
+
+        val user = snapshot.documents.firstOrNull()?.toObject(UserModel::class.java)
+        user?.let { model ->
+            model.companyName?.let { company ->
+                dataStore.saveStringValue(
+                    COMPANY_NAME_KEY, company
+                )
+            }
+            dataStore.saveBooleanValue(
+                IS_ADMIN_KEY, model.isAdmin
+            )
+            dataStore.saveBooleanValue(
+                IS_PRODUCER_KEY, model.isProducer
+            )
+        }
+
     }
 
     override suspend fun toggleAdmin(id: String, newValue: Boolean) {

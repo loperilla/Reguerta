@@ -1,8 +1,11 @@
 package com.reguerta.data.firebase.firestore.products
 
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.storage.StorageReference
 import com.reguerta.data.firebase.firestore.USER_ID
+import com.reguerta.localdata.datastore.COMPANY_NAME_KEY
 import com.reguerta.localdata.datastore.ReguertaDataStore
+import com.reguerta.localdata.datastore.UID_KEY
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
@@ -17,13 +20,14 @@ import javax.inject.Inject
  */
 class ProductsServiceImpl @Inject constructor(
     private val collection: CollectionReference,
-    private val dataStore: ReguertaDataStore
+    private val dataStore: ReguertaDataStore,
+    private val storage: StorageReference
 ) : ProductsService {
     override suspend fun getProducts(): Flow<Result<List<ProductModel>>> = callbackFlow {
         val subscription = collection
             .whereEqualTo(
                 USER_ID,
-                dataStore.getUID()
+                dataStore.getStringByKey(UID_KEY)
             )
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
@@ -56,13 +60,19 @@ class ProductsServiceImpl @Inject constructor(
             .await()
     }
 
-    override suspend fun addProduct(product: ProductModel, byteArray: ByteArray?): Result<Unit> {
+    override suspend fun addProduct(product: ProductDTOModel, byteArray: ByteArray?): Result<Unit> {
         return try {
-            val productToCreate = product.copy(
-                userId = dataStore.getUID()
+            var productToCreate = product.copy(
+                userId = dataStore.getStringByKey(UID_KEY),
+                companyName = dataStore.getStringByKey(COMPANY_NAME_KEY)
             )
             if (byteArray != null) {
-                // Aquí subiría la imagen y haria un copy con la url
+                val imageRef = storage.child(productToCreate.buildImageRef())
+                imageRef.putBytes(byteArray).await()
+                val url = imageRef.downloadUrl.await()
+                productToCreate = productToCreate.copy(
+                    urlImage = url.toString()
+                )
             }
             collection
                 .add(productToCreate)

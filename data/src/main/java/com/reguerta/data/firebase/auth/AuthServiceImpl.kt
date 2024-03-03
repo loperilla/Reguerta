@@ -3,7 +3,9 @@ package com.reguerta.data.firebase.auth
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.reguerta.data.AuthState
+import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import com.reguerta.localdata.datastore.ReguertaDataStore
+import com.reguerta.localdata.datastore.UID_KEY
 import kotlinx.coroutines.tasks.await
 
 /*****
@@ -14,6 +16,7 @@ import kotlinx.coroutines.tasks.await
  */
 class AuthServiceImpl(
     private val firebaseAuth: FirebaseAuth,
+    private val userCollection: UsersCollectionService,
     private val dataStore: ReguertaDataStore
 ) : AuthService {
     private val currentUser
@@ -24,13 +27,18 @@ class AuthServiceImpl(
 
     override suspend fun signOut() {
         firebaseAuth.signOut()
-        dataStore.saveUID("")
+        dataStore.clearUserDataStore()
     }
 
     override suspend fun createUserWithEmailAndPassword(email: String, password: String): AuthState {
         return try {
             firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            dataStore.saveUID(currentUser?.uid.orEmpty())
+            dataStore.saveStringValue(
+                UID_KEY, currentUser?.uid.orEmpty()
+            )
+            userCollection.saveLoggedUserInfo(
+                email
+            )
             AuthState.LoggedIn
         } catch (ex: Exception) {
             Log.e("AuthService", ex.message.orEmpty())
@@ -42,6 +50,9 @@ class AuthServiceImpl(
         return try {
             currentUser?.reload()?.await()
             if (isAuthenticated) {
+                userCollection.saveLoggedUserInfo(
+                    currentUser?.email.orEmpty()
+                )
                 AuthState.LoggedIn
             } else {
                 AuthState.Error("Error")
@@ -54,7 +65,12 @@ class AuthServiceImpl(
     override suspend fun logInWithUserPassword(email: String, password: String): AuthState {
         return try {
             firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            dataStore.saveUID(currentUser?.uid.orEmpty())
+            dataStore.saveStringValue(
+                UID_KEY, currentUser?.uid.orEmpty()
+            )
+            userCollection.saveLoggedUserInfo(
+                email
+            )
             AuthState.LoggedIn
         } catch (ex: Exception) {
             AuthState.Error(ex.message ?: "Error")

@@ -15,3 +15,4 @@ const val MEASURES = "measures"
 const val MEASURES_COLLECTION = "measuresCollection"
 const val CONTAINER = "container"
 const val CONTAINERS_COLLECTION = "containerCollection"
+const val PRODUCT_IMAGE_STORAGE_PATH = PRODUCTS

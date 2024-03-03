@@ -8,7 +8,6 @@ import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Card
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
@@ -18,12 +17,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -58,62 +60,68 @@ fun DropdownSelectable(
     }
     val density = LocalDensity.current
 
-    Card(
+    ReguertaCard(
         modifier = modifier
             .onSizeChanged {
                 itemHeight = with(density) { it.height.toDp() }
+            },
+        contentColor = Color.White,
+        containerColor = PrimaryColor,
+        content = {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .indication(interactionSource, LocalIndication.current)
+                    .pointerInput(true) {
+                        detectTapGestures(
+                            onLongPress = {
+                                isContextMenuVisible = true
+                                pressOffset = DpOffset(it.x.toDp(), it.y.toDp())
+                            },
+                            onPress = {
+                                val press = PressInteraction.Press(it)
+                                interactionSource.emit(press)
+                                tryAwaitRelease()
+                                interactionSource.emit(PressInteraction.Release(press))
+                            }
+                        )
+                    }
+                    .padding(16.dp)
+            ) {
+                TextBody(
+                    text = currentSelected,
+                    textSize = 16.sp,
+                    textColor = Color.White,
+                    textAlignment = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                )
             }
-    ) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .indication(interactionSource, LocalIndication.current)
-                .pointerInput(true) {
-                    detectTapGestures(
-                        onLongPress = {
-                            isContextMenuVisible = true
-                            pressOffset = DpOffset(it.x.toDp(), it.y.toDp())
+            DropdownMenu(
+                expanded = isContextMenuVisible,
+                onDismissRequest = {
+                    isContextMenuVisible = false
+                },
+                offset = pressOffset.copy(
+                    y = pressOffset.y - itemHeight
+                )
+            ) {
+                dropdownItems.forEach {
+                    DropdownMenuItem(
+                        onClick = {
+                            onItemClick(it)
+                            isContextMenuVisible = false
                         },
-                        onPress = {
-                            val press = PressInteraction.Press(it)
-                            interactionSource.emit(press)
-                            tryAwaitRelease()
-                            interactionSource.emit(PressInteraction.Release(press))
+                        text = {
+                            TextBody(
+                                text = it.text,
+                                textSize = 16.sp,
+                                textColor = Text
+                            )
                         }
                     )
                 }
-                .padding(16.dp)
-        ) {
-            TextBody(
-                text = currentSelected,
-                textSize = 16.sp,
-                textColor = Text
-            )
-        }
-        DropdownMenu(
-            expanded = isContextMenuVisible,
-            onDismissRequest = {
-                isContextMenuVisible = false
-            },
-            offset = pressOffset.copy(
-                y = pressOffset.y - itemHeight
-            )
-        ) {
-            dropdownItems.forEach {
-                DropdownMenuItem(
-                    onClick = {
-                        onItemClick(it)
-                        isContextMenuVisible = false
-                    },
-                    text = {
-                        TextBody(
-                            text = it.text,
-                            textSize = 16.sp,
-                            textColor = Text
-                        )
-                    }
-                )
             }
         }
-    }
+    )
 }

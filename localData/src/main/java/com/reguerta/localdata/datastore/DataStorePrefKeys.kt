@@ -1,5 +1,6 @@
 package com.reguerta.localdata.datastore
 
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 
 /*****
@@ -11,3 +12,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 
 
 val UID_KEY = stringPreferencesKey("uid")
+val COMPANY_NAME_KEY = stringPreferencesKey("companyName")
+
+val IS_ADMIN_KEY = booleanPreferencesKey("isAdmin")
+val IS_PRODUCER_KEY = booleanPreferencesKey("isProducer")

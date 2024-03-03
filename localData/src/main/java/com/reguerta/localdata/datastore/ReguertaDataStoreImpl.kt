@@ -1,6 +1,7 @@
 package com.reguerta.localdata.datastore
 
 import android.content.Context
+import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.Dispatchers
@@ -17,20 +18,26 @@ import javax.inject.Inject
 val Context.userPreferences by preferencesDataStore("UserDatastore")
 
 class ReguertaDataStoreImpl @Inject constructor(private val context: Context) : ReguertaDataStore {
-    override suspend fun saveUID(uid: String): Unit = withContext(Dispatchers.IO) {
+    override suspend fun saveStringValue(key: Preferences.Key<String>, value: String): Unit =
+        withContext(Dispatchers.IO) {
         context.userPreferences.edit { preferences ->
-            preferences[UID_KEY] = uid
+            preferences[key] = value
         }
     }
 
-
-    override suspend fun getUID(): String = withContext(Dispatchers.IO) {
-        context.userPreferences.data.first()[UID_KEY] ?: ""
+    override suspend fun saveBooleanValue(key: Preferences.Key<Boolean>, value: Boolean) {
+        context.userPreferences.edit {
+            it[key] = value
+        }
     }
 
-    override suspend fun clearUID(): Unit = withContext(Dispatchers.IO) {
+    override suspend fun getStringByKey(key: Preferences.Key<String>): String = withContext(Dispatchers.IO) {
+        context.userPreferences.data.first()[key] ?: ""
+    }
+
+    override suspend fun clearUserDataStore(): Unit = withContext(Dispatchers.IO) {
         context.userPreferences.edit { preferences ->
-            preferences.remove(UID_KEY)
+            preferences.clear()
         }
     }
 }

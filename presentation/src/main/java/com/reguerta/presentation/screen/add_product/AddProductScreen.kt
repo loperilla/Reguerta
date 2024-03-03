@@ -1,14 +1,27 @@
 package com.reguerta.presentation.screen.add_product
 
+import android.content.Intent
+import android.net.Uri
+import android.provider.Settings
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -17,21 +30,32 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.reguerta.presentation.R
+import com.reguerta.presentation.checkRationalPermission
+import com.reguerta.presentation.checkStoragePermission
 import com.reguerta.presentation.composables.DropDownItem
 import com.reguerta.presentation.composables.DropdownSelectable
-import com.reguerta.presentation.composables.ImageUrl
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCheckBox
 import com.reguerta.presentation.composables.ReguertaCounter
@@ -41,8 +65,11 @@ import com.reguerta.presentation.composables.StockText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
 import com.reguerta.presentation.composables.TextTitle
+import com.reguerta.presentation.getStoragePermissionBySdk
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.Text
+import com.reguerta.presentation.uriToBitmap
+import kotlinx.coroutines.launch
 
 /*****
  * Project: Reguerta
@@ -75,10 +102,18 @@ private fun AddProductScreen(
     state: AddProductState,
     onEvent: (AddProductEvent) -> Unit
 ) {
+    val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+    val keyboardHeight = WindowInsets.ime.getBottom(LocalDensity.current)
+    LaunchedEffect(key1 = keyboardHeight) {
+        coroutineScope.launch {
+            scrollState.scrollBy(keyboardHeight.toFloat())
+        }
+    }
     Scaffold(
         topBar = {
             MediumTopAppBar(
-                title = { TextTitle(text = "Add Product", textSize = 26.sp, textColor = Text) },
+                title = { TextTitle(text = "Añadir producto", textSize = 26.sp, textColor = Text) },
                 navigationIcon = {
                     IconButton(onClick = { onEvent(AddProductEvent.GoOut) }) {
                         Icon(
@@ -94,6 +129,8 @@ private fun AddProductScreen(
             modifier = Modifier
                 .padding(it)
                 .fillMaxSize()
+                .imePadding()
+                .verticalScroll(scrollState)
         ) {
             HeaderAddProductForm(
                 state,
@@ -134,7 +171,9 @@ private fun AddProductScreen(
             TextReguertaInput(
                 text = state.price,
                 onTextChange = { newPrice ->
-                    onEvent(AddProductEvent.OnPriceChanged(newPrice))
+                    onEvent(
+                        AddProductEvent.OnPriceChanged(newPrice)
+                    )
                 },
                 imeAction = ImeAction.Next,
                 labelText = "Precio",
@@ -164,20 +203,81 @@ fun HeaderAddProductForm(
     onEvent: (AddProductEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
+    val context = LocalContext.current
+    var photoUri: Uri? by remember { mutableStateOf(null) }
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
+        photoUri = uri
+    }
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { map ->
+        if (map.all { entry -> entry.value }) {
+            launcher.launch(
+                PickVisualMediaRequest(
+                    mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                )
+            )
+            return@rememberLauncherForActivityResult
+        }
+
+        map.entries.forEach {
+            if (checkRationalPermission(context, it.key)) {
+                val intent = Intent(
+                    Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.fromParts("package", context.packageName, null)
+                )
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                ContextCompat.startActivity(
+                    context,
+                    intent,
+                    null
+                )
+            }
+        }
+    }
     Row(
         modifier = modifier
             .padding(8.dp)
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        if (state.bitmap != null) {
-            ImageUrl(
-                imageUrl = state.bitmap.toString(),
-                name = state.name,
+        if (photoUri != null) {
+            val painter = rememberAsyncImagePainter(
+                ImageRequest
+                    .Builder(context)
+                    .data(data = photoUri)
+                    .build()
+            )
+            Image(
+                painter = painter,
+                contentDescription = "Edit",
                 modifier = Modifier
                     .padding(8.dp)
                     .size(96.dp)
+                    .clickable {
+                        if (checkStoragePermission(context)) {
+                            launcher.launch(
+                                PickVisualMediaRequest(
+                                    mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                                )
+                            )
+                            return@clickable
+                        }
+                        permissionLauncher.launch(
+                            getStoragePermissionBySdk()
+                        )
+                    }
             )
+            uriToBitmap(
+                context,
+                photoUri!!
+            )?.let {
+                onEvent(
+                    AddProductEvent.OnImageSelected(
+                        it
+                    )
+                )
+            }
         } else {
             Image(
                 painter = painterResource(R.mipmap.product_no_available),
@@ -185,6 +285,19 @@ fun HeaderAddProductForm(
                 modifier = Modifier
                     .padding(8.dp)
                     .size(96.dp)
+                    .clickable {
+                        if (checkStoragePermission(context)) {
+                            launcher.launch(
+                                PickVisualMediaRequest(
+                                    mediaType = ActivityResultContracts.PickVisualMedia.ImageOnly
+                                )
+                            )
+                            return@clickable
+                        }
+                        permissionLauncher.launch(
+                            getStoragePermissionBySdk()
+                        )
+                    }
             )
         }
         Column(
@@ -250,13 +363,13 @@ fun UnityAndContainer(
             .padding(8.dp),
     ) {
         SecondaryTextReguertaInput(
-            text = "${state.containerValue}",
+            text = state.containerValue,
             onTextChange = { newContainer ->
                 onEvent(AddProductEvent.OnContainerValueChanges(newContainer))
             },
             imeAction = ImeAction.Next,
             keyboardType = KeyboardType.NumberPassword,
-            placeholderText = "Pulsa para escribir",
+            placeholderText = "0",
             modifier = Modifier
                 .fillMaxWidth(0.3f)
                 .padding(8.dp)
@@ -293,7 +406,7 @@ fun UnityAndContainer(
             },
             imeAction = ImeAction.Next,
             keyboardType = KeyboardType.NumberPassword,
-            placeholderText = "Pulsa para escribir",
+            placeholderText = "0",
             modifier = Modifier
                 .fillMaxWidth(0.3f)
                 .padding(8.dp)

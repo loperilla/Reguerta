@@ -1,5 +1,7 @@
 package com.reguerta.localdata.datastore
 
+import androidx.datastore.preferences.core.Preferences
+
 /*****
  * Project: Reguerta
  * From: com.reguerta.localdata.datastore
@@ -7,7 +9,8 @@ package com.reguerta.localdata.datastore
  * All rights reserved 2024
  */
 interface ReguertaDataStore {
-    suspend fun saveUID(uid: String)
-    suspend fun getUID(): String
-    suspend fun clearUID()
+    suspend fun saveStringValue(key: Preferences.Key<String>, value: String)
+    suspend fun saveBooleanValue(key: Preferences.Key<Boolean>, value: Boolean)
+    suspend fun getStringByKey(key: Preferences.Key<String>): String
+    suspend fun clearUserDataStore()
 }
