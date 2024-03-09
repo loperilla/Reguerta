@@ -1,5 +1,6 @@
 package com.reguerta.presentation.screen.products
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -29,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -37,6 +40,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.domain.model.Product
 import com.reguerta.presentation.R
 import com.reguerta.presentation.composables.ImageUrl
+import com.reguerta.presentation.composables.InverseReguertaButton
+import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaIconButton
@@ -82,6 +87,13 @@ private fun ProductsScreen(
     onEvent: (ProductsEvent) -> Unit,
     navigateTo: (String) -> Unit
 ) {
+    AnimatedVisibility(
+        state.showAreYouSureDialog
+    ) {
+        AreYouSureDialog(
+            onEvent = onEvent
+        )
+    }
     Scaffold(
         topBar = {
             MediumTopAppBar(
@@ -216,7 +228,7 @@ fun ProductItem(
                     ReguertaIconButton(
                         iconButton = Icons.Filled.Delete,
                         onClick = {
-                            onEvent(ProductsEvent.DeleteProduct(product.id))
+                            onEvent(ProductsEvent.ShowAreYouSureDialog(product.id))
                         },
                         contentColor = Color.Red
                     )
@@ -270,6 +282,56 @@ fun ProductItem(
                     )
                 }
             }
+        }
+    )
+}
+
+@Composable
+private fun AreYouSureDialog(
+    onEvent: (ProductsEvent) -> Unit
+) {
+    ReguertaAlertDialog(
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "ExitApp",
+                tint = PrimaryColor,
+                modifier = Modifier
+                    .size(48.dp)
+            )
+        },
+        onDismissRequest = { onEvent(ProductsEvent.HideAreYouSureDialog) },
+        text = {
+            TextBody(
+                text = "Estás a punto de eliminar un producto. Esta acción no se podrá deshacer",
+                textSize = 14.sp,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        title = {
+            TextTitle(
+                text = "Vas a eliminar un producto ¿Estás seguro?",
+                textSize = 18.sp,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        confirmButton = {
+            ReguertaButton(
+                textButton = "Aceptar",
+                onClick = {
+                    onEvent(ProductsEvent.ConfirmDeleteProduct)
+                }
+            )
+        },
+        dismissButton = {
+            InverseReguertaButton(
+                textButton = "Cancelar",
+                onClick = {
+                    onEvent(ProductsEvent.HideAreYouSureDialog)
+                }
+            )
         }
     )
 }

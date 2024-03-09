@@ -62,7 +62,7 @@ fun InverseReguertaButton(
     textButton: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabledButton: Boolean = true
+    enabledButton: Boolean = true,
 ) {
     Button(
         onClick = onClick,

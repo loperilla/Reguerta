@@ -28,11 +28,11 @@ appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat"
 assertk = "com.willowtreeapps.assertk:assertk:0.28.0"
 build-gradle = "com.android.tools.build:gradle:8.3.0"
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-compose-bom = "androidx.compose:compose-bom:2024.02.01"
+compose-bom = "androidx.compose:compose-bom:2024.02.02"
 compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
 compose-constraints = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "androidx-constraintlayout" }
-compose-material3 = "androidx.compose.material3:material3:1.2.0"
-compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.6.2"
+compose-material3 = "androidx.compose.material3:material3:1.2.1"
+compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.6.3"
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 compose-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-ui = { module = "androidx.compose.ui:ui" }
@@ -45,7 +45,7 @@ crashlytics-gradle = "com.google.firebase:firebase-crashlytics-gradle:2.9.9"
 datastore = "androidx.datastore:datastore-preferences:1.0.0"
 firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
 #Firebase
-firebase-bom = "com.google.firebase:firebase-bom:32.7.3"
+firebase-bom = "com.google.firebase:firebase-bom:32.7.4"
 #crashlytics
 #auth
 #firestore
@@ -77,7 +77,7 @@ splashscreen = "androidx.core:core-splashscreen:1.0.1"
 test-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-test-espresso" }
 test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-ext" }
 timber = "com.jakewharton.timber:timber:5.0.1"
-turbine = "app.cash.turbine:turbine:1.0.0"
+turbine = "app.cash.turbine:turbine:1.1.0"
 
 [bundles]
 compose = [

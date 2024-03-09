@@ -1,5 +1,6 @@
 package com.reguerta.presentation.screen.home
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -21,12 +22,10 @@ import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Settings
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -41,6 +40,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -48,12 +48,12 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.presentation.R
 import com.reguerta.presentation.composables.InverseReguertaButton
+import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.navigationDrawer.NavigationDrawerInfo
-import com.reguerta.presentation.ui.DialogBackground
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.Text
@@ -126,7 +126,9 @@ private fun HomeScreen(
             modifier = Modifier
                 .fillMaxSize()
         ) {
-            if (state.showAreYouSure) {
+            AnimatedVisibility(
+                visible = state.showAreYouSure
+            ) {
                 LogoutDialog(onEvent)
             }
             Column(
@@ -144,7 +146,7 @@ private fun HomeScreen(
 
 @Composable
 private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
-    AlertDialog(
+    ReguertaAlertDialog(
         icon = {
             Icon(
                 imageVector = Icons.Default.Info,
@@ -158,20 +160,22 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
         text = {
             TextBody(
                 text = "¿Seguro que quieres cerrar la sesión?",
-                textSize = 18.sp,
-                textColor = Text
+                textSize = 16.sp,
+                textColor = Text,
+                textAlignment = TextAlign.Center
             )
         },
         title = {
             TextTitle(
                 text = "Cerrar sesión",
                 textSize = 18.sp,
-                textColor = Text
+                textColor = Text,
+                textAlignment = TextAlign.Center
             )
         },
         confirmButton = {
             ReguertaButton(
-                textButton = "Cerrar sesión",
+                textButton = "Confirmar",
                 onClick = {
                     onEvent(HomeEvent.GoOut)
                 }
@@ -184,9 +188,7 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
                     onEvent(HomeEvent.HideDialog)
                 }
             )
-        },
-        containerColor = DialogBackground,
-        iconContentColor = MaterialTheme.colorScheme.inversePrimary,
+        }
     )
 }
 

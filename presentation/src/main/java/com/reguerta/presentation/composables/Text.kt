@@ -76,7 +76,8 @@ fun StockText(
 
 @Composable
 fun TextTitle(
-    text: String, textSize: TextUnit, textColor: Color = Color.Unspecified, modifier: Modifier = Modifier
+    text: String, textSize: TextUnit, textColor: Color = Color.Unspecified, modifier: Modifier = Modifier,
+    textAlignment: TextAlign? = null
 ) {
     Text(
         text,
@@ -84,7 +85,8 @@ fun TextTitle(
         color = textColor,
         fontSize = textSize,
         fontWeight = FontWeight.Bold,
-        fontFamily = cabinsketchFontFamily
+        fontFamily = cabinsketchFontFamily,
+        textAlign = textAlignment
     )
 }
 

@@ -41,14 +41,49 @@ class ProductsViewModel @Inject constructor(
     fun onEvent(event: ProductsEvent) {
         viewModelScope.launch(Dispatchers.IO) {
             when (event) {
-                is ProductsEvent.DeleteProduct -> {
-                    deleteProductUseCase(event.idToDelete)
+                is ProductsEvent.ShowAreYouSureDialog -> {
+                    _state.update {
+                        it.copy(
+                            showAreYouSureDialog = true,
+                            selectedProductToDelete = event.idToDelete
+                        )
+                    }
                 }
 
                 ProductsEvent.GoOut -> {
                     _state.update {
                         it.copy(
                             goOut = true
+                        )
+                    }
+                }
+
+                ProductsEvent.ConfirmDeleteProduct -> {
+                    deleteProductUseCase(state.value.selectedProductToDelete).fold(
+                        onSuccess = {
+                            _state.update {
+                                it.copy(
+                                    showAreYouSureDialog = false,
+                                    selectedProductToDelete = ""
+                                )
+                            }
+                        },
+                        onFailure = {
+                            _state.update {
+                                it.copy(
+                                    showAreYouSureDialog = false,
+                                    selectedProductToDelete = ""
+                                )
+                            }
+                        }
+                    )
+                }
+
+                ProductsEvent.HideAreYouSureDialog -> {
+                    _state.update {
+                        it.copy(
+                            showAreYouSureDialog = false,
+                            selectedProductToDelete = ""
                         )
                     }
                 }

@@ -1,5 +1,6 @@
 package com.reguerta.presentation.screen.users
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -7,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -14,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,12 +28,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.domain.model.User
+import com.reguerta.presentation.composables.InverseReguertaButton
+import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaCheckBox
@@ -85,6 +91,11 @@ fun UserScreen(
     onEvent: (UserScreenEvent) -> Unit,
     navigateTo: (String) -> Unit
 ) {
+    AnimatedVisibility(
+        state.showAreYouSure
+    ) {
+        AreYouSureDeleteDialog(onEvent)
+    }
     Scaffold(
         topBar = {
             MediumTopAppBar(
@@ -261,11 +272,61 @@ fun UserItem(
                 ReguertaIconButton(
                     iconButton = Icons.Filled.Delete,
                     onClick = {
-                        onEvent(UserScreenEvent.DeleteUser(user.id))
+                        onEvent(UserScreenEvent.ShowAreYouSureDialog(user.id))
                     },
                     contentColor = Color.Red
                 )
             }
+        }
+    )
+}
+
+@Composable
+private fun AreYouSureDeleteDialog(
+    onEvent: (UserScreenEvent) -> Unit
+) {
+    ReguertaAlertDialog(
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "ExitApp",
+                tint = PrimaryColor,
+                modifier = Modifier
+                    .size(48.dp)
+            )
+        },
+        onDismissRequest = { onEvent(UserScreenEvent.HideAreYouSureDialog) },
+        text = {
+            TextBody(
+                text = "Estás a punto de eliminar a un usuario autorizado. Esta acción no se podrá deshacer",
+                textSize = 14.sp,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        title = {
+            TextTitle(
+                text = "Vas a eliminar a un regüertense/n ¿Estás seguro?",
+                textSize = 18.sp,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        confirmButton = {
+            ReguertaButton(
+                textButton = "Aceptar",
+                onClick = {
+                    onEvent(UserScreenEvent.ConfirmDelete)
+                }
+            )
+        },
+        dismissButton = {
+            InverseReguertaButton(
+                textButton = "Cancelar",
+                onClick = {
+                    onEvent(UserScreenEvent.HideAreYouSureDialog)
+                }
+            )
         }
     )
 }
@@ -278,6 +339,7 @@ fun UserScreenPreview() {
         UserScreen(
             state = UserScreenState(
                 isLoading = false,
+                showAreYouSure = true,
                 userList = listOf(
                     User(
                         id = "1",

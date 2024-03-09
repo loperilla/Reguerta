@@ -13,5 +13,7 @@ data class UserScreenState(
     val isLoading: Boolean = true,
     val goOut: Boolean = false,
     val userToEdit: String = "",
+    val showAreYouSure: Boolean = false,
+    val idToDelete: String = "",
     val userList: List<User> = emptyList()
 )

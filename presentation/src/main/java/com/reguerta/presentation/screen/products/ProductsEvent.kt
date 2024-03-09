@@ -7,6 +7,8 @@ package com.reguerta.presentation.screen.products
  * All rights reserved 2024
  */
 sealed class ProductsEvent {
-    data class DeleteProduct(val idToDelete: String) : ProductsEvent()
+    data class ShowAreYouSureDialog(val idToDelete: String) : ProductsEvent()
+    data object HideAreYouSureDialog : ProductsEvent()
+    data object ConfirmDeleteProduct : ProductsEvent()
     data object GoOut : ProductsEvent()
 }

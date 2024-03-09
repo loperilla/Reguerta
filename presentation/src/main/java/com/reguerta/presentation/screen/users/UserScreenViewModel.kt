@@ -72,8 +72,43 @@ class UserScreenViewModel @Inject constructor(
                     toggleAdminUseCase(event.idToggled, !userToggled.isAdmin)
                 }
 
-                is UserScreenEvent.DeleteUser -> {
-                    deleteUsersUseCase.invoke(event.idToDelete)
+                UserScreenEvent.ConfirmDelete -> {
+                    deleteUsersUseCase(state.value.idToDelete).fold(
+                        onSuccess = {
+                            _state.update {
+                                it.copy(
+                                    showAreYouSure = false,
+                                    idToDelete = ""
+                                )
+                            }
+                        },
+                        onFailure = {
+                            _state.update {
+                                it.copy(
+                                    showAreYouSure = false,
+                                    idToDelete = ""
+                                )
+                            }
+                        }
+                    )
+                }
+
+                UserScreenEvent.HideAreYouSureDialog -> {
+                    _state.update {
+                        it.copy(
+                            showAreYouSure = false,
+                            idToDelete = ""
+                        )
+                    }
+                }
+
+                is UserScreenEvent.ShowAreYouSureDialog -> {
+                    _state.update {
+                        it.copy(
+                            showAreYouSure = true,
+                            idToDelete = event.idToDelete
+                        )
+                    }
                 }
             }
         }

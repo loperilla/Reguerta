@@ -11,5 +11,7 @@ import com.reguerta.domain.model.Product
 data class ProductsState(
     val products: List<Product> = emptyList(),
     val isLoading: Boolean = false,
-    val goOut: Boolean = false
+    val goOut: Boolean = false,
+    val showAreYouSureDialog: Boolean = false,
+    val selectedProductToDelete: String = ""
 )
