@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.automirrored.filled.Toc
@@ -22,6 +24,8 @@ import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ModalDrawerSheet
@@ -45,7 +49,7 @@ import com.reguerta.presentation.R
 import com.reguerta.presentation.composables.InverseReguertaButton
 import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
-import com.reguerta.presentation.composables.ReguertaTopBar
+import com.reguerta.presentation.composables.ReguertaHomeTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
@@ -56,7 +60,9 @@ import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
+import com.reguerta.presentation.ui.SecondaryBackground
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 import kotlinx.coroutines.launch
@@ -104,8 +110,7 @@ private fun HomeScreen(
     ) {
         Scaffold(
             topBar = {
-                ReguertaTopBar(
-                    topBarText = "",
+                ReguertaHomeTopBar(
                     navActionClick = {
                         coroutineScope.launch {
                             drawerState.open()
@@ -124,14 +129,46 @@ private fun HomeScreen(
             }
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
+                verticalArrangement = Arrangement.Top,
                 modifier = Modifier
                     .padding(it)
                     .fillMaxSize()
             ) {
-
+                MakeYourOrderButton(
+                    onButtonClick = {
+                        navigateTo(Routes.ORDERS.NEW.route)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun MakeYourOrderButton(
+    onButtonClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    buttonIsEnabled: Boolean = true
+) {
+    Button(
+        onClick = onButtonClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(16f),
+        enabled = buttonIsEnabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = SecondaryBackground
+        )
+    ) {
+        TextBody(
+            text = "Haz tu pedido",
+            textSize = TEXT_SIZE_MEDIUM,
+            textColor = PrimaryColor,
+            modifier = Modifier
+                .padding(PADDING_SMALL)
+        )
     }
 }
 

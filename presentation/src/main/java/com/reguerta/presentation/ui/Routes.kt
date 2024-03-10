@@ -40,4 +40,8 @@ sealed class Routes(val route: String) {
             fun createRoute(id: String) = "EditUser/$id"
         }
     }
+
+    data object ORDERS : Routes("OrderScreen") {
+        data object NEW : Routes("NewOrder")
+    }
 }

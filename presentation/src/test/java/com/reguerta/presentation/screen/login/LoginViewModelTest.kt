@@ -11,6 +11,8 @@ import com.reguerta.presentation.badEmail
 import com.reguerta.presentation.badPassword
 import com.reguerta.presentation.goodEmail
 import com.reguerta.presentation.goodPassword
+import com.reguerta.presentation.screen.auth.login.LoginEvent
+import com.reguerta.presentation.screen.auth.login.LoginViewModel
 import com.reguerta.testutils.MainCoroutineExtension
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
