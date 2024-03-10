@@ -13,14 +13,11 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -28,10 +25,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.domain.model.User
@@ -41,12 +37,19 @@ import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaCheckBox
 import com.reguerta.presentation.composables.ReguertaIconButton
+import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
+import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
+import com.reguerta.presentation.ui.PADDING_MEDIUM
+import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.SecondaryBackground
+import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -98,22 +101,9 @@ fun UserScreen(
     }
     Scaffold(
         topBar = {
-            MediumTopAppBar(
-                title = {
-                    TextTitle(
-                        text = "Regüertenses autorizados",
-                        textSize = 26.sp,
-                        textColor = Text
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { onEvent(UserScreenEvent.GoOut) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                }
+            ReguertaTopBar(
+                topBarText = "Regüertenses autorizados",
+                navActionClick = { onEvent(UserScreenEvent.GoOut) }
             )
         },
         bottomBar = {
@@ -123,9 +113,9 @@ fun UserScreen(
                     .wrapContentSize(Alignment.BottomCenter)
                     .background(
                         color = SecondaryBackground,
-                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                        shape = RoundedCornerShape(topStart = PADDING_MEDIUM, topEnd = PADDING_MEDIUM)
                     )
-                    .padding(8.dp)
+                    .padding(PADDING_SMALL)
             ) {
                 ReguertaButton(
                     "Autorizar nuevo usuario",
@@ -133,8 +123,8 @@ fun UserScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            vertical = 8.dp,
-                            horizontal = 16.dp
+                            vertical = PADDING_SMALL,
+                            horizontal = PADDING_MEDIUM
                         )
                 )
             }
@@ -164,7 +154,7 @@ private fun UserListScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(8.dp)
+            .padding(PADDING_SMALL)
     ) {
         items(
             count = userList.size
@@ -186,30 +176,30 @@ fun UserItem(
 ) {
     ReguertaCard(
         modifier = Modifier
-            .padding(8.dp)
+            .padding(PADDING_SMALL)
             .fillMaxWidth(),
         content = {
             TextBody(
                 text = user.fullName,
-                textSize = 18.sp,
+                textSize = TEXT_SIZE_LARGE,
                 textColor = Text,
                 modifier = Modifier
-                    .padding(start = 16.dp, top = 8.dp)
+                    .padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
             )
 
             TextBody(
                 text = user.email,
-                textSize = 16.sp,
+                textSize = TEXT_SIZE_LARGE,
                 textColor = Text,
                 modifier = Modifier
-                    .padding(start = 16.dp, top = 8.dp)
+                    .padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
             )
 
             Row(
                 modifier = Modifier
                     .wrapContentSize()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
+                    .padding(top = PADDING_SMALL),
+                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ReguertaCheckBox(
@@ -220,7 +210,7 @@ fun UserItem(
                 )
                 TextBody(
                     text = "Es productor",
-                    textSize = 16.sp,
+                    textSize = TEXT_SIZE_LARGE,
                     textColor = Text
                 )
             }
@@ -228,18 +218,18 @@ fun UserItem(
             if (user.isProducer) {
                 TextBody(
                     text = user.companyName,
-                    textSize = 14.sp,
+                    textSize = TEXT_SIZE_LARGE,
                     textColor = Text,
                     modifier = Modifier
-                        .padding(start = 16.dp, top = 4.dp)
+                        .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                 )
             }
 
             Row(
                 modifier = Modifier
                     .wrapContentSize()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
+                    .padding(top = PADDING_SMALL),
+                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ReguertaCheckBox(
@@ -250,7 +240,7 @@ fun UserItem(
                 )
                 TextBody(
                     text = "Es admin",
-                    textSize = 16.sp,
+                    textSize = TEXT_SIZE_LARGE,
                     textColor = Text
                 )
             }
@@ -258,8 +248,8 @@ fun UserItem(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+                    .padding(PADDING_SMALL),
+                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ReguertaIconButton(
@@ -292,22 +282,25 @@ private fun AreYouSureDeleteDialog(
                 contentDescription = "ExitApp",
                 tint = PrimaryColor,
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(SIZE_48)
             )
         },
         onDismissRequest = { onEvent(UserScreenEvent.HideAreYouSureDialog) },
         text = {
             TextBody(
                 text = "Estás a punto de eliminar a un usuario autorizado. Esta acción no se podrá deshacer",
-                textSize = 14.sp,
+                textSize = TEXT_SIZE_SMALL,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )
         },
         title = {
             TextTitle(
-                text = "Vas a eliminar a un regüertense/n ¿Estás seguro?",
-                textSize = 18.sp,
+                text = buildAnnotatedString {
+                    append("Vas a eliminar a un regüertense\n")
+                    append("¿Estás seguro?")
+                },
+                textSize = TEXT_SIZE_LARGE,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )

@@ -22,12 +22,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -44,7 +38,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -59,13 +52,17 @@ import com.reguerta.presentation.composables.DropdownSelectable
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCheckBox
 import com.reguerta.presentation.composables.ReguertaCounter
+import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.SecondaryTextReguertaInput
 import com.reguerta.presentation.composables.StockText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
-import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.getStoragePermissionBySdk
+import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
+import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.ui.SIZE_96
+import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.uriToBitmap
 import kotlinx.coroutines.launch
@@ -99,7 +96,6 @@ fun editProductScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProductScreen(
     state: EditProductState,
@@ -115,16 +111,9 @@ fun EditProductScreen(
     }
     Scaffold(
         topBar = {
-            MediumTopAppBar(
-                title = { TextTitle(text = "Editar producto", textSize = 26.sp, textColor = Text) },
-                navigationIcon = {
-                    IconButton(onClick = { onEvent(EditProductEvent.GoOut) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                }
+            ReguertaTopBar(
+                topBarText = "Editar producto",
+                navActionClick = { onEvent(EditProductEvent.GoOut) }
             )
         }
     ) {
@@ -149,7 +138,7 @@ fun EditProductScreen(
                 placeholderText = "Pulsa para escribir",
                 imeAction = ImeAction.Next,
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(PADDING_SMALL)
                     .fillMaxWidth()
             )
 
@@ -162,7 +151,7 @@ fun EditProductScreen(
                 labelText = "Descripción del producto",
                 placeholderText = "Pulsa para escribir",
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(PADDING_SMALL)
                     .fillMaxWidth()
             )
 
@@ -184,7 +173,7 @@ fun EditProductScreen(
                 keyboardType = KeyboardType.Number,
                 suffixValue = "€",
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(PADDING_SMALL)
                     .fillMaxWidth()
             )
 
@@ -193,7 +182,7 @@ fun EditProductScreen(
                 enabledButton = state.isButtonEnabled,
                 onClick = { onEvent(EditProductEvent.SaveProduct) },
                 modifier = Modifier
-                    .padding(8.dp)
+                    .padding(PADDING_SMALL)
                     .fillMaxWidth()
             )
         }
@@ -240,7 +229,7 @@ fun HeaderAddProductForm(
     }
     Row(
         modifier = modifier
-            .padding(8.dp)
+            .padding(PADDING_SMALL)
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
@@ -255,8 +244,8 @@ fun HeaderAddProductForm(
                 painter = painter,
                 contentDescription = "Edit",
                 modifier = Modifier
-                    .padding(8.dp)
-                    .size(96.dp)
+                    .padding(PADDING_SMALL)
+                    .size(SIZE_96)
                     .clickable {
                         if (checkStoragePermission(context)) {
                             launcher.launch(
@@ -286,8 +275,8 @@ fun HeaderAddProductForm(
                 painter = painterResource(R.mipmap.product_no_available),
                 contentDescription = "Edit",
                 modifier = Modifier
-                    .padding(8.dp)
-                    .size(96.dp)
+                    .padding(PADDING_SMALL)
+                    .size(SIZE_96)
                     .clickable {
                         if (checkStoragePermission(context)) {
                             launcher.launch(
@@ -305,19 +294,19 @@ fun HeaderAddProductForm(
         }
         Column(
             modifier = Modifier
-                .padding(8.dp)
+                .padding(PADDING_SMALL)
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextBody(
                     text = "Disponible",
-                    textSize = 16.sp,
+                    textSize = TEXT_SIZE_LARGE,
                     textColor = Text
                 )
                 ReguertaCheckBox(
@@ -363,7 +352,7 @@ private fun UnityAndContainer(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(8.dp),
+            .padding(PADDING_SMALL),
     ) {
         SecondaryTextReguertaInput(
             text = state.containerValue,
@@ -375,7 +364,7 @@ private fun UnityAndContainer(
             placeholderText = "0",
             modifier = Modifier
                 .fillMaxWidth(0.3f)
-                .padding(8.dp)
+                .padding(PADDING_SMALL)
         )
 
         DropdownSelectable(
@@ -390,7 +379,7 @@ private fun UnityAndContainer(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(PADDING_SMALL)
         )
     }
 
@@ -400,7 +389,7 @@ private fun UnityAndContainer(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(8.dp),
+            .padding(PADDING_SMALL),
     ) {
         SecondaryTextReguertaInput(
             text = state.measureValue,
@@ -412,7 +401,7 @@ private fun UnityAndContainer(
             placeholderText = "0",
             modifier = Modifier
                 .fillMaxWidth(0.3f)
-                .padding(8.dp)
+                .padding(PADDING_SMALL)
         )
 
         DropdownSelectable(
@@ -427,7 +416,7 @@ private fun UnityAndContainer(
             },
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(8.dp)
+                .padding(PADDING_SMALL)
         )
     }
 }

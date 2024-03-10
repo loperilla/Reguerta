@@ -16,14 +16,11 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -33,8 +30,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.domain.model.Product
@@ -45,13 +40,21 @@ import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaIconButton
+import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.StockText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
+import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
+import com.reguerta.presentation.ui.PADDING_MEDIUM
+import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.ui.SIZE_48
+import com.reguerta.presentation.ui.SIZE_96
 import com.reguerta.presentation.ui.SecondaryBackground
+import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -96,22 +99,9 @@ private fun ProductsScreen(
     }
     Scaffold(
         topBar = {
-            MediumTopAppBar(
-                title = {
-                    TextTitle(
-                        text = "Mis productos",
-                        textSize = 26.sp,
-                        textColor = Text
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { onEvent(ProductsEvent.GoOut) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
+            ReguertaTopBar(
+                topBarText = "Mis productos",
+                navActionClick = { onEvent(ProductsEvent.GoOut) }
             )
         },
         bottomBar = {
@@ -121,9 +111,9 @@ private fun ProductsScreen(
                     .wrapContentSize(Alignment.BottomCenter)
                     .background(
                         color = SecondaryBackground,
-                        shape = RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp)
+                        shape = RoundedCornerShape(topStart = PADDING_MEDIUM, topEnd = PADDING_MEDIUM)
                     )
-                    .padding(8.dp)
+                    .padding(PADDING_SMALL)
             ) {
                 ReguertaButton(
                     "Añadir nuevo producto",
@@ -131,8 +121,8 @@ private fun ProductsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            vertical = 8.dp,
-                            horizontal = 16.dp
+                            vertical = PADDING_SMALL,
+                            horizontal = PADDING_MEDIUM
                         )
                 )
             }
@@ -162,7 +152,7 @@ fun ProductListScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(8.dp)
+            .padding(PADDING_SMALL)
     ) {
         items(
             count = products.size
@@ -185,7 +175,7 @@ fun ProductItem(
 ) {
     ReguertaCard(
         modifier = modifier
-            .padding(8.dp)
+            .padding(PADDING_SMALL)
             .wrapContentSize(),
         content = {
             Row(
@@ -200,22 +190,22 @@ fun ProductItem(
                         painter = painterResource(id = R.mipmap.product_no_available),
                         contentDescription = product.name,
                         modifier = Modifier
-                            .padding(8.dp)
-                            .size(96.dp)
+                            .padding(PADDING_SMALL)
+                            .size(SIZE_96)
                     )
                 } else {
                     ImageUrl(
                         imageUrl = product.imageUrl,
                         name = product.name,
                         modifier = Modifier
-                            .padding(8.dp)
-                            .size(96.dp)
+                            .padding(PADDING_SMALL)
+                            .size(SIZE_96)
                     )
                 }
                 Row(
                     modifier = Modifier
-                        .padding(8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.End),
+                        .padding(PADDING_SMALL),
+                    horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.End),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     ReguertaIconButton(
@@ -242,43 +232,43 @@ fun ProductItem(
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(8.dp)
+                        .padding(PADDING_SMALL)
                         .fillMaxHeight()
                 ) {
                     TextBody(
                         text = product.name,
-                        textSize = 18.sp,
+                        textSize = TEXT_SIZE_LARGE,
                         textColor = Text,
                         modifier = Modifier
-                            .padding(start = 16.dp, top = 4.dp)
+                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                     )
                     TextBody(
                         text = product.description,
-                        textSize = 16.sp,
+                        textSize = TEXT_SIZE_LARGE,
                         textColor = Text,
                         modifier = Modifier
-                            .padding(start = 16.dp, top = 4.dp)
+                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                     )
                     TextBody(
                         text = "${"%.2f".format(product.price)} €",
-                        textSize = 16.sp,
+                        textSize = TEXT_SIZE_LARGE,
                         textColor = Text,
                         modifier = Modifier
-                            .padding(start = 16.dp, top = 4.dp)
+                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                     )
                 }
 
                 Column(
                     verticalArrangement = Arrangement.Bottom,
                     modifier = Modifier
-                        .padding(8.dp)
+                        .padding(PADDING_SMALL)
                         .fillMaxHeight()
                 ) {
                     StockText(
                         product.stock,
-                        textSize = 16.sp,
+                        textSize = TEXT_SIZE_LARGE,
                         modifier = Modifier
-                            .padding(start = 16.dp, top = 8.dp)
+                            .padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
                     )
                 }
             }
@@ -297,14 +287,14 @@ private fun AreYouSureDialog(
                 contentDescription = "ExitApp",
                 tint = PrimaryColor,
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(SIZE_48)
             )
         },
         onDismissRequest = { onEvent(ProductsEvent.HideAreYouSureDialog) },
         text = {
             TextBody(
                 text = "Estás a punto de eliminar un producto. Esta acción no se podrá deshacer",
-                textSize = 14.sp,
+                textSize = TEXT_SIZE_SMALL,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )
@@ -312,7 +302,7 @@ private fun AreYouSureDialog(
         title = {
             TextTitle(
                 text = "Vas a eliminar un producto ¿Estás seguro?",
-                textSize = 18.sp,
+                textSize = TEXT_SIZE_LARGE,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )

@@ -6,29 +6,25 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCheckBox
 import com.reguerta.presentation.composables.ReguertaEmailInput
+import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
-import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.type.isValidEmail
+import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
+import com.reguerta.presentation.ui.PADDING_MEDIUM
+import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -57,7 +53,6 @@ fun editUserScreen(id: String, navigateTo: () -> Unit) {
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditUserScreen(
     state: EditUserState,
@@ -65,27 +60,14 @@ fun EditUserScreen(
 ) {
     Scaffold(
         topBar = {
-            MediumTopAppBar(
-                title = {
-                    TextTitle(
-                        "Actualizar regüertense",
-                        textSize = 26.sp,
-                        textColor = Text
-                    )
-                },
-                navigationIcon = {
-                    IconButton(onClick = { onEvent(EditUserEvent.GoBack) }) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = "Back"
-                        )
-                    }
-                },
+            ReguertaTopBar(
+                topBarText = "Autorizar regüertense",
+                navActionClick = { onEvent(EditUserEvent.GoBack) }
             )
         }
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
             modifier = Modifier.padding(it)
         ) {
             ReguertaEmailInput(
@@ -98,7 +80,7 @@ fun EditUserScreen(
                 placeholderText = "Pulsa para escribir",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp)
+                    .padding(start = PADDING_MEDIUM, end = PADDING_MEDIUM)
             )
 
             TextReguertaInput(
@@ -110,7 +92,7 @@ fun EditUserScreen(
                 placeholderText = "Pulsa para escribir",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp)
+                    .padding(start = PADDING_MEDIUM, end = PADDING_MEDIUM)
             )
 
             TextReguertaInput(
@@ -122,7 +104,7 @@ fun EditUserScreen(
                 placeholderText = "Pulsa para escribir",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp)
+                    .padding(start = PADDING_MEDIUM, end = PADDING_MEDIUM)
             )
 
             if (state.isProducer) {
@@ -135,15 +117,15 @@ fun EditUserScreen(
                     placeholderText = "Pulsa para escribir",
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(start = 16.dp, end = 16.dp)
+                        .padding(start = PADDING_MEDIUM, end = PADDING_MEDIUM)
                 )
             }
 
             Row(
                 modifier = Modifier
                     .wrapContentSize()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
+                    .padding(top = PADDING_SMALL),
+                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ReguertaCheckBox(
@@ -154,7 +136,7 @@ fun EditUserScreen(
                 )
                 TextBody(
                     text = "Es productor",
-                    textSize = 16.sp,
+                    textSize = TEXT_SIZE_LARGE,
                     textColor = Text
                 )
             }
@@ -162,8 +144,8 @@ fun EditUserScreen(
             Row(
                 modifier = Modifier
                     .wrapContentSize()
-                    .padding(top = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.Start),
+                    .padding(top = PADDING_SMALL),
+                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ReguertaCheckBox(
@@ -174,7 +156,7 @@ fun EditUserScreen(
                 )
                 TextBody(
                     text = "Es administrador",
-                    textSize = 16.sp,
+                    textSize = TEXT_SIZE_LARGE,
                     textColor = Text
                 )
             }
@@ -185,7 +167,7 @@ fun EditUserScreen(
                 enabledButton = state.isButtonEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(PADDING_MEDIUM)
             )
         }
     }

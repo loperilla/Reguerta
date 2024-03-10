@@ -23,10 +23,7 @@ import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material.icons.outlined.Newspaper
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.DrawerValue
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -42,20 +39,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.presentation.R
 import com.reguerta.presentation.composables.InverseReguertaButton
 import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
+import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.navigationDrawer.NavigationDrawerInfo
+import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
+import com.reguerta.presentation.ui.PADDING_MEDIUM
+import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.ui.SIZE_48
+import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 import kotlinx.coroutines.launch
 
@@ -85,7 +87,6 @@ fun homeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreen(
     state: HomeState,
@@ -103,24 +104,14 @@ private fun HomeScreen(
     ) {
         Scaffold(
             topBar = {
-                MediumTopAppBar(
-                    title = {
-
-                    },
-                    navigationIcon = {
-                        IconButton(
-                            onClick = {
-                                coroutineScope.launch {
-                                    drawerState.open()
-                                }
-                            }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Outlined.Menu,
-                                contentDescription = null
-                            )
+                ReguertaTopBar(
+                    topBarText = "",
+                    navActionClick = {
+                        coroutineScope.launch {
+                            drawerState.open()
                         }
-                    }
+                    },
+                    navIcon = Icons.Outlined.Menu
                 )
             },
             modifier = Modifier
@@ -153,14 +144,14 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
                 contentDescription = "ExitApp",
                 tint = PrimaryColor,
                 modifier = Modifier
-                    .size(48.dp)
+                    .size(SIZE_48)
             )
         },
         onDismissRequest = { onEvent(HomeEvent.HideDialog) },
         text = {
             TextBody(
                 text = "¿Seguro que quieres cerrar la sesión?",
-                textSize = 16.sp,
+                textSize = TEXT_SIZE_SMALL,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )
@@ -168,7 +159,7 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
         title = {
             TextTitle(
                 text = "Cerrar sesión",
-                textSize = 18.sp,
+                textSize = TEXT_SIZE_LARGE,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )
@@ -195,14 +186,14 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
 @Composable
 fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (String) -> Unit) {
     ModalDrawerSheet {
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(PADDING_MEDIUM))
         Image(
             painter = painterResource(id = R.mipmap.firstscreenn),
             contentDescription = null,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
         )
-        Spacer(modifier = Modifier.height(8.dp))
+        Spacer(modifier = Modifier.height(PADDING_SMALL))
         prepareNavigationDrawerList(
             state.isCurrentUserAdmin,
             state.isCurrentUserProducer,
@@ -217,13 +208,13 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
                         tint = Color.White,
                         modifier = Modifier
                             .background(PrimaryColor, CircleShape)
-                            .padding(4.dp)
+                            .padding(PADDING_EXTRA_SMALL)
                     )
                 },
                 label = {
                     TextBody(
                         text = info.title,
-                        textSize = 18.sp,
+                        textSize = TEXT_SIZE_LARGE,
                     )
                 },
                 selected = false,

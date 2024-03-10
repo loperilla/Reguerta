@@ -16,6 +16,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
+import androidx.compose.ui.tooling.preview.PreviewScreenSizes
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.reguerta.presentation.R
@@ -23,8 +25,11 @@ import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
+import com.reguerta.presentation.ui.PADDING_MEDIUM
+import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -46,7 +51,7 @@ fun firstScreen(
         ) {
             Spacer(
                 modifier = Modifier
-                    .height(16.dp)
+                    .height(PADDING_MEDIUM)
             )
 
             FirstScreenTitle(
@@ -98,7 +103,7 @@ fun firstScreen(
 
             Spacer(
                 modifier = Modifier
-                    .height(16.dp)
+                    .height(PADDING_MEDIUM)
             )
         }
     }
@@ -123,7 +128,7 @@ private fun FirstScreenTitle(modifier: Modifier) {
             textSize = 32.sp,
             textColor = PrimaryColor,
             modifier = Modifier
-                .padding(8.dp)
+                .padding(PADDING_SMALL)
         )
     }
 }
@@ -142,21 +147,23 @@ private fun FirstScreenTextBottom(
     ) {
         TextBody(
             "¿No tienes cuenta?",
-            textSize = 14.sp,
+            textSize = TEXT_SIZE_LARGE,
             textColor = Text,
         )
         TextBody(
             "Registrate",
-            textSize = 14.sp,
+            textSize = TEXT_SIZE_LARGE,
             textColor = PrimaryColor,
             modifier = Modifier
-                .padding(8.dp)
+                .padding(PADDING_SMALL)
                 .clickable { onClick() }
         )
     }
 }
 
 @Preview(showBackground = true, showSystemUi = true)
+@PreviewLightDark
+@PreviewScreenSizes
 @Composable
 private fun FirstScreenPreview() {
     Screen {

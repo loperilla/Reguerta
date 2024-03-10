@@ -5,12 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -24,17 +18,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaEmailInput
 import com.reguerta.presentation.composables.ReguertaPasswordInput
+import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
-import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
+import com.reguerta.presentation.ui.PADDING_MEDIUM
+import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 
@@ -66,7 +60,6 @@ fun loginScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LoginScreen(
     state: LoginState,
@@ -89,25 +82,11 @@ private fun LoginScreen(
     }
     Scaffold(
         topBar = {
-            MediumTopAppBar(
-                title = {
-                    TextTitle(
-                        text = "Introduce tus credenciales",
-                        textSize = 26.sp,
-                        textColor = PrimaryColor
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navigateTo(Routes.AUTH.FIRST_SCREEN.route)
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
+            ReguertaTopBar(
+                topBarText = "Introduce tus credenciales",
+                topBarTextColor = PrimaryColor,
+                navActionClick = {
+                    navigateTo(Routes.AUTH.FIRST_SCREEN.route)
                 }
             )
         },
@@ -115,10 +94,10 @@ private fun LoginScreen(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
             modifier = Modifier
                 .padding(it)
-                .padding(16.dp)
+                .padding(PADDING_MEDIUM)
                 .fillMaxSize()
         ) {
             ReguertaEmailInput(
@@ -131,7 +110,7 @@ private fun LoginScreen(
                 isValidEmail = state.emailInput.isValidEmail,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(PADDING_SMALL)
             )
             ReguertaPasswordInput(
                 text = state.passwordInput,
@@ -145,7 +124,7 @@ private fun LoginScreen(
                 isValidPassword = state.passwordInput.isValidPassword,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(PADDING_SMALL)
             )
 
             ReguertaButton(
@@ -157,7 +136,7 @@ private fun LoginScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(PADDING_SMALL)
             )
         }
     }

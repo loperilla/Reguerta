@@ -24,8 +24,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PrimaryColor
+import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -86,11 +88,11 @@ fun DropdownSelectable(
                             }
                         )
                     }
-                    .padding(16.dp)
+                    .padding(PADDING_MEDIUM)
             ) {
                 TextBody(
                     text = currentSelected,
-                    textSize = 16.sp,
+                    textSize = TEXT_SIZE_LARGE,
                     textColor = Color.White,
                     textAlignment = TextAlign.Center,
                     modifier = Modifier
@@ -115,7 +117,7 @@ fun DropdownSelectable(
                         text = {
                             TextBody(
                                 text = it.text,
-                                textSize = 16.sp,
+                                textSize = TEXT_SIZE_MEDIUM,
                                 textColor = Text
                             )
                         }

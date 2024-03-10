@@ -27,11 +27,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.reguerta.presentation.composables.input.PlaceholderTransformation
 import com.reguerta.presentation.composables.input.UiError
+import com.reguerta.presentation.ui.PADDING_MEDIUM
+import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
+import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.cabinsketchFontFamily
 
@@ -182,7 +184,7 @@ private fun SecondaryReguertaInput(
         errorContainerColor = Color.White,
     )
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(PADDING_SMALL)
     ) {
         OutlinedTextField(
             value = text,
@@ -193,7 +195,7 @@ private fun SecondaryReguertaInput(
             textStyle = TextStyle(
                 fontFamily = cabinsketchFontFamily,
                 fontWeight = FontWeight.Normal,
-                fontSize = 18.sp
+                fontSize = TEXT_SIZE_LARGE
             ),
             visualTransformation = if (text.isEmpty()) {
                 PlaceholderTransformation(placeholderText)
@@ -210,10 +212,10 @@ private fun SecondaryReguertaInput(
         if (text.isNotEmpty() && !uiError.isVisible) {
             TextBody(
                 text = uiError.message,
-                textSize = 12.sp,
+                textSize = TEXT_SIZE_SMALL,
                 textColor = Color.Red,
                 modifier = Modifier
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = PADDING_MEDIUM)
             )
         }
     }
@@ -253,7 +255,7 @@ private fun ReguertaInput(
         )
     )
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(PADDING_SMALL)
     ) {
         TextField(
             value = text,
@@ -265,13 +267,13 @@ private fun ReguertaInput(
             label = {
                 TextBody(
                     text = labelText,
-                    textSize = 12.sp
+                    textSize = TEXT_SIZE_SMALL
                 )
             },
             textStyle = TextStyle(
                 fontFamily = cabinsketchFontFamily,
                 fontWeight = FontWeight.Normal,
-                fontSize = 18.sp
+                fontSize = TEXT_SIZE_LARGE
             ),
             visualTransformation = if (text.isEmpty()) {
                 PlaceholderTransformation(placeholderText)
@@ -286,7 +288,7 @@ private fun ReguertaInput(
                 if (suffixValue.isNotEmpty()) {
                     TextBody(
                         text = suffixValue,
-                        18.sp,
+                        textSize = TEXT_SIZE_LARGE,
                         textColor = Text
                     )
                 }
@@ -297,10 +299,10 @@ private fun ReguertaInput(
         if (text.isNotEmpty() && !uiError.isVisible) {
             TextBody(
                 text = uiError.message,
-                textSize = 12.sp,
+                textSize = TEXT_SIZE_SMALL,
                 textColor = Color.Red,
                 modifier = Modifier
-                    .padding(horizontal = 16.dp)
+                    .padding(horizontal = PADDING_MEDIUM)
             )
         }
     }
@@ -311,9 +313,9 @@ private fun ReguertaInput(
 fun ReguertaInputPreview() {
     Screen {
         Column(
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
             modifier = Modifier
-                .padding(8.dp)
+                .padding(PADDING_SMALL)
         ) {
             ReguertaEmailInput(
                 text = "Manuel Lopera",

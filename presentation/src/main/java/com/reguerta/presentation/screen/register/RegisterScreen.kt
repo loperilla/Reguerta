@@ -7,12 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -26,18 +21,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaEmailInput
 import com.reguerta.presentation.composables.ReguertaPasswordInput
+import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
-import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
-import com.reguerta.presentation.ui.PrimaryColor
+import com.reguerta.presentation.ui.PADDING_LARGE
+import com.reguerta.presentation.ui.PADDING_MEDIUM
+import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.Routes
 
 /*****
@@ -88,25 +83,11 @@ private fun RegisterScreen(
     }
     Scaffold(
         topBar = {
-            MediumTopAppBar(
-                title = {
-                    TextTitle(
-                        text = "Regístrate",
-                        textSize = 26.sp,
-                        textColor = PrimaryColor
-                    )
-                },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navigateTo(Routes.AUTH.FIRST_SCREEN.route)
-                        }
-                    ) {
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                            contentDescription = null
-                        )
-                    }
+            ReguertaTopBar(
+                topBarText = "Regístrate",
+                navActionClick = {
+                    keyboardController?.hide()
+                    navigateTo(Routes.AUTH.FIRST_SCREEN.route)
                 }
             )
         },
@@ -114,10 +95,10 @@ private fun RegisterScreen(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
             modifier = Modifier
                 .padding(it)
-                .padding(16.dp)
+                .padding(PADDING_MEDIUM)
                 .fillMaxSize()
         ) {
             ReguertaEmailInput(
@@ -130,7 +111,7 @@ private fun RegisterScreen(
                 imeAction = ImeAction.Next,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(PADDING_SMALL)
             )
             ReguertaPasswordInput(
                 text = state.passwordInput,
@@ -144,7 +125,7 @@ private fun RegisterScreen(
                 imeAction = ImeAction.Next,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(PADDING_SMALL)
             )
             ReguertaPasswordInput(
                 text = state.repeatPasswordInput,
@@ -158,9 +139,9 @@ private fun RegisterScreen(
                 imeAction = ImeAction.Done,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp)
+                    .padding(PADDING_SMALL)
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(PADDING_SMALL))
             ReguertaButton(
                 textButton = "Registrarse",
                 enabledButton = state.enabledButton,
@@ -170,7 +151,7 @@ private fun RegisterScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(24.dp)
+                    .padding(PADDING_LARGE)
             )
         }
     }

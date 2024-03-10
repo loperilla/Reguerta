@@ -11,10 +11,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.reguerta.presentation.ui.DialogBackground
 import com.reguerta.presentation.ui.PrimaryColor
+import com.reguerta.presentation.ui.SIZE_48
+import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -58,7 +59,7 @@ fun ReguertaAlertDialogPrev() {
                     contentDescription = "ExitApp",
                     tint = PrimaryColor,
                     modifier = Modifier
-                        .size(48.dp)
+                        .size(SIZE_48)
                 )
             },
             onDismissRequest = {
@@ -67,14 +68,14 @@ fun ReguertaAlertDialogPrev() {
             text = {
                 TextBody(
                     text = "¿Seguro que quieres cerrar la sesión?",
-                    textSize = 18.sp,
+                    textSize = TEXT_SIZE_SMALL,
                     textColor = Text
                 )
             },
             title = {
                 TextTitle(
-                    text = "Cerrar sesión",
-                    textSize = 18.sp,
+                    text = "Cerrar session",
+                    textSize = TEXT_SIZE_LARGE,
                     textColor = Text
                 )
             },

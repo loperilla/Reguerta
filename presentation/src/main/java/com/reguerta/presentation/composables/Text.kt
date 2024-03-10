@@ -7,12 +7,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.reguerta.presentation.ui.PADDING_MEDIUM
+import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
+import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.cabinsketchFontFamily
 import com.reguerta.presentation.ui.monserratFontFamily
@@ -26,7 +29,10 @@ import com.reguerta.presentation.ui.monserratFontFamily
 
 @Composable
 fun TextRegular(
-    text: String, textSize: TextUnit, modifier: Modifier = Modifier, textColor: Color = Color.Unspecified
+    text: String,
+    modifier: Modifier = Modifier,
+    textSize: TextUnit = TEXT_SIZE_SMALL,
+    textColor: Color = Color.Unspecified
 ) {
     Text(
         text,
@@ -41,8 +47,8 @@ fun TextRegular(
 @Composable
 fun TextBody(
     text: String,
-    textSize: TextUnit,
     modifier: Modifier = Modifier,
+    textSize: TextUnit = TEXT_SIZE_MEDIUM,
     textColor: Color = Color.Unspecified,
     textAlignment: TextAlign? = null
 ) {
@@ -59,7 +65,9 @@ fun TextBody(
 
 @Composable
 fun StockText(
-    stockCount: Int, textSize: TextUnit, modifier: Modifier = Modifier
+    stockCount: Int,
+    modifier: Modifier = Modifier,
+    textSize: TextUnit = TEXT_SIZE_MEDIUM
 ) {
     val colorToDraw: Color = when (stockCount) {
         0 -> Color.Red
@@ -68,15 +76,37 @@ fun StockText(
     }
     TextBody(
         text = "Stock: $stockCount",
-        textSize,
         modifier,
+        textSize,
         textColor = colorToDraw,
     )
 }
 
 @Composable
 fun TextTitle(
-    text: String, textSize: TextUnit, textColor: Color = Color.Unspecified, modifier: Modifier = Modifier,
+    text: String,
+    modifier: Modifier = Modifier,
+    textSize: TextUnit = TEXT_SIZE_LARGE,
+    textColor: Color = Color.Unspecified,
+    textAlignment: TextAlign? = null
+) {
+    Text(
+        text,
+        modifier,
+        color = textColor,
+        fontSize = textSize,
+        fontWeight = FontWeight.Bold,
+        fontFamily = cabinsketchFontFamily,
+        textAlign = textAlignment
+    )
+}
+
+@Composable
+fun TextTitle(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    textSize: TextUnit = TEXT_SIZE_LARGE,
+    textColor: Color = Color.Unspecified,
     textAlignment: TextAlign? = null
 ) {
     Text(
@@ -95,14 +125,14 @@ fun TextTitle(
 fun TextPreviews() {
     Screen {
         Column(
-            verticalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.fillMaxSize()
+            verticalArrangement = Arrangement.spacedBy(PADDING_MEDIUM), modifier = Modifier.fillMaxSize()
         ) {
-            TextRegular("Manuel Lopera", textSize = 14.sp)
-            TextBody("Manuel Lopera", textSize = 14.sp)
-            TextTitle("Manuel Lopera", textSize = 14.sp)
-            StockText(0, textSize = 14.sp)
-            StockText(4, textSize = 14.sp)
-            StockText(34, textSize = 14.sp)
+            TextRegular("Manuel Lopera")
+            TextBody("Manuel Lopera")
+            TextTitle("Manuel Lopera")
+            StockText(0)
+            StockText(4)
+            StockText(34)
         }
     }
 }

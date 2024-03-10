@@ -19,9 +19,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.SecondaryBackground
+import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -49,10 +50,10 @@ fun ReguertaButton(
     ) {
         TextRegular(
             text = textButton,
-            textSize = 14.sp,
+            textSize = TEXT_SIZE_SMALL,
             textColor = Color.White,
             modifier = Modifier
-                .padding(8.dp)
+                .padding(PADDING_SMALL)
         )
     }
 }
@@ -75,10 +76,10 @@ fun InverseReguertaButton(
     ) {
         TextBody(
             text = textButton,
-            textSize = 16.sp,
+            textSize = TEXT_SIZE_SMALL,
             textColor = Text,
             modifier = Modifier
-                .padding(8.dp)
+                .padding(PADDING_SMALL)
         )
     }
 }
@@ -114,8 +115,8 @@ fun ReguertaButtonPreview() {
     Screen {
         Column(
             modifier = Modifier
-                .padding(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .padding(PADDING_SMALL),
+            verticalArrangement = Arrangement.spacedBy(PADDING_SMALL)
         ) {
             ReguertaButton(
                 textButton = "Button",

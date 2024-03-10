@@ -44,7 +44,7 @@ val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = monserratFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
+        fontSize = TEXT_SIZE_LARGE,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
@@ -52,7 +52,7 @@ val Typography = Typography(
         fontFamily = monserratFontFamily,
         fontWeight = FontWeight.Medium,
         fontSize = 11.sp,
-        lineHeight = 16.sp,
+        lineHeight = TEXT_SIZE_LARGE,
         letterSpacing = 0.5.sp
     )
 
