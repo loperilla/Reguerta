@@ -10,4 +10,6 @@ import kotlinx.coroutines.flow.Flow
  */
 interface MeasureService {
     suspend fun getMeasures(): Flow<Result<List<MeasureModel>>>
+
+    suspend fun getMeasureByName(name: String): Result<MeasureModel>
 }

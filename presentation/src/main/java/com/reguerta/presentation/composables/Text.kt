@@ -2,6 +2,7 @@ package com.reguerta.presentation.composables
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -13,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import com.reguerta.presentation.ui.PADDING_MEDIUM
+import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
@@ -83,6 +85,28 @@ fun StockText(
 }
 
 @Composable
+fun AmountText(
+    amount: Float,
+    modifier: Modifier = Modifier,
+    textSize: TextUnit = TEXT_SIZE_MEDIUM
+) {
+    Row(
+        modifier = modifier
+    ) {
+        TextBody(
+            text = "Total: ",
+            textSize = textSize,
+            textColor = PrimaryColor
+        )
+        TextBody(
+            text = String.format("%.2f", amount) + "€",
+            textSize = textSize,
+            textColor = Text
+        )
+    }
+}
+
+@Composable
 fun TextTitle(
     text: String,
     modifier: Modifier = Modifier,
@@ -130,6 +154,7 @@ fun TextPreviews() {
             TextRegular("Manuel Lopera")
             TextBody("Manuel Lopera")
             TextTitle("Manuel Lopera")
+            AmountText(15f)
             StockText(0)
             StockText(4)
             StockText(34)

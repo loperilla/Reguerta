@@ -1,5 +1,6 @@
 package com.reguerta.presentation.screen.new_order
 
+import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.interfaces.Product
 
 /*****
@@ -12,5 +13,8 @@ data class NewOrderState(
     val goOut: Boolean = false,
     val isLoading: Boolean = true,
     val orderId: String = "",
-    val availableCommonProducts: List<Product> = emptyList()
+    val hasOrderLine: Boolean = false,
+    val showShoppingCart: Boolean = false,
+    val availableCommonProducts: List<Product> = emptyList(),
+    val productsOrderLineList: List<ProductWithOrderLine> = emptyList()
 )

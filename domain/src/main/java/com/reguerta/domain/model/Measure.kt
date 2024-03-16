@@ -9,7 +9,6 @@ import com.reguerta.data.firebase.firestore.measures.MeasureModel
  * All rights reserved 2024
  */
 data class Measure(
-    val id: String,
     val abbreviation: String,
     val name: String,
     val plural: String,
@@ -17,7 +16,6 @@ data class Measure(
 )
 
 fun MeasureModel.toDomain() = Measure(
-    id = id.orEmpty(),
     abbreviation = abbreviation.orEmpty(),
     name = name.orEmpty(),
     plural = plural.orEmpty(),

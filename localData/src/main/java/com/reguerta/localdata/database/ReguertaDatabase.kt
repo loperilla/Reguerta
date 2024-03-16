@@ -2,7 +2,9 @@ package com.reguerta.localdata.database
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.reguerta.localdata.database.dao.MeasureDao
 import com.reguerta.localdata.database.dao.OrderLineDao
+import com.reguerta.localdata.database.entity.MeasureEntity
 import com.reguerta.localdata.database.entity.OrderLineEntity
 
 /*****
@@ -13,10 +15,12 @@ import com.reguerta.localdata.database.entity.OrderLineEntity
  */
 @Database(
     entities = [
-        OrderLineEntity::class
+        OrderLineEntity::class,
+        MeasureEntity::class
     ],
     version = 1
 )
 abstract class ReguertaDatabase : RoomDatabase() {
     abstract fun orderLineDao(): OrderLineDao
+    abstract fun measureDao(): MeasureDao
 }

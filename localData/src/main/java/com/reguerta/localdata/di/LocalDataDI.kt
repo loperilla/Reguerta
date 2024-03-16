@@ -3,6 +3,7 @@ package com.reguerta.localdata.di
 import android.content.Context
 import androidx.room.Room
 import com.reguerta.localdata.database.ReguertaDatabase
+import com.reguerta.localdata.database.dao.MeasureDao
 import com.reguerta.localdata.database.dao.OrderLineDao
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.datastore.ReguertaDataStoreImpl
@@ -52,4 +53,10 @@ object LocalDataDI {
     fun provideOrderLineDao(
         reguertaDatabase: ReguertaDatabase
     ): OrderLineDao = reguertaDatabase.orderLineDao()
+
+    @Singleton
+    @Provides
+    fun provideMeasureDao(
+        reguertaDatabase: ReguertaDatabase
+    ): MeasureDao = reguertaDatabase.measureDao()
 }

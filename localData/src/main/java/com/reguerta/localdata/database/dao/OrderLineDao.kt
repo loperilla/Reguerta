@@ -24,4 +24,7 @@ interface OrderLineDao {
 
     @Delete
     fun deleteOrder(orderLineEntity: OrderLineEntity)
+
+    @Query("UPDATE OrderLineEntity SET quantity = :quantity WHERE userId = :userId AND week = :week AND orderId = :orderId AND productId = :productId")
+    fun updateQuantity(userId: String, week: Int, orderId: String, productId: String, quantity: Int)
 }

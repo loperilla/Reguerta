@@ -3,6 +3,7 @@ package com.reguerta.presentation.composables
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
@@ -85,6 +87,28 @@ fun InverseReguertaButton(
 }
 
 @Composable
+fun InverseReguertaButton(
+    content: @Composable RowScope.() -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabledButton: Boolean = true,
+    borderSize: Dp = 2.dp,
+    cornerSize: Float = 16f
+) {
+    Button(
+        onClick = onClick,
+        modifier = modifier,
+        border = BorderStroke(borderSize, PrimaryColor),
+        enabled = enabledButton,
+        shape = RoundedCornerShape(cornerSize),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = SecondaryBackground
+        ),
+        content = content
+    )
+}
+
+@Composable
 fun ReguertaIconButton(
     iconButton: ImageVector,
     onClick: () -> Unit,
@@ -135,6 +159,17 @@ fun ReguertaButtonPreview() {
                 textButton = "Button",
                 onClick = {},
                 enabledButton = false
+            )
+            InverseReguertaButton(
+                content = {
+                    TextBody(
+                        text = "con content",
+                        textSize = TEXT_SIZE_SMALL,
+                        textColor = Text
+                    )
+                },
+                onClick = {},
+                enabledButton = false,
             )
             ReguertaIconButton(
                 iconButton = Icons.Filled.Delete,

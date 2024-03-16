@@ -7,6 +7,7 @@ import com.reguerta.data.firebase.firestore.order.OrderServices
 import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
+import com.reguerta.domain.model.mapper.MeasureMapper
 import com.reguerta.domain.usecase.auth.CheckAdminProducerUseCase
 import com.reguerta.domain.usecase.auth.LoginUseCase
 import com.reguerta.domain.usecase.auth.RefreshUserUseCase
@@ -16,6 +17,7 @@ import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.order.GetCurrentUserOrderUseCase
 import com.reguerta.domain.usecase.orderline.AddOrderLineUseCase
 import com.reguerta.domain.usecase.orderline.GetOrderLinesUseCase
+import com.reguerta.domain.usecase.orderline.UpdateQuantityOrderLineUseCase
 import com.reguerta.domain.usecase.products.AddProductUseCase
 import com.reguerta.domain.usecase.products.DeleteProductUseCase
 import com.reguerta.domain.usecase.products.EditProductUseCase
@@ -116,4 +118,11 @@ object DomainDi {
 
     @Provides
     fun providesAddOrderLinesUseCase(orderLineService: OrderLineService) = AddOrderLineUseCase(orderLineService)
+
+    @Provides
+    fun providesUpdateQuantityOrderLinesUseCase(orderLineService: OrderLineService) =
+        UpdateQuantityOrderLineUseCase(orderLineService)
+
+    @Provides
+    fun providesMeasureMapper(measureService: MeasureService) = MeasureMapper(measureService)
 }

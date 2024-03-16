@@ -1,6 +1,7 @@
 package com.reguerta.presentation.composables
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -31,6 +32,8 @@ import com.reguerta.presentation.ui.Text
 fun ReguertaTopBar(
     topBarText: String,
     navActionClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    actions: @Composable RowScope.() -> Unit = {},
     topBarTextColor: Color = Text,
     navIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowBack
 ) {
@@ -51,7 +54,9 @@ fun ReguertaTopBar(
                     contentDescription = "Back"
                 )
             }
-        }
+        },
+        modifier = modifier,
+        actions = actions
     )
 }
 

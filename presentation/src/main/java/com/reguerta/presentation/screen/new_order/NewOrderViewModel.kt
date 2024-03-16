@@ -9,6 +9,7 @@ import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.domain.usecase.order.GetCurrentUserOrderUseCase
 import com.reguerta.domain.usecase.orderline.AddOrderLineUseCase
 import com.reguerta.domain.usecase.orderline.GetOrderLinesUseCase
+import com.reguerta.domain.usecase.orderline.UpdateQuantityOrderLineUseCase
 import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -33,17 +34,19 @@ class NewOrderViewModel @Inject constructor(
     getAvailableProductsUseCase: GetAvailableProductsUseCase,
     getCurrentOrderUseCase: GetCurrentUserOrderUseCase,
     getOrderLinesUseCase: GetOrderLinesUseCase,
-    private val addOrderLineUseCase: AddOrderLineUseCase
+    private val addOrderLineUseCase: AddOrderLineUseCase,
+    private val updateQuantityOrderLineUseCase: UpdateQuantityOrderLineUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<NewOrderState> = MutableStateFlow(NewOrderState())
     val state: StateFlow<NewOrderState> = _state.asStateFlow()
 
+    private lateinit var initialCommonProducts: List<CommonProduct>
     init {
         viewModelScope.launch {
             listOf(
                 async {
                     getAvailableProductsUseCase().collectLatest { list ->
-                        _state.update { it.copy(availableCommonProducts = list) }
+                        initialCommonProducts = list
                     }
                 }, async {
                     getCurrentOrderUseCase().fold(
@@ -59,7 +62,9 @@ class NewOrderViewModel @Inject constructor(
                                 } else {
                                     _state.update {
                                         it.copy(
-                                            isLoading = false
+                                            isLoading = false,
+                                            availableCommonProducts = initialCommonProducts,
+                                            hasOrderLine = false
                                         )
                                     }
                                 }
@@ -80,8 +85,7 @@ class NewOrderViewModel @Inject constructor(
     }
 
     private fun buildProductWithOrderList(orderList: List<OrderLineProduct>) {
-        val availableProducts = state.value.availableCommonProducts as List<CommonProduct>
-        val productList: List<Product> = availableProducts.map { common ->
+        val productList: List<Product> = initialCommonProducts.map { common ->
             val matchOrder = orderList.find { it.productId == common.id }
             if (matchOrder != null) {
                 ProductWithOrderLine(
@@ -92,10 +96,13 @@ class NewOrderViewModel @Inject constructor(
                 common
             }
         }
+
         _state.update {
             it.copy(
                 isLoading = false,
-                availableCommonProducts = productList
+                hasOrderLine = true,
+                availableCommonProducts = productList,
+                productsOrderLineList = productList.filterIsInstance(ProductWithOrderLine::class.java)
             )
         }
     }
@@ -112,6 +119,37 @@ class NewOrderViewModel @Inject constructor(
                         state.value.orderId,
                         newEvent.productId
                     )
+                }
+
+                is NewOrderEvent.MinusQuantityProduct -> {
+                    val productUpdated = state.value.availableCommonProducts.single {
+                        it.id == newEvent.productId
+                    } as ProductWithOrderLine
+
+                    updateQuantityOrderLineUseCase(
+                        state.value.orderId,
+                        newEvent.productId,
+                        productUpdated.quantity.minus(1)
+                    )
+                }
+
+                is NewOrderEvent.PlusQuantityProduct -> {
+                    val productUpdated = state.value.availableCommonProducts.single {
+                        it.id == newEvent.productId
+                    } as ProductWithOrderLine
+                    updateQuantityOrderLineUseCase(
+                        state.value.orderId,
+                        newEvent.productId,
+                        productUpdated.quantity.plus(1)
+                    )
+                }
+
+                NewOrderEvent.HideShoppingCart -> {
+                    _state.update { it.copy(showShoppingCart = false) }
+                }
+
+                NewOrderEvent.ShowShoppingCart -> {
+                    _state.update { it.copy(showShoppingCart = true) }
                 }
             }
         }

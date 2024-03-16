@@ -37,5 +37,9 @@ data class ProductWithOrderLine(
     override val unity: String
         get() = commonProduct.unity
 
+    val quantity = orderLine.quantity
+
     fun getQuantityUnitySelected() = "${orderLine.quantity} $container"
+
+    fun getAmount() = orderLine.quantity * price
 }

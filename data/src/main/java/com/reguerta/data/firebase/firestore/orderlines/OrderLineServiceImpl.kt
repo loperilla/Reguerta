@@ -39,4 +39,14 @@ class OrderLineServiceImpl @Inject constructor(
             )
         )
     }
+
+    override suspend fun updateQuantity(orderId: String, productId: String, quantity: Int) {
+        dao.updateQuantity(
+            dataStore.getStringByKey(UID_KEY),
+            time.getCurrentWeek(),
+            orderId,
+            productId,
+            quantity
+        )
+    }
 }

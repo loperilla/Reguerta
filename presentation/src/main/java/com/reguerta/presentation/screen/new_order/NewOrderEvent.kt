@@ -8,5 +8,9 @@ package com.reguerta.presentation.screen.new_order
  */
 sealed class NewOrderEvent {
     data class StartOrder(val productId: String) : NewOrderEvent()
+    data class PlusQuantityProduct(val productId: String) : NewOrderEvent()
+    data class MinusQuantityProduct(val productId: String) : NewOrderEvent()
     data object GoOut : NewOrderEvent()
+    data object ShowShoppingCart : NewOrderEvent()
+    data object HideShoppingCart : NewOrderEvent()
 }

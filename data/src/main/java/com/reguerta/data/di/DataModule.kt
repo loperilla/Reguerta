@@ -33,6 +33,7 @@ import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.firestore.products.ProductsServiceImpl
 import com.reguerta.data.firebase.firestore.users.UserCollectionImpl
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
+import com.reguerta.localdata.database.dao.MeasureDao
 import com.reguerta.localdata.database.dao.OrderLineDao
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.time.WeekTime
@@ -143,5 +144,6 @@ object DataModule {
     @Provides
     fun provideMeasuresCollectionService(
         @Named(MEASURES_COLLECTION) collection: CollectionReference,
-    ): MeasureService = MeasureServiceImpl(collection)
+        measureDao: MeasureDao
+    ): MeasureService = MeasureServiceImpl(collection, measureDao)
 }

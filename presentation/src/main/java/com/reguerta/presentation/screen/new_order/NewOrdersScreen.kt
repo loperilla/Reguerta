@@ -12,9 +12,12 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.ShoppingBasket
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -31,9 +34,12 @@ import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.domain.model.mapper.containerUnity
+import com.reguerta.domain.model.mapper.getAmount
 import com.reguerta.domain.model.mapper.priceFormatted
 import com.reguerta.presentation.ALCAZAR
 import com.reguerta.presentation.ALCAZAR_WITH_ORDER
+import com.reguerta.presentation.composables.AmountText
+import com.reguerta.presentation.composables.InverseReguertaButton
 import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaIconButton
 import com.reguerta.presentation.composables.ReguertaTopBar
@@ -83,21 +89,113 @@ fun NewOrderScreen(
 ) {
     Scaffold(
         topBar = {
-            ReguertaTopBar(
-                topBarText = "Mi pedido",
-                navActionClick = { onEvent(NewOrderEvent.GoOut) }
-            )
+            if (state.showShoppingCart) {
+                InverseReguertaButton(
+                    onClick = {
+                        onEvent(NewOrderEvent.HideShoppingCart)
+                    },
+                    content = {
+                        Icon(
+                            imageVector = Icons.Default.ShoppingBasket,
+                            contentDescription = null,
+                            tint = PrimaryColor,
+                            modifier = Modifier
+                                .padding(horizontal = PADDING_SMALL)
+                        )
+                        TextBody(
+                            "Seguir comprando",
+                            textSize = TEXT_SIZE_SMALL
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            vertical = PADDING_SMALL,
+                            horizontal = PADDING_MEDIUM
+                        )
+                )
+            } else {
+                ReguertaTopBar(
+                    topBarText = "Mi pedido",
+                    navActionClick = { onEvent(NewOrderEvent.GoOut) },
+                    actions = {
+                        InverseReguertaButton(
+                            onClick = {
+                                onEvent(NewOrderEvent.ShowShoppingCart)
+                            },
+                            content = {
+                                TextBody(
+                                    "Ver",
+                                    textSize = TEXT_SIZE_SMALL,
+                                    modifier = Modifier
+                                        .padding(PADDING_SMALL)
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.ShoppingCart,
+                                    contentDescription = null,
+                                    tint = PrimaryColor
+                                )
+                            },
+                            enabledButton = state.hasOrderLine
+                        )
+                    }
+                )
+            }
         }
     ) {
         Column(
             modifier = Modifier.padding(it)
         ) {
             if (!state.isLoading) {
-                AvailableProductsScreen(
-                    state.availableCommonProducts,
-                    onEvent
-                )
+                if (state.showShoppingCart) {
+                    ShoppingCartScreen(
+                        state.productsOrderLineList,
+                        onEvent
+                    )
+                } else {
+                    AvailableProductsScreen(
+                        state.availableCommonProducts,
+                        onEvent
+                    )
+                }
             }
+        }
+    }
+}
+
+@Composable
+private fun ShoppingCartScreen(
+    productList: List<ProductWithOrderLine>,
+    onEvent: (NewOrderEvent) -> Unit
+) {
+    Row(
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = PADDING_MEDIUM)
+    ) {
+        TextBody(
+            text = "Mi pedido",
+            textSize = TEXT_SIZE_LARGE
+        )
+        AmountText(
+            amount = productList.getAmount(),
+            textSize = TEXT_SIZE_LARGE
+        )
+    }
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(PADDING_SMALL)
+    ) {
+        items(
+            count = productList.size
+        ) {
+            OrderProductItem(
+                product = productList[it],
+                onEvent = onEvent
+            )
         }
     }
 }
@@ -277,16 +375,17 @@ private fun OrderQuantitySelector(
             textColor = Text
         )
         ReguertaIconButton(
-            iconButton = Icons.Filled.Edit,
+            iconButton = Icons.Filled.Add,
             onClick = {
-//                navigateTo(Routes.USERS.EDIT.createRoute(user.id))
+                onEvent(NewOrderEvent.PlusQuantityProduct(product.id))
             },
-            contentColor = PrimaryColor
+            contentColor = PrimaryColor,
+            enabledButton = product.stock != 0
         )
         ReguertaIconButton(
-            iconButton = Icons.Filled.Delete,
+            iconButton = if (product.quantity == 1) Icons.Filled.Delete else Icons.Filled.Remove,
             onClick = {
-//                onEvent(UserScreenEvent.ShowAreYouSureDialog(user.id))
+                onEvent(NewOrderEvent.MinusQuantityProduct(product.id))
             },
             contentColor = Color.Red
         )
@@ -300,9 +399,36 @@ fun NewOrderScreenPreview() {
         NewOrderScreen(
             state = NewOrderState(
                 isLoading = false,
+                hasOrderLine = true,
                 availableCommonProducts = listOf(
                     ALCAZAR,
                     ALCAZAR_WITH_ORDER
+                )
+            ),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ShoppingCartScreenPreview() {
+    Screen {
+        NewOrderScreen(
+            state = NewOrderState(
+                isLoading = false,
+                hasOrderLine = true,
+                showShoppingCart = true,
+                availableCommonProducts = listOf(
+                    ALCAZAR,
+                    ALCAZAR_WITH_ORDER
+                ),
+                productsOrderLineList = listOf(
+                    ALCAZAR_WITH_ORDER.copy(
+                        orderLine = ALCAZAR_WITH_ORDER.orderLine.copy(
+                            quantity = 2
+                        )
+                    )
                 )
             ),
             onEvent = {}
