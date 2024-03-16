@@ -9,7 +9,8 @@ import kotlinx.coroutines.flow.Flow
  * All rights reserved 2024
  */
 interface ProductsService {
-    suspend fun getProducts(): Flow<Result<List<ProductModel>>>
+    suspend fun getProductsByUserId(): Flow<Result<List<ProductModel>>>
+    suspend fun getAvailableProducts(): Flow<Result<List<ProductModel>>>
     suspend fun deleteProduct(id: String)
     suspend fun addProduct(product: ProductDTOModel, byteArray: ByteArray?): Result<Unit>
     suspend fun getProductById(id: String): Result<ProductModel>

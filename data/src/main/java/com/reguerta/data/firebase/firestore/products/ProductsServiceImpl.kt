@@ -2,6 +2,7 @@ package com.reguerta.data.firebase.firestore.products
 
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.storage.StorageReference
+import com.reguerta.data.firebase.firestore.AVAILABLE
 import com.reguerta.data.firebase.firestore.USER_ID
 import com.reguerta.localdata.datastore.COMPANY_NAME_KEY
 import com.reguerta.localdata.datastore.ReguertaDataStore
@@ -23,11 +24,41 @@ class ProductsServiceImpl @Inject constructor(
     private val dataStore: ReguertaDataStore,
     private val storage: StorageReference
 ) : ProductsService {
-    override suspend fun getProducts(): Flow<Result<List<ProductModel>>> = callbackFlow {
+    override suspend fun getProductsByUserId(): Flow<Result<List<ProductModel>>> = callbackFlow {
         val subscription = collection
             .whereEqualTo(
                 USER_ID,
                 dataStore.getStringByKey(UID_KEY)
+            )
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    error.printStackTrace()
+                    trySend(Result.failure(error))
+                    close(error)
+                    return@addSnapshotListener
+                }
+                snapshot?.let { query ->
+                    val productList = mutableListOf<ProductModel>()
+                    query.documents.forEach { document ->
+                        val product = document.toObject(ProductModel::class.java)
+                        product?.let { model ->
+                            model.id = document.id
+                            productList.add(model)
+                        }
+                    }
+                    trySend(Result.success(productList))
+                }
+            }
+        awaitClose {
+            subscription.remove()
+        }
+    }
+
+    override suspend fun getAvailableProducts(): Flow<Result<List<ProductModel>>> = callbackFlow {
+        val subscription = collection
+            .whereEqualTo(
+                AVAILABLE,
+                true
             )
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {

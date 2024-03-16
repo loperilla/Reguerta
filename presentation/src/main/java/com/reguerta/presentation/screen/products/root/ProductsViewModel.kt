@@ -3,7 +3,7 @@ package com.reguerta.presentation.screen.products.root
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.usecase.products.DeleteProductUseCase
-import com.reguerta.domain.usecase.products.GetAllProductsUseCase
+import com.reguerta.domain.usecase.products.GetAllProductsByUserIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,7 +21,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class ProductsViewModel @Inject constructor(
-    private val getAllProductsUseCase: GetAllProductsUseCase,
+    private val getAllProductsByUserIdUseCase: GetAllProductsByUserIdUseCase,
     private val deleteProductUseCase: DeleteProductUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<ProductsState> = MutableStateFlow(ProductsState())
@@ -29,9 +29,9 @@ class ProductsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            getAllProductsUseCase().collect {
+            getAllProductsByUserIdUseCase().collect {
                 _state.value = state.value.copy(
-                    products = it,
+                    commonProducts = it,
                     isLoading = false
                 )
             }

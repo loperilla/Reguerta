@@ -3,6 +3,8 @@ package com.reguerta.domain.di
 import com.reguerta.data.firebase.auth.AuthService
 import com.reguerta.data.firebase.firestore.container.ContainerService
 import com.reguerta.data.firebase.firestore.measures.MeasureService
+import com.reguerta.data.firebase.firestore.order.OrderServices
+import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import com.reguerta.domain.usecase.auth.CheckAdminProducerUseCase
@@ -11,10 +13,14 @@ import com.reguerta.domain.usecase.auth.RefreshUserUseCase
 import com.reguerta.domain.usecase.auth.RegisterUseCase
 import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
+import com.reguerta.domain.usecase.order.GetCurrentUserOrderUseCase
+import com.reguerta.domain.usecase.orderline.AddOrderLineUseCase
+import com.reguerta.domain.usecase.orderline.GetOrderLinesUseCase
 import com.reguerta.domain.usecase.products.AddProductUseCase
 import com.reguerta.domain.usecase.products.DeleteProductUseCase
 import com.reguerta.domain.usecase.products.EditProductUseCase
-import com.reguerta.domain.usecase.products.GetAllProductsUseCase
+import com.reguerta.domain.usecase.products.GetAllProductsByUserIdUseCase
+import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
 import com.reguerta.domain.usecase.products.GetProductByIdUseCase
 import com.reguerta.domain.usecase.users.AddUserUseCase
 import com.reguerta.domain.usecase.users.DeleteUsersUseCase
@@ -77,7 +83,12 @@ object DomainDi {
     fun providesCheckAdminProducerUseCase(authService: AuthService) = CheckAdminProducerUseCase(authService)
 
     @Provides
-    fun providesGetAllProductsUseCase(productsService: ProductsService) = GetAllProductsUseCase(productsService)
+    fun providesGetAllProductsByUserIdUseCase(productsService: ProductsService) =
+        GetAllProductsByUserIdUseCase(productsService)
+
+    @Provides
+    fun providesGetAvailableProductsUseCase(productsService: ProductsService) =
+        GetAvailableProductsUseCase(productsService)
 
     @Provides
     fun providesDeleteProductUseCase(productsService: ProductsService) = DeleteProductUseCase(productsService)
@@ -96,4 +107,13 @@ object DomainDi {
 
     @Provides
     fun providesAllContainerUseCase(containerService: ContainerService) = GetAllContainerUseCase(containerService)
+
+    @Provides
+    fun providesGetCurrentOrder(orderServices: OrderServices) = GetCurrentUserOrderUseCase(orderServices)
+
+    @Provides
+    fun providesGetOrderLinesUseCase(orderLineService: OrderLineService) = GetOrderLinesUseCase(orderLineService)
+
+    @Provides
+    fun providesAddOrderLinesUseCase(orderLineService: OrderLineService) = AddOrderLineUseCase(orderLineService)
 }

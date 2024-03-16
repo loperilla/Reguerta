@@ -1,7 +1,6 @@
 package com.reguerta.presentation.screen.products.root
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +18,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -27,14 +25,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.reguerta.domain.model.Product
-import com.reguerta.presentation.R
-import com.reguerta.presentation.composables.ImageUrl
+import com.reguerta.domain.model.CommonProduct
+import com.reguerta.domain.model.mapper.priceFormatted
 import com.reguerta.presentation.composables.InverseReguertaButton
 import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
@@ -45,13 +41,13 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.StockText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
+import com.reguerta.presentation.composables.image.ProductImage
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
-import com.reguerta.presentation.ui.SIZE_96
 import com.reguerta.presentation.ui.SecondaryBackground
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
@@ -83,7 +79,6 @@ fun productScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductsScreen(
     state: ProductsState,
@@ -133,7 +128,7 @@ private fun ProductsScreen(
         ) {
             if (!state.isLoading) {
                 ProductListScreen(
-                    state.products,
+                    state.commonProducts,
                     onEvent,
                     navigateTo
                 )
@@ -143,8 +138,8 @@ private fun ProductsScreen(
 }
 
 @Composable
-fun ProductListScreen(
-    products: List<Product>,
+private fun ProductListScreen(
+    products: List<CommonProduct>,
     onEvent: (ProductsEvent) -> Unit,
     navigateTo: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -167,8 +162,8 @@ fun ProductListScreen(
 }
 
 @Composable
-fun ProductItem(
-    product: Product,
+private fun ProductItem(
+    product: CommonProduct,
     onEvent: (ProductsEvent) -> Unit,
     navigateTo: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -185,23 +180,7 @@ fun ProductItem(
                     .fillMaxWidth()
                     .wrapContentHeight()
             ) {
-                if (product.imageUrl.isEmpty()) {
-                    Image(
-                        painter = painterResource(id = R.mipmap.product_no_available),
-                        contentDescription = product.name,
-                        modifier = Modifier
-                            .padding(PADDING_SMALL)
-                            .size(SIZE_96)
-                    )
-                } else {
-                    ImageUrl(
-                        imageUrl = product.imageUrl,
-                        name = product.name,
-                        modifier = Modifier
-                            .padding(PADDING_SMALL)
-                            .size(SIZE_96)
-                    )
-                }
+                ProductImage(product)
                 Row(
                     modifier = Modifier
                         .padding(PADDING_SMALL),
@@ -250,7 +229,7 @@ fun ProductItem(
                             .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                     )
                     TextBody(
-                        text = "${"%.2f".format(product.price)} €",
+                        text = product.priceFormatted(),
                         textSize = TEXT_SIZE_LARGE,
                         textColor = Text,
                         modifier = Modifier
@@ -333,8 +312,8 @@ fun ProductItemPreview() {
         ProductsScreen(
             state = ProductsState(
                 isLoading = false,
-                products = listOf(
-                    Product(
+                commonProducts = listOf(
+                    CommonProduct(
                         name = "Product 1",
                         description = "Description 1",
                         container = "Container 1",

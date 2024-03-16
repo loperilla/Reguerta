@@ -1,8 +1,8 @@
 package com.reguerta.domain.usecase.products
 
 import com.reguerta.data.firebase.firestore.products.ProductsService
-import com.reguerta.domain.model.Product
-import com.reguerta.domain.model.toDomain
+import com.reguerta.domain.model.CommonProduct
+import com.reguerta.domain.model.mapper.toDomain
 import javax.inject.Inject
 
 /*****
@@ -16,7 +16,7 @@ class GetProductByIdUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         id: String
-    ): Result<Product> {
+    ): Result<CommonProduct> {
         return productService.getProductById(id).fold(
             onSuccess = { Result.success(it.toDomain()) },
             onFailure = { Result.failure(it) }

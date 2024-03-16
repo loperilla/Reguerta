@@ -2,7 +2,7 @@ package com.reguerta.presentation.screen.products.edit
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reguerta.domain.model.Product
+import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.products.EditProductUseCase
@@ -102,7 +102,7 @@ class EditProductViewModel @AssistedInject constructor(
                     with(state.value) {
                         editProductUseCase(
                             id = productId,
-                            product = Product(
+                            product = CommonProduct(
                                 name = name,
                                 description = description,
                                 available = isAvailable,

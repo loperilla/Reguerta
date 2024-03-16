@@ -1,6 +1,6 @@
 package com.reguerta.presentation.screen.products.root
 
-import com.reguerta.domain.model.Product
+import com.reguerta.domain.model.CommonProduct
 
 /*****
  * Project: Reguerta
@@ -9,7 +9,7 @@ import com.reguerta.domain.model.Product
  * All rights reserved 2024
  */
 data class ProductsState(
-    val products: List<Product> = emptyList(),
+    val commonProducts: List<CommonProduct> = emptyList(),
     val isLoading: Boolean = false,
     val goOut: Boolean = false,
     val showAreYouSureDialog: Boolean = false,

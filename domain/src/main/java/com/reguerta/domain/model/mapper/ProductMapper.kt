@@ -1,28 +1,20 @@
-package com.reguerta.domain.model
+package com.reguerta.domain.model.mapper
 
 import com.reguerta.data.firebase.firestore.products.ProductDTOModel
 import com.reguerta.data.firebase.firestore.products.ProductModel
+import com.reguerta.domain.model.CommonProduct
+import com.reguerta.domain.model.interfaces.Product
 
 /*****
  * Project: Reguerta
- * From: com.reguerta.domain.model
- * Created By Manuel Lopera on 25/2/24 at 11:25
+ * From: com.reguerta.domain.model.mapper
+ * Created By Manuel Lopera on 15/3/24 at 19:53
  * All rights reserved 2024
  */
-data class Product(
-    val id: String = "",
-    val container: String = "",
-    val description: String = "",
-    val name: String = "",
-    val price: Float = 0.0f,
-    val available: Boolean = false,
-    val companyName: String = "",
-    val imageUrl: String = "",
-    val stock: Int = 0,
-    val quantityContainer: Int = 0,
-    val quantityWeight: Int = 0,
-    val unity: String = ""
-)
+
+fun Product.priceFormatted(): String = String.format("%.2f", price) + "€"
+
+fun Product.containerUnity(): String = "$quantityContainer $container $quantityWeight $unity"
 
 fun Product.toDto(): ProductDTOModel = ProductDTOModel(
     container = container,
@@ -37,7 +29,8 @@ fun Product.toDto(): ProductDTOModel = ProductDTOModel(
     quantityWeight = quantityWeight,
     unity = unity
 )
-fun ProductModel.toDomain(): Product = Product(
+
+fun ProductModel.toDomain(): CommonProduct = CommonProduct(
     id = id.orEmpty(),
     container = container.orEmpty(),
     description = description.orEmpty(),

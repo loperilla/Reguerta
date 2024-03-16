@@ -12,6 +12,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 
 
 val UID_KEY = stringPreferencesKey("uid")
+val NAME_KEY = stringPreferencesKey("name")
+val SURNAME_KEY = stringPreferencesKey("surname")
 val COMPANY_NAME_KEY = stringPreferencesKey("companyName")
 
 val IS_ADMIN_KEY = booleanPreferencesKey("isAdmin")

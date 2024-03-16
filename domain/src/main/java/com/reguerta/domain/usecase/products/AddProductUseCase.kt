@@ -1,8 +1,8 @@
 package com.reguerta.domain.usecase.products
 
 import com.reguerta.data.firebase.firestore.products.ProductsService
-import com.reguerta.domain.model.Product
-import com.reguerta.domain.model.toDto
+import com.reguerta.domain.model.CommonProduct
+import com.reguerta.domain.model.mapper.toDto
 import javax.inject.Inject
 
 /*****
@@ -15,11 +15,11 @@ class AddProductUseCase @Inject constructor(
     private val service: ProductsService
 ) {
     suspend operator fun invoke(
-        product: Product,
+        commonProduct: CommonProduct,
         imageByteArray: ByteArray?,
     ): Result<Unit> {
         return try {
-            service.addProduct(product.toDto(), imageByteArray).fold(
+            service.addProduct(commonProduct.toDto(), imageByteArray).fold(
                 onSuccess = {
                     Result.success(Unit)
                 },

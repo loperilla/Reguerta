@@ -1,4 +1,4 @@
-package com.reguerta.presentation.composables
+package com.reguerta.presentation.composables.image
 
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape

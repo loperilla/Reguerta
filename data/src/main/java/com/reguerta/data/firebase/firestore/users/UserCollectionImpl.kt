@@ -7,7 +7,9 @@ import com.reguerta.data.firebase.firestore.USER_IS_PRODUCER
 import com.reguerta.localdata.datastore.COMPANY_NAME_KEY
 import com.reguerta.localdata.datastore.IS_ADMIN_KEY
 import com.reguerta.localdata.datastore.IS_PRODUCER_KEY
+import com.reguerta.localdata.datastore.NAME_KEY
 import com.reguerta.localdata.datastore.ReguertaDataStore
+import com.reguerta.localdata.datastore.SURNAME_KEY
 import com.reguerta.localdata.datastore.UID_KEY
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
@@ -87,8 +89,19 @@ class UserCollectionImpl @Inject constructor(
             dataStore.saveBooleanValue(
                 IS_PRODUCER_KEY, model.isProducer
             )
-        }
 
+            model.name?.let { name ->
+                dataStore.saveStringValue(
+                    NAME_KEY, name
+                )
+            }
+
+            model.surname?.let {
+                dataStore.saveStringValue(
+                    SURNAME_KEY, it
+                )
+            }
+        }
     }
 
     override suspend fun toggleAdmin(id: String, newValue: Boolean) {

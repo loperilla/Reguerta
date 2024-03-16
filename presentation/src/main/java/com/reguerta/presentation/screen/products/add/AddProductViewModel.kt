@@ -2,7 +2,7 @@ package com.reguerta.presentation.screen.products.add
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reguerta.domain.model.Product
+import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.products.AddProductUseCase
@@ -121,7 +121,7 @@ class AddProductViewModel @Inject constructor(
                 AddProductEvent.AddProduct -> {
                     with(_state.value) {
                         addProductUseCase(
-                            Product(
+                            CommonProduct(
                                 container = containerType,
                                 description = description,
                                 name = name,

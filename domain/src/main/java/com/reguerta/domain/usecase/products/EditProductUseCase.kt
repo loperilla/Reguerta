@@ -1,8 +1,8 @@
 package com.reguerta.domain.usecase.products
 
 import com.reguerta.data.firebase.firestore.products.ProductsService
-import com.reguerta.domain.model.Product
-import com.reguerta.domain.model.toDto
+import com.reguerta.domain.model.CommonProduct
+import com.reguerta.domain.model.mapper.toDto
 import javax.inject.Inject
 
 /*****
@@ -16,7 +16,7 @@ class EditProductUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(
         id: String,
-        product: Product,
+        product: CommonProduct,
         imageByteArray: ByteArray?
     ): Result<Unit> {
         return try {
