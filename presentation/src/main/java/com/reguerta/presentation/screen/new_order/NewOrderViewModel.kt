@@ -10,6 +10,7 @@ import com.reguerta.domain.usecase.order.GetCurrentUserOrderUseCase
 import com.reguerta.domain.usecase.orderline.AddOrderLineUseCase
 import com.reguerta.domain.usecase.orderline.DeleteOrderLineUseCase
 import com.reguerta.domain.usecase.orderline.GetOrderLinesUseCase
+import com.reguerta.domain.usecase.orderline.PushOrderLineToFirebaseUseCase
 import com.reguerta.domain.usecase.orderline.UpdateQuantityOrderLineUseCase
 import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,7 +38,8 @@ class NewOrderViewModel @Inject constructor(
     getOrderLinesUseCase: GetOrderLinesUseCase,
     private val addOrderLineUseCase: AddOrderLineUseCase,
     private val updateQuantityOrderLineUseCase: UpdateQuantityOrderLineUseCase,
-    private val deleteOrderLineUseCase: DeleteOrderLineUseCase
+    private val deleteOrderLineUseCase: DeleteOrderLineUseCase,
+    private val pushOrderLineToFirebaseUseCase: PushOrderLineToFirebaseUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<NewOrderState> = MutableStateFlow(NewOrderState())
     val state: StateFlow<NewOrderState> = _state.asStateFlow()
@@ -50,7 +52,7 @@ class NewOrderViewModel @Inject constructor(
                     getAvailableProductsUseCase().collectLatest { list ->
                         initialCommonProducts = list
                     }
-                }, async {
+                }, async(Dispatchers.IO) {
                     getCurrentOrderUseCase().fold(
                         onSuccess = { orderId ->
                             _state.update {
@@ -119,9 +121,13 @@ class NewOrderViewModel @Inject constructor(
                 }
 
                 is NewOrderEvent.StartOrder -> {
+                    val companyOfSelectedProduct = state.value.availableCommonProducts.single {
+                        it.id == newEvent.productId
+                    }.companyName
                     addOrderLineUseCase(
                         state.value.orderId,
-                        newEvent.productId
+                        newEvent.productId,
+                        companyOfSelectedProduct
                     )
                 }
 
@@ -170,6 +176,19 @@ class NewOrderViewModel @Inject constructor(
 
                 NewOrderEvent.ShowShoppingCart -> {
                     _state.update { it.copy(showShoppingCart = true) }
+                }
+
+                NewOrderEvent.PushOrder -> {
+                    pushOrderLineToFirebaseUseCase(
+                        state.value.productsOrderLineList
+                    ).fold(
+                        onSuccess = {
+                            _state.update { it.copy(goOut = true) }
+                        },
+                        onFailure = { throwable ->
+                            throwable.printStackTrace()
+                        }
+                    )
                 }
             }
         }

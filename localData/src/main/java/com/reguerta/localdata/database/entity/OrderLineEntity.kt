@@ -15,6 +15,7 @@ data class OrderLineEntity(
     val id: Long = 0L,
     val orderId: String,
     val productId: String,
+    val companyName: String,
     val userId: String,
     val quantity: Int,
     val week: Int

@@ -1,5 +1,6 @@
 package com.reguerta.data.firebase.firestore.orderlines
 
+import com.google.firebase.firestore.CollectionReference
 import com.reguerta.localdata.database.dao.OrderLineDao
 import com.reguerta.localdata.database.entity.OrderLineEntity
 import com.reguerta.localdata.datastore.ReguertaDataStore
@@ -7,6 +8,7 @@ import com.reguerta.localdata.datastore.UID_KEY
 import com.reguerta.localdata.time.WeekTime
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
 
 /*****
@@ -16,6 +18,7 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 class OrderLineServiceImpl @Inject constructor(
+    private val collection: CollectionReference,
     private val dao: OrderLineDao,
     private val time: WeekTime,
     private val dataStore: ReguertaDataStore
@@ -28,14 +31,15 @@ class OrderLineServiceImpl @Inject constructor(
         list.map { entity -> entity.toDTO() }
     }
 
-    override suspend fun addOrderLine(orderId: String, productId: String) {
+    override suspend fun addOrderLineInDatabase(orderId: String, productId: String, productCompany: String) {
         dao.insertNewOrderLine(
             OrderLineEntity(
                 orderId = orderId,
                 userId = dataStore.getStringByKey(UID_KEY),
                 productId = productId,
                 quantity = 1,
-                week = time.getCurrentWeek()
+                week = time.getCurrentWeek(),
+                companyName = productCompany
             )
         )
     }
@@ -57,5 +61,18 @@ class OrderLineServiceImpl @Inject constructor(
             orderId,
             productId
         )
+    }
+
+    override suspend fun addOrderLineInFirebase(listToPush: List<OrderLineDTO>): Result<Unit> {
+        return try {
+            listToPush.forEach {
+                collection
+                    .add(it)
+                    .await()
+            }
+            Result.success(Unit)
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
     }
 }

@@ -13,4 +13,5 @@ sealed class NewOrderEvent {
     data object GoOut : NewOrderEvent()
     data object ShowShoppingCart : NewOrderEvent()
     data object HideShoppingCart : NewOrderEvent()
+    data object PushOrder : NewOrderEvent()
 }

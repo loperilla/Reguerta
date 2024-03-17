@@ -12,5 +12,6 @@ import javax.inject.Inject
 class AddOrderLineUseCase @Inject constructor(
     private val orderLineService: OrderLineService
 ) {
-    suspend operator fun invoke(orderId: String, productId: String) = orderLineService.addOrderLine(orderId, productId)
+    suspend operator fun invoke(orderId: String, productId: String, productCompany: String) =
+        orderLineService.addOrderLineInDatabase(orderId, productId, productCompany)
 }

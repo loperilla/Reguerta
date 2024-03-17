@@ -18,6 +18,9 @@ interface OrderLineDao {
     @Query("SELECT * FROM OrderLineEntity WHERE userId = :userId AND week = :week AND orderId = :orderId")
     fun getOrderLinesByUserAndWeek(userId: String, week: Int, orderId: String): Flow<List<OrderLineEntity>>
 
+    @Query("SELECT * FROM OrderLineEntity WHERE userId = :userId AND week = :week AND orderId = :orderId")
+    fun getOrderLines(userId: String, week: Int, orderId: String): List<OrderLineEntity>
+
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertNewOrderLine(orderLineEntity: OrderLineEntity): Long
 

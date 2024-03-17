@@ -10,7 +10,8 @@ import kotlinx.coroutines.flow.Flow
  */
 interface OrderLineService {
     suspend fun getOrderLines(orderId: String): Flow<List<OrderLineDTO>>
-    suspend fun addOrderLine(orderId: String, productId: String)
+    suspend fun addOrderLineInDatabase(orderId: String, productId: String, productCompany: String)
     suspend fun updateQuantity(orderId: String, productId: String, quantity: Int)
     suspend fun deleteOrderLine(orderId: String, productId: String)
+    suspend fun addOrderLineInFirebase(listToPush: List<OrderLineDTO>): Result<Unit>
 }

@@ -18,6 +18,7 @@ import com.reguerta.domain.usecase.order.GetCurrentUserOrderUseCase
 import com.reguerta.domain.usecase.orderline.AddOrderLineUseCase
 import com.reguerta.domain.usecase.orderline.DeleteOrderLineUseCase
 import com.reguerta.domain.usecase.orderline.GetOrderLinesUseCase
+import com.reguerta.domain.usecase.orderline.PushOrderLineToFirebaseUseCase
 import com.reguerta.domain.usecase.orderline.UpdateQuantityOrderLineUseCase
 import com.reguerta.domain.usecase.products.AddProductUseCase
 import com.reguerta.domain.usecase.products.DeleteProductUseCase
@@ -127,6 +128,10 @@ object DomainDi {
     @Provides
     fun providesDeleteOrderLinesUseCase(orderLineService: OrderLineService) =
         DeleteOrderLineUseCase(orderLineService)
+
+    @Provides
+    fun providesPushOrderLinesToFirebaseUseCase(orderLineService: OrderLineService) =
+        PushOrderLineToFirebaseUseCase(orderLineService)
 
     @Provides
     fun providesMeasureMapper(measureService: MeasureService) = MeasureMapper(measureService)

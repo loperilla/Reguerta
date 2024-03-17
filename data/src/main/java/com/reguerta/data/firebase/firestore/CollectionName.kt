@@ -17,4 +17,6 @@ const val CONTAINER = "container"
 const val CONTAINERS_COLLECTION = "containerCollection"
 const val ORDER = "orders"
 const val ORDERS_COLLECTION = "ordersCollection"
+const val ORDER_LINES = "orderLines"
+const val ORDERS_LINES_COLLECTION = "ordersLinesCollection"
 const val PRODUCT_IMAGE_STORAGE_PATH = PRODUCTS

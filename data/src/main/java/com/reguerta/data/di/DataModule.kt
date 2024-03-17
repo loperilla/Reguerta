@@ -16,6 +16,8 @@ import com.reguerta.data.firebase.firestore.MEASURES
 import com.reguerta.data.firebase.firestore.MEASURES_COLLECTION
 import com.reguerta.data.firebase.firestore.ORDER
 import com.reguerta.data.firebase.firestore.ORDERS_COLLECTION
+import com.reguerta.data.firebase.firestore.ORDERS_LINES_COLLECTION
+import com.reguerta.data.firebase.firestore.ORDER_LINES
 import com.reguerta.data.firebase.firestore.PRODUCTS
 import com.reguerta.data.firebase.firestore.PRODUCTS_COLLECTION
 import com.reguerta.data.firebase.firestore.PRODUCT_IMAGE_STORAGE_PATH
@@ -127,13 +129,19 @@ object DataModule {
         weekTime: WeekTime
     ): OrderServices = OrderServiceImpl(collection, dataStore, weekTime)
 
+    @Named(ORDERS_LINES_COLLECTION)
+    @Singleton
+    @Provides
+    fun provideOrderLinesCollection(firestore: FirebaseFirestore) = firestore.collection(ORDER_LINES)
+
     @Singleton
     @Provides
     fun provideOrderLinesService(
+        @Named(ORDERS_LINES_COLLECTION) collection: CollectionReference,
         orderLineDao: OrderLineDao,
         dataStore: ReguertaDataStore,
         weekTime: WeekTime
-    ): OrderLineService = OrderLineServiceImpl(orderLineDao, weekTime, dataStore)
+    ): OrderLineService = OrderLineServiceImpl(collection, orderLineDao, weekTime, dataStore)
 
     @Named(MEASURES_COLLECTION)
     @Singleton

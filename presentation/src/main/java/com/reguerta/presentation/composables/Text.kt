@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
@@ -18,6 +19,7 @@ import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
+import com.reguerta.presentation.ui.TEXT_TOPBAR
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.cabinsketchFontFamily
 import com.reguerta.presentation.ui.monserratFontFamily
@@ -87,20 +89,20 @@ fun StockText(
 @Composable
 fun AmountText(
     amount: Float,
-    modifier: Modifier = Modifier,
-    textSize: TextUnit = TEXT_SIZE_MEDIUM
+    modifier: Modifier = Modifier
 ) {
     Row(
+        verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        TextBody(
+        TextTitle(
             text = "Total: ",
-            textSize = textSize,
+            textSize = TEXT_SIZE_LARGE,
             textColor = PrimaryColor
         )
         TextBody(
             text = String.format("%.2f", amount) + "€",
-            textSize = textSize,
+            textSize = TEXT_TOPBAR,
             textColor = Text
         )
     }

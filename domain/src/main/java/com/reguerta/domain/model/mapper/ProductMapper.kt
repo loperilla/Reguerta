@@ -1,5 +1,6 @@
 package com.reguerta.domain.model.mapper
 
+import com.reguerta.data.firebase.firestore.orderlines.OrderLineDTO
 import com.reguerta.data.firebase.firestore.products.ProductDTOModel
 import com.reguerta.data.firebase.firestore.products.ProductModel
 import com.reguerta.domain.model.CommonProduct
@@ -65,3 +66,13 @@ fun ProductModel.toDomain(
 )
 
 fun List<ProductWithOrderLine>.getAmount() = this.map { it.getAmount() }.sum()
+
+fun ProductWithOrderLine.toOrderLineDto() = OrderLineDTO(
+    orderId = orderLine.orderId,
+    userId = orderLine.userId,
+    productId = id,
+    quantity = quantity,
+    week = orderLine.week,
+    companyName = companyName,
+    subtotal = getAmount()
+)
