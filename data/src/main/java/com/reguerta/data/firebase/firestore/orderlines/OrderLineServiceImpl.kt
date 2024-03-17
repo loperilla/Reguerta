@@ -49,4 +49,13 @@ class OrderLineServiceImpl @Inject constructor(
             quantity
         )
     }
+
+    override suspend fun deleteOrderLine(orderId: String, productId: String) {
+        dao.deleteOrder(
+            dataStore.getStringByKey(UID_KEY),
+            time.getCurrentWeek(),
+            orderId,
+            productId
+        )
+    }
 }

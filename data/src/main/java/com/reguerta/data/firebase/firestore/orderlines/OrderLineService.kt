@@ -12,4 +12,5 @@ interface OrderLineService {
     suspend fun getOrderLines(orderId: String): Flow<List<OrderLineDTO>>
     suspend fun addOrderLine(orderId: String, productId: String)
     suspend fun updateQuantity(orderId: String, productId: String, quantity: Int)
+    suspend fun deleteOrderLine(orderId: String, productId: String)
 }

@@ -1,7 +1,6 @@
 package com.reguerta.localdata.database.dao
 
 import androidx.room.Dao
-import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -22,8 +21,8 @@ interface OrderLineDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insertNewOrderLine(orderLineEntity: OrderLineEntity): Long
 
-    @Delete
-    fun deleteOrder(orderLineEntity: OrderLineEntity)
+    @Query("DELETE FROM OrderLineEntity WHERE userId = :userId AND week = :week AND orderId = :orderId AND productId = :productId")
+    fun deleteOrder(userId: String, week: Int, orderId: String, productId: String)
 
     @Query("UPDATE OrderLineEntity SET quantity = :quantity WHERE userId = :userId AND week = :week AND orderId = :orderId AND productId = :productId")
     fun updateQuantity(userId: String, week: Int, orderId: String, productId: String, quantity: Int)

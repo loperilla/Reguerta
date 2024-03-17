@@ -8,6 +8,7 @@ import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.domain.usecase.order.GetCurrentUserOrderUseCase
 import com.reguerta.domain.usecase.orderline.AddOrderLineUseCase
+import com.reguerta.domain.usecase.orderline.DeleteOrderLineUseCase
 import com.reguerta.domain.usecase.orderline.GetOrderLinesUseCase
 import com.reguerta.domain.usecase.orderline.UpdateQuantityOrderLineUseCase
 import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
@@ -35,7 +36,8 @@ class NewOrderViewModel @Inject constructor(
     getCurrentOrderUseCase: GetCurrentUserOrderUseCase,
     getOrderLinesUseCase: GetOrderLinesUseCase,
     private val addOrderLineUseCase: AddOrderLineUseCase,
-    private val updateQuantityOrderLineUseCase: UpdateQuantityOrderLineUseCase
+    private val updateQuantityOrderLineUseCase: UpdateQuantityOrderLineUseCase,
+    private val deleteOrderLineUseCase: DeleteOrderLineUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<NewOrderState> = MutableStateFlow(NewOrderState())
     val state: StateFlow<NewOrderState> = _state.asStateFlow()
@@ -96,13 +98,15 @@ class NewOrderViewModel @Inject constructor(
                 common
             }
         }
-
+        val listWithOrder = productList.filterIsInstance(ProductWithOrderLine::class.java)
         _state.update {
             it.copy(
                 isLoading = false,
                 hasOrderLine = true,
                 availableCommonProducts = productList,
-                productsOrderLineList = productList.filterIsInstance(ProductWithOrderLine::class.java)
+                productsOrderLineList = listWithOrder.ifEmpty {
+                    emptyList()
+                }
             )
         }
     }
@@ -122,21 +126,37 @@ class NewOrderViewModel @Inject constructor(
                 }
 
                 is NewOrderEvent.MinusQuantityProduct -> {
-                    val productUpdated = state.value.availableCommonProducts.single {
+                    val productUpdated = state.value.productsOrderLineList.singleOrNull {
                         it.id == newEvent.productId
-                    } as ProductWithOrderLine
+                    } ?: return@launch
 
-                    updateQuantityOrderLineUseCase(
-                        state.value.orderId,
-                        newEvent.productId,
-                        productUpdated.quantity.minus(1)
-                    )
+                    val newQuantity = productUpdated.quantity.minus(1)
+
+                    if (newQuantity == 0) {
+                        deleteOrderLineUseCase(
+                            state.value.orderId,
+                            newEvent.productId
+                        )
+                        _state.update {
+                            it.copy(
+                                productsOrderLineList = it.productsOrderLineList.filter { orderLine ->
+                                    orderLine.id != newEvent.productId
+                                }
+                            )
+                        }
+                    } else {
+                        updateQuantityOrderLineUseCase(
+                            state.value.orderId,
+                            newEvent.productId,
+                            newQuantity
+                        )
+                    }
                 }
 
                 is NewOrderEvent.PlusQuantityProduct -> {
-                    val productUpdated = state.value.availableCommonProducts.single {
+                    val productUpdated = state.value.availableCommonProducts.singleOrNull {
                         it.id == newEvent.productId
-                    } as ProductWithOrderLine
+                    } as ProductWithOrderLine? ?: return@launch
                     updateQuantityOrderLineUseCase(
                         state.value.orderId,
                         newEvent.productId,
