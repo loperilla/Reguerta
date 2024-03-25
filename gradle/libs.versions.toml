@@ -1,5 +1,5 @@
 [versions]
-agp = "8.3.0"
+agp = "8.3.1"
 android-junit5 = "1.10.0.0"
 androidx-activity = "1.8.2"
 androidx-constraintlayout = "1.0.1"
@@ -9,13 +9,13 @@ androidx-test-espresso = "3.5.1"
 androidx-test-ext = "1.1.5"
 appcompat = "1.6.1"
 coil = "2.6.0"
-compose-compiler = "1.5.10"
+compose-compiler = "1.5.11"
 core-ktx = "1.12.0"
 hilt-version = "2.51"
 junit = "4.13.2"
 jupiter-junit = "5.10.2"
 kotlinx-coroutines-test = "1.8.0"
-ksp = "1.9.22-1.0.18"
+ksp = "1.9.23-1.0.19"
 material = "1.11.0"
 room-version = "2.6.1"
 runner = "1.5.2"
@@ -27,13 +27,13 @@ androidx-activity = { module = "androidx.activity:activity", version.ref = "andr
 androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 assertk = "com.willowtreeapps.assertk:assertk:0.28.0"
-build-gradle = "com.android.tools.build:gradle:8.3.0"
+build-gradle = "com.android.tools.build:gradle:8.3.1"
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-compose-bom = "androidx.compose:compose-bom:2024.02.02"
+compose-bom = "androidx.compose:compose-bom:2024.03.00"
 compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
 compose-constraints = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "androidx-constraintlayout" }
 compose-material3 = "androidx.compose.material3:material3:1.2.1"
-compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.6.3"
+compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.6.4"
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 compose-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-ui = { module = "androidx.compose.ui:ui" }
@@ -46,7 +46,7 @@ crashlytics-gradle = "com.google.firebase:firebase-crashlytics-gradle:2.9.9"
 datastore = "androidx.datastore:datastore-preferences:1.0.0"
 firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
 #Firebase
-firebase-bom = "com.google.firebase:firebase-bom:32.7.4"
+firebase-bom = "com.google.firebase:firebase-bom:32.8.0"
 #crashlytics
 #auth
 #firestore
@@ -66,7 +66,7 @@ junit = { module = "junit:junit", version.ref = "junit" }
 jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "jupiter-junit" }
 jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "jupiter-junit" }
 jupiter-params = { module = "org.junit.jupiter:junit-jupiter-params", version.ref = "jupiter-junit" }
-kotlin-gradle = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.22"
+kotlin-gradle = "org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.23"
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines-test" }
 lifecycle-compose-runtime = { module = "androidx.lifecycle:lifecycle-runtime-compose" }
 lifecycle-compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose" }
@@ -114,6 +114,6 @@ androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidJUnit5 = { id = "de.mannodermaus.android-junit5", version.ref = "android-junit5" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 ben-manes-versions = "com.github.ben-manes.versions:0.51.0"
-kotlin-android = "org.jetbrains.kotlin.android:1.9.22"
+kotlin-android = "org.jetbrains.kotlin.android:1.9.23"
 kspPlugin = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.4"

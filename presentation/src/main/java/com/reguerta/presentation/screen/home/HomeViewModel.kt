@@ -2,7 +2,7 @@ package com.reguerta.presentation.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reguerta.domain.usecase.auth.CheckAdminProducerUseCase
+import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.users.SignOutUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +21,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val checkIfUserIsAdminAndProducer: CheckAdminProducerUseCase,
+    checkUserUseCase: CheckCurrentUserLoggedUseCase,
     private val signOutUseCase: SignOutUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<HomeState> = MutableStateFlow(HomeState())
@@ -29,13 +29,23 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val pair = checkIfUserIsAdminAndProducer()
-            _state.update {
-                it.copy(
-                    isCurrentUserAdmin = pair.first,
-                    isCurrentUserProducer = pair.second
-                )
-            }
+            checkUserUseCase().fold(
+                onSuccess = { user ->
+                    _state.update {
+                        it.copy(
+                            isCurrentUserAdmin = user.isAdmin,
+                            isCurrentUserProducer = user.isProducer
+                        )
+                    }
+                },
+                onFailure = { result ->
+                    _state.update {
+                        it.copy(
+                            showNotAuthorizedDialog = true
+                        )
+                    }
+                }
+            )
         }
     }
 

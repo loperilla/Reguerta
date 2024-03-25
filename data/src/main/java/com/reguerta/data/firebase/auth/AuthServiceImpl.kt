@@ -3,9 +3,8 @@ package com.reguerta.data.firebase.auth
 import android.util.Log
 import com.google.firebase.auth.FirebaseAuth
 import com.reguerta.data.AuthState
+import com.reguerta.data.firebase.firestore.users.UserModel
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
-import com.reguerta.localdata.datastore.IS_ADMIN_KEY
-import com.reguerta.localdata.datastore.IS_PRODUCER_KEY
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.datastore.UID_KEY
 import kotlinx.coroutines.tasks.await
@@ -79,9 +78,11 @@ class AuthServiceImpl(
         }
     }
 
-    override suspend fun checkIfUserIsAdminAndProducer(): Pair<Boolean, Boolean> {
-        val isAdmin = dataStore.getBooleanByKey(IS_ADMIN_KEY)
-        val isProducer = dataStore.getBooleanByKey(IS_PRODUCER_KEY)
-        return Pair(isAdmin, isProducer)
+    override suspend fun checkCurrentLoggedUser(): Result<UserModel> {
+        return try {
+            Result.success(userCollection.getUser(dataStore.getStringByKey(UID_KEY)).getOrThrow())
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
     }
 }

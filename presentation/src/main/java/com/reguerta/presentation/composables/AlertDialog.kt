@@ -31,8 +31,8 @@ fun ReguertaAlertDialog(
     icon: @Composable () -> Unit,
     title: @Composable () -> Unit,
     text: @Composable () -> Unit,
-    confirmButton: @Composable () -> Unit,
-    dismissButton: @Composable () -> Unit,
+    confirmButton: @Composable () -> Unit = {},
+    dismissButton: @Composable () -> Unit = {},
     containerColor: Color = DialogBackground,
     iconContentColor: Color = MaterialTheme.colorScheme.inversePrimary
 ) {
@@ -97,6 +97,43 @@ fun ReguertaAlertDialogPrev() {
                     },
                     modifier = Modifier
                         .fillMaxWidth()
+                )
+            },
+            containerColor = DialogBackground,
+            iconContentColor = MaterialTheme.colorScheme.inversePrimary,
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ReguertaNoButtonDialogPrev() {
+    Screen {
+        ReguertaAlertDialog(
+            icon = {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "ExitApp",
+                    tint = PrimaryColor,
+                    modifier = Modifier
+                        .size(SIZE_48)
+                )
+            },
+            onDismissRequest = {
+//                onEvent(HomeEvent.HideDialog)
+            },
+            text = {
+                TextBody(
+                    text = "¿Seguro que quieres cerrar la sesión?",
+                    textSize = TEXT_SIZE_SMALL,
+                    textColor = Text
+                )
+            },
+            title = {
+                TextTitle(
+                    text = "Cerrar session",
+                    textSize = TEXT_SIZE_LARGE,
+                    textColor = Text
                 )
             },
             containerColor = DialogBackground,

@@ -1,6 +1,7 @@
 package com.reguerta.data.firebase.auth
 
 import com.reguerta.data.AuthState
+import com.reguerta.data.firebase.firestore.users.UserModel
 
 /*****
  * Project: Reguerta
@@ -14,5 +15,5 @@ interface AuthService {
     suspend fun createUserWithEmailAndPassword(email: String, password: String): AuthState
     suspend fun refreshUser(): AuthState
     suspend fun logInWithUserPassword(email: String, password: String): AuthState
-    suspend fun checkIfUserIsAdminAndProducer(): Pair<Boolean, Boolean>
+    suspend fun checkCurrentLoggedUser(): Result<UserModel>
 }

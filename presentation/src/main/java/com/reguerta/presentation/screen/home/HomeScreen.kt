@@ -84,6 +84,10 @@ fun homeScreen(
         navigateTo(Routes.AUTH.route)
         return
     }
+
+    if (state.showNotAuthorizedDialog) {
+        showNotAuthorizedDialog()
+    }
     Screen {
         HomeScreen(
             state = state,
@@ -265,6 +269,38 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
     }
 }
 
+@Composable
+private fun showNotAuthorizedDialog() {
+    ReguertaAlertDialog(
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "ExitApp",
+                tint = PrimaryColor,
+                modifier = Modifier
+                    .size(SIZE_48)
+            )
+        },
+        onDismissRequest = { },
+        text = {
+            TextBody(
+                text = "Ponte en contacto con algún miembro de la Regüerta para que te den acceso.",
+                textSize = TEXT_SIZE_SMALL,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        title = {
+            TextTitle(
+                text = "Usuario no autorizado",
+                textSize = TEXT_SIZE_LARGE,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        }
+    )
+}
+
 private fun prepareNavigationDrawerList(
     isCurrentUserAdmin: Boolean,
     isCurrentUserProducer: Boolean,
@@ -351,7 +387,8 @@ fun HomePreview() {
         HomeScreen(
             state = HomeState(
                 isCurrentUserAdmin = false,
-                isCurrentUserProducer = false
+                isCurrentUserProducer = false,
+                showNotAuthorizedDialog = true
             ),
             onEvent = {},
             navigateTo = {}
