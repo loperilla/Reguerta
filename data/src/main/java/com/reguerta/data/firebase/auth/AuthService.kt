@@ -16,4 +16,5 @@ interface AuthService {
     suspend fun refreshUser(): AuthState
     suspend fun logInWithUserPassword(email: String, password: String): AuthState
     suspend fun checkCurrentLoggedUser(): Result<UserModel>
+    suspend fun getCurrentWeek(): Int
 }

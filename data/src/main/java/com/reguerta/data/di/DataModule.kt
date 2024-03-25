@@ -64,9 +64,10 @@ object DataModule {
     fun provideAuthService(
         firebaseAuth: FirebaseAuth,
         dataStore: ReguertaDataStore,
-        userCollection: UsersCollectionService
+        userCollection: UsersCollectionService,
+        weekTime: WeekTime
     ): AuthService =
-        AuthServiceImpl(firebaseAuth, userCollection, dataStore)
+        AuthServiceImpl(firebaseAuth, userCollection, dataStore, weekTime)
 
     @Singleton
     @Provides

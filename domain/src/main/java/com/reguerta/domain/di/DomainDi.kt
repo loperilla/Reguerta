@@ -34,6 +34,7 @@ import com.reguerta.domain.usecase.users.GetUserByIdUseCase
 import com.reguerta.domain.usecase.users.SignOutUseCase
 import com.reguerta.domain.usecase.users.ToggleAdminUseCase
 import com.reguerta.domain.usecase.users.ToggleProducerUseCase
+import com.reguerta.domain.usecase.week.GetCurrentWeekDayUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -73,6 +74,9 @@ object DomainDi {
 
     @Provides
     fun providesLoginUseCase(authService: AuthService) = LoginUseCase(authService)
+
+    @Provides
+    fun providesGetCurrentDayUseCase(authService: AuthService) = GetCurrentWeekDayUseCase(authService)
 
     @Provides
     fun providesRegisterUseCase(authService: AuthService) = RegisterUseCase(authService)

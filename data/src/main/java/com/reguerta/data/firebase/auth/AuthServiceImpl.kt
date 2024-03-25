@@ -7,6 +7,7 @@ import com.reguerta.data.firebase.firestore.users.UserModel
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.datastore.UID_KEY
+import com.reguerta.localdata.time.WeekTime
 import kotlinx.coroutines.tasks.await
 
 /*****
@@ -18,7 +19,8 @@ import kotlinx.coroutines.tasks.await
 class AuthServiceImpl(
     private val firebaseAuth: FirebaseAuth,
     private val userCollection: UsersCollectionService,
-    private val dataStore: ReguertaDataStore
+    private val dataStore: ReguertaDataStore,
+    private val weekTime: WeekTime
 ) : AuthService {
     private val currentUser
         get() = firebaseAuth.currentUser
@@ -85,4 +87,6 @@ class AuthServiceImpl(
             Result.failure(ex)
         }
     }
+
+    override suspend fun getCurrentWeek() = weekTime.getCurrentWeekDay()
 }

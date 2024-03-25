@@ -1,5 +1,7 @@
 package com.reguerta.presentation.screen.home
 
+import java.time.DayOfWeek
+
 /*****
  * Project: Reguerta
  * From: com.reguerta.presentation.screen.home
@@ -11,5 +13,6 @@ data class HomeState(
     val showAreYouSure: Boolean = false,
     val showNotAuthorizedDialog: Boolean = false,
     val isCurrentUserAdmin: Boolean = false,
-    val isCurrentUserProducer: Boolean = false
+    val isCurrentUserProducer: Boolean = false,
+    val currentDay: DayOfWeek = DayOfWeek.MONDAY
 )

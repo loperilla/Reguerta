@@ -15,15 +15,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
-import androidx.compose.material.icons.automirrored.filled.Toc
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Inventory
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material.icons.outlined.Newspaper
-import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
@@ -66,6 +62,7 @@ import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 import kotlinx.coroutines.launch
+import java.time.DayOfWeek
 
 /*****
  * Project: Reguerta
@@ -138,14 +135,25 @@ private fun HomeScreen(
                     .padding(it)
                     .fillMaxSize()
             ) {
-                MakeYourOrderButton(
-                    onButtonClick = {
-                        navigateTo(Routes.ORDERS.NEW.route)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
-                )
+                if (state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY && state.isCurrentUserProducer) {
+                    TextTitle(
+                        text = "tendria que ver botón de ver pedidos",
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
+                    )
+                }
+
+                if (state.currentDay in DayOfWeek.THURSDAY..DayOfWeek.SUNDAY) {
+                    MakeYourOrderButton(
+                        onButtonClick = {
+                            navigateTo(Routes.ORDERS.NEW.route)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
+                    )
+                }
             }
         }
     }
@@ -318,22 +326,22 @@ private fun prepareNavigationDrawerList(
             },
             showInBothCase = true
         ),
-        NavigationDrawerInfo(
-            title = "Pedidos",
-            icon = Icons.AutoMirrored.Filled.Toc,
-            onClick = {
-                navigateTo(Routes.HOME.ORDERS.route)
-            },
-            showInBothCase = true
-        ),
-        NavigationDrawerInfo(
-            title = "Pedidos recibidos",
-            icon = Icons.Outlined.Inventory,
-            onClick = {
-                navigateTo(Routes.HOME.ORDER_RECEIVED.route)
-            },
-            showIfUserIsProducer = true
-        ),
+//        NavigationDrawerInfo(
+//            title = "Pedidos",
+//            icon = Icons.AutoMirrored.Filled.Toc,
+//            onClick = {
+//                navigateTo(Routes.HOME.ORDERS.route)
+//            },
+//            showInBothCase = true
+//        ),
+//        NavigationDrawerInfo(
+//            title = "Pedidos recibidos",
+//            icon = Icons.Outlined.Inventory,
+//            onClick = {
+//                navigateTo(Routes.HOME.ORDER_RECEIVED.route)
+//            },
+//            showIfUserIsProducer = true
+//        ),
         NavigationDrawerInfo(
             title = "Productos",
             icon = Icons.Outlined.Inventory2,
@@ -350,22 +358,22 @@ private fun prepareNavigationDrawerList(
             },
             showIfUserIsAdmin = true
         ),
-        NavigationDrawerInfo(
-            title = "Noticias",
-            icon = Icons.Outlined.Newspaper,
-            onClick = {
-
-            },
-            showIfUserIsAdmin = true
-        ),
-        NavigationDrawerInfo(
-            title = "Ajustes",
-            icon = Icons.Outlined.Settings,
-            onClick = {
-                navigateTo(Routes.HOME.SETTINGS.route)
-            },
-            showInBothCase = true
-        ),
+//        NavigationDrawerInfo(
+//            title = "Noticias",
+//            icon = Icons.Outlined.Newspaper,
+//            onClick = {
+//
+//            },
+//            showIfUserIsAdmin = true
+//        ),
+//        NavigationDrawerInfo(
+//            title = "Ajustes",
+//            icon = Icons.Outlined.Settings,
+//            onClick = {
+//                navigateTo(Routes.HOME.SETTINGS.route)
+//            },
+//            showInBothCase = true
+//        ),
         NavigationDrawerInfo(
             title = "Cerrar sesión",
             icon = Icons.AutoMirrored.Filled.Logout,
@@ -387,8 +395,7 @@ fun HomePreview() {
         HomeScreen(
             state = HomeState(
                 isCurrentUserAdmin = false,
-                isCurrentUserProducer = false,
-                showNotAuthorizedDialog = true
+                isCurrentUserProducer = false
             ),
             onEvent = {},
             navigateTo = {}
