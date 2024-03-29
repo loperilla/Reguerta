@@ -2,6 +2,7 @@ package com.reguerta.presentation.screen.received_orders
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.reguerta.domain.model.received.fullOrderName
 import com.reguerta.domain.usecase.orderline.OrderReceivedModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -28,9 +29,9 @@ class ReceivedOrdersViewModel @Inject constructor(
     init {
         viewModelScope.launch(Dispatchers.IO) {
             orderReceivedModel.invoke().collectLatest { orders ->
-                _state.update {
-                    it.copy(
-                        orders = orders
+                _state.update { state ->
+                    state.copy(
+                        ordersByUser = orders.groupBy { it.fullOrderName() },
                     )
                 }
             }

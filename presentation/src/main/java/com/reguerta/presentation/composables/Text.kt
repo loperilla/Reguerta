@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
+import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
@@ -75,7 +76,7 @@ fun StockText(
 ) {
     val colorToDraw: Color = when (stockCount) {
         0 -> Color.Red
-        in 1..10 -> Color(0xFFffa500) // Orange
+        in 1..10 -> Orange
         else -> Text
     }
     TextBody(

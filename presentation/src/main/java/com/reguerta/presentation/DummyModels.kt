@@ -3,6 +3,7 @@ package com.reguerta.presentation
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
+import com.reguerta.domain.model.received.OrderLineReceived
 
 /*****
  * Project: Reguerta
@@ -35,3 +36,12 @@ val ALCAZAR_WITH_ORDER = ProductWithOrderLine(
         week = 1
     )
 )
+
+val ORDER_LINE_MODEL = OrderLineReceived(
+    orderName = "Manuel",
+    orderSurname = "Lopera",
+    product = ALCAZAR,
+    quantity = 1,
+    companyName = "Lopera SL",
+)
+

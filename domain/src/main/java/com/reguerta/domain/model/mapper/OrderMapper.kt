@@ -3,8 +3,8 @@ package com.reguerta.domain.model.mapper
 import com.reguerta.data.firebase.firestore.order.OrderModel
 import com.reguerta.data.firebase.firestore.orderlines.OrderLineModel
 import com.reguerta.domain.model.Order
-import com.reguerta.domain.model.OrderLineReceived
 import com.reguerta.domain.model.interfaces.Product
+import com.reguerta.domain.model.received.OrderLineReceived
 
 /*****
  * Project: Reguerta
