@@ -1,5 +1,7 @@
 package com.reguerta.presentation.screen.received_orders
 
+import com.reguerta.domain.model.OrderLineReceived
+
 /*****
  * Project: Reguerta
  * From: com.reguerta.presentation.screen.received_orders
@@ -7,5 +9,6 @@ package com.reguerta.presentation.screen.received_orders
  * All rights reserved 2024
  */
 data class ReceivedOrdersState(
-    val goOut: Boolean = false
+    val goOut: Boolean = false,
+    val orders: List<OrderLineReceived> = emptyList()
 )

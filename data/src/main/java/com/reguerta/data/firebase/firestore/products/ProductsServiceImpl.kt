@@ -150,4 +150,17 @@ class ProductsServiceImpl @Inject constructor(
             Result.failure(ex)
         }
     }
+
+    override suspend fun updateStockProduct(id: String, newStock: Int): Result<Unit> {
+        return try {
+            collection
+                .document(id)
+                .update("stock", newStock)
+                .await()
+
+            Result.success(Unit)
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
 }

@@ -58,7 +58,6 @@ import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.SecondaryBackground
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 import kotlinx.coroutines.launch
@@ -135,25 +134,27 @@ private fun HomeScreen(
                     .padding(it)
                     .fillMaxSize()
             ) {
-                if (state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY && state.isCurrentUserProducer) {
-                    TextTitle(
-                        text = "tendria que ver botón de ver pedidos",
+                if (state.isCurrentUserProducer) {
+                    ShowYourOrderButton(
+                        onButtonClick = {
+                            navigateTo(Routes.HOME.ORDER_RECEIVED.route)
+                        },
+//                        buttonIsEnabled = state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
                     )
                 }
 
-                if (state.currentDay in DayOfWeek.THURSDAY..DayOfWeek.SUNDAY) {
-                    MakeYourOrderButton(
-                        onButtonClick = {
-                            navigateTo(Routes.ORDERS.NEW.route)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
-                    )
-                }
+                MakeYourOrderButton(
+                    onButtonClick = {
+                        navigateTo(Routes.ORDERS.NEW.route)
+                    },
+                    buttonIsEnabled = state.currentDay in DayOfWeek.THURSDAY..DayOfWeek.SUNDAY,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
+                )
             }
         }
     }
@@ -176,7 +177,32 @@ private fun MakeYourOrderButton(
     ) {
         TextBody(
             text = "Haz tu pedido",
-            textSize = TEXT_SIZE_MEDIUM,
+            textSize = TEXT_SIZE_LARGE,
+            textColor = PrimaryColor,
+            modifier = Modifier
+                .padding(PADDING_SMALL)
+        )
+    }
+}
+
+@Composable
+private fun ShowYourOrderButton(
+    onButtonClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    buttonIsEnabled: Boolean = true
+) {
+    Button(
+        onClick = onButtonClick,
+        modifier = modifier,
+        shape = RoundedCornerShape(16f),
+        enabled = buttonIsEnabled,
+        colors = ButtonDefaults.buttonColors(
+            containerColor = SecondaryBackground
+        )
+    ) {
+        TextBody(
+            text = "Ver tus pedidos",
+            textSize = TEXT_SIZE_LARGE,
             textColor = PrimaryColor,
             modifier = Modifier
                 .padding(PADDING_SMALL)

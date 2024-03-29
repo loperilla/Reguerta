@@ -8,4 +8,5 @@ package com.reguerta.data.firebase.firestore.order
  */
 interface OrderServices {
     suspend fun getOrderByUserId(): Result<OrderModel>
+    suspend fun getOrderByUserId(userId: String): Result<OrderModel>
 }

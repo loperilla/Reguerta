@@ -38,6 +38,22 @@ class OrderServiceImpl @Inject constructor(
         }
     }
 
+    override suspend fun getOrderByUserId(userId: String): Result<OrderModel> {
+        return try {
+            val snapshot = collection
+                .whereEqualTo(USER_ID, userId)
+                .whereEqualTo(WEEK, weekTime.getCurrentWeek().minus(1))
+                .get()
+                .await()
+            val document = snapshot.documents.first()
+            val orderModel = document.toObject(OrderModel::class.java) ?: return insertDefaultModel()
+            orderModel.orderId = document.id
+            Result.success(orderModel)
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
+
     private suspend fun insertDefaultModel(): Result<OrderModel> {
         return try {
             val orderModelDefault = OrderModel(

@@ -13,6 +13,7 @@ import com.reguerta.domain.usecase.orderline.GetOrderLinesUseCase
 import com.reguerta.domain.usecase.orderline.PushOrderLineToFirebaseUseCase
 import com.reguerta.domain.usecase.orderline.UpdateQuantityOrderLineUseCase
 import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
+import com.reguerta.domain.usecase.products.UpdateProductStockUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -39,12 +40,14 @@ class NewOrderViewModel @Inject constructor(
     private val addOrderLineUseCase: AddOrderLineUseCase,
     private val updateQuantityOrderLineUseCase: UpdateQuantityOrderLineUseCase,
     private val deleteOrderLineUseCase: DeleteOrderLineUseCase,
-    private val pushOrderLineToFirebaseUseCase: PushOrderLineToFirebaseUseCase
+    private val pushOrderLineToFirebaseUseCase: PushOrderLineToFirebaseUseCase,
+    private val updateProductStock: UpdateProductStockUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<NewOrderState> = MutableStateFlow(NewOrderState())
     val state: StateFlow<NewOrderState> = _state.asStateFlow()
 
     private lateinit var initialCommonProducts: List<CommonProduct>
+
     init {
         viewModelScope.launch {
             listOf(
@@ -183,6 +186,15 @@ class NewOrderViewModel @Inject constructor(
                         state.value.productsOrderLineList
                     ).fold(
                         onSuccess = {
+                            state.value.productsOrderLineList.forEach { orderLine ->
+                                val productModified = initialCommonProducts.single { commonProduct ->
+                                    commonProduct.id == orderLine.id
+                                }
+                                updateProductStock(
+                                    orderLine.id,
+                                    productModified.stock.minus(orderLine.quantity)
+                                )
+                            }
                             _state.update { it.copy(goOut = true) }
                         },
                         onFailure = { throwable ->

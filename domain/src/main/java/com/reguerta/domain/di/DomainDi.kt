@@ -18,6 +18,7 @@ import com.reguerta.domain.usecase.order.GetCurrentUserOrderUseCase
 import com.reguerta.domain.usecase.orderline.AddOrderLineUseCase
 import com.reguerta.domain.usecase.orderline.DeleteOrderLineUseCase
 import com.reguerta.domain.usecase.orderline.GetOrderLinesUseCase
+import com.reguerta.domain.usecase.orderline.OrderReceivedModel
 import com.reguerta.domain.usecase.orderline.PushOrderLineToFirebaseUseCase
 import com.reguerta.domain.usecase.orderline.UpdateQuantityOrderLineUseCase
 import com.reguerta.domain.usecase.products.AddProductUseCase
@@ -139,4 +140,11 @@ object DomainDi {
 
     @Provides
     fun providesMeasureMapper(measureService: MeasureService) = MeasureMapper(measureService)
+
+    @Provides
+    fun providesOrderLineReceivedModel(
+        orderLineService: OrderLineService,
+        productsService: ProductsService,
+        orderServices: OrderServices
+    ) = OrderReceivedModel(orderLineService, productsService, orderServices)
 }

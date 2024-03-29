@@ -1,12 +1,17 @@
 package com.reguerta.data.firebase.firestore.orderlines
 
 import com.google.firebase.firestore.CollectionReference
+import com.reguerta.data.firebase.firestore.COMPANY_NAME
+import com.reguerta.data.firebase.firestore.WEEK
 import com.reguerta.localdata.database.dao.OrderLineDao
 import com.reguerta.localdata.database.entity.OrderLineEntity
+import com.reguerta.localdata.datastore.COMPANY_NAME_KEY
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.datastore.UID_KEY
 import com.reguerta.localdata.time.WeekTime
+import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
@@ -73,6 +78,39 @@ class OrderLineServiceImpl @Inject constructor(
             Result.success(Unit)
         } catch (ex: Exception) {
             Result.failure(ex)
+        }
+    }
+
+    override suspend fun getOrdersByCompanyAndWeek(): Flow<Result<List<OrderLineModel>>> = callbackFlow {
+        val subscription = collection
+            .whereEqualTo(
+                COMPANY_NAME,
+                dataStore.getStringByKey(COMPANY_NAME_KEY)
+            ).whereEqualTo(
+                WEEK,
+                time.getCurrentWeek().minus(1)
+            )
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    error.printStackTrace()
+                    trySend(Result.failure(error))
+                    close(error)
+                    return@addSnapshotListener
+                }
+                snapshot?.let { query ->
+                    val orderLineList = mutableListOf<OrderLineModel>()
+                    query.documents.forEach { document ->
+                        val orderLine = document.toObject(OrderLineModel::class.java)
+                        orderLine?.let { model ->
+                            model.id = document.id
+                            orderLineList.add(model)
+                        }
+                    }
+                    trySend(Result.success(orderLineList))
+                }
+            }
+        awaitClose {
+            subscription.remove()
         }
     }
 }

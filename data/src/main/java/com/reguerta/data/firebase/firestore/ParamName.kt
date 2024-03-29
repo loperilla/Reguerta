@@ -14,3 +14,5 @@ const val USER_ID = "userId"
 const val WEEK = "week"
 const val AVAILABLE = "available"
 const val USER_EMAIL = "email"
+
+const val COMPANY_NAME = "companyName"
