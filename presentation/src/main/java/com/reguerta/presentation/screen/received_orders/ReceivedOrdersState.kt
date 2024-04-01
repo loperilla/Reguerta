@@ -1,5 +1,6 @@
 package com.reguerta.presentation.screen.received_orders
 
+import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.domain.model.received.OrderLineReceived
 
 /*****
@@ -11,5 +12,5 @@ import com.reguerta.domain.model.received.OrderLineReceived
 data class ReceivedOrdersState(
     val goOut: Boolean = false,
     val ordersByUser: Map<String, List<OrderLineReceived>> = emptyMap(),
-    val ordersByProduct: Map<String, List<OrderLineReceived>> = emptyMap()
+    val ordersByProduct: Map<Product, List<OrderLineReceived>> = emptyMap()
 )

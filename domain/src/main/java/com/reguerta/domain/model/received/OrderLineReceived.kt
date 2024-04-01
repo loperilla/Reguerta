@@ -22,4 +22,10 @@ fun List<OrderLineReceived>.getAmount(): String {
     return String.format("%.2f", amount) + "€"
 }
 
+fun List<OrderLineReceived>.getQuantityByProduct(product: Product): Int {
+    var quantity = 0
+    forEach { if (it.product == product) quantity += it.quantity }
+    return quantity
+}
+
 fun OrderLineReceived.fullOrderName() = "$orderName $orderSurname"

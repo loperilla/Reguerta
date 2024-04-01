@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.Dp
 import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.presentation.R
 import com.reguerta.presentation.ui.PADDING_SMALL
@@ -20,7 +21,8 @@ import com.reguerta.presentation.ui.SIZE_96
 @Composable
 fun ProductImage(
     product: Product,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    imageSize: Dp = SIZE_96
 ) {
     if (product.imageUrl.isEmpty()) {
         Image(
@@ -28,7 +30,7 @@ fun ProductImage(
             contentDescription = product.name,
             modifier = modifier
                 .padding(PADDING_SMALL)
-                .size(SIZE_96)
+                .size(imageSize)
         )
     } else {
         ImageUrl(
@@ -36,7 +38,7 @@ fun ProductImage(
             name = product.name,
             modifier = modifier
                 .padding(PADDING_SMALL)
-                .size(SIZE_96)
+                .size(imageSize)
         )
     }
 }

@@ -32,6 +32,7 @@ class ReceivedOrdersViewModel @Inject constructor(
                 _state.update { state ->
                     state.copy(
                         ordersByUser = orders.groupBy { it.fullOrderName() },
+                        ordersByProduct = orders.groupBy { it.product }
                     )
                 }
             }

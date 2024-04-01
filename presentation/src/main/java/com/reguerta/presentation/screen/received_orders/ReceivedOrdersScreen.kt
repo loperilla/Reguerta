@@ -22,27 +22,32 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.domain.model.interfaces.Product
-import com.reguerta.domain.model.mapper.containerUnity
 import com.reguerta.domain.model.mapper.priceFormatted
 import com.reguerta.domain.model.received.OrderLineReceived
 import com.reguerta.domain.model.received.getAmount
+import com.reguerta.domain.model.received.getQuantityByProduct
 import com.reguerta.presentation.ALCAZAR
 import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
+import com.reguerta.presentation.composables.image.ProductImage
+import com.reguerta.presentation.composables.products.ProductNameUnityContainer
 import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
@@ -80,7 +85,7 @@ fun ReceivedOrdersScreen(
     state: ReceivedOrdersState,
     onEvent: (ReceivedOrdersEvent) -> Unit
 ) {
-    val pagerState = rememberPagerState(pageCount = { tabList.size }, initialPage = 1)
+    val pagerState = rememberPagerState(pageCount = { tabList.size }, initialPage = 0)
     val coroutineScope = rememberCoroutineScope()
     Scaffold(
         topBar = {
@@ -118,7 +123,7 @@ fun ReceivedOrdersScreen(
             ) { index ->
                 if (index == 0) {
                     OrderListByProduct(
-                        orderLines = state.ordersByUser
+                        orderLines = state.ordersByProduct
                     )
                 } else {
                     OrderListByUser(
@@ -196,29 +201,7 @@ private fun ProductOrders(
             .wrapContentHeight()
             .padding(PADDING_EXTRA_SMALL),
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .wrapContentWidth()
-                .fillMaxHeight()
-        ) {
-            TextBody(
-                text = product.name,
-                textSize = TEXT_SIZE_MEDIUM,
-                textColor = Text,
-                modifier = Modifier
-                    .padding(PADDING_EXTRA_SMALL),
-                textAlignment = TextAlign.Start
-            )
-            TextBody(
-                text = product.containerUnity(),
-                textSize = TEXT_SIZE_MEDIUM,
-                textColor = Text,
-                modifier = Modifier
-                    .padding(PADDING_EXTRA_SMALL),
-                textAlignment = TextAlign.Start
-            )
-        }
+        ProductNameUnityContainer(product)
         VerticalDivider(
             modifier = Modifier.padding(PADDING_EXTRA_SMALL)
         )
@@ -265,10 +248,83 @@ private fun ProductOrders(
 
 @Composable
 private fun OrderListByProduct(
-    orderLines: Map<String, List<OrderLineReceived>>
+    orderLines: Map<Product, List<OrderLineReceived>>,
+    modifier: Modifier = Modifier
 ) {
-    TextTitle(
-        text = "Pedidos por producto"
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(PADDING_MEDIUM)
+    ) {
+        orderLines.forEach {
+            item {
+                OrderByProduct(
+                    product = it.key,
+                    orderLines = it.value
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun OrderByProduct(
+    product: Product,
+    orderLines: List<OrderLineReceived>,
+    modifier: Modifier = Modifier
+) {
+    ReguertaCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        content = {
+            Row(
+                horizontalArrangement = Arrangement.SpaceAround,
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .padding(PADDING_SMALL)
+            ) {
+                ProductImage(
+                    product = product,
+                    imageSize = SIZE_48,
+                    modifier = Modifier
+                        .wrapContentWidth()
+                )
+                VerticalDivider(
+                    modifier = Modifier.padding(horizontal = 8.dp),
+                    thickness = 6.dp,
+                    color = Color.DarkGray
+                )
+                ProductNameUnityContainer(
+                    product,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .weight(0.5f)
+                )
+                VerticalDivider()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .wrapContentWidth()
+                ) {
+                    TextBody(
+                        text = "${orderLines.getQuantityByProduct(product)}",
+                        textSize = TEXT_SIZE_LARGE,
+                        textColor = Text,
+                        modifier = Modifier
+                            .padding(PADDING_EXTRA_SMALL),
+                    )
+
+                    TextBody(
+                        text = product.container,
+                        textSize = TEXT_SIZE_SMALL,
+                        textColor = Text,
+                        modifier = Modifier
+                            .padding(PADDING_EXTRA_SMALL),
+                    )
+                }
+            }
+        }
     )
 }
 
@@ -278,7 +334,17 @@ fun ReceivedOrdersPreview() {
     Screen {
         ReceivedOrdersScreen(
             state = ReceivedOrdersState(
-                ordersByProduct = emptyMap(),
+                ordersByProduct = mapOf(
+                    ALCAZAR to listOf(
+                        OrderLineReceived(
+                            orderName = "Manuel",
+                            orderSurname = "Lopera",
+                            product = ALCAZAR,
+                            quantity = 1,
+                            companyName = "",
+                        )
+                    )
+                ),
                 ordersByUser = mapOf(
                     "Manuel Lopera" to listOf(
                         OrderLineReceived(

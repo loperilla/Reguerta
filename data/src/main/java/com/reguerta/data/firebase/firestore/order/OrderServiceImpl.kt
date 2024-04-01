@@ -3,6 +3,8 @@ package com.reguerta.data.firebase.firestore.order
 import com.google.firebase.firestore.CollectionReference
 import com.reguerta.data.firebase.firestore.USER_ID
 import com.reguerta.data.firebase.firestore.WEEK
+import com.reguerta.data.firebase.model.DataError
+import com.reguerta.data.firebase.model.DataResult
 import com.reguerta.localdata.datastore.NAME_KEY
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.datastore.SURNAME_KEY
@@ -38,19 +40,22 @@ class OrderServiceImpl @Inject constructor(
         }
     }
 
-    override suspend fun getOrderByUserId(userId: String): Result<OrderModel> {
+    override suspend fun getOrderByUserId(userId: String): DataResult<OrderModel, DataError.Firebase> {
         return try {
             val snapshot = collection
                 .whereEqualTo(USER_ID, userId)
                 .whereEqualTo(WEEK, weekTime.getCurrentWeek().minus(1))
                 .get()
                 .await()
+            if (snapshot.documents.isEmpty()) {
+                return DataResult.Error(DataError.Firebase.EMPTY_LIST)
+            }
             val document = snapshot.documents.first()
-            val orderModel = document.toObject(OrderModel::class.java) ?: return insertDefaultModel()
+            val orderModel = document.toObject(OrderModel::class.java)!!
             orderModel.orderId = document.id
-            Result.success(orderModel)
+            DataResult.Success(orderModel)
         } catch (ex: Exception) {
-            Result.failure(ex)
+            DataResult.Error(DataError.Firebase.UNKNOWN)
         }
     }
 

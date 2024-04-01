@@ -1,5 +1,8 @@
 package com.reguerta.data.firebase.firestore.order
 
+import com.reguerta.data.firebase.model.DataError
+import com.reguerta.data.firebase.model.DataResult
+
 /*****
  * Project: Reguerta
  * From: com.reguerta.data.firebase.firestore.order
@@ -8,5 +11,5 @@ package com.reguerta.data.firebase.firestore.order
  */
 interface OrderServices {
     suspend fun getOrderByUserId(): Result<OrderModel>
-    suspend fun getOrderByUserId(userId: String): Result<OrderModel>
+    suspend fun getOrderByUserId(userId: String): DataResult<OrderModel, DataError.Firebase>
 }
