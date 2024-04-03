@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -59,6 +60,8 @@ import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.ui.SIZE_48
+import com.reguerta.presentation.ui.SIZE_96
 import com.reguerta.presentation.ui.SecondaryBackground
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
@@ -246,13 +249,74 @@ private fun ShoppingCartScreen(
             items(
                 count = productList.size
             ) {
-                OrderProductItem(
+                ShoppingCartOrderProductItem(
                     product = productList[it],
                     onEvent = onEvent
                 )
             }
         }
     }
+}
+
+@Composable
+fun ShoppingCartOrderProductItem(
+    product: ProductWithOrderLine,
+    onEvent: (NewOrderEvent) -> Unit
+) {
+    ReguertaCard(
+        modifier = Modifier
+            .padding(PADDING_SMALL)
+            .wrapContentSize(),
+        content = {
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.Bottom,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(PADDING_MEDIUM)
+            ) {
+                ProductImage(
+                    product,
+                    imageSize = SIZE_96
+                )
+                Column(
+                    verticalArrangement = Arrangement.Top,
+                    modifier = Modifier
+                        .padding(PADDING_SMALL)
+                        .fillMaxHeight()
+                ) {
+                    TextBody(
+                        text = product.name,
+                        textSize = TEXT_SIZE_LARGE,
+                        textColor = Text,
+                        modifier = Modifier
+                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                    )
+
+                    TextBody(
+                        text = "${product.priceFormatted()} / ${product.container}",
+                        textSize = TEXT_SIZE_LARGE,
+                        textColor = Text,
+                        modifier = Modifier
+                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                    )
+
+                    HorizontalDivider(
+                        modifier = Modifier
+                            .padding(vertical = PADDING_MEDIUM, horizontal = PADDING_SMALL),
+                        color = Color.LightGray,
+                        thickness = 1.dp
+                    )
+
+                    OrderQuantitySelector(
+                        product,
+                        onEvent
+                    )
+                }
+            }
+        }
+    )
 }
 
 @Composable
@@ -363,10 +427,11 @@ private fun HeaderItemProduct(
             .padding(PADDING_SMALL),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ProductImage(product)
+        ProductImage(product, imageSize = SIZE_48)
         if (product is CommonProduct) {
             ButtonStartOrder(
                 product.id,
+                product.hasStock,
                 onEvent
             )
         } else {
@@ -381,6 +446,7 @@ private fun HeaderItemProduct(
 @Composable
 private fun ButtonStartOrder(
     productId: String,
+    hasStock: Boolean,
     onEvent: (NewOrderEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -388,6 +454,7 @@ private fun ButtonStartOrder(
         onClick = {
             onEvent(NewOrderEvent.StartOrder(productId))
         },
+        enabled = hasStock,
         shape = RoundedCornerShape(16f),
         colors = ButtonDefaults.buttonColors(
             containerColor = PrimaryColor,
@@ -459,6 +526,9 @@ fun NewOrderScreenPreview() {
                 hasOrderLine = true,
                 availableCommonProducts = listOf(
                     ALCAZAR,
+                    ALCAZAR.copy(
+                        stock = 0
+                    ),
                     ALCAZAR_WITH_ORDER
                 )
             ),

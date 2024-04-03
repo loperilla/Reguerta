@@ -21,4 +21,6 @@ data class CommonProduct(
     override val quantityContainer: Int = 0,
     override val quantityWeight: Int = 0,
     override val unity: String = "",
-) : Product
+) : Product {
+    val hasStock = stock > 0
+}

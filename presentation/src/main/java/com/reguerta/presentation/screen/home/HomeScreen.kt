@@ -41,6 +41,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.reguerta.presentation.BuildConfig
 import com.reguerta.presentation.R
 import com.reguerta.presentation.composables.InverseReguertaButton
 import com.reguerta.presentation.composables.ReguertaAlertDialog
@@ -134,27 +135,28 @@ private fun HomeScreen(
                     .padding(it)
                     .fillMaxSize()
             ) {
-                if (state.isCurrentUserProducer) {
+                if ((state.isCurrentUserProducer && state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) || BuildConfig.DEBUG) {
                     ShowYourOrderButton(
                         onButtonClick = {
                             navigateTo(Routes.HOME.ORDER_RECEIVED.route)
                         },
-//                        buttonIsEnabled = state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY,
+                        buttonIsEnabled = state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
                     )
                 }
 
-                MakeYourOrderButton(
-                    onButtonClick = {
-                        navigateTo(Routes.ORDERS.NEW.route)
-                    },
-                    buttonIsEnabled = state.currentDay in DayOfWeek.THURSDAY..DayOfWeek.SUNDAY,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
-                )
+                if (state.currentDay in DayOfWeek.THURSDAY..DayOfWeek.SUNDAY || BuildConfig.DEBUG) {
+                    MakeYourOrderButton(
+                        onButtonClick = {
+                            navigateTo(Routes.ORDERS.NEW.route)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
+                    )
+                }
             }
         }
     }
@@ -163,20 +165,18 @@ private fun HomeScreen(
 @Composable
 private fun MakeYourOrderButton(
     onButtonClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    buttonIsEnabled: Boolean = true
+    modifier: Modifier = Modifier
 ) {
     Button(
         onClick = onButtonClick,
         modifier = modifier,
         shape = RoundedCornerShape(16f),
-        enabled = buttonIsEnabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = SecondaryBackground
         )
     ) {
         TextBody(
-            text = "Haz tu pedido",
+            text = "Tu pedido",
             textSize = TEXT_SIZE_LARGE,
             textColor = PrimaryColor,
             modifier = Modifier
