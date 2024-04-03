@@ -35,6 +35,7 @@ class AddUserViewModel @Inject constructor(
                             name = name,
                             surname = surname,
                             email = email,
+                            phoneNumber = phoneNumber,
                             isAdmin = isAdmin,
                             isProducer = isProducer,
                             companyName = companyName
@@ -49,7 +50,6 @@ class AddUserViewModel @Inject constructor(
                             }
                         )
                     }
-
                 }
 
                 is AddUserEvent.CompanyNameInputChanges -> {
@@ -93,6 +93,10 @@ class AddUserViewModel @Inject constructor(
 
                 AddUserEvent.GoBack -> _state.update {
                     it.copy(goOut = true)
+                }
+
+                is AddUserEvent.PhoneNumberInputChanges -> _state.update {
+                    it.copy(phoneNumber = event.inputValue)
                 }
             }
             if (event !is AddUserEvent.GoBack && event !is AddUserEvent.AddUser) {

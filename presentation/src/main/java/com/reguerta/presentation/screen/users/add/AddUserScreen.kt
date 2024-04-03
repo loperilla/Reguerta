@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.reguerta.presentation.composables.PhoneNumberReguertaInput
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCheckBox
 import com.reguerta.presentation.composables.ReguertaEmailInput
@@ -101,6 +102,19 @@ fun AddUserScreen(
                     onEvent(AddUserEvent.SurnameInputChanges(surnameValue))
                 },
                 labelText = "Apellidos",
+                placeholderText = "Pulsa para escribir",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = PADDING_MEDIUM, end = PADDING_MEDIUM)
+            )
+
+            PhoneNumberReguertaInput(
+                state.phoneNumber,
+                onTextChange = { phoneNumberValue ->
+                    if (phoneNumberValue.length <= 9) {
+                        onEvent(AddUserEvent.PhoneNumberInputChanges(phoneNumberValue))
+                    }
+                },
                 placeholderText = "Pulsa para escribir",
                 modifier = Modifier
                     .fillMaxWidth()

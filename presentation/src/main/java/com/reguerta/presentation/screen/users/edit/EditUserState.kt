@@ -13,6 +13,7 @@ data class EditUserState(
     val surname: String = "",
     val companyName: String = "",
     val email: Email = "",
+    val phoneNumber: String = "",
     val isProducer: Boolean = false,
     val isAdmin: Boolean = false,
     val goOut: Boolean = false,

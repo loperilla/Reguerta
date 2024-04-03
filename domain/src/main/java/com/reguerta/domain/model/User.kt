@@ -15,7 +15,8 @@ data class User(
     val isAdmin: Boolean,
     val isProducer: Boolean,
     val name: String,
-    val surname: String
+    val surname: String,
+    val phone: String
 ) {
     val fullName = this.name + " " + this.surname
 }
@@ -27,5 +28,6 @@ fun UserModel.toDomain() = User(
     isAdmin = isAdmin,
     isProducer = isProducer,
     name = name.orEmpty(),
-    surname = surname.orEmpty()
+    surname = surname.orEmpty(),
+    phone = phone.orEmpty()
 )

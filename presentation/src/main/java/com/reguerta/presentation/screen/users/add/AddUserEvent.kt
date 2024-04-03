@@ -11,6 +11,7 @@ sealed class AddUserEvent {
     data class SurnameInputChanges(val inputValue: String) : AddUserEvent()
     data class CompanyNameInputChanges(val inputValue: String) : AddUserEvent()
     data class NameInputChanges(val inputValue: String) : AddUserEvent()
+    data class PhoneNumberInputChanges(val inputValue: String) : AddUserEvent()
     data class ToggledIsAdmin(val newValue: Boolean) : AddUserEvent()
     data class ToggledIsProducer(val newValue: Boolean) : AddUserEvent()
     data object AddUser : AddUserEvent()

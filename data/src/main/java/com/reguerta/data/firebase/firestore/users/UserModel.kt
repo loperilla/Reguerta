@@ -13,5 +13,6 @@ data class UserModel(
     @field:JvmField val isAdmin: Boolean = false,
     @field:JvmField val isProducer: Boolean = false,
     val name: String? = null,
-    val surname: String? = null
+    val surname: String? = null,
+    val phone: String? = null
 )

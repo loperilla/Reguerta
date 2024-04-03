@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
  */
 @Entity
 data class MeasureEntity(
-    @PrimaryKey val id: Long = 0L,
+    @PrimaryKey(autoGenerate = true) var id: Long = 0L,
     val abbreviation: String,
     val name: String,
     val plural: String,

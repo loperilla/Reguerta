@@ -132,6 +132,26 @@ fun TextReguertaInput(
 }
 
 @Composable
+fun PhoneNumberReguertaInput(
+    text: String,
+    onTextChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholderText: String = "",
+    imeAction: ImeAction = ImeAction.Default,
+    keyboardType: KeyboardType = KeyboardType.NumberPassword,
+) {
+    SecondaryReguertaInput(
+        text = text,
+        uiError = UiError("Este teléfono no es válido", text.length == 9),
+        onTextChange = onTextChange,
+        placeholderText = placeholderText,
+        keyboardType = keyboardType,
+        imeAction = imeAction,
+        modifier = modifier,
+    )
+}
+
+@Composable
 fun SecondaryTextReguertaInput(
     text: String,
     onTextChange: (String) -> Unit,
@@ -343,6 +363,19 @@ fun ReguertaInputPreview() {
 
             SecondaryReguertaInput(
                 text = "Manuel Lopera",
+                onTextChange = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+
+            PhoneNumberReguertaInput(
+                text = "123456789",
+                onTextChange = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
+            PhoneNumberReguertaInput(
+                text = "12345679",
                 onTextChange = {},
                 modifier = Modifier
                     .fillMaxWidth()

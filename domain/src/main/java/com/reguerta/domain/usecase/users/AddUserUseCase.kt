@@ -16,6 +16,7 @@ class AddUserUseCase @Inject constructor(
     suspend operator fun invoke(
         name: String,
         surname: String,
+        phoneNumber: String,
         email: String,
         isAdmin: Boolean,
         isProducer: Boolean,
@@ -24,6 +25,7 @@ class AddUserUseCase @Inject constructor(
         return try {
             val userModel = UserModel(
                 name = name,
+                phone = phoneNumber,
                 surname = surname,
                 email = email,
                 isAdmin = isAdmin,

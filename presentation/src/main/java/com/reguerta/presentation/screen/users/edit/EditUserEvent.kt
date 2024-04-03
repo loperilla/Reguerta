@@ -10,6 +10,7 @@ package com.reguerta.presentation.screen.users.edit
 sealed class EditUserEvent {
     data class EmailInputChanges(val inputValue: String) : EditUserEvent()
     data class SurnameInputChanges(val inputValue: String) : EditUserEvent()
+    data class PhoneNumberInputChanges(val inputValue: String) : EditUserEvent()
     data class CompanyNameInputChanges(val inputValue: String) : EditUserEvent()
     data class NameInputChanges(val inputValue: String) : EditUserEvent()
     data class ToggledIsAdmin(val newValue: Boolean) : EditUserEvent()

@@ -17,6 +17,7 @@ class EditUserUseCase @Inject constructor(
         id: String,
         name: String,
         surname: String,
+        phoneNumber: String,
         email: String,
         isAdmin: Boolean,
         isProducer: Boolean,
@@ -27,6 +28,7 @@ class EditUserUseCase @Inject constructor(
                 name = name,
                 surname = surname,
                 email = email,
+                phone = phoneNumber,
                 isAdmin = isAdmin,
                 isProducer = isProducer,
                 companyName = companyName

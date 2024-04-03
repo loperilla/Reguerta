@@ -340,7 +340,8 @@ fun UserScreenPreview() {
                         email = "pLd6u@example.com",
                         companyName = "Reguerta",
                         isAdmin = true,
-                        isProducer = true
+                        isProducer = true,
+                        phone = "123456789"
                     )
                 )
             ),

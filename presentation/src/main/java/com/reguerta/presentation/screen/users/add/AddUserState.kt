@@ -12,6 +12,7 @@ data class AddUserState(
     val name: String = "",
     val surname: String = "",
     val companyName: String = "",
+    val phoneNumber: String = "",
     val email: Email = "",
     val isProducer: Boolean = false,
     val isAdmin: Boolean = false,

@@ -41,6 +41,7 @@ class EditUserViewModel @AssistedInject constructor(
                         email = userDomain.email,
                         companyName = userDomain.companyName,
                         isAdmin = userDomain.isAdmin,
+                        phoneNumber = userDomain.phone,
                         isProducer = userDomain.isProducer
                     )
                 }
@@ -65,6 +66,7 @@ class EditUserViewModel @AssistedInject constructor(
                             id = userId,
                             name = name,
                             surname = surname,
+                            phoneNumber = phoneNumber,
                             email = email,
                             isAdmin = isAdmin,
                             isProducer = isProducer,
@@ -86,28 +88,24 @@ class EditUserViewModel @AssistedInject constructor(
                 }
 
                 EditUserEvent.GoBack -> _state.update { it.copy(goOut = true) }
-                is EditUserEvent.NameInputChanges -> {
-                    _state.update {
-                        it.copy(name = event.inputValue)
-                    }
+                is EditUserEvent.NameInputChanges -> _state.update {
+                    it.copy(name = event.inputValue)
                 }
 
-                is EditUserEvent.SurnameInputChanges -> {
-                    _state.update {
-                        it.copy(surname = event.inputValue)
-                    }
+                is EditUserEvent.SurnameInputChanges -> _state.update {
+                    it.copy(surname = event.inputValue)
                 }
 
-                is EditUserEvent.ToggledIsAdmin -> {
-                    _state.update {
-                        it.copy(isAdmin = event.newValue)
-                    }
+                is EditUserEvent.ToggledIsAdmin -> _state.update {
+                    it.copy(isAdmin = event.newValue)
                 }
 
-                is EditUserEvent.ToggledIsProducer -> {
-                    _state.update {
-                        it.copy(isProducer = event.newValue)
-                    }
+                is EditUserEvent.ToggledIsProducer -> _state.update {
+                    it.copy(isProducer = event.newValue)
+                }
+
+                is EditUserEvent.PhoneNumberInputChanges -> _state.update {
+                    it.copy(phoneNumber = event.inputValue)
                 }
             }
             if (event !is EditUserEvent.GoBack && event !is EditUserEvent.EditUser) {
