@@ -4,9 +4,14 @@ import com.reguerta.data.firebase.firestore.order.OrderServices
 import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.model.order.GetOrderByIdDataModel
+import com.reguerta.domain.model.Order
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
+import com.reguerta.domain.model.mapper.toDomain
+import com.reguerta.domain.model.mapper.toDto
 import com.reguerta.domain.model.mapper.toOrderLineDto
+import com.reguerta.domain.model.mapper.toReceived
+import com.reguerta.domain.model.received.OrderLineReceived
 import com.reguerta.domain.model.toOrderLine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -19,38 +24,38 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 class NewOrderModel @Inject constructor(
-    private val productsService: ProductsService,
-    private val orderServices: OrderServices,
+    private val productService: ProductsService,
+    private val orderService: OrderServices,
     private val orderLineService: OrderLineService
 ) {
-    private lateinit var orderId: String
+    private lateinit var order: Order
     suspend fun checkIfExistOrderInFirebase(): Result<Boolean> {
-        return when (val result = orderServices.getOrderByUserId()) {
+        return when (val result = orderService.getOrderByUserId()) {
             is GetOrderByIdDataModel.ExistInFirebase -> {
-                orderId = result.order.orderId!!
+                order = result.order.toDto()
                 Result.success(true)
             }
 
             is GetOrderByIdDataModel.Failure -> Result.failure(Exception(result.error.toString()))
             is GetOrderByIdDataModel.NotExistInFirebase -> {
-                orderId = result.orderModel.orderId!!
+                order = result.orderModel.toDto()
                 Result.success(false)
             }
         }
     }
 
-    suspend fun getOrderLines(): Flow<List<OrderLineProduct>> = orderLineService.getOrderLines(orderId).map {
+    suspend fun getOrderLines(): Flow<List<OrderLineProduct>> = orderLineService.getOrderLines(order.id).map {
         it.map { orderLineDTO -> orderLineDTO.toOrderLine() }
     }
 
-    suspend fun deleteOrderLineLocal(productId: String) = orderLineService.deleteOrderLine(orderId, productId)
+    suspend fun deleteOrderLineLocal(productId: String) = orderLineService.deleteOrderLine(order.id, productId)
 
     suspend fun updateProductStock(productId: String, newQuantity: Int) =
-        orderLineService.updateQuantity(orderId, productId, newQuantity)
+        orderLineService.updateQuantity(order.id, productId, newQuantity)
 
     suspend fun addLocalOrderLine(
         productId: String, productCompany: String
-    ) = orderLineService.addOrderLineInDatabase(orderId, productId, productCompany)
+    ) = orderLineService.addOrderLineInDatabase(order.id, productId, productCompany)
 
     suspend fun pushOrderLinesToFirebase(listToPush: List<ProductWithOrderLine>): Result<Unit> {
         val dtoList = listToPush.map {
@@ -65,4 +70,21 @@ class NewOrderModel @Inject constructor(
             }
         )
     }
+
+    suspend fun getOrderLinesFromCurrentWeek(): Flow<List<OrderLineReceived>> =
+        orderLineService.getOrdersByOrderId(order.id).map {
+            it.fold(
+                onSuccess = { orderLines ->
+                    val listReturn = mutableListOf<OrderLineReceived>()
+                    orderLines.forEach { model ->
+                        val product = productService.getProductById(model.productId.orEmpty()).getOrThrow().toDomain()
+                        listReturn.add(model.toReceived(product, order))
+                    }
+                    listReturn
+                },
+                onFailure = {
+                    emptyList()
+                }
+            )
+        }
 }

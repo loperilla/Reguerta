@@ -247,7 +247,7 @@ private fun ProductOrders(
 }
 
 @Composable
-private fun OrderListByProduct(
+fun OrderListByProduct(
     orderLines: Map<Product, List<OrderLineReceived>>,
     modifier: Modifier = Modifier
 ) {

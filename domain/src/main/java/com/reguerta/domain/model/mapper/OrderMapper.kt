@@ -14,6 +14,7 @@ import com.reguerta.domain.model.received.OrderLineReceived
  */
 
 fun OrderModel.toDto() = Order(
+    id = orderId.orEmpty(),
     name = name.orEmpty(),
     surname = surname.orEmpty()
 )

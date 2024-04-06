@@ -7,7 +7,6 @@ import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.domain.model.new_order.NewOrderModel
-import com.reguerta.domain.usecase.orderline.OrderReceivedModel
 import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
 import com.reguerta.domain.usecase.products.UpdateProductStockUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,8 +31,7 @@ import javax.inject.Inject
 class NewOrderViewModel @Inject constructor(
     getAvailableProductsUseCase: GetAvailableProductsUseCase,
     private val orderModel: NewOrderModel,
-    private val updateProductStockUseCase: UpdateProductStockUseCase,
-    private val orderReceivedModel: OrderReceivedModel
+    private val updateProductStockUseCase: UpdateProductStockUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<NewOrderState> = MutableStateFlow(NewOrderState())
     val state: StateFlow<NewOrderState> = _state.asStateFlow()
@@ -56,8 +54,16 @@ class NewOrderViewModel @Inject constructor(
                                 )
                             }
                             if (existOrder) {
-                                orderReceivedModel().collectLatest {
-
+                                orderModel.getOrderLinesFromCurrentWeek().collectLatest { ordersReceived ->
+                                    _state.update {
+                                        it.copy(
+                                            isLoading = false,
+                                            hasOrderLine = true,
+                                            ordersFromExistingOrder = ordersReceived.groupBy { orderLine ->
+                                                orderLine.product
+                                            }
+                                        )
+                                    }
                                 }
                             } else {
                                 orderModel.getOrderLines().collectLatest { orderList ->

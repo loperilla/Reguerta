@@ -7,6 +7,7 @@ package com.reguerta.domain.model
  * All rights reserved 2024
  */
 data class Order(
+    val id: String,
     val name: String,
     val surname: String
 )

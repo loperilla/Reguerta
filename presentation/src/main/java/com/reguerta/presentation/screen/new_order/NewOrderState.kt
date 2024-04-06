@@ -2,6 +2,7 @@ package com.reguerta.presentation.screen.new_order
 
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.interfaces.Product
+import com.reguerta.domain.model.received.OrderLineReceived
 
 /*****
  * Project: Reguerta
@@ -16,5 +17,6 @@ data class NewOrderState(
     val hasOrderLine: Boolean = false,
     val showShoppingCart: Boolean = false,
     val availableCommonProducts: List<Product> = emptyList(),
-    val productsOrderLineList: List<ProductWithOrderLine> = emptyList()
+    val productsOrderLineList: List<ProductWithOrderLine> = emptyList(),
+    val ordersFromExistingOrder: Map<Product, List<OrderLineReceived>> = emptyMap()
 )

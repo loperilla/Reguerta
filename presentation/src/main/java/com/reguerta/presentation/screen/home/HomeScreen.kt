@@ -140,7 +140,6 @@ private fun HomeScreen(
                         onButtonClick = {
                             navigateTo(Routes.HOME.ORDER_RECEIVED.route)
                         },
-                        buttonIsEnabled = state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY,
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)

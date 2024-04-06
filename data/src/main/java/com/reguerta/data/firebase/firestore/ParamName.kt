@@ -16,3 +16,4 @@ const val AVAILABLE = "available"
 const val USER_EMAIL = "email"
 
 const val COMPANY_NAME = "companyName"
+const val ORDER_ID = "orderId"

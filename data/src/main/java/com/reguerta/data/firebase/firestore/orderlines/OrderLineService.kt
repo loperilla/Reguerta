@@ -15,4 +15,5 @@ interface OrderLineService {
     suspend fun deleteOrderLine(orderId: String, productId: String)
     suspend fun addOrderLineInFirebase(listToPush: List<OrderLineDTO>): Result<Unit>
     suspend fun getOrdersByCompanyAndWeek(): Flow<Result<List<OrderLineModel>>>
+    suspend fun getOrdersByOrderId(orderId: String): Flow<Result<List<OrderLineModel>>>
 }

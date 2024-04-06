@@ -41,6 +41,7 @@ import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.domain.model.mapper.containerUnity
 import com.reguerta.domain.model.mapper.getAmount
 import com.reguerta.domain.model.mapper.priceFormatted
+import com.reguerta.domain.model.received.OrderLineReceived
 import com.reguerta.presentation.ALCAZAR
 import com.reguerta.presentation.ALCAZAR_WITH_ORDER
 import com.reguerta.presentation.composables.AmountText
@@ -55,6 +56,8 @@ import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextRegular
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.image.ProductImage
+import com.reguerta.presentation.screen.received_orders.OrderListByProduct
+import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
@@ -87,7 +90,10 @@ fun newOrderScreen(
     }
     Screen {
         if (state.isExistOrder) {
-
+            ExistingOrderScreen(
+                state = state,
+                onEvent = viewModel::onEvent
+            )
         } else {
             NewOrderScreen(
                 state = state,
@@ -95,6 +101,50 @@ fun newOrderScreen(
             )
         }
     }
+}
+
+@Composable
+fun ExistingOrderScreen(
+    state: NewOrderState,
+    onEvent: (NewOrderEvent) -> Unit
+) {
+    Scaffold(
+        topBar = {
+            ReguertaTopBar(
+                topBarText = "Pedidos a preparar",
+                navActionClick = {
+                    onEvent(NewOrderEvent.GoOut)
+                },
+                actions = {
+                    Column(
+                        modifier = Modifier
+                            .padding(PADDING_EXTRA_SMALL)
+                            .wrapContentSize()
+                            .align(Alignment.CenterVertically)
+                    ) {
+                        TextBody(
+                            text = "¿Modificar?",
+                            textColor = Orange
+                        )
+                        ReguertaIconButton(
+                            onClick = {
+                                onEvent(NewOrderEvent.ShowShoppingCart)
+                            },
+                            iconButton = Icons.Filled.Delete,
+                            contentColor = Orange
+                        )
+                    }
+                }
+            )
+        }
+    ) {
+        OrderListByProduct(
+            state.ordersFromExistingOrder,
+            modifier = Modifier
+                .padding(it)
+        )
+    }
+
 }
 
 @Composable
@@ -558,6 +608,44 @@ fun ShoppingCartScreenPreview() {
                     ALCAZAR_WITH_ORDER.copy(
                         orderLine = ALCAZAR_WITH_ORDER.orderLine.copy(
                             quantity = 2
+                        )
+                    )
+                )
+            ),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ExistingOrderScreenPreviewPreview() {
+    Screen {
+        ExistingOrderScreen(
+            state = NewOrderState(
+                isLoading = false,
+                hasOrderLine = true,
+                showShoppingCart = true,
+                availableCommonProducts = listOf(
+                    ALCAZAR,
+                    ALCAZAR_WITH_ORDER
+                ),
+                productsOrderLineList = listOf(
+                    ALCAZAR_WITH_ORDER.copy(
+                        orderLine = ALCAZAR_WITH_ORDER.orderLine.copy(
+                            quantity = 2
+                        )
+                    )
+                ),
+                isExistOrder = true,
+                ordersFromExistingOrder = mapOf(
+                    ALCAZAR to listOf(
+                        OrderLineReceived(
+                            orderName = "Manuel",
+                            orderSurname = "Lopera",
+                            product = ALCAZAR,
+                            quantity = 1,
+                            companyName = "",
                         )
                     )
                 )

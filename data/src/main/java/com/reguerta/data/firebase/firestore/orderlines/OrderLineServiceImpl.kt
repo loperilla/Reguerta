@@ -2,6 +2,7 @@ package com.reguerta.data.firebase.firestore.orderlines
 
 import com.google.firebase.firestore.CollectionReference
 import com.reguerta.data.firebase.firestore.COMPANY_NAME
+import com.reguerta.data.firebase.firestore.ORDER_ID
 import com.reguerta.data.firebase.firestore.WEEK
 import com.reguerta.localdata.database.dao.OrderLineDao
 import com.reguerta.localdata.database.entity.OrderLineEntity
@@ -89,6 +90,36 @@ class OrderLineServiceImpl @Inject constructor(
             ).whereEqualTo(
                 WEEK,
                 time.getCurrentWeek().minus(1)
+            )
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    error.printStackTrace()
+                    trySend(Result.failure(error))
+                    close(error)
+                    return@addSnapshotListener
+                }
+                snapshot?.let { query ->
+                    val orderLineList = mutableListOf<OrderLineModel>()
+                    query.documents.forEach { document ->
+                        val orderLine = document.toObject(OrderLineModel::class.java)
+                        orderLine?.let { model ->
+                            model.id = document.id
+                            orderLineList.add(model)
+                        }
+                    }
+                    trySend(Result.success(orderLineList))
+                }
+            }
+        awaitClose {
+            subscription.remove()
+        }
+    }
+
+    override suspend fun getOrdersByOrderId(orderId: String): Flow<Result<List<OrderLineModel>>> = callbackFlow {
+        val subscription = collection
+            .whereEqualTo(
+                ORDER_ID,
+                orderId
             )
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
