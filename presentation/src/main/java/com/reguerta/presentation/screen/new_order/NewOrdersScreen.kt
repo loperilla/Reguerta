@@ -86,10 +86,14 @@ fun newOrderScreen(
         return
     }
     Screen {
-        NewOrderScreen(
-            state = state,
-            onEvent = viewModel::onEvent
-        )
+        if (state.isExistOrder) {
+
+        } else {
+            NewOrderScreen(
+                state = state,
+                onEvent = viewModel::onEvent
+            )
+        }
     }
 }
 
@@ -270,7 +274,7 @@ fun ShoppingCartOrderProductItem(
         content = {
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom,
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()

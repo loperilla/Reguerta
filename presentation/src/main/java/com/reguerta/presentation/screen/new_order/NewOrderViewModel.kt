@@ -6,12 +6,8 @@ import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.interfaces.Product
-import com.reguerta.domain.usecase.order.GetCurrentUserOrderUseCase
-import com.reguerta.domain.usecase.orderline.AddOrderLineUseCase
-import com.reguerta.domain.usecase.orderline.DeleteOrderLineUseCase
-import com.reguerta.domain.usecase.orderline.GetOrderLinesUseCase
-import com.reguerta.domain.usecase.orderline.PushOrderLineToFirebaseUseCase
-import com.reguerta.domain.usecase.orderline.UpdateQuantityOrderLineUseCase
+import com.reguerta.domain.model.new_order.NewOrderModel
+import com.reguerta.domain.usecase.orderline.OrderReceivedModel
 import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
 import com.reguerta.domain.usecase.products.UpdateProductStockUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -35,13 +31,9 @@ import javax.inject.Inject
 @HiltViewModel
 class NewOrderViewModel @Inject constructor(
     getAvailableProductsUseCase: GetAvailableProductsUseCase,
-    getCurrentOrderUseCase: GetCurrentUserOrderUseCase,
-    getOrderLinesUseCase: GetOrderLinesUseCase,
-    private val addOrderLineUseCase: AddOrderLineUseCase,
-    private val updateQuantityOrderLineUseCase: UpdateQuantityOrderLineUseCase,
-    private val deleteOrderLineUseCase: DeleteOrderLineUseCase,
-    private val pushOrderLineToFirebaseUseCase: PushOrderLineToFirebaseUseCase,
-    private val updateProductStock: UpdateProductStockUseCase
+    private val orderModel: NewOrderModel,
+    private val updateProductStockUseCase: UpdateProductStockUseCase,
+    private val orderReceivedModel: OrderReceivedModel
 ) : ViewModel() {
     private var _state: MutableStateFlow<NewOrderState> = MutableStateFlow(NewOrderState())
     val state: StateFlow<NewOrderState> = _state.asStateFlow()
@@ -56,23 +48,29 @@ class NewOrderViewModel @Inject constructor(
                         initialCommonProducts = list
                     }
                 }, async(Dispatchers.IO) {
-                    getCurrentOrderUseCase().fold(
-                        onSuccess = { orderId ->
+                    orderModel.checkIfExistOrderInFirebase().fold(
+                        onSuccess = { existOrder ->
                             _state.update {
                                 it.copy(
-                                    orderId = orderId
+                                    isExistOrder = existOrder
                                 )
                             }
-                            getOrderLinesUseCase(orderId).collectLatest { orderList ->
-                                if (orderList.isNotEmpty()) {
-                                    buildProductWithOrderList(orderList)
-                                } else {
-                                    _state.update {
-                                        it.copy(
-                                            isLoading = false,
-                                            availableCommonProducts = initialCommonProducts,
-                                            hasOrderLine = false
-                                        )
+                            if (existOrder) {
+                                orderReceivedModel().collectLatest {
+
+                                }
+                            } else {
+                                orderModel.getOrderLines().collectLatest { orderList ->
+                                    if (orderList.isNotEmpty()) {
+                                        buildProductWithOrderList(orderList)
+                                    } else {
+                                        _state.update {
+                                            it.copy(
+                                                isLoading = false,
+                                                availableCommonProducts = initialCommonProducts,
+                                                hasOrderLine = false
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -127,8 +125,7 @@ class NewOrderViewModel @Inject constructor(
                     val companyOfSelectedProduct = state.value.availableCommonProducts.single {
                         it.id == newEvent.productId
                     }.companyName
-                    addOrderLineUseCase(
-                        state.value.orderId,
+                    orderModel.addLocalOrderLine(
                         newEvent.productId,
                         companyOfSelectedProduct
                     )
@@ -142,10 +139,7 @@ class NewOrderViewModel @Inject constructor(
                     val newQuantity = productUpdated.quantity.minus(1)
 
                     if (newQuantity == 0) {
-                        deleteOrderLineUseCase(
-                            state.value.orderId,
-                            newEvent.productId
-                        )
+                        orderModel.deleteOrderLineLocal(newEvent.productId)
                         _state.update {
                             it.copy(
                                 productsOrderLineList = it.productsOrderLineList.filter { orderLine ->
@@ -154,8 +148,7 @@ class NewOrderViewModel @Inject constructor(
                             )
                         }
                     } else {
-                        updateQuantityOrderLineUseCase(
-                            state.value.orderId,
+                        orderModel.updateProductStock(
                             newEvent.productId,
                             newQuantity
                         )
@@ -166,8 +159,8 @@ class NewOrderViewModel @Inject constructor(
                     val productUpdated = state.value.availableCommonProducts.singleOrNull {
                         it.id == newEvent.productId
                     } as ProductWithOrderLine? ?: return@launch
-                    updateQuantityOrderLineUseCase(
-                        state.value.orderId,
+
+                    orderModel.updateProductStock(
                         newEvent.productId,
                         productUpdated.quantity.plus(1)
                     )
@@ -182,7 +175,7 @@ class NewOrderViewModel @Inject constructor(
                 }
 
                 NewOrderEvent.PushOrder -> {
-                    pushOrderLineToFirebaseUseCase(
+                    orderModel.pushOrderLinesToFirebase(
                         state.value.productsOrderLineList
                     ).fold(
                         onSuccess = {
@@ -190,7 +183,7 @@ class NewOrderViewModel @Inject constructor(
                                 val productModified = initialCommonProducts.single { commonProduct ->
                                     commonProduct.id == orderLine.id
                                 }
-                                updateProductStock(
+                                updateProductStockUseCase(
                                     orderLine.id,
                                     productModified.stock.minus(orderLine.quantity)
                                 )

@@ -20,5 +20,4 @@ class GetOrderLinesUseCase @Inject constructor(
         orderLineService.getOrderLines(orderId).map {
             it.map { orderLineDTO -> orderLineDTO.toOrderLine() }
         }
-
 }

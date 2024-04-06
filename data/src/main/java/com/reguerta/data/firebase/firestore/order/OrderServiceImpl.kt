@@ -5,6 +5,7 @@ import com.reguerta.data.firebase.firestore.USER_ID
 import com.reguerta.data.firebase.firestore.WEEK
 import com.reguerta.data.firebase.model.DataError
 import com.reguerta.data.firebase.model.DataResult
+import com.reguerta.data.firebase.model.order.GetOrderByIdDataModel
 import com.reguerta.localdata.datastore.NAME_KEY
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.datastore.SURNAME_KEY
@@ -24,7 +25,7 @@ class OrderServiceImpl @Inject constructor(
     private val dataStore: ReguertaDataStore,
     private val weekTime: WeekTime
 ) : OrderServices {
-    override suspend fun getOrderByUserId(): Result<OrderModel> {
+    override suspend fun getOrderByUserId(): GetOrderByIdDataModel {
         return try {
             val snapshot = collection
                 .whereEqualTo(USER_ID, dataStore.getStringByKey(UID_KEY))
@@ -34,9 +35,9 @@ class OrderServiceImpl @Inject constructor(
             val document = snapshot.documents.first()
             val orderModel = document.toObject(OrderModel::class.java) ?: return insertDefaultModel()
             orderModel.orderId = document.id
-            Result.success(orderModel)
+            GetOrderByIdDataModel.ExistInFirebase(orderModel)
         } catch (ex: Exception) {
-            Result.failure(ex)
+            GetOrderByIdDataModel.Failure(DataError.Firebase.UNKNOWN)
         }
     }
 
@@ -59,7 +60,7 @@ class OrderServiceImpl @Inject constructor(
         }
     }
 
-    private suspend fun insertDefaultModel(): Result<OrderModel> {
+    private suspend fun insertDefaultModel(): GetOrderByIdDataModel {
         return try {
             val orderModelDefault = OrderModel(
                 week = weekTime.getCurrentWeek(),
@@ -70,9 +71,9 @@ class OrderServiceImpl @Inject constructor(
             collection
                 .add(orderModelDefault)
                 .await()
-            Result.success(orderModelDefault)
+            GetOrderByIdDataModel.NotExistInFirebase(orderModelDefault)
         } catch (ex: Exception) {
-            Result.failure(ex)
+            GetOrderByIdDataModel.Failure(DataError.Firebase.UNKNOWN)
         }
     }
 }

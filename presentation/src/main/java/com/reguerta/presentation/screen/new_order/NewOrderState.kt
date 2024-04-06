@@ -12,7 +12,7 @@ import com.reguerta.domain.model.interfaces.Product
 data class NewOrderState(
     val goOut: Boolean = false,
     val isLoading: Boolean = true,
-    val orderId: String = "",
+    val isExistOrder: Boolean = false,
     val hasOrderLine: Boolean = false,
     val showShoppingCart: Boolean = false,
     val availableCommonProducts: List<Product> = emptyList(),

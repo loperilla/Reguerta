@@ -8,13 +8,13 @@ import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import com.reguerta.domain.model.mapper.MeasureMapper
+import com.reguerta.domain.model.new_order.NewOrderModel
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.auth.LoginUseCase
 import com.reguerta.domain.usecase.auth.RefreshUserUseCase
 import com.reguerta.domain.usecase.auth.RegisterUseCase
 import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
-import com.reguerta.domain.usecase.order.GetCurrentUserOrderUseCase
 import com.reguerta.domain.usecase.orderline.AddOrderLineUseCase
 import com.reguerta.domain.usecase.orderline.DeleteOrderLineUseCase
 import com.reguerta.domain.usecase.orderline.GetOrderLinesUseCase
@@ -118,9 +118,6 @@ object DomainDi {
     fun providesAllContainerUseCase(containerService: ContainerService) = GetAllContainerUseCase(containerService)
 
     @Provides
-    fun providesGetCurrentOrder(orderServices: OrderServices) = GetCurrentUserOrderUseCase(orderServices)
-
-    @Provides
     fun providesGetOrderLinesUseCase(orderLineService: OrderLineService) = GetOrderLinesUseCase(orderLineService)
 
     @Provides
@@ -147,4 +144,11 @@ object DomainDi {
         productsService: ProductsService,
         orderServices: OrderServices
     ) = OrderReceivedModel(orderLineService, productsService, orderServices)
+
+    @Provides
+    fun provideNewOrderModel(
+        productsService: ProductsService,
+        orderServices: OrderServices,
+        orderLinesServices: OrderLineService
+    ) = NewOrderModel(productsService, orderServices, orderLinesServices)
 }
