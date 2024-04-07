@@ -81,4 +81,16 @@ class OrderServiceImpl @Inject constructor(
             DataResult.Error(DataError.Firebase.UNKNOWN)
         }
     }
+
+    override suspend fun deleteOrder(orderId: String): DataResult<Unit, DataError.Firebase> {
+        return try {
+            collection
+                .document(orderId)
+                .delete()
+                .await()
+            DataResult.Success(Unit)
+        } catch (ex: Exception) {
+            DataResult.Error(DataError.Firebase.UNKNOWN)
+        }
+    }
 }

@@ -252,6 +252,7 @@ fun OrderListByProduct(
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
+        verticalArrangement = Arrangement.spacedBy(PADDING_MEDIUM),
         modifier = modifier
             .fillMaxSize()
             .padding(PADDING_MEDIUM)

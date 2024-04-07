@@ -16,7 +16,14 @@ data class NewOrderState(
     val isExistOrder: Boolean = false,
     val hasOrderLine: Boolean = false,
     val showShoppingCart: Boolean = false,
+    val showPopup: PopupType = PopupType.NONE,
     val availableCommonProducts: List<Product> = emptyList(),
     val productsOrderLineList: List<ProductWithOrderLine> = emptyList(),
     val ordersFromExistingOrder: Map<Product, List<OrderLineReceived>> = emptyMap()
 )
+
+enum class PopupType {
+    NONE,
+    ARE_YOU_SURE_DELETE,
+    ORDER_ADDED
+}

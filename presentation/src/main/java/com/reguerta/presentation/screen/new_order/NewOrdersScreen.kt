@@ -18,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddShoppingCart
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material.icons.filled.ShoppingCart
@@ -31,6 +32,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -46,6 +50,7 @@ import com.reguerta.presentation.ALCAZAR
 import com.reguerta.presentation.ALCAZAR_WITH_ORDER
 import com.reguerta.presentation.composables.AmountText
 import com.reguerta.presentation.composables.InverseReguertaButton
+import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaIconButton
@@ -88,6 +93,27 @@ fun newOrderScreen(
         navigateTo(Routes.HOME.ROOT.route)
         return
     }
+    if (state.showPopup == PopupType.ARE_YOU_SURE_DELETE) {
+        AreYouSureDeletePopup(
+            onEvent = viewModel::onEvent
+        )
+    }
+
+    if (state.showPopup == PopupType.ORDER_ADDED) {
+        ConfirmPopup(
+            title = buildAnnotatedString {
+                append("Pedido realizado con éxito")
+            },
+            body = buildAnnotatedString {
+                append("Recuerda que puedes modificar el pedido antes de que acabe el domingo")
+
+            },
+            onEvent = viewModel::onEvent,
+            confirmButton = {
+                viewModel.onEvent(NewOrderEvent.GoOut)
+            }
+        )
+    }
     Screen {
         if (state.isExistOrder) {
             ExistingOrderScreen(
@@ -128,7 +154,7 @@ fun ExistingOrderScreen(
                         )
                         ReguertaIconButton(
                             onClick = {
-                                onEvent(NewOrderEvent.ShowShoppingCart)
+                                onEvent(NewOrderEvent.ShowAreYouSureDeleteOrder)
                             },
                             iconButton = Icons.Filled.Delete,
                             contentColor = Orange
@@ -617,6 +643,108 @@ fun ShoppingCartScreenPreview() {
     }
 }
 
+@Composable
+fun AreYouSureDeletePopup(
+    onEvent: (NewOrderEvent) -> Unit
+) {
+    ReguertaAlertDialog(
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "ExitApp",
+                tint = Color.Red,
+                modifier = Modifier
+                    .size(SIZE_48)
+            )
+        },
+        onDismissRequest = { onEvent(NewOrderEvent.HideDialog) },
+        text = {
+            TextBody(
+                text = buildAnnotatedString {
+                    append("Esta a punto de eliminar un pedido. \n")
+                    append("Se restaurarán los stocks. \n")
+                    append("Luego podrá realizar su pedido de nuevo. \n")
+                },
+                textSize = TEXT_SIZE_SMALL,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        title = {
+            TextTitle(
+                text = buildAnnotatedString {
+                    append("Vas a eliminar un pedido \n")
+                    append("¿Está seguro?")
+                },
+                textSize = TEXT_SIZE_LARGE,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        confirmButton = {
+            ReguertaButton(
+                textButton = "Aceptar",
+                onClick = {
+                    onEvent(NewOrderEvent.DeleteOrder)
+                }
+            )
+        },
+        dismissButton = {
+            InverseReguertaButton(
+                textButton = "Volver",
+                onClick = {
+                    onEvent(NewOrderEvent.HideDialog)
+                }
+            )
+        }
+    )
+}
+
+@Composable
+fun ConfirmPopup(
+    title: AnnotatedString,
+    body: AnnotatedString,
+    confirmButton: () -> Unit,
+    onEvent: (NewOrderEvent) -> Unit
+) {
+    ReguertaAlertDialog(
+        icon = {
+            Icon(
+                imageVector = Icons.Default.Info,
+                contentDescription = "ExitApp",
+                tint = Color.Red,
+                modifier = Modifier
+                    .size(SIZE_48)
+            )
+        },
+        onDismissRequest = { onEvent(NewOrderEvent.HideDialog) },
+        text = {
+            TextBody(
+                text = body,
+                textSize = TEXT_SIZE_SMALL,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        title = {
+            TextTitle(
+                text = title,
+                textSize = TEXT_SIZE_LARGE,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        confirmButton = {
+            ReguertaButton(
+                textButton = "Aceptar",
+                onClick = {
+                    confirmButton()
+                }
+            )
+        }
+    )
+}
+
 @Preview
 @Composable
 fun ExistingOrderScreenPreviewPreview() {
@@ -651,6 +779,18 @@ fun ExistingOrderScreenPreviewPreview() {
                 )
             ),
             onEvent = {}
+        )
+    }
+}
+
+@Preview
+@Composable
+fun ShowAreYouSureDeleteOrderPreview() {
+    Screen {
+        AreYouSureDeletePopup(
+            onEvent = {
+
+            }
         )
     }
 }

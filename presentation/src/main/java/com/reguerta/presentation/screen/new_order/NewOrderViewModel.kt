@@ -190,17 +190,38 @@ class NewOrderViewModel @Inject constructor(
                                     commonProduct.id == orderLine.id
                                 }
                                 updateProductStockUseCase(
-                                    orderLine.id,
+                                    productModified.id,
                                     productModified.stock.minus(orderLine.quantity)
                                 )
                             }
-                            _state.update { it.copy(goOut = true) }
+                            _state.update { it.copy(showPopup = PopupType.ORDER_ADDED) }
                         },
                         onFailure = { throwable ->
                             throwable.printStackTrace()
                         }
                     )
                 }
+
+                NewOrderEvent.DeleteOrder -> {
+                    for (value in state.value.ordersFromExistingOrder.values) {
+                        value.forEach {
+                            val product = initialCommonProducts.single { commonProduct ->
+                                commonProduct.name == it.product.name
+                            }
+                            updateProductStockUseCase(
+                                product.id,
+                                product.stock.plus(it.quantity)
+                            )
+                        }
+                    }
+                    orderModel.deleteOrder()
+                    _state.update {
+                        it.copy(goOut = true)
+                    }
+                }
+
+                NewOrderEvent.HideDialog -> _state.update { it.copy(showPopup = PopupType.NONE) }
+                NewOrderEvent.ShowAreYouSureDeleteOrder -> _state.update { it.copy(showPopup = PopupType.ARE_YOU_SURE_DELETE) }
             }
         }
     }

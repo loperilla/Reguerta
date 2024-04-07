@@ -85,4 +85,9 @@ class NewOrderModel @Inject constructor(
                 }
             )
         }
+
+    suspend fun deleteOrder() {
+        orderLineService.deleteFirebaseOrderLine(order.id)
+        orderService.deleteOrder(order.id)
+    }
 }

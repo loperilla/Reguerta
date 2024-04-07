@@ -69,6 +69,25 @@ fun TextBody(
 }
 
 @Composable
+fun TextBody(
+    text: AnnotatedString,
+    modifier: Modifier = Modifier,
+    textSize: TextUnit = TEXT_SIZE_MEDIUM,
+    textColor: Color = Color.Unspecified,
+    textAlignment: TextAlign? = null
+) {
+    Text(
+        text,
+        modifier,
+        color = textColor,
+        fontSize = textSize,
+        fontWeight = FontWeight.Normal,
+        fontFamily = cabinsketchFontFamily,
+        textAlign = textAlignment
+    )
+}
+
+@Composable
 fun StockText(
     stockCount: Int,
     modifier: Modifier = Modifier,

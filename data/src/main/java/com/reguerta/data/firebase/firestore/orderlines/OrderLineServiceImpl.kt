@@ -69,6 +69,20 @@ class OrderLineServiceImpl @Inject constructor(
         )
     }
 
+    override suspend fun deleteFirebaseOrderLine(orderId: String) {
+        collection
+            .whereEqualTo(
+                ORDER_ID,
+                orderId
+            )
+            .get()
+            .addOnSuccessListener {
+                it.documents.forEach { document ->
+                    document.reference.delete()
+                }
+            }
+    }
+
     override suspend fun addOrderLineInFirebase(listToPush: List<OrderLineDTO>): Result<Unit> {
         return try {
             listToPush.forEach {
