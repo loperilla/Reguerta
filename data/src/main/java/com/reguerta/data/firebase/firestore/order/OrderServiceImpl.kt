@@ -5,7 +5,6 @@ import com.reguerta.data.firebase.firestore.USER_ID
 import com.reguerta.data.firebase.firestore.WEEK
 import com.reguerta.data.firebase.model.DataError
 import com.reguerta.data.firebase.model.DataResult
-import com.reguerta.data.firebase.model.order.GetOrderByIdDataModel
 import com.reguerta.localdata.datastore.NAME_KEY
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.datastore.SURNAME_KEY
@@ -25,19 +24,25 @@ class OrderServiceImpl @Inject constructor(
     private val dataStore: ReguertaDataStore,
     private val weekTime: WeekTime
 ) : OrderServices {
-    override suspend fun getOrderByUserId(): GetOrderByIdDataModel {
+    override suspend fun getOrderByUserId(): DataResult<OrderModel, DataError.Firebase> {
         return try {
             val snapshot = collection
-                .whereEqualTo(USER_ID, dataStore.getStringByKey(UID_KEY))
-                .whereEqualTo(WEEK, weekTime.getCurrentWeek())
+                .whereEqualTo(
+                    USER_ID,
+                    dataStore.getStringByKey(UID_KEY)
+                )
+                .whereEqualTo(
+                    WEEK,
+                    weekTime.getCurrentWeek()
+                )
                 .get()
                 .await()
-            val document = snapshot.documents.first()
-            val orderModel = document.toObject(OrderModel::class.java) ?: return insertDefaultModel()
+            val document = snapshot.documents.firstOrNull() ?: return insertDefaultModel()
+            val orderModel = document.toObject(OrderModel::class.java)!!
             orderModel.orderId = document.id
-            GetOrderByIdDataModel.ExistInFirebase(orderModel)
+            DataResult.Success(orderModel)
         } catch (ex: Exception) {
-            GetOrderByIdDataModel.Failure(DataError.Firebase.UNKNOWN)
+            DataResult.Error(DataError.Firebase.UNKNOWN)
         }
     }
 
@@ -60,7 +65,7 @@ class OrderServiceImpl @Inject constructor(
         }
     }
 
-    private suspend fun insertDefaultModel(): GetOrderByIdDataModel {
+    private suspend fun insertDefaultModel(): DataResult<OrderModel, DataError.Firebase> {
         return try {
             val orderModelDefault = OrderModel(
                 week = weekTime.getCurrentWeek(),
@@ -71,9 +76,9 @@ class OrderServiceImpl @Inject constructor(
             collection
                 .add(orderModelDefault)
                 .await()
-            GetOrderByIdDataModel.NotExistInFirebase(orderModelDefault)
+            DataResult.Success(orderModelDefault)
         } catch (ex: Exception) {
-            GetOrderByIdDataModel.Failure(DataError.Firebase.UNKNOWN)
+            DataResult.Error(DataError.Firebase.UNKNOWN)
         }
     }
 }

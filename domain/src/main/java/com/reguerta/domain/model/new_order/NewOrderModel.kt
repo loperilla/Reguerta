@@ -3,7 +3,7 @@ package com.reguerta.domain.model.new_order
 import com.reguerta.data.firebase.firestore.order.OrderServices
 import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
 import com.reguerta.data.firebase.firestore.products.ProductsService
-import com.reguerta.data.firebase.model.order.GetOrderByIdDataModel
+import com.reguerta.data.firebase.model.DataResult
 import com.reguerta.domain.model.Order
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
@@ -31,18 +31,16 @@ class NewOrderModel @Inject constructor(
     private lateinit var order: Order
     suspend fun checkIfExistOrderInFirebase(): Result<Boolean> {
         return when (val result = orderService.getOrderByUserId()) {
-            is GetOrderByIdDataModel.ExistInFirebase -> {
-                order = result.order.toDto()
-                Result.success(true)
-            }
-
-            is GetOrderByIdDataModel.Failure -> Result.failure(Exception(result.error.toString()))
-            is GetOrderByIdDataModel.NotExistInFirebase -> {
-                order = result.orderModel.toDto()
-                Result.success(false)
+            is DataResult.Error -> Result.failure(Exception("Order not found in firebase"))
+            is DataResult.Success -> {
+                order = result.data.toDto()
+                checkIfHasFirebaseOrderLines(order.id)
             }
         }
     }
+
+    private suspend fun checkIfHasFirebaseOrderLines(orderId: String): Result<Boolean> =
+        orderLineService.checkIfExistOrderInFirebase(orderId)
 
     suspend fun getOrderLines(): Flow<List<OrderLineProduct>> = orderLineService.getOrderLines(order.id).map {
         it.map { orderLineDTO -> orderLineDTO.toOrderLine() }

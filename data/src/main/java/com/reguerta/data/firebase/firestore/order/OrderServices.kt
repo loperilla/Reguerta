@@ -2,7 +2,6 @@ package com.reguerta.data.firebase.firestore.order
 
 import com.reguerta.data.firebase.model.DataError
 import com.reguerta.data.firebase.model.DataResult
-import com.reguerta.data.firebase.model.order.GetOrderByIdDataModel
 
 /*****
  * Project: Reguerta
@@ -11,6 +10,6 @@ import com.reguerta.data.firebase.model.order.GetOrderByIdDataModel
  * All rights reserved 2024
  */
 interface OrderServices {
-    suspend fun getOrderByUserId(): GetOrderByIdDataModel
+    suspend fun getOrderByUserId(): DataResult<OrderModel, DataError.Firebase>
     suspend fun getOrderByUserId(userId: String): DataResult<OrderModel, DataError.Firebase>
 }

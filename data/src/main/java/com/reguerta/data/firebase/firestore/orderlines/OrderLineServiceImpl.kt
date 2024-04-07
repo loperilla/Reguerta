@@ -144,4 +144,19 @@ class OrderLineServiceImpl @Inject constructor(
             subscription.remove()
         }
     }
+
+    override suspend fun checkIfExistOrderInFirebase(orderId: String): Result<Boolean> {
+        return try {
+            val result = collection
+                .whereEqualTo(
+                    ORDER_ID,
+                    orderId
+                )
+                .get()
+                .await()
+            Result.success(result.documents.isNotEmpty())
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
+    }
 }
