@@ -13,6 +13,7 @@ import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.auth.LoginUseCase
 import com.reguerta.domain.usecase.auth.RefreshUserUseCase
 import com.reguerta.domain.usecase.auth.RegisterUseCase
+import com.reguerta.domain.usecase.auth.SendRecoveryPasswordEmailUseCase
 import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.orderline.AddOrderLineUseCase
@@ -87,6 +88,9 @@ object DomainDi {
 
     @Provides
     fun providesSignOutUseCase(authService: AuthService) = SignOutUseCase(authService)
+
+    @Provides
+    fun providesRecoverPasswordUseCase(authService: AuthService) = SendRecoveryPasswordEmailUseCase(authService)
 
     @Provides
     fun providesCheckAdminProducerUseCase(authService: AuthService) = CheckCurrentUserLoggedUseCase(authService)

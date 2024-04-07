@@ -6,6 +6,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigation
 import com.reguerta.presentation.screen.auth.firstScreen.firstScreen
 import com.reguerta.presentation.screen.auth.login.loginScreen
+import com.reguerta.presentation.screen.auth.recovery.recoveryPasswordScreen
 import com.reguerta.presentation.screen.auth.register.registerScreen
 import com.reguerta.presentation.ui.Routes
 
@@ -25,6 +26,11 @@ fun NavGraphBuilder.authGraph(navController: NavHostController) {
         }
         composable(Routes.AUTH.LOGIN.route) {
             loginScreen {
+                navController.navigate(it)
+            }
+        }
+        composable(Routes.AUTH.RECOVERY_PASSWORD.route) {
+            recoveryPasswordScreen {
                 navController.navigate(it)
             }
         }

@@ -9,6 +9,7 @@ package com.reguerta.presentation.ui
 sealed class Routes(val route: String) {
     data object AUTH : Routes("AuthScreen") {
         data object FIRST_SCREEN : Routes("First Screen")
+        data object RECOVERY_PASSWORD : Routes("Recovery Screen")
         data object LOGIN : Routes("Login")
         data object REGISTER : Routes("Register")
     }

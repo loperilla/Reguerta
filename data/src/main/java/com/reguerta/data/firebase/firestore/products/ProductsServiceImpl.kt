@@ -1,8 +1,10 @@
 package com.reguerta.data.firebase.firestore.products
 
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.Query
 import com.google.firebase.storage.StorageReference
 import com.reguerta.data.firebase.firestore.AVAILABLE
+import com.reguerta.data.firebase.firestore.NAME
 import com.reguerta.data.firebase.firestore.USER_ID
 import com.reguerta.localdata.datastore.COMPANY_NAME_KEY
 import com.reguerta.localdata.datastore.ReguertaDataStore
@@ -29,6 +31,8 @@ class ProductsServiceImpl @Inject constructor(
             .whereEqualTo(
                 USER_ID,
                 dataStore.getStringByKey(UID_KEY)
+            ).orderBy(
+                NAME, Query.Direction.ASCENDING
             )
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
@@ -59,6 +63,8 @@ class ProductsServiceImpl @Inject constructor(
             .whereEqualTo(
                 AVAILABLE,
                 true
+            ).orderBy(
+                NAME, Query.Direction.ASCENDING
             )
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {

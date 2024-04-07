@@ -89,4 +89,8 @@ class AuthServiceImpl(
     }
 
     override suspend fun getCurrentWeek() = weekTime.getCurrentWeekDay()
+
+    override suspend fun sendRecoveryPasswordEmail(email: String) {
+        firebaseAuth.sendPasswordResetEmail(email).await()
+    }
 }

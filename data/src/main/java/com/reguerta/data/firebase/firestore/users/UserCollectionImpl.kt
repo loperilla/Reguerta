@@ -1,6 +1,8 @@
 package com.reguerta.data.firebase.firestore.users
 
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.Query
+import com.reguerta.data.firebase.firestore.NAME
 import com.reguerta.data.firebase.firestore.USER_EMAIL
 import com.reguerta.data.firebase.firestore.USER_IS_ADMIN
 import com.reguerta.data.firebase.firestore.USER_IS_PRODUCER
@@ -28,25 +30,29 @@ class UserCollectionImpl @Inject constructor(
     private val dataStore: ReguertaDataStore
 ) : UsersCollectionService {
     override suspend fun getUserList(): Flow<Result<List<UserModel>>> = callbackFlow {
-        val subscription = collection.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                error.printStackTrace()
-                trySend(Result.failure(error))
-                close(error)
-                return@addSnapshotListener
-            }
-            snapshot?.let { query ->
-                val userList = mutableListOf<UserModel>()
-                query.documents.forEach { document ->
-                    val user = document.toObject(UserModel::class.java)
-                    user?.let { model ->
-                        model.id = document.id
-                        userList.add(model)
-                    }
+        val subscription = collection
+            .orderBy(
+                NAME, Query.Direction.ASCENDING
+            )
+            .addSnapshotListener { snapshot, error ->
+                if (error != null) {
+                    error.printStackTrace()
+                    trySend(Result.failure(error))
+                    close(error)
+                    return@addSnapshotListener
                 }
-                trySend(Result.success(userList))
+                snapshot?.let { query ->
+                    val userList = mutableListOf<UserModel>()
+                    query.documents.forEach { document ->
+                        val user = document.toObject(UserModel::class.java)
+                        user?.let { model ->
+                            model.id = document.id
+                            userList.add(model)
+                        }
+                    }
+                    trySend(Result.success(userList))
+                }
             }
-        }
         awaitClose {
             subscription.remove()
         }

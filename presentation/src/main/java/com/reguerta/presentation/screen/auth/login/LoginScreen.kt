@@ -1,5 +1,6 @@
 package com.reguerta.presentation.screen.auth.login
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,12 +26,14 @@ import com.reguerta.presentation.composables.ReguertaEmailInput
 import com.reguerta.presentation.composables.ReguertaPasswordInput
 import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
+import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 
 /*****
  * Project: Reguerta
@@ -125,6 +128,18 @@ private fun LoginScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(PADDING_SMALL)
+            )
+
+            TextBody(
+                textColor = PrimaryColor,
+                text = "¿Has olvidado tu contraseña?",
+                textSize = TEXT_SIZE_SMALL,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(PADDING_SMALL)
+                    .clickable {
+                        navigateTo(Routes.AUTH.RECOVERY_PASSWORD.route)
+                    }
             )
 
             ReguertaButton(
