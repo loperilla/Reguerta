@@ -22,14 +22,17 @@ class MeasureServiceImpl @Inject constructor(
         val persistedMeasure = measureDao.getAllMeasures()
         if (persistedMeasure.isNotEmpty()) {
             trySend(Result.success(persistedMeasure.toModel()))
+            awaitClose()
         } else {
             getNetworkMeasures().collect { result ->
                 result.onSuccess { measureList ->
                     measureDao.insertAllMeasures(measureList.toEntity())
                     trySend(Result.success(measureList))
+                    awaitClose()
                 }
                 result.onFailure {
                     trySend(Result.failure(it))
+                    awaitClose()
                 }
             }
         }
