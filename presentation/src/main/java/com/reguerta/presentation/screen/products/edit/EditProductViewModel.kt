@@ -106,7 +106,7 @@ class EditProductViewModel @AssistedInject constructor(
                                 name = name,
                                 description = description,
                                 available = isAvailable,
-                                price = price.toFloat(),
+                                price = price.replace(",", ".").toFloat(),
                                 stock = stock,
                                 imageUrl = imageUrl,
                                 container = containerType,

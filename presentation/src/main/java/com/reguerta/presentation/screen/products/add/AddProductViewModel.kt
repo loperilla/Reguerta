@@ -125,7 +125,7 @@ class AddProductViewModel @Inject constructor(
                                 container = containerType,
                                 description = description,
                                 name = name,
-                                price = price.toFloat(),
+                                price = price.replace(",",".").toFloat(),
                                 available = isAvailable,
                                 stock = stock,
                                 quantityContainer = containerValue.toInt(),
