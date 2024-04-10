@@ -109,7 +109,7 @@ private fun AddProductScreen(
     Scaffold(
         topBar = {
             ReguertaTopBar(
-                topBarText = "Añadir Proyecto",
+                topBarText = "Añadir Producto",
                 navActionClick = { onEvent(AddProductEvent.GoOut) }
             )
         }
