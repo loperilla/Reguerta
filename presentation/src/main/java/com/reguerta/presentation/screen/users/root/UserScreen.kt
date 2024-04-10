@@ -341,7 +341,11 @@ fun UserScreenPreview() {
                         companyName = "Reguerta",
                         isAdmin = true,
                         isProducer = true,
-                        phone = "123456789"
+                        phone = "123456789",
+                        numResignations = 0,
+                        typeConsumer = "normal",
+                        typeProducer = "",
+                        available = true
                     )
                 )
             ),
