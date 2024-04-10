@@ -112,7 +112,7 @@ fun EditProductScreen(
     Scaffold(
         topBar = {
             ReguertaTopBar(
-                topBarText = "Editar producto",
+                topBarText = "Editando producto",
                 navActionClick = { onEvent(EditProductEvent.GoOut) }
             )
         }
@@ -178,7 +178,7 @@ fun EditProductScreen(
             )
 
             ReguertaButton(
-                textButton = "Editar producto",
+                textButton = "Actualizar producto",
                 enabledButton = state.isButtonEnabled,
                 onClick = { onEvent(EditProductEvent.SaveProduct) },
                 modifier = Modifier

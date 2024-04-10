@@ -10,6 +10,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 24/2/24 at 10:55
  * All rights reserved 2024
  */
+
 class EditUserUseCase @Inject constructor(
     private val repository: UsersCollectionService
 ) {
@@ -21,7 +22,11 @@ class EditUserUseCase @Inject constructor(
         email: String,
         isAdmin: Boolean,
         isProducer: Boolean,
-        companyName: String
+        companyName: String,
+        numResignations: Int = 0,
+        typeConsumer: String? = null,
+        typeProducer: String? = null,
+        available: Boolean = true
     ): Result<Boolean> {
         return try {
             val userModel = UserModel(
@@ -31,7 +36,11 @@ class EditUserUseCase @Inject constructor(
                 phone = phoneNumber,
                 isAdmin = isAdmin,
                 isProducer = isProducer,
-                companyName = companyName
+                companyName = companyName,
+                numResignations = numResignations,
+                typeConsumer = typeConsumer,
+                typeProducer = typeProducer,
+                available = available
             )
             repository.updateUser(id, userModel)
             Result.success(true)

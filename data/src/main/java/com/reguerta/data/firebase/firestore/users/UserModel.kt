@@ -14,5 +14,9 @@ data class UserModel(
     @field:JvmField val isProducer: Boolean = false,
     val name: String? = null,
     val surname: String? = null,
-    val phone: String? = null
+    val phone: String? = null,
+    var numResignations: Int? = null,
+    val typeConsumer: String? = null,
+    val typeProducer: String? = null,
+    @field:JvmField var available: Boolean? = null
 )

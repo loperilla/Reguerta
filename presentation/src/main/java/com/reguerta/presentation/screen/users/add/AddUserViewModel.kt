@@ -30,27 +30,34 @@ class AddUserViewModel @Inject constructor(
         viewModelScope.launch {
             when (event) {
                 AddUserEvent.AddUser -> {
-                    with(_state.value) {
-                        createUserUseCase.invoke(
-                            name = name,
-                            surname = surname,
-                            email = email,
-                            phoneNumber = phoneNumber,
-                            isAdmin = isAdmin,
-                            isProducer = isProducer,
-                            companyName = companyName
-                        ).fold(
-                            onSuccess = {
-                                _state.update {
-                                    it.copy(goOut = true)
-                                }
-                            },
-                            onFailure = {
-                                Timber.tag("AddUserViewModel").e(it)
+                    val currentState = _state.value
+                    // Establecer valores predeterminados basados en si el usuario es productor
+                    val numResignations = 0 // Siempre 0 al añadir un nuevo usuario
+                    val available = true // Siempre true al añadir un nuevo usuario
+                    val typeConsumer = if (currentState.isProducer && currentState.typeProducer == "compras") "normal" else "sin"
+                    val typeProducer = if (currentState.isProducer) currentState.typeProducer ?: "normal" else null // Asumiendo que el UI permite seleccionar o no el typeProducer
+
+                    createUserUseCase.invoke(
+                        name = currentState.name,
+                        surname = currentState.surname,
+                        email = currentState.email,
+                        phoneNumber = currentState.phoneNumber,
+                        isAdmin = currentState.isAdmin,
+                        isProducer = currentState.isProducer,
+                        companyName = if (currentState.isProducer) currentState.companyName ?: "" else "",
+                        numResignations = numResignations,
+                        typeConsumer = typeConsumer,
+                        typeProducer = typeProducer ?: "normal",
+                        available = available
+                    ).fold(
+                        onSuccess = {
+                            _state.update { it.copy(goOut = true) }
+                        },
+                        onFailure = {
+                            Timber.tag("AddUserViewModel").e(it)
                             }
                         )
                     }
-                }
 
                 is AddUserEvent.CompanyNameInputChanges -> {
                     _state.update {
@@ -99,11 +106,14 @@ class AddUserViewModel @Inject constructor(
                     it.copy(phoneNumber = event.inputValue)
                 }
             }
+
+
+            }
             if (event !is AddUserEvent.GoBack && event !is AddUserEvent.AddUser) {
                 _state.update { it.copy(isButtonEnabled = checkButtonEnabled()) }
             }
         }
-    }
+
 
     private fun checkButtonEnabled(): Boolean {
         with(_state.value) {

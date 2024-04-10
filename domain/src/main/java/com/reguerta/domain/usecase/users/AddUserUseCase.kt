@@ -20,7 +20,11 @@ class AddUserUseCase @Inject constructor(
         email: String,
         isAdmin: Boolean,
         isProducer: Boolean,
-        companyName: String
+        companyName: String,
+        numResignations: Int = 0,
+        typeConsumer: String? = null,
+        typeProducer: String? = null,
+        available: Boolean = true
     ): Result<Boolean> {
         return try {
             val userModel = UserModel(
@@ -30,7 +34,11 @@ class AddUserUseCase @Inject constructor(
                 email = email,
                 isAdmin = isAdmin,
                 isProducer = isProducer,
-                companyName = companyName
+                companyName = companyName,
+                numResignations = numResignations,
+                typeConsumer = typeConsumer,
+                typeProducer = typeProducer,
+                available = available
             )
             repository.addUser(userModel).fold(
                 onSuccess = {

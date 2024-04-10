@@ -16,10 +16,15 @@ data class User(
     val isProducer: Boolean,
     val name: String,
     val surname: String,
-    val phone: String
+    val phone: String,
+    val numResignations: Int = 0,
+    val typeConsumer: String? = null,
+    val typeProducer: String? = null,
+    val available: Boolean = true
 ) {
-    val fullName = this.name + " " + this.surname
+    val fullName: String get() = "$name $surname"
 }
+
 
 fun UserModel.toDomain() = User(
     id = id.orEmpty(),
@@ -29,5 +34,9 @@ fun UserModel.toDomain() = User(
     isProducer = isProducer,
     name = name.orEmpty(),
     surname = surname.orEmpty(),
-    phone = phone.orEmpty()
+    phone = phone.orEmpty(),
+    numResignations = numResignations ?: 0,
+    typeConsumer = typeConsumer,
+    typeProducer = typeProducer,
+    available = available ?: true
 )
