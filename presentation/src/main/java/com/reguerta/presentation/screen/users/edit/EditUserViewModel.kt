@@ -42,7 +42,9 @@ class EditUserViewModel @AssistedInject constructor(
                         companyName = userDomain.companyName,
                         isAdmin = userDomain.isAdmin,
                         phoneNumber = userDomain.phone,
-                        isProducer = userDomain.isProducer
+                        isProducer = userDomain.isProducer,
+                        typeProducer = userDomain.typeProducer,
+                        typeConsumer = userDomain.typeConsumer
                     )
                 }
             }, onFailure = {
@@ -70,7 +72,11 @@ class EditUserViewModel @AssistedInject constructor(
                             email = email,
                             isAdmin = isAdmin,
                             isProducer = isProducer,
-                            companyName = companyName
+                            companyName = companyName,
+                            typeProducer = typeProducer,
+                            typeConsumer = typeConsumer,
+                            numResignations = 0,
+                            available = true
                         ).fold(onSuccess = {
                             _state.update {
                                 it.copy(goOut = true)

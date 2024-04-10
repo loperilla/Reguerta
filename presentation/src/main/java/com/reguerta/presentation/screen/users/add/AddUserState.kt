@@ -16,7 +16,7 @@ data class AddUserState(
     val email: Email = "",
     val isProducer: Boolean = false,
     val isAdmin: Boolean = false,
-    val typeProducer: String? = null,
+    val typeProducer: String = "compras",
     val typeConsumer: String = "normal",
     val goOut: Boolean = false,
     val isButtonEnabled: Boolean = false

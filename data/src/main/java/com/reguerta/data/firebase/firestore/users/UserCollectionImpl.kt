@@ -127,7 +127,7 @@ class UserCollectionImpl @Inject constructor(
     override suspend fun updateUser(id: String, user: UserModel) {
         collection
             .document(id)
-            .set(user)
+            .set(user.toMapWithoutId())
             .await()
     }
 
@@ -140,8 +140,9 @@ class UserCollectionImpl @Inject constructor(
 
     override suspend fun addUser(user: UserModel): Result<Unit> {
         return try {
+            //val userMap = user.toMapWithoutId()
             collection
-                .add(user)
+                .add(user.toMapWithoutId())
                 .await()
             Result.success(Unit)
         } catch (ex: Exception) {

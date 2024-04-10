@@ -16,6 +16,8 @@ data class EditUserState(
     val phoneNumber: String = "",
     val isProducer: Boolean = false,
     val isAdmin: Boolean = false,
+    val typeProducer: String = "compras",
+    val typeConsumer: String = "normal",
     val goOut: Boolean = false,
     val isButtonEnabled: Boolean = false
 )

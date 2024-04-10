@@ -23,10 +23,10 @@ class EditUserUseCase @Inject constructor(
         isAdmin: Boolean,
         isProducer: Boolean,
         companyName: String,
-        numResignations: Int = 0,
-        typeConsumer: String? = null,
-        typeProducer: String? = null,
-        available: Boolean = true
+        numResignations: Int,
+        typeConsumer: String,
+        typeProducer: String,
+        available: Boolean
     ): Result<Boolean> {
         return try {
             val userModel = UserModel(

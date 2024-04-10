@@ -20,3 +20,19 @@ data class UserModel(
     val typeProducer: String? = null,
     @field:JvmField var available: Boolean? = null
 )
+
+fun UserModel.toMapWithoutId(): Map<String, Any?> {
+    return mapOf(
+        "email" to email,
+        "companyName" to companyName,
+        "isAdmin" to isAdmin,
+        "isProducer" to isProducer,
+        "name" to name,
+        "surname" to surname,
+        "phone" to phone,
+        "numResignations" to numResignations,
+        "typeConsumer" to typeConsumer,
+        "typeProducer" to typeProducer,
+        "available" to available
+    ).filterValues { it != null }
+}

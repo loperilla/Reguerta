@@ -31,11 +31,9 @@ class AddUserViewModel @Inject constructor(
             when (event) {
                 AddUserEvent.AddUser -> {
                     val currentState = _state.value
-                    // Establecer valores predeterminados basados en si el usuario es productor
+                    // Establecer valores predeterminados
                     val numResignations = 0 // Siempre 0 al añadir un nuevo usuario
                     val available = true // Siempre true al añadir un nuevo usuario
-                    val typeConsumer = if (currentState.isProducer && currentState.typeProducer == "compras") "normal" else "sin"
-                    val typeProducer = if (currentState.isProducer) currentState.typeProducer ?: "normal" else null // Asumiendo que el UI permite seleccionar o no el typeProducer
 
                     createUserUseCase.invoke(
                         name = currentState.name,
@@ -44,10 +42,10 @@ class AddUserViewModel @Inject constructor(
                         phoneNumber = currentState.phoneNumber,
                         isAdmin = currentState.isAdmin,
                         isProducer = currentState.isProducer,
-                        companyName = if (currentState.isProducer) currentState.companyName ?: "" else "",
+                        companyName = if (currentState.isProducer) currentState.companyName else "",
                         numResignations = numResignations,
-                        typeConsumer = typeConsumer,
-                        typeProducer = typeProducer ?: "normal",
+                        typeConsumer = currentState.typeConsumer,
+                        typeProducer = if (currentState.isProducer) currentState.typeProducer else "",
                         available = available
                     ).fold(
                         onSuccess = {
