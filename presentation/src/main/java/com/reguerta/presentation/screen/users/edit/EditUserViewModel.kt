@@ -22,6 +22,7 @@ import timber.log.Timber
  * Created By Manuel Lopera on 24/2/24 at 13:03
  * All rights reserved 2024
  */
+
 @HiltViewModel(assistedFactory = EditUserViewModelFactory::class)
 class EditUserViewModel @AssistedInject constructor(
     @Assisted private val userId: String,
@@ -44,7 +45,8 @@ class EditUserViewModel @AssistedInject constructor(
                         phoneNumber = userDomain.phone,
                         isProducer = userDomain.isProducer,
                         typeProducer = userDomain.typeProducer,
-                        typeConsumer = userDomain.typeConsumer
+                        typeConsumer = userDomain.typeConsumer,
+                        available = userDomain.available
                     )
                 }
             }, onFailure = {
@@ -76,7 +78,7 @@ class EditUserViewModel @AssistedInject constructor(
                             typeProducer = typeProducer,
                             typeConsumer = typeConsumer,
                             numResignations = 0,
-                            available = true
+                            available = available
                         ).fold(onSuccess = {
                             _state.update {
                                 it.copy(goOut = true)
@@ -107,7 +109,33 @@ class EditUserViewModel @AssistedInject constructor(
                 }
 
                 is EditUserEvent.ToggledIsProducer -> _state.update {
-                    it.copy(isProducer = event.newValue)
+                    it.copy(
+                        isProducer = event.newValue,
+                        available = event.newValue,
+                        typeProducer = when {
+                            event.newValue && it.typeProducer.isEmpty() -> "normal"
+                            !event.newValue -> ""
+                            else -> it.typeProducer
+                        },
+                        typeConsumer = when {
+                            event.newValue && it.typeProducer == "compras" -> "normal"
+                            event.newValue && it.typeProducer == "normal" -> "sin"
+                            !event.newValue && it.typeConsumer == "sin" -> "normal"
+                            else -> it.typeConsumer
+                        }
+                    )
+                }
+
+                is EditUserEvent.ToggledIsShoppingProducer -> _state.update {
+                    val newTypeProducer = if (event.newValue) "compras" else "normal"
+                    it.copy(
+                        typeProducer = newTypeProducer,
+                        typeConsumer = when {
+                            it.isProducer && newTypeProducer == "compras" -> "normal"
+                            it.isProducer -> "sin"
+                            else -> it.typeConsumer
+                        }
+                    )
                 }
 
                 is EditUserEvent.PhoneNumberInputChanges -> _state.update {

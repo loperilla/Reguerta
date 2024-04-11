@@ -1,5 +1,7 @@
 package com.reguerta.presentation.screen.users.edit
 
+import com.reguerta.presentation.screen.users.add.AddUserEvent
+
 
 /*****
  * Project: Reguerta
@@ -15,6 +17,7 @@ sealed class EditUserEvent {
     data class NameInputChanges(val inputValue: String) : EditUserEvent()
     data class ToggledIsAdmin(val newValue: Boolean) : EditUserEvent()
     data class ToggledIsProducer(val newValue: Boolean) : EditUserEvent()
+    data class ToggledIsShoppingProducer(val newValue: Boolean) : EditUserEvent()
     data object EditUser : EditUserEvent()
     data object GoBack : EditUserEvent()
 }

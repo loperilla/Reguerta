@@ -21,6 +21,7 @@ import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
+import com.reguerta.presentation.screen.users.add.AddUserEvent
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
@@ -133,6 +134,25 @@ fun EditUserScreen(
                         .fillMaxWidth()
                         .padding(start = PADDING_MEDIUM, end = PADDING_MEDIUM)
                 )
+                Row(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .padding(top = PADDING_SMALL),
+                    horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ReguertaCheckBox(
+                        isChecked = state.typeProducer == "compras",
+                        onCheckedChange = { newValue ->
+                            onEvent(EditUserEvent.ToggledIsShoppingProducer(newValue))
+                        }
+                    )
+                    TextBody(
+                        text = "Consumidor encargado de compras",
+                        textSize = TEXT_SIZE_LARGE,
+                        textColor = Text
+                    )
+                }
             }
 
             Row(

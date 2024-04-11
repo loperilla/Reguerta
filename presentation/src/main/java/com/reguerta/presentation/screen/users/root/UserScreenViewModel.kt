@@ -4,8 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.usecase.users.DeleteUsersUseCase
 import com.reguerta.domain.usecase.users.GetAllUsersUseCase
-import com.reguerta.domain.usecase.users.ToggleAdminUseCase
-import com.reguerta.domain.usecase.users.ToggleProducerUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,12 +20,11 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 6/2/24 at 17:09
  * All rights reserved 2024
  */
+
 @HiltViewModel
 class UserScreenViewModel @Inject constructor(
     private val getAllUsersUseCase: GetAllUsersUseCase,
-    private val deleteUsersUseCase: DeleteUsersUseCase,
-    private val toggleProducerUseCase: ToggleProducerUseCase,
-    private val toggleAdminUseCase: ToggleAdminUseCase
+    private val deleteUsersUseCase: DeleteUsersUseCase
 ) : ViewModel() {
 
     private var _state: MutableStateFlow<UserScreenState> = MutableStateFlow(UserScreenState())
@@ -59,17 +56,6 @@ class UserScreenViewModel @Inject constructor(
                                 )
                             }
                         }
-                }
-
-
-                is UserScreenEvent.ToggleProducer -> {
-                    val userToggled = _state.value.userList.single { it.id == event.idToggled }
-                    toggleProducerUseCase.invoke(event.idToggled, !userToggled.isProducer)
-                }
-
-                is UserScreenEvent.ToggleAdmin -> {
-                    val userToggled = _state.value.userList.single { it.id == event.idToggled }
-                    toggleAdminUseCase(event.idToggled, !userToggled.isAdmin)
                 }
 
                 UserScreenEvent.ConfirmDelete -> {

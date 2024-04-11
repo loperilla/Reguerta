@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -40,6 +41,7 @@ import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
+import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
@@ -48,6 +50,7 @@ import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.SecondaryBackground
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 
@@ -194,53 +197,22 @@ fun UserItem(
                     .padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
             )
 
-            Row(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(top = PADDING_SMALL),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ReguertaCheckBox(
-                    isChecked = user.isProducer,
-                    onCheckedChange = {
-                        onEvent(UserScreenEvent.ToggleProducer(user.id))
-                    }
-                )
-                TextBody(
-                    text = "Es productor",
-                    textSize = TEXT_SIZE_LARGE,
-                    textColor = Text
-                )
-            }
-
             if (user.isProducer) {
                 TextBody(
-                    text = user.companyName,
-                    textSize = TEXT_SIZE_LARGE,
+                    text = "Es productor. ${user.companyName}",
+                    textSize = TEXT_SIZE_MEDIUM,
                     textColor = Text,
                     modifier = Modifier
-                        .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                        .padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
                 )
             }
-
-            Row(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(top = PADDING_SMALL),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ReguertaCheckBox(
-                    isChecked = user.isAdmin,
-                    onCheckedChange = {
-                        onEvent(UserScreenEvent.ToggleAdmin(user.id))
-                    }
-                )
+            if (user.isAdmin) {
                 TextBody(
-                    text = "Es admin",
-                    textSize = TEXT_SIZE_LARGE,
-                    textColor = Text
+                    text = "Es administrador",
+                    textSize = TEXT_SIZE_MEDIUM,
+                    textColor = Text,
+                    modifier = Modifier
+                        .padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
                 )
             }
 
@@ -263,7 +235,7 @@ fun UserItem(
                     onClick = {
                         onEvent(UserScreenEvent.ShowAreYouSureDialog(user.id))
                     },
-                    contentColor = Color.Red
+                    contentColor = Orange
                 )
             }
         }
@@ -277,9 +249,9 @@ private fun AreYouSureDeleteDialog(
     ReguertaAlertDialog(
         icon = {
             Icon(
-                imageVector = Icons.Default.Info,
+                imageVector = Icons.Default.Warning,
                 contentDescription = "ExitApp",
-                tint = PrimaryColor,
+                tint = Orange,
                 modifier = Modifier
                     .size(SIZE_48)
             )

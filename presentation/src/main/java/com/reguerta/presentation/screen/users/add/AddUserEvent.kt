@@ -14,6 +14,7 @@ sealed class AddUserEvent {
     data class PhoneNumberInputChanges(val inputValue: String) : AddUserEvent()
     data class ToggledIsAdmin(val newValue: Boolean) : AddUserEvent()
     data class ToggledIsProducer(val newValue: Boolean) : AddUserEvent()
+    data class ToggledIsShoppingProducer(val newValue: Boolean) : AddUserEvent()
     data object AddUser : AddUserEvent()
     data object GoBack : AddUserEvent()
 }

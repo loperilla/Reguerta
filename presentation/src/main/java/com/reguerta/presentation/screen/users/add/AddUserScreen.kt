@@ -133,6 +133,25 @@ fun AddUserScreen(
                         .fillMaxWidth()
                         .padding(start = PADDING_MEDIUM, end = PADDING_MEDIUM)
                 )
+                Row(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .padding(top = PADDING_SMALL),
+                    horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    ReguertaCheckBox(
+                        isChecked = state.typeProducer == "compras",
+                        onCheckedChange = { newValue ->
+                            onEvent(AddUserEvent.ToggledIsShoppingProducer(newValue))
+                        }
+                    )
+                    TextBody(
+                        text = "Consumidor encargado de compras",
+                        textSize = TEXT_SIZE_LARGE,
+                        textColor = Text
+                    )
+                }
             }
 
             Row(
