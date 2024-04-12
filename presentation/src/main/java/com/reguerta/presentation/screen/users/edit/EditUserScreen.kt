@@ -21,7 +21,6 @@ import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
-import com.reguerta.presentation.screen.users.add.AddUserEvent
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM

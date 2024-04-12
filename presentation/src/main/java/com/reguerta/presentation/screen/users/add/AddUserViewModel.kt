@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.usecase.users.AddUserUseCase
 import com.reguerta.presentation.checkAllStringAreNotEmpty
-import com.reguerta.presentation.screen.users.edit.EditUserEvent
 import com.reguerta.presentation.type.isValidEmail
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

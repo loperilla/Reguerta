@@ -1,7 +1,5 @@
 package com.reguerta.presentation.screen.users.edit
 
-import com.reguerta.presentation.screen.users.add.AddUserEvent
-
 
 /*****
  * Project: Reguerta
