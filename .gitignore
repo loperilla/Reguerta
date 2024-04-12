@@ -1,6 +1,12 @@
 # Built application files
 *.apk
 *.ap_
+*.aab
+
+# Ignore automatically generated graphic resources
+ic_launcher.xml
+ic_launcher-playstore.png
+ic_launcher_foreground.webp
 
 # Files for the ART/Dalvik VM
 *.dex
