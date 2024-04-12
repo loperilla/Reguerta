@@ -21,9 +21,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.reguerta.presentation.ui.Background
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.SecondaryBackground
+import com.reguerta.presentation.ui.TEXT_SIZE_BUTTON
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 
@@ -47,13 +49,15 @@ fun ReguertaButton(
         enabled = enabledButton,
         colors = ButtonDefaults.buttonColors(
             containerColor = PrimaryColor,
-            disabledContainerColor = Color.Gray.copy(alpha = 0.15f)
+            disabledContainerColor = Color.Gray.copy(alpha = 0.15f),
+            contentColor = Color.White,
+            disabledContentColor = Color.Gray
         )
     ) {
         TextRegular(
             text = textButton,
-            textSize = TEXT_SIZE_SMALL,
-            textColor = Color.White,
+            textSize = TEXT_SIZE_BUTTON,
+            textColor = if (enabledButton) Background else Color.Gray,
             modifier = Modifier
                 .padding(PADDING_SMALL)
         )

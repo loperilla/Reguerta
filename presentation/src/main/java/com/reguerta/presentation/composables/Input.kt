@@ -51,7 +51,7 @@ fun ReguertaEmailInput(
     modifier: Modifier = Modifier,
     placeholderText: String = "",
     isValidEmail: Boolean = true,
-    labelText: String = "Email",
+    labelText: String = "EMAIL",
     imeAction: ImeAction = ImeAction.Default
 ) {
     ReguertaInput(
@@ -60,7 +60,7 @@ fun ReguertaEmailInput(
         onTextChange = onTextChange,
         placeholderText = placeholderText,
         keyboardType = KeyboardType.Email,
-        uiError = UiError("Email no válido", isValidEmail),
+        uiError = UiError("Ingresa un formato de email válido", isValidEmail),
         imeAction = imeAction,
         modifier = modifier
     )
@@ -73,7 +73,7 @@ fun ReguertaPasswordInput(
     modifier: Modifier = Modifier,
     placeholderText: String = "",
     isValidPassword: Boolean = true,
-    labelText: String = "Contraseña",
+    labelText: String = "CONTRASEÑA",
     imeAction: ImeAction = ImeAction.Default
 ) {
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }

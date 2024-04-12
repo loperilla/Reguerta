@@ -23,7 +23,6 @@ import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.TEXT_TOPBAR
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.cabinsketchFontFamily
-import com.reguerta.presentation.ui.monserratFontFamily
 
 /*****
  * Project: Reguerta
@@ -45,7 +44,7 @@ fun TextRegular(
         color = textColor,
         fontSize = textSize,
         fontWeight = FontWeight.Normal,
-        fontFamily = monserratFontFamily
+        fontFamily = cabinsketchFontFamily
     )
 }
 
@@ -55,14 +54,15 @@ fun TextBody(
     modifier: Modifier = Modifier,
     textSize: TextUnit = TEXT_SIZE_MEDIUM,
     textColor: Color = Color.Unspecified,
-    textAlignment: TextAlign? = null
+    textAlignment: TextAlign? = null,
+    fontWeight: FontWeight = FontWeight.Normal
 ) {
     Text(
         text,
         modifier,
         color = textColor,
         fontSize = textSize,
-        fontWeight = FontWeight.Normal,
+        fontWeight = fontWeight,
         fontFamily = cabinsketchFontFamily,
         textAlign = textAlignment
     )

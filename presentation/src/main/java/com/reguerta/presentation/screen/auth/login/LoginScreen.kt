@@ -3,8 +3,10 @@ package com.reguerta.presentation.screen.auth.login
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -17,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,6 +32,7 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
+import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
@@ -87,7 +91,6 @@ private fun LoginScreen(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Introduce tus credenciales",
-                topBarTextColor = PrimaryColor,
                 navActionClick = {
                     navigateTo(Routes.AUTH.FIRST_SCREEN.route)
                 }
@@ -134,6 +137,7 @@ private fun LoginScreen(
                 textColor = PrimaryColor,
                 text = "¿Has olvidado tu contraseña?",
                 textSize = TEXT_SIZE_SMALL,
+                fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(PADDING_SMALL)
@@ -141,7 +145,7 @@ private fun LoginScreen(
                         navigateTo(Routes.AUTH.RECOVERY_PASSWORD.route)
                     }
             )
-
+            Spacer(modifier = Modifier.height(PADDING_EXTRA_LARGE))
             ReguertaButton(
                 textButton = "Iniciar sesión",
                 enabledButton = state.enabledButton,

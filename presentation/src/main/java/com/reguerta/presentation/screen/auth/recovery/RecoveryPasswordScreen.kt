@@ -50,7 +50,6 @@ fun recoveryPasswordScreen(
             topBar = {
                 ReguertaTopBar(
                     topBarText = "Introduce tus credenciales",
-                    topBarTextColor = PrimaryColor,
                     navActionClick = {
                         navigateTo(Routes.AUTH.FIRST_SCREEN.route)
                     }

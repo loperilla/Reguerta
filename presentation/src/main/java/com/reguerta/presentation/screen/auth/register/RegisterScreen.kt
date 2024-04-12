@@ -140,7 +140,7 @@ private fun RegisterScreen(
                     .fillMaxWidth()
                     .padding(PADDING_SMALL)
             )
-            Spacer(modifier = Modifier.height(PADDING_SMALL))
+            Spacer(modifier = Modifier.height(PADDING_LARGE))
             ReguertaButton(
                 textButton = "Registrarse",
                 enabledButton = state.enabledButton,

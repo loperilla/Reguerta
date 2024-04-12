@@ -25,10 +25,13 @@ import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
+import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
+import com.reguerta.presentation.ui.PADDING_LARGE
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.ui.TEXT_SIZE_BUTTON
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.Text
 
@@ -117,15 +120,15 @@ private fun FirstScreenTitle(modifier: Modifier) {
             .wrapContentHeight()
             .fillMaxWidth()
     ) {
-
+        Spacer(modifier = Modifier.height(PADDING_EXTRA_LARGE))
         TextTitle(
             "Bienvenido a",
-            textSize = 22.sp,
+            textSize = 24.sp,
             textColor = Text,
         )
         TextTitle(
             "La RegÜerta",
-            textSize = 32.sp,
+            textSize = 36.sp,
             textColor = PrimaryColor,
             modifier = Modifier
                 .padding(PADDING_SMALL)
@@ -146,13 +149,13 @@ private fun FirstScreenTextBottom(
             .fillMaxWidth()
     ) {
         TextBody(
-            "¿No tienes cuenta?",
+            "¿No estás registrado?",
             textSize = TEXT_SIZE_LARGE,
             textColor = Text,
         )
         TextBody(
-            "Registrate",
-            textSize = TEXT_SIZE_LARGE,
+            "Regístrate",
+            textSize = TEXT_SIZE_BUTTON,
             textColor = PrimaryColor,
             modifier = Modifier
                 .padding(PADDING_SMALL)
