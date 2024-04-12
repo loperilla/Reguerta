@@ -21,7 +21,6 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 
 /*****
