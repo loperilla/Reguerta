@@ -8,6 +8,7 @@ import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.products.EditProductUseCase
 import com.reguerta.domain.usecase.products.GetProductByIdUseCase
 import com.reguerta.presentation.checkAllStringAreNotEmpty
+import com.reguerta.presentation.resizeAndCropImage
 import com.reguerta.presentation.toByteArray
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -99,34 +100,38 @@ class EditProductViewModel @AssistedInject constructor(
                 }
 
                 EditProductEvent.SaveProduct -> {
-                    with(state.value) {
-                        editProductUseCase(
-                            id = productId,
-                            product = CommonProduct(
-                                name = name,
-                                description = description,
-                                available = isAvailable,
-                                price = price.replace(",", ".").toFloat(),
-                                stock = stock,
-                                imageUrl = imageUrl,
+                    viewModelScope.launch(Dispatchers.IO) {
+                        with(state.value) {
+                            val imageByteArray = bitmap?.let { resizeAndCropImage(it) }
+                            val productToSave = CommonProduct(
                                 container = containerType,
+                                description = description,
+                                name = name,
+                                price = price.replace(",", ".").toFloat(),
+                                available = isAvailable,
+                                stock = stock,
                                 quantityContainer = containerValue.toInt(),
-                                unity = measureType,
-                                quantityWeight = measureValue.toInt()
-                            ),
-                            imageByteArray = bitmap?.toByteArray()
-                        ).fold(
-                            onSuccess = {
-                                _state.update {
-                                    it.copy(
-                                        goOut = true
-                                    )
+                                quantityWeight = measureValue.toInt(),
+                                unity = measureType
+                            )
+
+                            editProductUseCase(
+                                id = productId,
+                                productToSave,
+                                imageByteArray
+                            ).fold(
+                                onSuccess = {
+                                    _state.update {
+                                        it.copy(
+                                            goOut = true
+                                        )
+                                    }
+                                },
+                                onFailure = {
+                                    it.printStackTrace()
                                 }
-                            },
-                            onFailure = {
-                                it.printStackTrace()
-                            }
-                        )
+                            )
+                        }
                     }
                 }
 

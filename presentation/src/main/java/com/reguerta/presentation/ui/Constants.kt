@@ -16,7 +16,7 @@ val TEXT_SIZE_MEDIUM = 16.sp
 val TEXT_SIZE_LARGE = 18.sp
 //val TEXT_SIZE_2BUTTONS = 20.sp
 val TEXT_SIZE_BUTTON = 22.sp
-val TEXT_TOPBAR = 24.sp
+val TEXT_TOP_BAR = 24.sp
 
 // Paddings
 val PADDING_EXTRA_SMALL = 4.dp

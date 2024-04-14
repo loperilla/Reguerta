@@ -73,7 +73,7 @@ import com.reguerta.presentation.ui.SIZE_96
 import com.reguerta.presentation.ui.SecondaryBackground
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
-import com.reguerta.presentation.ui.TEXT_TOPBAR
+import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -315,7 +315,7 @@ private fun ShoppingCartScreen(
         ) {
             TextTitle(
                 text = "Mi pedido",
-                textSize = TEXT_TOPBAR
+                textSize = TEXT_TOP_BAR
             )
             AmountText(
                 amount = productList.getAmount()

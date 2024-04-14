@@ -20,7 +20,7 @@ import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
-import com.reguerta.presentation.ui.TEXT_TOPBAR
+import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.cabinsketchFontFamily
 
@@ -122,7 +122,7 @@ fun AmountText(
         )
         TextBody(
             text = String.format("%.2f", amount) + "€",
-            textSize = TEXT_TOPBAR,
+            textSize = TEXT_TOP_BAR,
             textColor = Text
         )
     }

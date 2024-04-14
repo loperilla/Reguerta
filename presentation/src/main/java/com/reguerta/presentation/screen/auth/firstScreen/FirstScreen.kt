@@ -26,6 +26,7 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
+import com.reguerta.presentation.ui.PADDING_LARGE
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
@@ -53,7 +54,7 @@ fun firstScreen(
         ) {
             Spacer(
                 modifier = Modifier
-                    .height(PADDING_MEDIUM)
+                    .height(PADDING_EXTRA_LARGE)
             )
 
             FirstScreenTitle(
@@ -105,7 +106,7 @@ fun firstScreen(
 
             Spacer(
                 modifier = Modifier
-                    .height(PADDING_MEDIUM)
+                    .height(PADDING_LARGE)
             )
         }
     }
@@ -119,7 +120,6 @@ private fun FirstScreenTitle(modifier: Modifier) {
             .wrapContentHeight()
             .fillMaxWidth()
     ) {
-        Spacer(modifier = Modifier.height(PADDING_EXTRA_LARGE))
         TextTitle(
             "Bienvenido a",
             textSize = 24.sp,

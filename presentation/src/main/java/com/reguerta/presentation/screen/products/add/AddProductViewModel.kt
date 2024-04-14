@@ -7,7 +7,7 @@ import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.products.AddProductUseCase
 import com.reguerta.presentation.checkAllStringAreNotEmpty
-import com.reguerta.presentation.toByteArray
+import com.reguerta.presentation.resizeAndCropImage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -25,6 +25,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 1/3/24 at 17:02
  * All rights reserved 2024
  */
+
 @HiltViewModel
 class AddProductViewModel @Inject constructor(
     getAllMeasuresUseCase: GetAllMeasuresUseCase,
@@ -119,32 +120,37 @@ class AddProductViewModel @Inject constructor(
                 }
 
                 AddProductEvent.AddProduct -> {
-                    with(_state.value) {
-                        addProductUseCase(
-                            CommonProduct(
+                    viewModelScope.launch(Dispatchers.IO) {
+                        with(_state.value) {
+                            val imageByteArray = bitmap?.let { resizeAndCropImage(it) }
+                            val productToAdd = CommonProduct(
                                 container = containerType,
                                 description = description,
                                 name = name,
-                                price = price.replace(",",".").toFloat(),
+                                price = price.replace(",", ".").toFloat(),
                                 available = isAvailable,
                                 stock = stock,
                                 quantityContainer = containerValue.toInt(),
                                 quantityWeight = measureValue.toInt(),
                                 unity = measureType
-                            ),
-                            imageByteArray = bitmap?.toByteArray(),
-                        ).fold(
-                            onSuccess = {
-                                _state.update {
-                                    it.copy(
-                                        goOut = true
-                                    )
+                            )
+
+                            addProductUseCase(
+                                productToAdd,
+                                imageByteArray
+                            ).fold(
+                                onSuccess = {
+                                    _state.update {
+                                        it.copy(
+                                            goOut = true
+                                        )
+                                    }
+                                },
+                                onFailure = {
+                                    it.printStackTrace()
                                 }
-                            },
-                            onFailure = {
-                                it.printStackTrace()
-                            }
-                        )
+                            )
+                        }
                     }
                 }
 

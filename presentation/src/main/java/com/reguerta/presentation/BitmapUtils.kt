@@ -8,6 +8,8 @@ import android.net.Uri
 import java.io.ByteArrayOutputStream
 import java.io.FileDescriptor
 import java.io.IOException
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 /*****
  * Project: Reguerta
@@ -47,4 +49,24 @@ fun Bitmap.toByteArray(): ByteArray {
     val baos = ByteArrayOutputStream()
     this.compress(Bitmap.CompressFormat.JPEG, 100, baos)
     return baos.toByteArray()
+}
+
+
+suspend fun resizeAndCropImage(bitmap: Bitmap, width: Int = 300, height: Int = 300): ByteArray = withContext(Dispatchers.IO) {
+    val scaleFactor = Math.min(
+        bitmap.width / width.toFloat(),
+        bitmap.height / height.toFloat()
+    )
+    val scaledWidth = (width * scaleFactor).toInt()
+    val scaledHeight = (height * scaleFactor).toInt()
+    val scaledBitmap = Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, true)
+    val x = (scaledBitmap.width - width) / 2
+    val y = (scaledBitmap.height - height) / 2
+
+    val croppedBitmap = Bitmap.createBitmap(scaledBitmap, x, y, width, height)
+
+    val baos = ByteArrayOutputStream()
+    croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
+
+    baos.toByteArray()
 }

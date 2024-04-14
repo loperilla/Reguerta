@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import com.reguerta.presentation.ui.TEXT_TOPBAR
+import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -42,7 +42,7 @@ fun ReguertaTopBar(
             if (topBarText.isNotEmpty()) {
                 TextTitle(
                     text = topBarText,
-                    textSize = TEXT_TOPBAR,
+                    textSize = TEXT_TOP_BAR,
                     textColor = topBarTextColor
                 )
             }
