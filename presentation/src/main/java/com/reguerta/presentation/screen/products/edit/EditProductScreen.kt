@@ -59,7 +59,6 @@ import com.reguerta.presentation.composables.StockText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
 import com.reguerta.presentation.getStoragePermissionBySdk
-import com.reguerta.presentation.screen.products.add.AddProductEvent
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.SIZE_96
