@@ -101,7 +101,9 @@ class EditProductViewModel @AssistedInject constructor(
                 EditProductEvent.SaveProduct -> {
                     viewModelScope.launch(Dispatchers.IO) {
                         with(state.value) {
-                            val imageByteArray = bitmap?.let { resizeAndCropImage(it) }
+                            val imageByteArray = async {
+                                bitmap?.let { resizeAndCropImage(it) }
+                            }.await()
                             val productToSave = CommonProduct(
                                 container = containerType,
                                 description = description,

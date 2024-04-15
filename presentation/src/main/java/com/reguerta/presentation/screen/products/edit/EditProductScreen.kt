@@ -204,7 +204,7 @@ fun HeaderAddProductForm(
         }
     }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        photoUri = uri
+        photoUri = uri ?: Uri.parse(state.imageUrl)
     }
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
