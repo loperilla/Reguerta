@@ -9,7 +9,6 @@ import com.reguerta.domain.usecase.products.EditProductUseCase
 import com.reguerta.domain.usecase.products.GetProductByIdUseCase
 import com.reguerta.presentation.checkAllStringAreNotEmpty
 import com.reguerta.presentation.resizeAndCropImage
-import com.reguerta.presentation.toByteArray
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel

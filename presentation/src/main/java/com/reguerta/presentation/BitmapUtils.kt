@@ -10,6 +10,8 @@ import java.io.FileDescriptor
 import java.io.IOException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import kotlin.math.max
+import kotlin.math.min
 
 /*****
  * Project: Reguerta
@@ -51,22 +53,21 @@ fun Bitmap.toByteArray(): ByteArray {
     return baos.toByteArray()
 }
 
+suspend fun resizeAndCropImage(bitmap: Bitmap, size: Int = 300): ByteArray = withContext(Dispatchers.IO) {
+    val aspectRatio = max(bitmap.width, bitmap.height).toFloat() / min(bitmap.width, bitmap.height)
+    val resizedWidth: Int
+    val resizedHeight: Int
+    if (bitmap.width < bitmap.height) {
+        resizedWidth = size
+        resizedHeight = (size * aspectRatio).toInt()
+    } else {
+        resizedHeight = size
+        resizedWidth = (size * aspectRatio).toInt()
+    }
+    val resizedBitmap = Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, true)
+    val cropStartX = (resizedWidth - size) / 2
+    val cropStartY = (resizedHeight - size) / 2
 
-suspend fun resizeAndCropImage(bitmap: Bitmap, width: Int = 300, height: Int = 300): ByteArray = withContext(Dispatchers.IO) {
-    val scaleFactor = Math.min(
-        bitmap.width / width.toFloat(),
-        bitmap.height / height.toFloat()
-    )
-    val scaledWidth = (width * scaleFactor).toInt()
-    val scaledHeight = (height * scaleFactor).toInt()
-    val scaledBitmap = Bitmap.createScaledBitmap(bitmap, scaledWidth, scaledHeight, true)
-    val x = (scaledBitmap.width - width) / 2
-    val y = (scaledBitmap.height - height) / 2
-
-    val croppedBitmap = Bitmap.createBitmap(scaledBitmap, x, y, width, height)
-
-    val baos = ByteArrayOutputStream()
-    croppedBitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
-
-    baos.toByteArray()
+    val croppedBitmap = Bitmap.createBitmap(resizedBitmap, cropStartX, cropStartY, size, size)
+    croppedBitmap.toByteArray()
 }

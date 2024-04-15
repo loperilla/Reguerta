@@ -59,6 +59,7 @@ import com.reguerta.presentation.composables.StockText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
 import com.reguerta.presentation.getStoragePermissionBySdk
+import com.reguerta.presentation.screen.products.add.AddProductEvent
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.SIZE_96
@@ -197,6 +198,12 @@ fun HeaderAddProductForm(
 ) {
     val context = LocalContext.current
     var photoUri: Uri? by remember { mutableStateOf(null) }
+
+    LaunchedEffect(key1 = state.imageUrl) {
+        state.imageUrl.let { imageUrl ->
+            photoUri = Uri.parse(imageUrl)
+        }
+    }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         photoUri = uri
     }
@@ -233,7 +240,7 @@ fun HeaderAddProductForm(
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
-        if (photoUri != null) {
+      if (photoUri != null) {
             val painter = rememberAsyncImagePainter(
                 ImageRequest
                     .Builder(context)
