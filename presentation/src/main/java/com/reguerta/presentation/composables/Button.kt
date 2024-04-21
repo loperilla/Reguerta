@@ -22,10 +22,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.reguerta.presentation.ui.Background
+import com.reguerta.presentation.ui.Orange
+import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.SecondaryBackground
-import com.reguerta.presentation.ui.TEXT_SIZE_BUTTON
+import com.reguerta.presentation.ui.TEXT_SIZE_SINGLE_BTN
+import com.reguerta.presentation.ui.TEXT_SIZE_PAIR_BTN
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 
@@ -36,19 +39,33 @@ import com.reguerta.presentation.ui.Text
  * All rights reserved 2024
  */
 
+// A ver donde coloco este enum y las funciones auxiliares o las dejo aquí
+enum class BtnType {
+    INFO, ERROR
+}
+
+fun getContainerColor(btnType: BtnType): Color = when(btnType) {
+    BtnType.INFO -> PrimaryColor
+    BtnType.ERROR -> Orange
+}
+
+fun getBorderColor(btnType: BtnType): Color = getContainerColor(btnType)
+
 @Composable
 fun ReguertaButton(
     textButton: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabledButton: Boolean = true
+    enabledButton: Boolean = true,
+    isSingleButton: Boolean = true,
+    btnType: BtnType = BtnType.INFO
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
         enabled = enabledButton,
         colors = ButtonDefaults.buttonColors(
-            containerColor = PrimaryColor,
+            containerColor = getContainerColor(btnType),
             disabledContainerColor = Color.Gray.copy(alpha = 0.15f),
             contentColor = Color.White,
             disabledContentColor = Color.Gray
@@ -56,10 +73,10 @@ fun ReguertaButton(
     ) {
         TextRegular(
             text = textButton,
-            textSize = TEXT_SIZE_BUTTON,
+            textSize = if (isSingleButton) TEXT_SIZE_SINGLE_BTN else TEXT_SIZE_PAIR_BTN,
             textColor = if (enabledButton) Background else Color.Gray,
             modifier = Modifier
-                .padding(PADDING_SMALL)
+                .padding(horizontal = 0.dp, vertical = PADDING_EXTRA_SMALL)
         )
     }
 }
@@ -70,11 +87,13 @@ fun InverseReguertaButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabledButton: Boolean = true,
+    isSingleButton: Boolean = true,
+    btnType: BtnType = BtnType.INFO
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
-        border = BorderStroke(2.dp, PrimaryColor),
+        border = BorderStroke(2.dp, getBorderColor(btnType)),
         enabled = enabledButton,
         colors = ButtonDefaults.buttonColors(
             containerColor = SecondaryBackground
@@ -82,10 +101,10 @@ fun InverseReguertaButton(
     ) {
         TextBody(
             text = textButton,
-            textSize = TEXT_SIZE_SMALL,
+            textSize = if (isSingleButton) TEXT_SIZE_SINGLE_BTN else TEXT_SIZE_PAIR_BTN,
             textColor = Text,
             modifier = Modifier
-                .padding(PADDING_SMALL)
+                .padding(PADDING_EXTRA_SMALL)
         )
     }
 }
@@ -97,12 +116,13 @@ fun InverseReguertaButton(
     modifier: Modifier = Modifier,
     enabledButton: Boolean = true,
     borderSize: Dp = 2.dp,
-    cornerSize: Float = 16f
+    cornerSize: Float = 16f,
+    btnType: BtnType = BtnType.INFO
 ) {
     Button(
         onClick = onClick,
         modifier = modifier,
-        border = BorderStroke(borderSize, PrimaryColor),
+        border = BorderStroke(borderSize, getBorderColor(btnType)),
         enabled = enabledButton,
         shape = RoundedCornerShape(cornerSize),
         colors = ButtonDefaults.buttonColors(

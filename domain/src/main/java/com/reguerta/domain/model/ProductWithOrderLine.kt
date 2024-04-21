@@ -42,4 +42,17 @@ data class ProductWithOrderLine(
     fun getQuantityUnitySelected() = "${orderLine.quantity} $container"
 
     fun getAmount() = orderLine.quantity * price
+
+    fun getUnitType(): UnitType = if (commonProduct.quantityContainer > 1) UnitType.PACK else UnitType.UNIT
+
+    fun getQuantity(): String = "${orderLine.quantity}"
+
+    fun getUnit(): String = getUnitType().getProperForm(orderLine.quantity)
 }
+enum class UnitType(val singular: String, val plural: String) {
+    UNIT("ud.", "uds."),
+    PACK("pack", "packs");
+
+    fun getProperForm(quantity: Int): String = if (quantity > 1) plural else singular
+}
+

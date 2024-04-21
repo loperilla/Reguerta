@@ -14,6 +14,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.reguerta.presentation.ui.DialogBackground
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.SIZE_48
+import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
+import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
@@ -67,15 +69,15 @@ fun ReguertaAlertDialogPrev() {
             },
             text = {
                 TextBody(
-                    text = "¿Seguro que quieres cerrar la sesión?",
-                    textSize = TEXT_SIZE_SMALL,
+                    text = "¿Estás seguro que quieres cerrar la sesión?",
+                    textSize = TEXT_SIZE_DLG_BODY,
                     textColor = Text
                 )
             },
             title = {
                 TextTitle(
                     text = "Cerrar session",
-                    textSize = TEXT_SIZE_LARGE,
+                    textSize = TEXT_SIZE_DLG_TITLE,
                     textColor = Text
                 )
             },
@@ -124,7 +126,7 @@ fun ReguertaNoButtonDialogPrev() {
             },
             text = {
                 TextBody(
-                    text = "¿Seguro que quieres cerrar la sesión?",
+                    text = "¿Estás seguro que quieres cerrar la sesión?",
                     textSize = TEXT_SIZE_SMALL,
                     textColor = Text
                 )

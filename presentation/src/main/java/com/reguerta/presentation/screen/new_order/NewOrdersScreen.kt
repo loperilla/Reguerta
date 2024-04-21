@@ -3,16 +3,21 @@ package com.reguerta.presentation.screen.new_order
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -22,6 +27,7 @@ import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ShoppingBasket
 import androidx.compose.material.icons.filled.ShoppingCart
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
@@ -49,6 +55,7 @@ import com.reguerta.domain.model.received.OrderLineReceived
 import com.reguerta.presentation.ALCAZAR
 import com.reguerta.presentation.ALCAZAR_WITH_ORDER
 import com.reguerta.presentation.composables.AmountText
+import com.reguerta.presentation.composables.BtnType
 import com.reguerta.presentation.composables.InverseReguertaButton
 import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
@@ -58,21 +65,26 @@ import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.StockText
 import com.reguerta.presentation.composables.TextBody
-import com.reguerta.presentation.composables.TextRegular
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.image.ProductImage
 import com.reguerta.presentation.screen.received_orders.OrderListByProduct
 import com.reguerta.presentation.ui.Orange
+import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
+import com.reguerta.presentation.ui.SIZE_88
 import com.reguerta.presentation.ui.SIZE_96
 import com.reguerta.presentation.ui.SecondaryBackground
+import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
+import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
+import com.reguerta.presentation.ui.TEXT_SPECIAL
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
 
@@ -106,7 +118,6 @@ fun newOrderScreen(
             },
             body = buildAnnotatedString {
                 append("Recuerda que puedes modificar el pedido antes de que acabe el domingo")
-
             },
             onEvent = viewModel::onEvent,
             confirmButton = {
@@ -137,27 +148,30 @@ fun ExistingOrderScreen(
     Scaffold(
         topBar = {
             ReguertaTopBar(
-                topBarText = "Pedidos a preparar",
+                topBarText = "Mi pedido",
                 navActionClick = {
                     onEvent(NewOrderEvent.GoOut)
                 },
                 actions = {
                     Column(
                         modifier = Modifier
-                            .padding(PADDING_EXTRA_SMALL)
-                            .wrapContentSize()
-                            .align(Alignment.CenterVertically)
+                            .fillMaxWidth()
+                            .padding(PADDING_EXTRA_SMALL),
+                        horizontalAlignment = Alignment.End
                     ) {
                         TextBody(
                             text = "¿Modificar?",
-                            textColor = Orange
+                            textColor = Orange,
+                            modifier = Modifier
+                                .wrapContentWidth(Alignment.End)
                         )
                         ReguertaIconButton(
                             onClick = {
                                 onEvent(NewOrderEvent.ShowAreYouSureDeleteOrder)
                             },
                             iconButton = Icons.Filled.Delete,
-                            contentColor = Orange
+                            contentColor = Orange,
+                            modifier = Modifier.padding(horizontal = PADDING_MEDIUM)
                         )
                     }
                 }
@@ -170,7 +184,6 @@ fun ExistingOrderScreen(
                 .padding(it)
         )
     }
-
 }
 
 @Composable
@@ -216,7 +229,7 @@ fun NewOrderScreen(
                 }
             } else {
                 ReguertaTopBar(
-                    topBarText = "Mi pedido",
+                    topBarText = "Lista de productos",
                     navActionClick = { onEvent(NewOrderEvent.GoOut) },
                     actions = {
                         InverseReguertaButton(
@@ -226,7 +239,7 @@ fun NewOrderScreen(
                             content = {
                                 TextBody(
                                     "Ver",
-                                    textSize = TEXT_SIZE_SMALL,
+                                    textSize = TEXT_SIZE_MEDIUM,
                                     modifier = Modifier
                                         .padding(horizontal = PADDING_SMALL)
                                 )
@@ -314,7 +327,7 @@ private fun ShoppingCartScreen(
                 .padding(horizontal = PADDING_MEDIUM)
         ) {
             TextTitle(
-                text = "Mi pedido",
+                text = "Mi carrito",
                 textSize = TEXT_TOP_BAR
             )
             AmountText(
@@ -354,7 +367,7 @@ fun ShoppingCartOrderProductItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(PADDING_MEDIUM)
+                    .padding(PADDING_SMALL)
             ) {
                 ProductImage(
                     product,
@@ -375,7 +388,7 @@ fun ShoppingCartOrderProductItem(
                     )
 
                     TextBody(
-                        text = "${product.priceFormatted()} / ${product.container}",
+                        text = "${product.priceFormatted()} / ${product.getUnitType().singular}",
                         textSize = TEXT_SIZE_LARGE,
                         textColor = Text,
                         modifier = Modifier
@@ -384,14 +397,15 @@ fun ShoppingCartOrderProductItem(
 
                     HorizontalDivider(
                         modifier = Modifier
-                            .padding(vertical = PADDING_MEDIUM, horizontal = PADDING_SMALL),
+                            .padding(start = PADDING_SMALL, end = PADDING_SMALL, top = PADDING_MEDIUM, bottom = PADDING_SMALL),
                         color = Color.LightGray,
                         thickness = 1.dp
                     )
 
                     OrderQuantitySelector(
                         product,
-                        onEvent
+                        onEvent,
+                        //modifier = Modifier.padding(vertical = PADDING_EXTRA_SMALL)
                     )
                 }
             }
@@ -456,14 +470,14 @@ private fun OrderProductItem(
                     )
                     TextBody(
                         text = product.description,
-                        textSize = TEXT_SIZE_LARGE,
+                        textSize = TEXT_SIZE_SMALL,
                         textColor = Text,
                         modifier = Modifier
                             .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                     )
                     TextBody(
-                        text = product.containerUnity(),
-                        textSize = TEXT_SIZE_LARGE,
+                        text = product.containerUnity(),// Por separado (dif tam)
+                        textSize = TEXT_SIZE_MEDIUM,
                         textColor = Text,
                         modifier = Modifier
                             .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
@@ -507,7 +521,8 @@ private fun HeaderItemProduct(
             .padding(PADDING_SMALL),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        ProductImage(product, imageSize = SIZE_48)
+        ProductImage(product)
+        Spacer(Modifier.width(PADDING_EXTRA_LARGE))
         if (product is CommonProduct) {
             ButtonStartOrder(
                 product.id,
@@ -544,13 +559,21 @@ private fun ButtonStartOrder(
             .fillMaxWidth()
             .padding(PADDING_SMALL)
     ) {
-        TextRegular(
-            text = "Añadir al carro",
-            textSize = TEXT_SIZE_SMALL,
+        TextBody(
+            "Añadir al carro",
+            textSize = TEXT_SIZE_MEDIUM,
             textColor = Color.White,
             modifier = Modifier
-                .padding(PADDING_SMALL)
+                .padding(horizontal = PADDING_EXTRA_SMALL)
         )
+        /*TextRegular(
+            text = "Añadir al carro",
+            textSize = TEXT_SIZE_LARGE,
+            textColor = Color.White,
+            modifier = Modifier
+                .padding(PADDING_EXTRA_SMALL)
+        )
+        Spacer(Modifier.width(PADDING_EXTRA_SMALL))*/
         Icon(
             imageVector = Icons.Filled.AddShoppingCart,
             contentDescription = null,
@@ -567,30 +590,41 @@ private fun OrderQuantitySelector(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(PADDING_SMALL),
+            .padding(horizontal = PADDING_SMALL),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        TextBody(
-            text = product.getQuantityUnitySelected(),
-            textSize = TEXT_SIZE_LARGE,
-            textColor = Text
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.End
+        ) {
+            TextBody(
+                text = product.getQuantity(),
+                textSize = TEXT_SPECIAL,
+                textColor = Text
+            )
+            Spacer(modifier = Modifier.width(PADDING_EXTRA_SMALL))
+            TextBody(
+                text = product.getUnit(),
+                textSize = TEXT_SIZE_LARGE,
+                textColor = Text
+            )
+        }
         Row {
+            ReguertaIconButton(
+                iconButton = if (product.quantity == 1) Icons.Filled.Delete else Icons.Filled.Remove,
+                onClick = {
+                    onEvent(NewOrderEvent.MinusQuantityProduct(product.id))
+                },
+                contentColor = Orange
+            )
             ReguertaIconButton(
                 iconButton = Icons.Filled.Add,
                 onClick = {
                     onEvent(NewOrderEvent.PlusQuantityProduct(product.id))
                 },
                 contentColor = PrimaryColor,
-                enabledButton = product.stock != 0
-            )
-            ReguertaIconButton(
-                iconButton = if (product.quantity == 1) Icons.Filled.Delete else Icons.Filled.Remove,
-                onClick = {
-                    onEvent(NewOrderEvent.MinusQuantityProduct(product.id))
-                },
-                contentColor = Color.Red
+                enabledButton = product.stock > 0
             )
         }
     }
@@ -649,13 +683,20 @@ fun AreYouSureDeletePopup(
 ) {
     ReguertaAlertDialog(
         icon = {
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = "ExitApp",
-                tint = Color.Red,
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(SIZE_48)
-            )
+                    .size(SIZE_88)
+                    .background(Orange.copy(alpha = 0.2F), shape = CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = "Advertencia",
+                    tint = Orange,
+                    modifier = Modifier
+                        .size(SIZE_48)
+                )
+            }
         },
         onDismissRequest = { onEvent(NewOrderEvent.HideDialog) },
         text = {
@@ -663,9 +704,9 @@ fun AreYouSureDeletePopup(
                 text = buildAnnotatedString {
                     append("Esta a punto de eliminar un pedido. \n")
                     append("Se restaurarán los stocks. \n")
-                    append("Luego podrá realizar su pedido de nuevo. \n")
+                    append("Luego podrá realizar su pedido de nuevo.\n")
                 },
-                textSize = TEXT_SIZE_SMALL,
+                textSize = TEXT_SIZE_DLG_BODY,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )
@@ -673,29 +714,40 @@ fun AreYouSureDeletePopup(
         title = {
             TextTitle(
                 text = buildAnnotatedString {
-                    append("Vas a eliminar un pedido \n")
+                    append("Vas a eliminar un pedido\n")
                     append("¿Está seguro?")
                 },
-                textSize = TEXT_SIZE_LARGE,
+                textSize = TEXT_SIZE_DLG_TITLE,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )
         },
         confirmButton = {
-            ReguertaButton(
-                textButton = "Aceptar",
-                onClick = {
-                    onEvent(NewOrderEvent.DeleteOrder)
-                }
-            )
-        },
-        dismissButton = {
-            InverseReguertaButton(
-                textButton = "Volver",
-                onClick = {
-                    onEvent(NewOrderEvent.HideDialog)
-                }
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = PADDING_EXTRA_SMALL, vertical = PADDING_SMALL),
+                horizontalArrangement = Arrangement.spacedBy(PADDING_SMALL)
+            ) {
+                InverseReguertaButton(
+                    textButton = "Volver",
+                    isSingleButton = false,
+                    btnType = BtnType.ERROR,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        onEvent(NewOrderEvent.HideDialog)
+                    }
+                )
+                ReguertaButton(
+                    textButton = "Aceptar",
+                    isSingleButton = false,
+                    btnType = BtnType.ERROR,
+                    modifier = Modifier.weight(1f),
+                    onClick = {
+                        onEvent(NewOrderEvent.DeleteOrder)
+                    }
+                )
+            }
         }
     )
 }
@@ -712,7 +764,7 @@ fun ConfirmPopup(
             Icon(
                 imageVector = Icons.Default.Info,
                 contentDescription = "ExitApp",
-                tint = Color.Red,
+                tint = PrimaryColor,
                 modifier = Modifier
                     .size(SIZE_48)
             )
@@ -721,7 +773,7 @@ fun ConfirmPopup(
         text = {
             TextBody(
                 text = body,
-                textSize = TEXT_SIZE_SMALL,
+                textSize = TEXT_SIZE_DLG_BODY,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )
@@ -729,7 +781,7 @@ fun ConfirmPopup(
         title = {
             TextTitle(
                 text = title,
-                textSize = TEXT_SIZE_LARGE,
+                textSize = TEXT_SIZE_DLG_TITLE,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )
@@ -737,6 +789,7 @@ fun ConfirmPopup(
         confirmButton = {
             ReguertaButton(
                 textButton = "Aceptar",
+                modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     confirmButton()
                 }

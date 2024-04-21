@@ -48,7 +48,7 @@ fun recoveryPasswordScreen(
         Scaffold(
             topBar = {
                 ReguertaTopBar(
-                    topBarText = "Introduce tus credenciales",
+                    topBarText = "Introduce el email de registro",
                     navActionClick = {
                         navigateTo(Routes.AUTH.FIRST_SCREEN.route)
                     }

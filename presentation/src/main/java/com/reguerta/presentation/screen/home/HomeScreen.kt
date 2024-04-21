@@ -4,18 +4,22 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory2
@@ -51,13 +55,18 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.navigationDrawer.NavigationDrawerInfo
+import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
+import com.reguerta.presentation.ui.SIZE_88
 import com.reguerta.presentation.ui.SecondaryBackground
+import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
+import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
+import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
@@ -176,7 +185,7 @@ private fun MakeYourOrderButton(
     ) {
         TextBody(
             text = "Tu pedido",
-            textSize = TEXT_SIZE_LARGE,
+            textSize = TEXT_SIZE_EXTRA_LARGE,
             textColor = PrimaryColor,
             modifier = Modifier
                 .padding(PADDING_SMALL)
@@ -201,7 +210,7 @@ private fun ShowYourOrderButton(
     ) {
         TextBody(
             text = "Ver tus pedidos",
-            textSize = TEXT_SIZE_LARGE,
+            textSize = TEXT_SIZE_EXTRA_LARGE,
             textColor = PrimaryColor,
             modifier = Modifier
                 .padding(PADDING_SMALL)
@@ -217,15 +226,14 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
                 imageVector = Icons.Default.Info,
                 contentDescription = "ExitApp",
                 tint = PrimaryColor,
-                modifier = Modifier
-                    .size(SIZE_48)
+                modifier = Modifier.size(SIZE_48)
             )
         },
         onDismissRequest = { onEvent(HomeEvent.HideDialog) },
         text = {
             TextBody(
-                text = "¿Seguro que quieres cerrar la sesión?",
-                textSize = TEXT_SIZE_SMALL,
+                text = "¿Estás seguro que quieres cerrar la sesión?",
+                textSize = TEXT_SIZE_DLG_BODY,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )
@@ -233,26 +241,30 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
         title = {
             TextTitle(
                 text = "Cerrar sesión",
-                textSize = TEXT_SIZE_LARGE,
+                textSize = TEXT_SIZE_DLG_TITLE,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )
         },
         confirmButton = {
-            ReguertaButton(
-                textButton = "Confirmar",
-                onClick = {
-                    onEvent(HomeEvent.GoOut)
-                }
-            )
-        },
-        dismissButton = {
-            InverseReguertaButton(
-                textButton = "Volver",
-                onClick = {
-                    onEvent(HomeEvent.HideDialog)
-                }
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                InverseReguertaButton(
+                    textButton = "Volver",
+                    isSingleButton = false,
+                    onClick = { onEvent(HomeEvent.HideDialog) },
+                    modifier = Modifier.weight(1f)
+                )
+                Spacer(modifier = Modifier.width(PADDING_EXTRA_SMALL))
+                ReguertaButton(
+                    textButton = "Confirmar",
+                    isSingleButton = false,
+                    onClick = { onEvent(HomeEvent.GoOut) },
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     )
 }
@@ -306,19 +318,26 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
 private fun showNotAuthorizedDialog() {
     ReguertaAlertDialog(
         icon = {
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = "ExitApp",
-                tint = PrimaryColor,
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(SIZE_48)
-            )
+                    .size(SIZE_88)
+                    .background(Orange.copy(alpha = 0.2F), shape = CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = "Advertencia",
+                    tint = Orange,
+                    modifier = Modifier
+                        .size(SIZE_48)
+                )
+            }
         },
         onDismissRequest = { },
         text = {
             TextBody(
-                text = "Ponte en contacto con algún miembro de la Regüerta para que te den acceso.",
-                textSize = TEXT_SIZE_SMALL,
+                text = "Ponte en contacto con algún miembro de La Regüerta para que te den acceso.",
+                textSize = TEXT_SIZE_DLG_BODY,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )
@@ -326,7 +345,7 @@ private fun showNotAuthorizedDialog() {
         title = {
             TextTitle(
                 text = "Usuario no autorizado",
-                textSize = TEXT_SIZE_LARGE,
+                textSize = TEXT_SIZE_DLG_TITLE,
                 textColor = Text,
                 textAlignment = TextAlign.Center
             )

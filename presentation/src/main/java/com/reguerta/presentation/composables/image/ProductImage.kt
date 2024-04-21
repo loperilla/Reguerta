@@ -10,6 +10,7 @@ import androidx.compose.ui.unit.Dp
 import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.presentation.R
 import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.ui.SIZE_72
 import com.reguerta.presentation.ui.SIZE_96
 
 /*****
@@ -22,7 +23,7 @@ import com.reguerta.presentation.ui.SIZE_96
 fun ProductImage(
     product: Product,
     modifier: Modifier = Modifier,
-    imageSize: Dp = SIZE_96
+    imageSize: Dp = SIZE_72
 ) {
     if (product.imageUrl.isEmpty()) {
         Image(

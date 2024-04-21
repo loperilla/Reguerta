@@ -26,12 +26,13 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
+import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_LARGE
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.TEXT_SIZE_BUTTON
+import com.reguerta.presentation.ui.TEXT_SIZE_SINGLE_BTN
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.Text
 
@@ -154,10 +155,10 @@ private fun FirstScreenTextBottom(
         )
         TextBody(
             "Regístrate",
-            textSize = TEXT_SIZE_BUTTON,
+            textSize = TEXT_SIZE_SINGLE_BTN,
             textColor = PrimaryColor,
             modifier = Modifier
-                .padding(PADDING_SMALL)
+                .padding(PADDING_EXTRA_SMALL)
                 .clickable { onClick() }
         )
     }
