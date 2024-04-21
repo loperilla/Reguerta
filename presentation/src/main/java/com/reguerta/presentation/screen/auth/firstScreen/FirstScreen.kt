@@ -28,7 +28,6 @@ import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_LARGE
-import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes

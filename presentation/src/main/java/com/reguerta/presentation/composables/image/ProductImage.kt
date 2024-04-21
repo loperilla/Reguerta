@@ -11,7 +11,6 @@ import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.presentation.R
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.SIZE_72
-import com.reguerta.presentation.ui.SIZE_96
 
 /*****
  * Project: Reguerta

@@ -68,7 +68,6 @@ import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek

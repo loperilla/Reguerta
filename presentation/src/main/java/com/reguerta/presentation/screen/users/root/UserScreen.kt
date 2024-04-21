@@ -55,7 +55,6 @@ import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
-import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 
 /*****

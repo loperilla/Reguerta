@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,7 +18,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -27,7 +25,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -167,100 +164,6 @@ private fun ProductListScreen(
             )
         }
     }
-}
-
-@Composable
-private fun ProductItemX(
-    product: CommonProduct,
-    onEvent: (ProductsEvent) -> Unit,
-    navigateTo: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    ReguertaCard(
-        modifier = modifier
-            .padding(PADDING_SMALL)
-            .wrapContentSize(),
-        content = {
-            Row(
-                verticalAlignment = Alignment.Top,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                ProductImage(product)
-                Row(
-                    modifier = Modifier
-                        .padding(PADDING_SMALL),
-                    horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.End),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    ReguertaIconButton(
-                        iconButton = Icons.Filled.Edit,
-                        onClick = {
-                            navigateTo(Routes.PRODUCTS.EDIT.createRoute(product.id))
-                        },
-                        contentColor = PrimaryColor
-                    )
-                    ReguertaIconButton(
-                        iconButton = Icons.Filled.Delete,
-                        onClick = {
-                            onEvent(ProductsEvent.ShowAreYouSureDialog(product.id))
-                        },
-                        contentColor = Orange
-                    )
-                }
-            }
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .padding(PADDING_SMALL)
-                        .fillMaxHeight()
-                ) {
-                    TextBody(
-                        text = product.name,
-                        textSize = TEXT_SIZE_LARGE,
-                        textColor = Text,
-                        modifier = Modifier
-                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
-                    )
-                    TextBody(
-                        text = product.description,
-                        textSize = TEXT_SIZE_SMALL,
-                        textColor = Text,
-                        modifier = Modifier
-                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
-                    )
-                    TextBody(
-                        text = product.priceFormatted(),
-                        textSize = TEXT_SIZE_LARGE,
-                        textColor = Text,
-                        modifier = Modifier
-                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
-                    )
-                }
-
-                Column(
-                    verticalArrangement = Arrangement.Bottom,
-                    modifier = Modifier
-                        .padding(PADDING_SMALL)
-                        .fillMaxHeight()
-                ) {
-                    StockText(
-                        product.stock,
-                        textSize = TEXT_SIZE_LARGE,
-                        modifier = Modifier
-                            .padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
-                    )
-                }
-            }
-        }
-    )
 }
 
 @Composable
