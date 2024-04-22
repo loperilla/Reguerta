@@ -5,12 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -33,9 +35,12 @@ import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.ui.Orange
+import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
+import com.reguerta.presentation.ui.PADDING_LARGE
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.SIZE_88
@@ -71,21 +76,20 @@ fun recoveryPasswordScreen(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(SIZE_88)
-                        .background(Orange.copy(alpha = 0.2F), shape = CircleShape)
+                        .background(PrimaryColor.copy(alpha = 0.2F), shape = CircleShape)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = "Advertencia",
-                        tint = Orange,
-                        modifier = Modifier
-                            .size(SIZE_48)
+                        imageVector = Icons.Default.Info,
+                        contentDescription = "Info",
+                        tint = PrimaryColor,
+                        modifier = Modifier.size(SIZE_48)
                     )
                 }
             },
             onDismissRequest = {},
             text = {
                 TextBody(
-                    text = "",
+                    text = "Se ha enviado el correo de restablecimiento de contraseña con éxito. Revisa tu correo.",
                     textSize = TEXT_SIZE_DLG_BODY,
                     textColor = Text,
                     textAlignment = TextAlign.Center
@@ -93,7 +97,7 @@ fun recoveryPasswordScreen(
             },
             title = {
                 TextTitle(
-                    text = "Se ha enviado el correo con éxito",
+                    text = "Recuperar contraseña",
                     textSize = TEXT_SIZE_DLG_TITLE,
                     textColor = Text,
                     textAlignment = TextAlign.Center
@@ -109,7 +113,6 @@ fun recoveryPasswordScreen(
                     ReguertaButton(
                         textButton = "Aceptar",
                         isSingleButton = false,
-                        btnType = BtnType.ERROR,
                         modifier = Modifier.weight(1f),
                         onClick = {
                             viewModel.onEvent(RecoveryEvent.GoBack)
@@ -142,7 +145,7 @@ fun recoveryPasswordScreen(
             onDismissRequest = {},
             text = {
                 TextBody(
-                    text = "",
+                    text = "Ha ocurrido un error al enviar el correo de restablecimiento de contraseña.",
                     textSize = TEXT_SIZE_DLG_BODY,
                     textColor = Text,
                     textAlignment = TextAlign.Center
@@ -150,7 +153,7 @@ fun recoveryPasswordScreen(
             },
             title = {
                 TextTitle(
-                    text = "No se ha encontrado el correo solicitado",
+                    text = "Recuperar contraseña",
                     textSize = TEXT_SIZE_DLG_TITLE,
                     textColor = Text,
                     textAlignment = TextAlign.Center
@@ -209,7 +212,10 @@ fun recoveryPasswordScreen(
                         .fillMaxWidth()
                         .padding(PADDING_SMALL)
                 )
-
+                Spacer(
+                    modifier = Modifier
+                        .padding(PADDING_LARGE)
+                )
 
                 ReguertaButton(
                     textButton = "Recuperar contraseña",

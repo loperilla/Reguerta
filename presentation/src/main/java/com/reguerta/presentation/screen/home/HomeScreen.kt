@@ -221,12 +221,19 @@ private fun ShowYourOrderButton(
 private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
     ReguertaAlertDialog(
         icon = {
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = "ExitApp",
-                tint = PrimaryColor,
-                modifier = Modifier.size(SIZE_48)
-            )
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(SIZE_88)
+                    .background(PrimaryColor.copy(alpha = 0.2F), shape = CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Info",
+                    tint = PrimaryColor,
+                    modifier = Modifier.size(SIZE_48)
+                )
+            }
         },
         onDismissRequest = { onEvent(HomeEvent.HideDialog) },
         text = {

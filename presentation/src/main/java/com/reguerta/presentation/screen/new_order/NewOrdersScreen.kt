@@ -761,13 +761,19 @@ fun ConfirmPopup(
 ) {
     ReguertaAlertDialog(
         icon = {
-            Icon(
-                imageVector = Icons.Default.Info,
-                contentDescription = "ExitApp",
-                tint = PrimaryColor,
+            Box(
+                contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(SIZE_48)
-            )
+                    .size(SIZE_88)
+                    .background(PrimaryColor.copy(alpha = 0.2F), shape = CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Info",
+                    tint = PrimaryColor,
+                    modifier = Modifier.size(SIZE_48)
+                )
+            }
         },
         onDismissRequest = { onEvent(NewOrderEvent.HideDialog) },
         text = {
