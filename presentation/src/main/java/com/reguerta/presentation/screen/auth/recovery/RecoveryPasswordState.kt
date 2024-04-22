@@ -9,5 +9,7 @@ package com.reguerta.presentation.screen.auth.recovery
 data class RecoveryPasswordState(
     val email: String = "",
     val isLoading: Boolean = false,
+    val showSuccessDialog: Boolean = false,
+    val showFailureDialog: Boolean = false,
     val goOut: Boolean = false
 )

@@ -9,5 +9,6 @@ package com.reguerta.presentation.screen.auth.recovery
 sealed class RecoveryEvent {
     data class EmailChanged(val email: String) : RecoveryEvent()
     data object SendEmail : RecoveryEvent()
+    data object HideFailureDialog : RecoveryEvent()
     data object GoBack : RecoveryEvent()
 }

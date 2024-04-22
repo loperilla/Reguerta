@@ -5,6 +5,8 @@ import com.google.firebase.auth.FirebaseAuth
 import com.reguerta.data.AuthState
 import com.reguerta.data.firebase.firestore.users.UserModel
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
+import com.reguerta.data.firebase.model.DataError
+import com.reguerta.data.firebase.model.DataResult
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.datastore.UID_KEY
 import com.reguerta.localdata.time.WeekTime
@@ -90,7 +92,12 @@ class AuthServiceImpl(
 
     override suspend fun getCurrentWeek() = weekTime.getCurrentWeekDay()
 
-    override suspend fun sendRecoveryPasswordEmail(email: String) {
-        firebaseAuth.sendPasswordResetEmail(email).await()
+    override suspend fun sendRecoveryPasswordEmail(email: String): DataResult<Unit, DataError.Firebase> {
+        return try {
+            firebaseAuth.sendPasswordResetEmail(email).await()
+            DataResult.Success(Unit)
+        } catch (ex: Exception) {
+            DataResult.Error(DataError.Firebase.NOT_FOUND)
+        }
     }
 }

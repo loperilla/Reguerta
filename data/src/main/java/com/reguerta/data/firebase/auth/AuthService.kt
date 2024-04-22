@@ -2,6 +2,8 @@ package com.reguerta.data.firebase.auth
 
 import com.reguerta.data.AuthState
 import com.reguerta.data.firebase.firestore.users.UserModel
+import com.reguerta.data.firebase.model.DataError
+import com.reguerta.data.firebase.model.DataResult
 
 /*****
  * Project: Reguerta
@@ -17,6 +19,5 @@ interface AuthService {
     suspend fun logInWithUserPassword(email: String, password: String): AuthState
     suspend fun checkCurrentLoggedUser(): Result<UserModel>
     suspend fun getCurrentWeek(): Int
-
-    suspend fun sendRecoveryPasswordEmail(email: String)
+    suspend fun sendRecoveryPasswordEmail(email: String): DataResult<Unit, DataError.Firebase>
 }

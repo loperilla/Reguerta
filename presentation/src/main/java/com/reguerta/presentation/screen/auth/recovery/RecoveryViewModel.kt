@@ -30,16 +30,37 @@ class RecoveryViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             when (event) {
                 RecoveryEvent.SendEmail -> {
-                    recoveryPasswordEmailUseCase(state.value.email)
+                    recoveryPasswordEmailUseCase(state.value.email).fold(
+                        onSuccess = {
+                            _state.update {
+                                it.copy(showSuccessDialog = true)
+                            }
+                        },
+                        onFailure = {
+                            _state.update {
+                                it.copy(showFailureDialog = true)
+                            }
+                        }
+                    )
+                }
+
+                RecoveryEvent.GoBack -> {
                     _state.update {
                         it.copy(goOut = true)
                     }
                 }
-
-                RecoveryEvent.GoBack -> {}
                 is RecoveryEvent.EmailChanged -> {
                     _state.update {
                         it.copy(email = event.email)
+                    }
+                }
+
+                RecoveryEvent.HideFailureDialog -> {
+                    _state.update {
+                        it.copy(
+                            showFailureDialog = false,
+                            email = ""
+                        )
                     }
                 }
             }
