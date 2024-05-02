@@ -8,6 +8,7 @@ import com.reguerta.domain.model.interfaces.Product
  * Created By Manuel Lopera on 15/3/24 at 19:45
  * All rights reserved 2024
  */
+
 data class ProductWithOrderLine(
     private val commonProduct: CommonProduct,
     val orderLine: OrderLineProduct

@@ -19,7 +19,8 @@ data class NewOrderState(
     val showPopup: PopupType = PopupType.NONE,
     val availableCommonProducts: List<Product> = emptyList(),
     val productsOrderLineList: List<ProductWithOrderLine> = emptyList(),
-    val ordersFromExistingOrder: Map<Product, List<OrderLineReceived>> = emptyMap()
+    val ordersFromExistingOrder: Map<Product, List<OrderLineReceived>> = emptyMap(),
+    val productsGroupedByCompany: Map<String, List<Product>> = emptyMap()
 )
 
 enum class PopupType {

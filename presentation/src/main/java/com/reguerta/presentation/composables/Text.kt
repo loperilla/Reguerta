@@ -1,9 +1,14 @@
 package com.reguerta.presentation.composables
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,9 +18,12 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import com.reguerta.presentation.ui.CORNER_SIZE
 import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_MEDIUM
+import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
@@ -124,6 +132,34 @@ fun AmountText(
             text = String.format("%.2f", amount) + "€",
             textSize = TEXT_TOP_BAR,
             textColor = Text
+        )
+    }
+}
+
+@Composable
+fun HeaderSectionText(
+    text: String,
+    modifier: Modifier = Modifier,
+    textSize: TextUnit = TEXT_SIZE_LARGE,
+    textColor: Color = PrimaryColor,
+    textAlignment: TextAlign = TextAlign.Center,
+    fontWeight: FontWeight = FontWeight.Bold,
+    backgroundColor: Color = Color.Black.copy(alpha = 0.1f),
+    padding: Dp = PADDING_SMALL
+) {
+    Box(
+        modifier = modifier
+            .background(color = backgroundColor, shape = RoundedCornerShape(CORNER_SIZE))
+            .fillMaxWidth()
+            .padding(padding),
+        contentAlignment = Alignment.Center
+    ) {
+        Text(
+            text = text,
+            color = textColor,
+            fontSize = textSize,
+            fontWeight = fontWeight,
+            textAlign = textAlignment
         )
     }
 }

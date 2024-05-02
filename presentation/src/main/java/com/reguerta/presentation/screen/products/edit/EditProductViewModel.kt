@@ -101,9 +101,14 @@ class EditProductViewModel @AssistedInject constructor(
                 EditProductEvent.SaveProduct -> {
                     viewModelScope.launch(Dispatchers.IO) {
                         with(state.value) {
-                            val imageByteArray = async {
-                                bitmap?.let { resizeAndCropImage(it) }
-                            }.await()
+                            val imageByteArray = if (bitmap != null) {
+                                async { resizeAndCropImage(bitmap) }.await()
+                            } else {
+                                // Aquí deberías tener algún mecanismo para convertir la URL existente en byteArray.
+                                // Esto puede requerir descargar la imagen de nuevo o mejor aún, tener un byteArray guardado.
+                                null
+                            }
+
                             val productToSave = CommonProduct(
                                 container = containerType,
                                 description = description,
@@ -113,7 +118,8 @@ class EditProductViewModel @AssistedInject constructor(
                                 stock = stock,
                                 quantityContainer = containerValue.toInt(),
                                 quantityWeight = measureValue.toInt(),
-                                unity = measureType
+                                unity = measureType,
+                                imageUrl = imageUrl
                             )
 
                             editProductUseCase(

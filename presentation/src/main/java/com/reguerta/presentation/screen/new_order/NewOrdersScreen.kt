@@ -1,6 +1,8 @@
 package com.reguerta.presentation.screen.new_order
 
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -30,6 +32,7 @@ import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -56,6 +59,7 @@ import com.reguerta.presentation.ALCAZAR
 import com.reguerta.presentation.ALCAZAR_WITH_ORDER
 import com.reguerta.presentation.composables.AmountText
 import com.reguerta.presentation.composables.BtnType
+import com.reguerta.presentation.composables.HeaderSectionText
 import com.reguerta.presentation.composables.InverseReguertaButton
 import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
@@ -185,7 +189,7 @@ fun ExistingOrderScreen(
         )
     }
 }
-
+/*
 @Composable
 fun NewOrderScreen(
     state: NewOrderState,
@@ -308,6 +312,173 @@ fun NewOrderScreen(
         }
     }
 }
+*/
+
+@Composable
+fun NewOrderTopBar(
+    state: NewOrderState,
+    onEvent: (NewOrderEvent) -> Unit
+) {
+    if (state.showShoppingCart) {
+        Row(
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
+        ) {
+            InverseReguertaButton(
+                onClick = {
+                    onEvent(NewOrderEvent.HideShoppingCart)
+                },
+                content = {
+                    Icon(
+                        imageVector = Icons.Default.ShoppingBasket,
+                        contentDescription = null,
+                        tint = PrimaryColor,
+                        modifier = Modifier
+                            .padding(horizontal = PADDING_SMALL)
+                            .size(36.dp)
+                    )
+                    TextBody(
+                        "Seguir comprando",
+                        textSize = TEXT_SIZE_LARGE,
+                        modifier = Modifier
+                            .padding(horizontal = PADDING_SMALL)
+                    )
+                },
+                modifier = Modifier
+                    .padding(
+                        vertical = PADDING_SMALL,
+                        horizontal = PADDING_MEDIUM
+                    )
+            )
+        }
+    } else {
+        ReguertaTopBar(
+            topBarText = "Lista de productos",
+            navActionClick = { onEvent(NewOrderEvent.GoOut) },
+            actions = {
+                InverseReguertaButton(
+                    onClick = {
+                        onEvent(NewOrderEvent.ShowShoppingCart)
+                    },
+                    content = {
+                        TextBody(
+                            "Ver",
+                            textSize = TEXT_SIZE_MEDIUM,
+                            modifier = Modifier
+                                .padding(horizontal = PADDING_SMALL)
+                        )
+                        Icon(
+                            imageVector = Icons.Default.ShoppingCart,
+                            contentDescription = null,
+                            tint = PrimaryColor
+                        )
+                    },
+                    enabledButton = state.hasOrderLine
+                )
+            }
+        )
+    }
+}
+@Composable
+fun NewOrderBottomBar(
+    state: NewOrderState,
+    onEvent: (NewOrderEvent) -> Unit
+) {
+    if (state.showShoppingCart) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .wrapContentSize(Alignment.BottomCenter)
+                .background(
+                    color = SecondaryBackground,
+                    shape = RoundedCornerShape(topStart = PADDING_MEDIUM, topEnd = PADDING_MEDIUM)
+                )
+                .padding(PADDING_SMALL)
+        ) {
+            ReguertaButton(
+                "Finalizar compra",
+                onClick = {
+                    onEvent(NewOrderEvent.PushOrder)
+                },
+                enabledButton = state.hasOrderLine,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        vertical = PADDING_SMALL,
+                        horizontal = PADDING_MEDIUM
+                    )
+            )
+        }
+    }
+}
+
+@Composable
+fun NewOrderScreen(
+    state: NewOrderState,
+    onEvent: (NewOrderEvent) -> Unit
+) {
+    Scaffold(
+        topBar = {
+            NewOrderTopBar(state, onEvent)
+        },
+        bottomBar = {
+            NewOrderBottomBar(state, onEvent)
+        }
+    ) {
+        Column(modifier = Modifier.padding(it)) {
+            if (!state.isLoading) {
+                AnimatedVisibility(visible = state.showShoppingCart) {
+                    ShoppingCartScreen(
+                        state.productsOrderLineList,
+                        onEvent
+                    )
+                }
+                AnimatedVisibility(visible = !state.showShoppingCart) {
+                    if (state.isExistOrder) {
+                        ExistingOrderScreen(state, onEvent)
+                    } else {
+                        Log.d("NewOrderScreen", "Grouped products: ${state.productsGroupedByCompany}")
+                        GroupedProductsScreen(groupedProducts = state.productsGroupedByCompany, onEvent)
+                       /* AvailableProductsScreen(
+                            state.availableCommonProducts,
+                            onEvent
+                        )*/
+                    }
+                }
+            } else {
+               CircularProgressIndicator()
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun GroupedProductsScreen(
+    groupedProducts: Map<String, List<Product>>,
+    onEvent: (NewOrderEvent) -> Unit) {
+   LazyColumn {
+        groupedProducts.forEach { (companyName, products) ->
+            stickyHeader {
+                HeaderSectionText(
+                    text = companyName
+                )
+            }
+            items(
+                count = products.size
+            ) {
+                OrderProductItem(
+                    product = products[it],
+                    onEvent = onEvent
+                )
+            }
+        }
+    }
+}
+
+
 
 @Composable
 private fun ShoppingCartScreen(
@@ -560,7 +731,7 @@ private fun ButtonStartOrder(
             .padding(PADDING_SMALL)
     ) {
         TextBody(
-            "Añadir al carro",
+            "Añadir",
             textSize = TEXT_SIZE_MEDIUM,
             textColor = Color.White,
             modifier = Modifier

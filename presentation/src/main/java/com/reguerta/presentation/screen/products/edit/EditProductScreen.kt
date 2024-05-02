@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -32,12 +33,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -61,6 +64,7 @@ import com.reguerta.presentation.composables.TextReguertaInput
 import com.reguerta.presentation.getStoragePermissionBySdk
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.ui.SIZE_16
 import com.reguerta.presentation.ui.SIZE_96
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.Text
@@ -252,6 +256,7 @@ fun HeaderAddProductForm(
                 modifier = Modifier
                     .padding(PADDING_SMALL)
                     .size(SIZE_96)
+                    .clip(RoundedCornerShape(SIZE_16))
                     .clickable {
                         if (checkStoragePermission(context)) {
                             launcher.launch(

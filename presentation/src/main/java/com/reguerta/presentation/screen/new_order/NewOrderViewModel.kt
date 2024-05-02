@@ -27,6 +27,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 10/3/24 at 12:12
  * All rights reserved 2024
  */
+
 @HiltViewModel
 class NewOrderViewModel @Inject constructor(
     getAvailableProductsUseCase: GetAvailableProductsUseCase,
@@ -44,6 +45,14 @@ class NewOrderViewModel @Inject constructor(
                 async {
                     getAvailableProductsUseCase().collectLatest { list ->
                         initialCommonProducts = list
+                        val groupedByCompany = list.groupBy { it.companyName }
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                availableCommonProducts = list,
+                                productsGroupedByCompany = groupedByCompany
+                            )
+                        }
                     }
                 }, async(Dispatchers.IO) {
                     orderModel.checkIfExistOrderInFirebase().fold(

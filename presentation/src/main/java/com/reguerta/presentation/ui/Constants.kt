@@ -34,6 +34,8 @@ val PADDING_LARGE = 24.dp
 val PADDING_EXTRA_LARGE = 48.dp
 
 // Sizes
+var CORNER_SIZE = 4.dp
+val SIZE_16 = 16.dp
 val SIZE_48 = 48.dp
 val SIZE_72 = 72.dp
 val SIZE_88 = 88.dp
