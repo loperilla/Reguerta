@@ -32,6 +32,7 @@ val ALCAZAR_WITH_ORDER = ProductWithOrderLine(
         orderId = "123",
         userId = "123",
         productId = "123",
+        companyName = "Lopera SL",
         quantity = 1,
         week = 1
     )

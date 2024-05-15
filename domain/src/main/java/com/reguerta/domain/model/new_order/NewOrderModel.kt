@@ -23,6 +23,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 3/4/24 at 19:53
  * All rights reserved 2024
  */
+
 class NewOrderModel @Inject constructor(
     private val productService: ProductsService,
     private val orderService: OrderServices,

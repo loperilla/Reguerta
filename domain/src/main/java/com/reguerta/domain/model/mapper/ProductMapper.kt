@@ -6,6 +6,7 @@ import com.reguerta.data.firebase.firestore.products.ProductModel
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.Measure
 import com.reguerta.domain.model.ProductWithOrderLine
+import com.reguerta.domain.model.UnitType
 import com.reguerta.domain.model.interfaces.Product
 
 /*****
@@ -16,6 +17,8 @@ import com.reguerta.domain.model.interfaces.Product
  */
 
 fun Product.priceFormatted(): String = String.format("%.2f", price) + "€"
+
+fun Product.getUnitType(): UnitType = if (quantityContainer > 1) UnitType.PACK else UnitType.UNIT
 
 fun Product.containerUnity(): String = "$quantityContainer $container $quantityWeight $unity"
 

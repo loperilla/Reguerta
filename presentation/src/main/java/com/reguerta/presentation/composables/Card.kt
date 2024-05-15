@@ -6,7 +6,7 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import com.reguerta.presentation.ui.SecondaryBackground
+import com.reguerta.presentation.ui.PrimaryColor
 
 /*****
  * Project: Reguerta
@@ -19,7 +19,7 @@ import com.reguerta.presentation.ui.SecondaryBackground
 fun ReguertaCard(
     content: @Composable ColumnScope.() -> Unit,
     modifier: Modifier = Modifier,
-    containerColor: Color = SecondaryBackground,
+    containerColor: Color = PrimaryColor.copy(0.15f),
     contentColor: Color = Color.Unspecified,
 ) {
     val colors = CardDefaults.cardColors(

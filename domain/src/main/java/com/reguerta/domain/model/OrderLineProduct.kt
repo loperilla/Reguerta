@@ -12,6 +12,7 @@ data class OrderLineProduct(
     val orderId: String,
     val userId: String,
     val productId: String,
+    val companyName: String,
     val quantity: Int,
     val week: Int
 )
@@ -20,6 +21,7 @@ fun OrderLineDTO.toOrderLine() = OrderLineProduct(
     orderId = orderId,
     userId = userId,
     productId = productId,
+    companyName = companyName,
     quantity = quantity,
     week = week
 )

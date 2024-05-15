@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
+import com.reguerta.presentation.ui.Background
 import com.reguerta.presentation.ui.CORNER_SIZE
 import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_MEDIUM
@@ -107,7 +108,7 @@ fun StockText(
         else -> Text
     }
     TextBody(
-        text = "Stock: $stockCount",
+        text = "Quedan: $stockCount uds.",
         modifier,
         textSize,
         textColor = colorToDraw,
@@ -144,7 +145,7 @@ fun HeaderSectionText(
     textColor: Color = PrimaryColor,
     textAlignment: TextAlign = TextAlign.Center,
     fontWeight: FontWeight = FontWeight.Bold,
-    backgroundColor: Color = Color.Black.copy(alpha = 0.1f),
+    backgroundColor: Color = Background.copy(alpha = 0.7f),
     padding: Dp = PADDING_SMALL
 ) {
     Box(

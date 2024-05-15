@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
-import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.domain.model.new_order.NewOrderModel
 import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
 import com.reguerta.domain.usecase.products.UpdateProductStockUseCase
@@ -45,11 +44,11 @@ class NewOrderViewModel @Inject constructor(
                 async {
                     getAvailableProductsUseCase().collectLatest { list ->
                         initialCommonProducts = list
-                        val groupedByCompany = list.groupBy { it.companyName }
+                        val groupedByCompany = list.groupBy { it.companyName }.toSortedMap()
                         _state.update {
                             it.copy(
                                 isLoading = false,
-                                availableCommonProducts = list,
+                                //availableCommonProducts = list,
                                 productsGroupedByCompany = groupedByCompany
                             )
                         }
@@ -82,7 +81,8 @@ class NewOrderViewModel @Inject constructor(
                                         _state.update {
                                             it.copy(
                                                 isLoading = false,
-                                                availableCommonProducts = initialCommonProducts,
+                                                productsGroupedByCompany = initialCommonProducts.groupBy { it.companyName }.toSortedMap(),
+                                                //availableCommonProducts = initialCommonProducts,
                                                 hasOrderLine = false
                                             )
                                         }
@@ -105,26 +105,20 @@ class NewOrderViewModel @Inject constructor(
     }
 
     private fun buildProductWithOrderList(orderList: List<OrderLineProduct>) {
-        val productList: List<Product> = initialCommonProducts.map { common ->
-            val matchOrder = orderList.find { it.productId == common.id }
-            if (matchOrder != null) {
-                ProductWithOrderLine(
-                    common,
-                    matchOrder
-                )
-            } else {
-                common
-            }
+        val productList = initialCommonProducts.map { common ->
+            orderList.find { it.productId == common.id }?.let { order ->
+                ProductWithOrderLine(common, order)
+            } ?: common
         }
-        val listWithOrder = productList.filterIsInstance(ProductWithOrderLine::class.java)
+        val productsWithOrderLine = productList.filterIsInstance<ProductWithOrderLine>()
+        val groupedByCompany = productList.groupBy { it.companyName }.toSortedMap()
+
         _state.update {
             it.copy(
                 isLoading = false,
-                hasOrderLine = true,
-                availableCommonProducts = productList,
-                productsOrderLineList = listWithOrder.ifEmpty {
-                    emptyList()
-                }
+                hasOrderLine = productsWithOrderLine.isNotEmpty(),
+                productsGroupedByCompany = groupedByCompany,
+                productsOrderLineList = productsWithOrderLine
             )
         }
     }
@@ -137,48 +131,43 @@ class NewOrderViewModel @Inject constructor(
                 }
 
                 is NewOrderEvent.StartOrder -> {
-                    val companyOfSelectedProduct = state.value.availableCommonProducts.single {
-                        it.id == newEvent.productId
-                    }.companyName
-                    orderModel.addLocalOrderLine(
-                        newEvent.productId,
-                        companyOfSelectedProduct
-                    )
-                }
-
-                is NewOrderEvent.MinusQuantityProduct -> {
-                    val productUpdated = state.value.productsOrderLineList.singleOrNull {
-                        it.id == newEvent.productId
-                    } ?: return@launch
-
-                    val newQuantity = productUpdated.quantity.minus(1)
-
-                    if (newQuantity == 0) {
-                        orderModel.deleteOrderLineLocal(newEvent.productId)
-                        _state.update {
-                            it.copy(
-                                productsOrderLineList = it.productsOrderLineList.filter { orderLine ->
-                                    orderLine.id != newEvent.productId
-                                }
-                            )
-                        }
-                    } else {
-                        orderModel.updateProductStock(
+                    val selectedProduct = state.value.productsGroupedByCompany.values.flatten().find { it.id == newEvent.productId }
+                    selectedProduct?.let {
+                        orderModel.addLocalOrderLine(
                             newEvent.productId,
-                            newQuantity
+                            it.companyName
                         )
                     }
                 }
 
                 is NewOrderEvent.PlusQuantityProduct -> {
-                    val productUpdated = state.value.availableCommonProducts.singleOrNull {
-                        it.id == newEvent.productId
-                    } as ProductWithOrderLine? ?: return@launch
-
-                    orderModel.updateProductStock(
-                        newEvent.productId,
-                        productUpdated.quantity.plus(1)
-                    )
+                    val productUpdated = state.value.productsOrderLineList.singleOrNull { it.id == newEvent.productId }
+                    productUpdated?.let {
+                        val newQuantity = it.quantity.plus(1)
+                        orderModel.updateProductStock(newEvent.productId, newQuantity)
+                        _state.update { currentState ->
+                            val newList = currentState.productsOrderLineList.map { if (it.id == newEvent.productId) it.copy(orderLine = it.orderLine.copy(quantity = newQuantity)) else it }
+                            currentState.copy(productsOrderLineList = newList)
+                        }
+                    }
+                }
+                is NewOrderEvent.MinusQuantityProduct -> {
+                    val productUpdated = state.value.productsOrderLineList.singleOrNull { it.id == newEvent.productId }
+                    productUpdated?.let {
+                        val newQuantity = it.quantity.minus(1)
+                        if (newQuantity == 0) {
+                            orderModel.deleteOrderLineLocal(newEvent.productId)
+                            _state.update { currentState ->
+                                currentState.copy(productsOrderLineList = currentState.productsOrderLineList.filter { it.id != newEvent.productId })
+                            }
+                        } else {
+                            orderModel.updateProductStock(newEvent.productId, newQuantity)
+                            _state.update { currentState ->
+                                val newList = currentState.productsOrderLineList.map { if (it.id == newEvent.productId) it.copy(orderLine = it.orderLine.copy(quantity = newQuantity)) else it }
+                                currentState.copy(productsOrderLineList = newList)
+                            }
+                        }
+                    }
                 }
 
                 NewOrderEvent.HideShoppingCart -> {
@@ -190,19 +179,11 @@ class NewOrderViewModel @Inject constructor(
                 }
 
                 NewOrderEvent.PushOrder -> {
-                    orderModel.pushOrderLinesToFirebase(
-                        state.value.productsOrderLineList
-                    ).fold(
+                    val productsToPush = state.value.productsGroupedByCompany.values.flatten()
+                        .filterIsInstance<ProductWithOrderLine>()
+
+                    orderModel.pushOrderLinesToFirebase(productsToPush).fold(
                         onSuccess = {
-                            state.value.productsOrderLineList.forEach { orderLine ->
-                                val productModified = initialCommonProducts.single { commonProduct ->
-                                    commonProduct.id == orderLine.id
-                                }
-                                updateProductStockUseCase(
-                                    productModified.id,
-                                    productModified.stock.minus(orderLine.quantity)
-                                )
-                            }
                             _state.update { it.copy(showPopup = PopupType.ORDER_ADDED) }
                         },
                         onFailure = { throwable ->
@@ -212,21 +193,18 @@ class NewOrderViewModel @Inject constructor(
                 }
 
                 NewOrderEvent.DeleteOrder -> {
-                    for (value in state.value.ordersFromExistingOrder.values) {
-                        value.forEach {
-                            val product = initialCommonProducts.single { commonProduct ->
-                                commonProduct.name == it.product.name
-                            }
+                    for (orderLines in state.value.ordersFromExistingOrder.values.flatten()) {
+                        val product = initialCommonProducts.find { it.id == orderLines.product.id }
+                        product?.let {
+                            // Restaurar el stock del producto
                             updateProductStockUseCase(
-                                product.id,
-                                product.stock.plus(it.quantity)
+                                it.id,
+                                it.stock.plus(orderLines.quantity)
                             )
                         }
                     }
                     orderModel.deleteOrder()
-                    _state.update {
-                        it.copy(goOut = true)
-                    }
+                    _state.update { it.copy(goOut = true) }
                 }
 
                 NewOrderEvent.HideDialog -> _state.update { it.copy(showPopup = PopupType.NONE) }
@@ -234,4 +212,5 @@ class NewOrderViewModel @Inject constructor(
             }
         }
     }
+
 }

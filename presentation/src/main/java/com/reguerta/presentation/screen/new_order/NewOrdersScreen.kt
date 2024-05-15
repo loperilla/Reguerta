@@ -1,6 +1,5 @@
 package com.reguerta.presentation.screen.new_order
 
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -53,6 +52,7 @@ import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.domain.model.mapper.containerUnity
 import com.reguerta.domain.model.mapper.getAmount
+import com.reguerta.domain.model.mapper.getUnitType
 import com.reguerta.domain.model.mapper.priceFormatted
 import com.reguerta.domain.model.received.OrderLineReceived
 import com.reguerta.presentation.ALCAZAR
@@ -77,6 +77,7 @@ import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.ui.PADDING_ULTRA_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
@@ -189,130 +190,6 @@ fun ExistingOrderScreen(
         )
     }
 }
-/*
-@Composable
-fun NewOrderScreen(
-    state: NewOrderState,
-    onEvent: (NewOrderEvent) -> Unit
-) {
-    Scaffold(
-        topBar = {
-            if (state.showShoppingCart) {
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    InverseReguertaButton(
-                        onClick = {
-                            onEvent(NewOrderEvent.HideShoppingCart)
-                        },
-                        content = {
-                            Icon(
-                                imageVector = Icons.Default.ShoppingBasket,
-                                contentDescription = null,
-                                tint = PrimaryColor,
-                                modifier = Modifier
-                                    .padding(horizontal = PADDING_SMALL)
-                                    .size(36.dp)
-                            )
-                            TextBody(
-                                "Seguir comprando",
-                                textSize = TEXT_SIZE_LARGE,
-                                modifier = Modifier
-                                    .padding(horizontal = PADDING_SMALL)
-                            )
-                        },
-                        modifier = Modifier
-                            .padding(
-                                vertical = PADDING_SMALL,
-                                horizontal = PADDING_MEDIUM
-                            )
-                    )
-                }
-            } else {
-                ReguertaTopBar(
-                    topBarText = "Lista de productos",
-                    navActionClick = { onEvent(NewOrderEvent.GoOut) },
-                    actions = {
-                        InverseReguertaButton(
-                            onClick = {
-                                onEvent(NewOrderEvent.ShowShoppingCart)
-                            },
-                            content = {
-                                TextBody(
-                                    "Ver",
-                                    textSize = TEXT_SIZE_MEDIUM,
-                                    modifier = Modifier
-                                        .padding(horizontal = PADDING_SMALL)
-                                )
-                                Icon(
-                                    imageVector = Icons.Default.ShoppingCart,
-                                    contentDescription = null,
-                                    tint = PrimaryColor
-                                )
-                            },
-                            enabledButton = state.hasOrderLine
-                        )
-                    }
-                )
-            }
-        },
-        bottomBar = {
-            if (state.showShoppingCart) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentSize(Alignment.BottomCenter)
-                        .background(
-                            color = SecondaryBackground,
-                            shape = RoundedCornerShape(topStart = PADDING_MEDIUM, topEnd = PADDING_MEDIUM)
-                        )
-                        .padding(PADDING_SMALL)
-                ) {
-                    ReguertaButton(
-                        "Finalizar compra",
-                        onClick = {
-                            onEvent(NewOrderEvent.PushOrder)
-                        },
-                        enabledButton = state.hasOrderLine,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                vertical = PADDING_SMALL,
-                                horizontal = PADDING_MEDIUM
-                            )
-                    )
-                }
-            }
-        }
-    ) {
-        Column(
-            modifier = Modifier.padding(it)
-        ) {
-            if (!state.isLoading) {
-                AnimatedVisibility(
-                    visible = state.showShoppingCart
-                ) {
-                    ShoppingCartScreen(
-                        state.productsOrderLineList,
-                        onEvent
-                    )
-                }
-                AnimatedVisibility(
-                    visible = !state.showShoppingCart
-                ) {
-                    AvailableProductsScreen(
-                        state.availableCommonProducts,
-                        onEvent
-                    )
-                }
-            }
-        }
-    }
-}
-*/
 
 @Composable
 fun NewOrderTopBar(
@@ -365,7 +242,7 @@ fun NewOrderTopBar(
                     content = {
                         TextBody(
                             "Ver",
-                            textSize = TEXT_SIZE_MEDIUM,
+                            textSize = TEXT_SIZE_LARGE,
                             modifier = Modifier
                                 .padding(horizontal = PADDING_SMALL)
                         )
@@ -439,12 +316,10 @@ fun NewOrderScreen(
                     if (state.isExistOrder) {
                         ExistingOrderScreen(state, onEvent)
                     } else {
-                        Log.d("NewOrderScreen", "Grouped products: ${state.productsGroupedByCompany}")
-                        GroupedProductsScreen(groupedProducts = state.productsGroupedByCompany, onEvent)
-                       /* AvailableProductsScreen(
-                            state.availableCommonProducts,
+                       GroupedProductsScreen(
+                            groupedProducts = state.productsGroupedByCompany,
                             onEvent
-                        )*/
+                        )
                     }
                 }
             } else {
@@ -477,8 +352,6 @@ fun GroupedProductsScreen(
         }
     }
 }
-
-
 
 @Composable
 private fun ShoppingCartScreen(
@@ -575,8 +448,7 @@ fun ShoppingCartOrderProductItem(
 
                     OrderQuantitySelector(
                         product,
-                        onEvent,
-                        //modifier = Modifier.padding(vertical = PADDING_EXTRA_SMALL)
+                        onEvent
                     )
                 }
             }
@@ -616,63 +488,53 @@ private fun OrderProductItem(
             .padding(PADDING_SMALL)
             .wrapContentSize(),
         content = {
-            HeaderItemProduct(
-                product,
-                onEvent
-            )
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Bottom,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentHeight()
+            Column(
+                modifier = Modifier.fillMaxWidth()
             ) {
+                HeaderItemProduct(
+                    product,
+                    onEvent
+                )
                 Column(
                     modifier = Modifier
-                        .padding(PADDING_SMALL)
-                        .fillMaxHeight()
+                        .padding(horizontal = PADDING_SMALL)
+                        .align(Alignment.Start)
                 ) {
                     TextBody(
                         text = product.name,
                         textSize = TEXT_SIZE_LARGE,
                         textColor = Text,
-                        modifier = Modifier
-                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                        modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
                     )
                     TextBody(
                         text = product.description,
                         textSize = TEXT_SIZE_SMALL,
                         textColor = Text,
-                        modifier = Modifier
-                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                        modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
                     )
                     TextBody(
-                        text = product.containerUnity(),// Por separado (dif tam)
+                        text = product.containerUnity(),
                         textSize = TEXT_SIZE_MEDIUM,
                         textColor = Text,
-                        modifier = Modifier
-                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
-                    )
-                    TextBody(
-                        text = "${product.priceFormatted()} / ${product.container}",
-                        textSize = TEXT_SIZE_LARGE,
-                        textColor = Text,
-                        modifier = Modifier
-                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                        modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
                     )
                 }
-
-                Column(
-                    verticalArrangement = Arrangement.Bottom,
+                Row(
+                    horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
-                        .padding(PADDING_SMALL)
-                        .fillMaxHeight()
+                        .fillMaxWidth()
+                        .padding(horizontal = PADDING_SMALL)
+                        .padding(bottom = PADDING_SMALL)
                 ) {
+                    TextBody(
+                        text = "${product.priceFormatted()} / ${product.getUnitType().singular}",
+                        textSize = TEXT_SIZE_LARGE,
+                        textColor = Text,
+                        modifier = Modifier.align(Alignment.CenterVertically)
+                    )
                     StockText(
                         product.stock,
-                        textSize = TEXT_SIZE_LARGE,
-                        modifier = Modifier
-                            .padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
+                        modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
             }
@@ -724,7 +586,7 @@ private fun ButtonStartOrder(
         shape = RoundedCornerShape(16f),
         colors = ButtonDefaults.buttonColors(
             containerColor = PrimaryColor,
-            disabledContainerColor = Color.Gray.copy(alpha = 0.15f)
+            disabledContainerColor = Color.Gray.copy(alpha = 0.4f)
         ),
         modifier = modifier
             .fillMaxWidth()
@@ -732,19 +594,11 @@ private fun ButtonStartOrder(
     ) {
         TextBody(
             "Añadir",
-            textSize = TEXT_SIZE_MEDIUM,
+            textSize = TEXT_SIZE_LARGE,
             textColor = Color.White,
             modifier = Modifier
                 .padding(horizontal = PADDING_EXTRA_SMALL)
         )
-        /*TextRegular(
-            text = "Añadir al carro",
-            textSize = TEXT_SIZE_LARGE,
-            textColor = Color.White,
-            modifier = Modifier
-                .padding(PADDING_EXTRA_SMALL)
-        )
-        Spacer(Modifier.width(PADDING_EXTRA_SMALL))*/
         Icon(
             imageVector = Icons.Filled.AddShoppingCart,
             contentDescription = null,

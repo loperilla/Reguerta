@@ -10,7 +10,7 @@ import com.reguerta.domain.model.interfaces.Product
  */
 
 data class ProductWithOrderLine(
-    private val commonProduct: CommonProduct,
+    val commonProduct: CommonProduct,
     val orderLine: OrderLineProduct
 ) : Product {
     override val id: String

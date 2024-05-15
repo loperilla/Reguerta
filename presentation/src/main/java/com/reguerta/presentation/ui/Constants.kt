@@ -21,12 +21,14 @@ val TEXT_SPECIAL = 26.sp
 // TextButtons
 val TEXT_SIZE_PAIR_BTN = 18.sp
 val TEXT_SIZE_SINGLE_BTN = 22.sp
+val TEXT_SIZE_SPECIAL_BTN = 26.sp
 
 // TextSizes Dialogs
 val TEXT_SIZE_DLG_BODY = 15.sp
 val TEXT_SIZE_DLG_TITLE = 20.sp
 
 // Paddings
+val PADDING_ULTRA_SMALL = 2.dp
 val PADDING_EXTRA_SMALL = 4.dp
 val PADDING_SMALL = 8.dp
 val PADDING_MEDIUM = 16.dp

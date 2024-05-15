@@ -68,6 +68,7 @@ import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_SPECIAL_BTN
 import com.reguerta.presentation.ui.Text
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
@@ -177,14 +178,14 @@ private fun MakeYourOrderButton(
     Button(
         onClick = onButtonClick,
         modifier = modifier,
-        shape = RoundedCornerShape(16f),
+        shape = RoundedCornerShape(32f),
         colors = ButtonDefaults.buttonColors(
-            containerColor = SecondaryBackground
+            containerColor = PrimaryColor.copy(0.2f)
         )
     ) {
         TextBody(
-            text = "Tu pedido",
-            textSize = TEXT_SIZE_EXTRA_LARGE,
+            text = "Mi pedido",
+            textSize = TEXT_SIZE_SPECIAL_BTN,
             textColor = PrimaryColor,
             modifier = Modifier
                 .padding(PADDING_SMALL)
@@ -201,15 +202,15 @@ private fun ShowYourOrderButton(
     Button(
         onClick = onButtonClick,
         modifier = modifier,
-        shape = RoundedCornerShape(16f),
+        shape = RoundedCornerShape(32f),
         enabled = buttonIsEnabled,
         colors = ButtonDefaults.buttonColors(
-            containerColor = SecondaryBackground
+            containerColor = PrimaryColor.copy(0.2f)
         )
     ) {
         TextBody(
             text = "Ver tus pedidos",
-            textSize = TEXT_SIZE_EXTRA_LARGE,
+            textSize = TEXT_SIZE_SPECIAL_BTN,
             textColor = PrimaryColor,
             modifier = Modifier
                 .padding(PADDING_SMALL)
