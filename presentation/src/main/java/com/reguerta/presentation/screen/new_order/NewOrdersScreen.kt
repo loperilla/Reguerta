@@ -55,6 +55,8 @@ import com.reguerta.domain.model.mapper.getAmount
 import com.reguerta.domain.model.mapper.getUnitType
 import com.reguerta.domain.model.mapper.priceFormatted
 import com.reguerta.domain.model.received.OrderLineReceived
+import com.reguerta.domain.model.received.getAmount
+import com.reguerta.domain.model.received.getDblAmount
 import com.reguerta.presentation.ALCAZAR
 import com.reguerta.presentation.ALCAZAR_WITH_ORDER
 import com.reguerta.presentation.composables.AmountText
@@ -71,13 +73,15 @@ import com.reguerta.presentation.composables.StockText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.image.ProductImage
-import com.reguerta.presentation.screen.received_orders.OrderListByProduct
+import com.reguerta.presentation.composables.products.ProductNameUnityContainerInMyOrder
 import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
+import com.reguerta.presentation.ui.PADDING_LARGE
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PADDING_ULTRA_SMALL
+import com.reguerta.presentation.ui.PADDING_ZERO
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
@@ -86,6 +90,7 @@ import com.reguerta.presentation.ui.SIZE_96
 import com.reguerta.presentation.ui.SecondaryBackground
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
+import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
@@ -150,6 +155,8 @@ fun ExistingOrderScreen(
     state: NewOrderState,
     onEvent: (NewOrderEvent) -> Unit
 ) {
+    val grandTotal = state.orderLinesByCompanyName.values.sumOf { it.getDblAmount() }
+
     Scaffold(
         topBar = {
             ReguertaTopBar(
@@ -161,14 +168,15 @@ fun ExistingOrderScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(PADDING_EXTRA_SMALL),
+                            .padding(PADDING_ZERO),
                         horizontalAlignment = Alignment.End
                     ) {
                         TextBody(
-                            text = "¿Modificar?",
+                            text = "¿eliminar?",
                             textColor = Orange,
                             modifier = Modifier
                                 .wrapContentWidth(Alignment.End)
+                                //.padding(top = PADDING_SMALL)
                         )
                         ReguertaIconButton(
                             onClick = {
@@ -183,13 +191,169 @@ fun ExistingOrderScreen(
             )
         }
     ) {
-        OrderListByProduct(
-            state.ordersFromExistingOrder,
+        Column(
             modifier = Modifier
+                .fillMaxSize()
                 .padding(it)
-        )
+                .padding(bottom = PADDING_LARGE + PADDING_MEDIUM)
+        ) {
+            OrderLinesByCompany(
+                orderLines = state.orderLinesByCompanyName,
+                modifier = Modifier
+                    .weight(1f)
+                    //.padding(PADDING_SMALL)
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(),
+                //.padding(PADDING_ZERO),
+            horizontalAlignment = Alignment.End
+        ) {
+            Spacer( modifier = Modifier
+                .weight(1f))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(PrimaryColor)
+                    .padding(PADDING_SMALL),
+                contentAlignment = Alignment.Center
+            ) {
+                TextTitle(
+                    text = "Suma total pedido: %.2f €".format(grandTotal),
+                    textSize = TEXT_TOP_BAR,
+                    textColor = Color.White
+                )
+            }
+        }
     }
 }
+
+@Composable
+private fun OrderLinesByCompany(
+    orderLines: Map<String, List<OrderLineReceived>>,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(PADDING_SMALL)
+    ) {
+        orderLines.forEach {
+            item {
+                OrderByCompany(
+                    companyName = it.key,
+                    orderLines = it.value
+                )
+            }
+        }
+    }
+}
+
+
+@Composable
+private fun OrderByCompany(
+    companyName: String,
+    orderLines: List<OrderLineReceived>
+) {
+    ReguertaCard(
+        modifier = Modifier.padding(
+            horizontal = PADDING_MEDIUM,
+            vertical = PADDING_SMALL
+        ),
+        content = {
+            TextBody(
+                text = companyName,
+                textSize = TEXT_SIZE_EXTRA_LARGE,
+                textColor = PrimaryColor,
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(
+                        top = PADDING_SMALL,
+                        bottom = PADDING_EXTRA_SMALL,
+                        start = PADDING_MEDIUM
+                    ),
+            )
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = PADDING_ZERO))
+
+            orderLines.forEach {
+                ProductLine(
+                    quantity = it.quantity,
+                    product = it.product
+                )
+            }
+
+            HorizontalDivider(modifier = Modifier.padding(vertical = PADDING_EXTRA_SMALL))
+
+            TextBody(
+                text = "Total: ${orderLines.getAmount()}",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        bottom = PADDING_SMALL,
+                        top = PADDING_EXTRA_SMALL,
+                        end = PADDING_MEDIUM
+                    ),
+                textColor = Orange,
+                textSize = TEXT_SIZE_EXTRA_LARGE,
+                textAlignment = TextAlign.End
+            )
+        }
+    )
+}
+
+@Composable
+private fun ProductLine(
+    quantity: Int,
+    product: Product
+) {  Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                horizontal = PADDING_SMALL,
+                vertical = PADDING_EXTRA_SMALL
+            ),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(
+            modifier = Modifier.weight(0.6f)
+        ) {
+            ProductNameUnityContainerInMyOrder(product)
+        }
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.weight(0.2f)
+        ) {
+            TextBody(
+                text = quantity.toString(),
+                textSize = TEXT_SIZE_LARGE,
+                textColor = Text,
+                modifier = Modifier.padding(top = PADDING_ULTRA_SMALL)
+            )
+            TextBody(
+                text = product.container,
+                textSize = TEXT_SIZE_SMALL,
+                textColor = Text,
+                modifier = Modifier.padding(vertical = PADDING_ZERO)
+            )
+        }
+        Column(
+            horizontalAlignment = Alignment.End,
+            modifier = Modifier.weight(0.2f)
+        ) {
+            val subtotal = quantity * product.price
+            TextBody(
+                text = "%.2f €".format(subtotal),
+                textSize = TEXT_SIZE_MEDIUM,
+                textColor = Text,
+                modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
+            )
+        }
+    }
+}
+
 
 @Composable
 fun NewOrderTopBar(
@@ -224,10 +388,7 @@ fun NewOrderTopBar(
                     )
                 },
                 modifier = Modifier
-                    .padding(
-                        vertical = PADDING_SMALL,
-                        horizontal = PADDING_MEDIUM
-                    )
+                    .padding(PADDING_ZERO)
             )
         }
     } else {
@@ -304,7 +465,9 @@ fun NewOrderScreen(
             NewOrderBottomBar(state, onEvent)
         }
     ) {
-        Column(modifier = Modifier.padding(it)) {
+        Column(modifier = Modifier
+            .padding(it)
+        ) {
             if (!state.isLoading) {
                 AnimatedVisibility(visible = state.showShoppingCart) {
                     ShoppingCartScreen(
@@ -359,8 +522,7 @@ private fun ShoppingCartScreen(
     onEvent: (NewOrderEvent) -> Unit
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxSize()
+        modifier = Modifier.fillMaxSize()
     ) {
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,

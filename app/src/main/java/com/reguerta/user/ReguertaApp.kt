@@ -2,6 +2,7 @@ package com.reguerta.user
 
 import android.app.Application
 import com.google.firebase.FirebaseApp
+import com.reguerta.data.BuildConfig
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 

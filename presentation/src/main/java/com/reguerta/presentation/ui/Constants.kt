@@ -11,6 +11,7 @@ import androidx.compose.ui.unit.sp
  */
 
 //TextSizes
+val TEXT_SIZE_EXTRA_SMALL = 12.sp
 val TEXT_SIZE_SMALL = 14.sp
 val TEXT_SIZE_MEDIUM = 16.sp
 val TEXT_SIZE_LARGE = 18.sp
@@ -28,6 +29,7 @@ val TEXT_SIZE_DLG_BODY = 15.sp
 val TEXT_SIZE_DLG_TITLE = 20.sp
 
 // Paddings
+val PADDING_ZERO = 0.dp
 val PADDING_ULTRA_SMALL = 2.dp
 val PADDING_EXTRA_SMALL = 4.dp
 val PADDING_SMALL = 8.dp

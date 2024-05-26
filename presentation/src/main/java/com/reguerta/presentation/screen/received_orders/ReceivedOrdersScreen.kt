@@ -4,7 +4,6 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,6 +12,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
@@ -42,15 +42,18 @@ import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.image.ProductImage
 import com.reguerta.presentation.composables.products.ProductNameUnityContainer
+import com.reguerta.presentation.composables.products.ProductNameUnityContainerInMyOrder
 import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.SIZE_48
+import com.reguerta.presentation.ui.SIZE_72
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
+import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
 import kotlinx.coroutines.launch
 
@@ -162,20 +165,25 @@ private fun OrderByUser(
     orderLines: List<OrderLineReceived>
 ) {
     ReguertaCard(
+        modifier = Modifier.padding(PADDING_SMALL),
         content = {
             TextTitle(
                 text = fullname,
+                textColor = PrimaryColor,
                 modifier = Modifier
+                    .padding(PADDING_SMALL)
                     .fillMaxWidth(),
-                textAlignment = TextAlign.Center
+                textAlignment = TextAlign.Start
             )
+            HorizontalDivider()
             orderLines.forEach {
                 ProductOrders(
                     quantity = it.quantity,
                     product = it.product
                 )
+                HorizontalDivider()
             }
-            TextBody(
+            TextTitle(
                 text = "Total: ${orderLines.getAmount()}",
                 modifier = Modifier
                     .fillMaxWidth()
@@ -184,9 +192,7 @@ private fun OrderByUser(
                 textSize = TEXT_SIZE_LARGE,
                 textAlignment = TextAlign.End
             )
-        },
-        modifier = Modifier
-            .padding(PADDING_MEDIUM)
+        }
     )
 }
 
@@ -200,25 +206,25 @@ private fun ProductOrders(
             .fillMaxWidth()
             .wrapContentHeight()
             .padding(PADDING_EXTRA_SMALL),
+        verticalAlignment = Alignment.CenterVertically
     ) {
-        ProductNameUnityContainer(product)
-        VerticalDivider(
-            modifier = Modifier.padding(PADDING_EXTRA_SMALL)
-        )
+        Column(
+            horizontalAlignment = Alignment.Start,
+            modifier = Modifier.weight(0.6f)
+        ) {
+            ProductNameUnityContainerInMyOrder(product)
+        }
+        VerticalDivider()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .wrapContentWidth()
-                .fillMaxHeight()
+            modifier = Modifier.weight(0.2f)
         ) {
             TextBody(
                 text = "$quantity",
                 textSize = TEXT_SIZE_MEDIUM,
                 textColor = Text,
-                modifier = Modifier
-                    .padding(PADDING_EXTRA_SMALL),
+                modifier = Modifier.padding(PADDING_EXTRA_SMALL),
             )
-
             TextBody(
                 text = product.container,
                 textSize = TEXT_SIZE_SMALL,
@@ -227,15 +233,10 @@ private fun ProductOrders(
                     .padding(PADDING_EXTRA_SMALL),
             )
         }
-        VerticalDivider(
-            modifier = Modifier.padding(PADDING_EXTRA_SMALL)
-        )
+        VerticalDivider()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .wrapContentWidth()
-                .fillMaxHeight()
+            modifier = Modifier.weight(0.2f)
         ) {
             TextBody(
                 text = product.priceFormatted(),
@@ -280,48 +281,46 @@ fun OrderByProduct(
             .wrapContentHeight(),
         content = {
             Row(
-                horizontalArrangement = Arrangement.SpaceAround,
+                //horizontalArrangement = Arrangement.SpaceAround,
+                verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .wrapContentHeight()
-                    .padding(PADDING_SMALL)
+                    .padding(PADDING_EXTRA_SMALL)
             ) {
                 ProductImage(
                     product = product,
-                    imageSize = SIZE_48,
-                    modifier = Modifier
-                        .wrapContentWidth()
+                    imageSize = SIZE_72,
+                    modifier = Modifier.wrapContentWidth()
                 )
                 VerticalDivider(
-                    modifier = Modifier.padding(horizontal = 8.dp),
-                    thickness = 6.dp,
-                    color = Color.DarkGray
-                )
+                    thickness = 1.dp,
+                    color = Color.Black)
+
                 ProductNameUnityContainer(
                     product,
                     modifier = Modifier
                         .wrapContentHeight()
-                        .weight(0.5f)
+                        .weight(0.6f)
                 )
-                VerticalDivider()
+                VerticalDivider(
+                    thickness = 1.dp,
+                    color = Color.Black)
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier
-                        .wrapContentWidth()
+                    modifier = Modifier.weight(0.2f)
                 ) {
-                    TextBody(
+                    TextTitle(
                         text = "${orderLines.getQuantityByProduct(product)}",
-                        textSize = TEXT_SIZE_LARGE,
+                        textSize = TEXT_TOP_BAR,
                         textColor = Text,
-                        modifier = Modifier
-                            .padding(PADDING_EXTRA_SMALL),
+                        modifier = Modifier.padding(PADDING_EXTRA_SMALL),
                     )
 
                     TextBody(
                         text = product.container,
                         textSize = TEXT_SIZE_SMALL,
                         textColor = Text,
-                        modifier = Modifier
-                            .padding(PADDING_EXTRA_SMALL),
+                        modifier = Modifier.padding(PADDING_EXTRA_SMALL),
                     )
                 }
             }

@@ -19,7 +19,13 @@ data class OrderLineReceived(
 fun List<OrderLineReceived>.getAmount(): String {
     var amount = 0f
     forEach { amount += it.product.price * it.quantity }
-    return String.format("%.2f", amount) + "€"
+    return String.format("%.2f", amount) + " €"
+}
+
+fun List<OrderLineReceived>.getDblAmount(): Double {
+    var amount = 0.0
+    forEach { amount += it.product.price * it.quantity }
+    return amount
 }
 
 fun List<OrderLineReceived>.getQuantityByProduct(product: Product): Int {

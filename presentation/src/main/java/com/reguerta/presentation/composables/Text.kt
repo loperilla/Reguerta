@@ -117,7 +117,7 @@ fun StockText(
 
 @Composable
 fun AmountText(
-    amount: Float,
+    amount: Double,
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -213,7 +213,7 @@ fun TextPreviews() {
             TextRegular("Manuel Lopera")
             TextBody("Manuel Lopera")
             TextTitle("Manuel Lopera")
-            AmountText(15f)
+            AmountText(15.0)
             StockText(0)
             StockText(4)
             StockText(34)

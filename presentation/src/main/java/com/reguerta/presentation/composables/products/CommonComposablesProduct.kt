@@ -9,9 +9,12 @@ import androidx.compose.ui.text.style.TextAlign
 import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.domain.model.mapper.containerUnity
 import com.reguerta.presentation.composables.TextBody
+import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
+import com.reguerta.presentation.ui.PADDING_ULTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
+import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -30,20 +33,44 @@ fun ProductNameUnityContainer(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
     ) {
-        TextBody(
+        TextTitle(
             text = product.name,
             textSize = TEXT_SIZE_LARGE,
             textColor = Text,
-            modifier = Modifier
-                .padding(PADDING_EXTRA_SMALL),
-            textAlignment = TextAlign.Start
+            modifier = Modifier.padding(PADDING_EXTRA_SMALL),
+            //textAlignment = TextAlign.Start
         )
         TextBody(
             text = product.containerUnity(),
+            textSize = TEXT_SIZE_SMALL,
+            textColor = Text,
+            modifier = Modifier.padding(PADDING_EXTRA_SMALL),
+            //textAlignment = TextAlign.Start
+        )
+    }
+}
+
+@Composable
+fun ProductNameUnityContainerInMyOrder(
+    product: Product,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        horizontalAlignment = Alignment.Start,
+        modifier = modifier.padding(start = PADDING_EXTRA_SMALL)
+    ) {
+        TextBody(
+            text = product.name,
             textSize = TEXT_SIZE_MEDIUM,
             textColor = Text,
-            modifier = Modifier
-                .padding(PADDING_EXTRA_SMALL),
+            modifier = Modifier.padding(
+                top = PADDING_EXTRA_SMALL)
+        )
+        TextBody(
+            text = product.containerUnity(),
+            textSize = TEXT_SIZE_SMALL,
+            textColor = Text,
+            modifier = Modifier.padding(vertical = PADDING_ULTRA_SMALL),
             textAlignment = TextAlign.Start
         )
     }

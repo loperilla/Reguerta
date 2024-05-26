@@ -64,7 +64,7 @@ class OrderServiceImpl @Inject constructor(
             DataResult.Error(DataError.Firebase.UNKNOWN)
         }
     }
-
+/*
     private suspend fun insertDefaultModel(): DataResult<OrderModel, DataError.Firebase> {
         return try {
             val orderModelDefault = OrderModel(
@@ -74,13 +74,32 @@ class OrderServiceImpl @Inject constructor(
                 surname = dataStore.getStringByKey(SURNAME_KEY)
             )
             collection
-                .add(orderModelDefault)
+                .add(orderModelDefault.toMapWithoutId())
                 .await()
             DataResult.Success(orderModelDefault)
         } catch (ex: Exception) {
             DataResult.Error(DataError.Firebase.UNKNOWN)
         }
     }
+*/
+    private suspend fun insertDefaultModel(): DataResult<OrderModel, DataError.Firebase> {
+        return try {
+            val orderModelDefault = OrderModel(
+                week = weekTime.getCurrentWeek(),
+                userId = dataStore.getStringByKey(UID_KEY),
+                name = dataStore.getStringByKey(NAME_KEY),
+                surname = dataStore.getStringByKey(SURNAME_KEY)
+            )
+            val documentReference = collection
+                .add(orderModelDefault.toMapWithoutId())
+                .await()
+            orderModelDefault.orderId = documentReference.id
+            DataResult.Success(orderModelDefault)
+        } catch (ex: Exception) {
+            DataResult.Error(DataError.Firebase.UNKNOWN)
+        }
+    }
+
 
     override suspend fun deleteOrder(orderId: String): DataResult<Unit, DataError.Firebase> {
         return try {

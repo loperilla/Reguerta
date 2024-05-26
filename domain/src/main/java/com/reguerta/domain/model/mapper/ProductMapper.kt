@@ -20,7 +20,12 @@ fun Product.priceFormatted(): String = String.format("%.2f", price) + "€"
 
 fun Product.getUnitType(): UnitType = if (quantityContainer > 1) UnitType.PACK else UnitType.UNIT
 
-fun Product.containerUnity(): String = "$quantityContainer $container $quantityWeight $unity"
+fun Product.containerUnity(): String {
+    val quantityContainerString = if (quantityContainer != 1) "$quantityContainer " else ""
+    return "$quantityContainerString$container $quantityWeight $unity"
+}
+
+//fun Product.containerUnity(): String = "$quantityContainer $container $quantityWeight $unity"
 
 fun Product.toDto(): ProductDTOModel = ProductDTOModel(
     container = container,
@@ -68,7 +73,7 @@ fun ProductModel.toDomain(
     unity = unity.orEmpty()
 )
 
-fun List<ProductWithOrderLine>.getAmount() = this.map { it.getAmount() }.sum()
+fun List<ProductWithOrderLine>.getAmount() = this.sumOf { it.getAmount() }
 
 fun ProductWithOrderLine.toOrderLineDto() = OrderLineDTO(
     orderId = orderLine.orderId,

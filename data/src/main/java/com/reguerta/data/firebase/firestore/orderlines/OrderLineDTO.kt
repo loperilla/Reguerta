@@ -16,7 +16,7 @@ data class OrderLineDTO(
     val quantity: Int,
     val week: Int,
     val companyName: String = "",
-    val subtotal: Float = 0f
+    val subtotal: Double = 0.0
 )
 
 fun OrderLineEntity.toDTO() = OrderLineDTO(

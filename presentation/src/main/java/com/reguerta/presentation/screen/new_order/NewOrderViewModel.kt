@@ -63,10 +63,12 @@ class NewOrderViewModel @Inject constructor(
                             }
                             if (existOrder) {
                                 orderModel.getOrderLinesFromCurrentWeek().collectLatest { ordersReceived ->
+                                    val groupedByCompany = ordersReceived.groupBy { it.companyName }.toSortedMap()
                                     _state.update {
                                         it.copy(
                                             isLoading = false,
                                             hasOrderLine = true,
+                                            orderLinesByCompanyName = groupedByCompany,
                                             ordersFromExistingOrder = ordersReceived.groupBy { orderLine ->
                                                 orderLine.product
                                             }

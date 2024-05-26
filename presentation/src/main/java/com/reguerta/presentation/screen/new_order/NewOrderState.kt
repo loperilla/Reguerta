@@ -20,6 +20,7 @@ data class NewOrderState(
     val availableCommonProducts: List<Product> = emptyList(),
     val productsOrderLineList: List<ProductWithOrderLine> = emptyList(),
     val ordersFromExistingOrder: Map<Product, List<OrderLineReceived>> = emptyMap(),
+    val orderLinesByCompanyName: Map<String, List<OrderLineReceived>> = emptyMap(),
     val productsGroupedByCompany: Map<String, List<Product>> = emptyMap()
 )
 

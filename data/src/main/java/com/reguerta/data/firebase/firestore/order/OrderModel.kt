@@ -12,4 +12,13 @@ data class OrderModel(
     val name: String? = null,
     val surname: String? = null,
     val week: Int? = null
-)
+) {
+    fun toMapWithoutId(): Map<String, Any?> {
+        return mapOf(
+            "userId" to userId,
+            "name" to name,
+            "surname" to surname,
+            "week" to week
+        )
+    }
+}

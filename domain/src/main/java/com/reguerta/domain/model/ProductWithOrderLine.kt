@@ -42,7 +42,7 @@ data class ProductWithOrderLine(
 
     fun getQuantityUnitySelected() = "${orderLine.quantity} $container"
 
-    fun getAmount() = orderLine.quantity * price
+    fun getAmount(): Double = (orderLine.quantity * price).toDouble()
 
     fun getUnitType(): UnitType = if (commonProduct.quantityContainer > 1) UnitType.PACK else UnitType.UNIT
 

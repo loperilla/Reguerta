@@ -10,10 +10,10 @@ plugins {
 
 android {
     namespace = "$GROUP_ID.user"
-    compileSdk = configCompileSdkVersion
+    compileSdk = 34
 
     defaultConfig {
-        applicationId = "$GROUP_ID.user"
+        applicationId = "${GROUP_ID}.user"
         minSdk = configMinSdkVersion
         targetSdk = configTargetSdkVersion
         versionCode = VERSION_CODE
@@ -49,6 +49,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = false
     }
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
