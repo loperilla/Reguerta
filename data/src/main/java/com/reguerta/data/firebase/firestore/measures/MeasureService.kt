@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
  * Created By Manuel Lopera on 2/3/24 at 12:30
  * All rights reserved 2024
  */
+
 interface MeasureService {
     suspend fun getMeasures(): Flow<Result<List<MeasureModel>>>
 

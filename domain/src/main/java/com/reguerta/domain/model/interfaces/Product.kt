@@ -6,6 +6,7 @@ package com.reguerta.domain.model.interfaces
  * Created By Manuel Lopera on 15/3/24 at 19:46
  * All rights reserved 2024
  */
+
 interface Product {
     val id: String
     val container: String

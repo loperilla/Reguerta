@@ -10,6 +10,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 24/2/24 at 10:58
  * All rights reserved 2024
  */
+
 class LoginUseCase @Inject constructor(
     private val authService: AuthService
 ) {

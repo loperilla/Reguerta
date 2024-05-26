@@ -30,6 +30,7 @@ class NewOrderModel @Inject constructor(
     private val orderLineService: OrderLineService
 ) {
     private lateinit var order: Order
+
     suspend fun checkIfExistOrderInFirebase(): Result<Boolean> {
         return when (val result = orderService.getOrderByUserId()) {
             is DataResult.Error -> Result.failure(Exception("Order not found in firebase"))

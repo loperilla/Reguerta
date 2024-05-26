@@ -13,6 +13,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 15/3/24 at 19:22
  * All rights reserved 2024
  */
+
 class GetOrderLinesUseCase @Inject constructor(
     private val orderLineService: OrderLineService
 ) {

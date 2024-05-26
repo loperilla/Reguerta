@@ -11,6 +11,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 3/3/24 at 15:09
  * All rights reserved 2024
  */
+
 class GetProductByIdUseCase @Inject constructor(
     private val productService: ProductsService
 ) {

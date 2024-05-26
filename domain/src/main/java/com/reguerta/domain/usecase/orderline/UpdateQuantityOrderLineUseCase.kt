@@ -9,6 +9,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 16/3/24 at 11:09
  * All rights reserved 2024
  */
+
 class UpdateQuantityOrderLineUseCase @Inject constructor(
     private val orderLineService: OrderLineService
 ) {

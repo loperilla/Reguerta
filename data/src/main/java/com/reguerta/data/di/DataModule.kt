@@ -52,6 +52,7 @@ import javax.inject.Singleton
  * Created By Manuel Lopera on 24/1/24 at 11:33
  * All rights reserved 2024
  */
+
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {

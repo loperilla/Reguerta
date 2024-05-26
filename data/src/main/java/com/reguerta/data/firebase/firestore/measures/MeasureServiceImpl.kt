@@ -14,6 +14,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 2/3/24 at 12:31
  * All rights reserved 2024
  */
+
 class MeasureServiceImpl @Inject constructor(
     private val collection: CollectionReference,
     private val measureDao: MeasureDao

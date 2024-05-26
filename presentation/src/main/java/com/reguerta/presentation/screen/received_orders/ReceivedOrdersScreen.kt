@@ -229,8 +229,7 @@ private fun ProductOrders(
                 text = product.container,
                 textSize = TEXT_SIZE_SMALL,
                 textColor = Text,
-                modifier = Modifier
-                    .padding(PADDING_EXTRA_SMALL),
+                modifier = Modifier.padding(PADDING_EXTRA_SMALL),
             )
         }
         VerticalDivider()
@@ -294,8 +293,8 @@ fun OrderByProduct(
                 )
                 VerticalDivider(
                     thickness = 1.dp,
-                    color = Color.Black)
-
+                    color = Color.Black
+                )
                 ProductNameUnityContainer(
                     product,
                     modifier = Modifier
@@ -304,7 +303,8 @@ fun OrderByProduct(
                 )
                 VerticalDivider(
                     thickness = 1.dp,
-                    color = Color.Black)
+                    color = Color.Black
+                )
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier.weight(0.2f)
@@ -315,7 +315,6 @@ fun OrderByProduct(
                         textColor = Text,
                         modifier = Modifier.padding(PADDING_EXTRA_SMALL),
                     )
-
                     TextBody(
                         text = product.container,
                         textSize = TEXT_SIZE_SMALL,

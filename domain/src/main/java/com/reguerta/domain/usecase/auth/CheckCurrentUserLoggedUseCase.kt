@@ -11,6 +11,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 3/3/24 at 17:21
  * All rights reserved 2024
  */
+
 class CheckCurrentUserLoggedUseCase @Inject constructor(
     private val authService: AuthService
 ) {

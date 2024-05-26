@@ -48,6 +48,7 @@ import dagger.hilt.android.components.ViewModelComponent
  * Created By Manuel Lopera on 24/2/24 at 10:48
  * All rights reserved 2024
  */
+
 @Module
 @InstallIn(ViewModelComponent::class)
 object DomainDi {

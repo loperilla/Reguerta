@@ -8,6 +8,7 @@ import com.reguerta.data.firebase.firestore.measures.MeasureModel
  * Created By Manuel Lopera on 2/3/24 at 12:36
  * All rights reserved 2024
  */
+
 data class Measure(
     val abbreviation: String,
     val name: String,

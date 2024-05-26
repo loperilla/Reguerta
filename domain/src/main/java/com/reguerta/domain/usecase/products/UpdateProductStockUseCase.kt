@@ -9,6 +9,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 25/3/24 at 19:56
  * All rights reserved 2024
  */
+
 class UpdateProductStockUseCase @Inject constructor(
     private val productsService: ProductsService
 ) {

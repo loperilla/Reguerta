@@ -8,6 +8,7 @@ import java.util.UUID
  * Created By Manuel Lopera on 3/3/24 at 13:10
  * All rights reserved 2024
  */
+
 data class ProductDTOModel(
     val userId: String? = null,
     val name: String? = null,

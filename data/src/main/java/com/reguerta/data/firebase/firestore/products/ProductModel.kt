@@ -6,6 +6,7 @@ package com.reguerta.data.firebase.firestore.products
  * Created By Manuel Lopera on 24/2/24 at 15:21
  * All rights reserved 2024
  */
+
 data class ProductModel(
     var id: String? = null,
     val userId: String? = null,

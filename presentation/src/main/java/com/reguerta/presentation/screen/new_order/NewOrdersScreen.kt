@@ -465,6 +465,52 @@ fun NewOrderScreen(
             NewOrderBottomBar(state, onEvent)
         }
     ) {
+        Box(
+            modifier = Modifier
+                .padding(it)
+                .fillMaxSize()
+        ) {
+            if (!state.isLoading) {
+                Column {
+                    AnimatedVisibility(visible = state.showShoppingCart) {
+                        ShoppingCartScreen(
+                            state.productsOrderLineList,
+                            onEvent
+                        )
+                    }
+                    AnimatedVisibility(visible = !state.showShoppingCart) {
+                        if (state.isExistOrder) {
+                            ExistingOrderScreen(state, onEvent)
+                        } else {
+                            GroupedProductsScreen(
+                                groupedProducts = state.productsGroupedByCompany,
+                                onEvent
+                            )
+                        }
+                    }
+                }
+            } else {
+                CircularProgressIndicator(
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun NewOrderScreenX(
+    state: NewOrderState,
+    onEvent: (NewOrderEvent) -> Unit
+) {
+    Scaffold(
+        topBar = {
+            NewOrderTopBar(state, onEvent)
+        },
+        bottomBar = {
+            NewOrderBottomBar(state, onEvent)
+        }
+    ) {
         Column(modifier = Modifier
             .padding(it)
         ) {
@@ -589,25 +635,19 @@ fun ShoppingCartOrderProductItem(
                         text = product.name,
                         textSize = TEXT_SIZE_LARGE,
                         textColor = Text,
-                        modifier = Modifier
-                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                        modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                     )
-
                     TextBody(
                         text = "${product.priceFormatted()} / ${product.getUnitType().singular}",
                         textSize = TEXT_SIZE_LARGE,
                         textColor = Text,
-                        modifier = Modifier
-                            .padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                        modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                     )
-
                     HorizontalDivider(
-                        modifier = Modifier
-                            .padding(start = PADDING_SMALL, end = PADDING_SMALL, top = PADDING_MEDIUM, bottom = PADDING_SMALL),
+                        modifier = Modifier.padding(start = PADDING_SMALL, end = PADDING_SMALL, top = PADDING_MEDIUM, bottom = PADDING_SMALL),
                         color = Color.LightGray,
                         thickness = 1.dp
                     )
-
                     OrderQuantitySelector(
                         product,
                         onEvent

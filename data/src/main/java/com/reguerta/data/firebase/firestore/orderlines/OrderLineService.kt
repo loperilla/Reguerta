@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
  * Created By Manuel Lopera on 15/3/24 at 19:11
  * All rights reserved 2024
  */
+
 interface OrderLineService {
     suspend fun getOrderLines(orderId: String): Flow<List<OrderLineDTO>>
     suspend fun addOrderLineInDatabase(orderId: String, productId: String, productCompany: String)

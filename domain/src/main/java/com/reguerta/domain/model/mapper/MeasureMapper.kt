@@ -11,6 +11,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 16/3/24 at 12:00
  * All rights reserved 2024
  */
+
 class MeasureMapper @Inject constructor(
     private val measureService: MeasureService
 ) {

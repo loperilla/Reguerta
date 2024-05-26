@@ -9,6 +9,7 @@ import com.reguerta.data.firebase.model.DataResult
  * Created By Manuel Lopera on 13/3/24 at 19:10
  * All rights reserved 2024
  */
+
 interface OrderServices {
     suspend fun getOrderByUserId(): DataResult<OrderModel, DataError.Firebase>
     suspend fun getOrderByUserId(userId: String): DataResult<OrderModel, DataError.Firebase>

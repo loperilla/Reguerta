@@ -11,6 +11,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 17/3/24 at 12:58
  * All rights reserved 2024
  */
+
 class PushOrderLineToFirebaseUseCase @Inject constructor(
     private val orderLineService: OrderLineService
 ) {

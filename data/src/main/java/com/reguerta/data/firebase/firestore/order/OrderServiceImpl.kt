@@ -19,6 +19,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 13/3/24 at 19:11
  * All rights reserved 2024
  */
+
 class OrderServiceImpl @Inject constructor(
     private val collection: CollectionReference,
     private val dataStore: ReguertaDataStore,
@@ -64,24 +65,7 @@ class OrderServiceImpl @Inject constructor(
             DataResult.Error(DataError.Firebase.UNKNOWN)
         }
     }
-/*
-    private suspend fun insertDefaultModel(): DataResult<OrderModel, DataError.Firebase> {
-        return try {
-            val orderModelDefault = OrderModel(
-                week = weekTime.getCurrentWeek(),
-                userId = dataStore.getStringByKey(UID_KEY),
-                name = dataStore.getStringByKey(NAME_KEY),
-                surname = dataStore.getStringByKey(SURNAME_KEY)
-            )
-            collection
-                .add(orderModelDefault.toMapWithoutId())
-                .await()
-            DataResult.Success(orderModelDefault)
-        } catch (ex: Exception) {
-            DataResult.Error(DataError.Firebase.UNKNOWN)
-        }
-    }
-*/
+
     private suspend fun insertDefaultModel(): DataResult<OrderModel, DataError.Firebase> {
         return try {
             val orderModelDefault = OrderModel(
@@ -99,7 +83,6 @@ class OrderServiceImpl @Inject constructor(
             DataResult.Error(DataError.Firebase.UNKNOWN)
         }
     }
-
 
     override suspend fun deleteOrder(orderId: String): DataResult<Unit, DataError.Firebase> {
         return try {

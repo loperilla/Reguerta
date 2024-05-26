@@ -9,6 +9,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 24/2/24 at 11:58
  * All rights reserved 2024
  */
+
 class ToggleProducerUseCase @Inject constructor(
     private val repository: UsersCollectionService
 ) {

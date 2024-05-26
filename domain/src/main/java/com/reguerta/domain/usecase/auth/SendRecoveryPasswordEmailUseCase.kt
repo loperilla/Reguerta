@@ -10,10 +10,10 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 7/4/24 at 16:03
  * All rights reserved 2024
  */
+
 class SendRecoveryPasswordEmailUseCase @Inject constructor(
     private val authService: AuthService
 ) {
-
     suspend operator fun invoke(email: String): Result<Unit> {
         return when (val result = authService.sendRecoveryPasswordEmail(email)) {
             is DataResult.Success -> Result.success(Unit)

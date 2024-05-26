@@ -11,6 +11,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 24/2/24 at 10:50
  * All rights reserved 2024
  */
+
 class GetUserByIdUseCase @Inject constructor(
     private val repository: UsersCollectionService
 ) {

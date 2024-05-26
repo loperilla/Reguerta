@@ -21,6 +21,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 24/2/24 at 15:26
  * All rights reserved 2024
  */
+
 class ProductsServiceImpl @Inject constructor(
     private val collection: CollectionReference,
     private val dataStore: ReguertaDataStore,
@@ -163,7 +164,6 @@ class ProductsServiceImpl @Inject constructor(
                 .document(id)
                 .update("stock", newStock)
                 .await()
-
             Result.success(Unit)
         } catch (ex: Exception) {
             Result.failure(ex)

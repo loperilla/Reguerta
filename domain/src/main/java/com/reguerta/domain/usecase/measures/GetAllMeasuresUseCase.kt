@@ -13,10 +13,10 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 2/3/24 at 12:36
  * All rights reserved 2024
  */
+
 class GetAllMeasuresUseCase @Inject constructor(
     private val measureService: MeasureService
 ) {
-
     suspend operator fun invoke(): Flow<List<Measure>> {
         return measureService.getMeasures().map {
             it.fold(

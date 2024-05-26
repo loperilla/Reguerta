@@ -18,12 +18,12 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 29/3/24 at 10:46
  * All rights reserved 2024
  */
+
 class OrderReceivedModel @Inject constructor(
     private val orderLineService: OrderLineService,
     private val productService: ProductsService,
     private val orderService: OrderServices
 ) {
-
     suspend operator fun invoke(): Flow<List<OrderLineReceived>> =
         orderLineService.getOrdersByCompanyAndWeek().map {
             it.fold(
@@ -44,4 +44,4 @@ class OrderReceivedModel @Inject constructor(
                 }
             )
         }
-}
+    }

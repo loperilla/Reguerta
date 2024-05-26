@@ -13,6 +13,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 13/3/24 at 18:19
  * All rights reserved 2024
  */
+
 class GetAvailableProductsUseCase @Inject constructor(
     private val productsService: ProductsService
 ) {

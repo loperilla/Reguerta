@@ -6,6 +6,7 @@ package com.reguerta.data.firebase.firestore.order
  * Created By Manuel Lopera on 13/3/24 at 19:08
  * All rights reserved 2024
  */
+
 data class OrderModel(
     var orderId: String? = null,
     val userId: String? = null,

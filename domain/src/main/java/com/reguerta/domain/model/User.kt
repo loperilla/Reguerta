@@ -8,6 +8,7 @@ import com.reguerta.data.firebase.firestore.users.UserModel
  * Created By Manuel Lopera on 24/2/24 at 12:28
  * All rights reserved 2024
  */
+
 data class User(
     val id: String,
     val email: String,
@@ -24,7 +25,6 @@ data class User(
 ) {
     val fullName: String get() = "$name $surname"
 }
-
 
 fun UserModel.toDomain() = User(
     id = id.orEmpty(),
