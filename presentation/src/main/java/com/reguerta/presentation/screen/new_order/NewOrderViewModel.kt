@@ -48,7 +48,6 @@ class NewOrderViewModel @Inject constructor(
                         _state.update {
                             it.copy(
                                 isLoading = false,
-                                //availableCommonProducts = list,
                                 productsGroupedByCompany = groupedByCompany
                             )
                         }
@@ -84,7 +83,6 @@ class NewOrderViewModel @Inject constructor(
                                             it.copy(
                                                 isLoading = false,
                                                 productsGroupedByCompany = initialCommonProducts.groupBy { it.companyName }.toSortedMap(),
-                                                //availableCommonProducts = initialCommonProducts,
                                                 hasOrderLine = false
                                             )
                                         }
@@ -144,8 +142,8 @@ class NewOrderViewModel @Inject constructor(
 
                 is NewOrderEvent.PlusQuantityProduct -> {
                     val productUpdated = state.value.productsOrderLineList.singleOrNull { it.id == newEvent.productId }
-                    productUpdated?.let {
-                        val newQuantity = it.quantity.plus(1)
+                    productUpdated?.let { line ->
+                        val newQuantity = line.quantity.plus(1)
                         orderModel.updateProductStock(newEvent.productId, newQuantity)
                         _state.update { currentState ->
                             val newList = currentState.productsOrderLineList.map { if (it.id == newEvent.productId) it.copy(orderLine = it.orderLine.copy(quantity = newQuantity)) else it }
@@ -155,8 +153,8 @@ class NewOrderViewModel @Inject constructor(
                 }
                 is NewOrderEvent.MinusQuantityProduct -> {
                     val productUpdated = state.value.productsOrderLineList.singleOrNull { it.id == newEvent.productId }
-                    productUpdated?.let {
-                        val newQuantity = it.quantity.minus(1)
+                    productUpdated?.let { line ->
+                        val newQuantity = line.quantity.minus(1)
                         if (newQuantity == 0) {
                             orderModel.deleteOrderLineLocal(newEvent.productId)
                             _state.update { currentState ->
@@ -198,7 +196,6 @@ class NewOrderViewModel @Inject constructor(
                     for (orderLines in state.value.ordersFromExistingOrder.values.flatten()) {
                         val product = initialCommonProducts.find { it.id == orderLines.product.id }
                         product?.let {
-                            // Restaurar el stock del producto
                             updateProductStockUseCase(
                                 it.id,
                                 it.stock.plus(orderLines.quantity)

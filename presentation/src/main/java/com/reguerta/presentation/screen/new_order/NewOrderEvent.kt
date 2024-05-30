@@ -6,6 +6,7 @@ package com.reguerta.presentation.screen.new_order
  * Created By Manuel Lopera on 10/3/24 at 12:12
  * All rights reserved 2024
  */
+
 sealed class NewOrderEvent {
     data class StartOrder(val productId: String) : NewOrderEvent()
     data class PlusQuantityProduct(val productId: String) : NewOrderEvent()

@@ -1,9 +1,12 @@
 package com.reguerta.domain.usecase.products
 
 import com.reguerta.data.firebase.firestore.products.ProductsService
+import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.mapper.toDomain
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -14,7 +17,7 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 
-class GetAvailableProductsUseCase @Inject constructor(
+class GetAvailableProductsUseCaseX @Inject constructor(
     private val productsService: ProductsService
 ) {
     suspend operator fun invoke(): Flow<List<CommonProduct>> =
@@ -30,4 +33,38 @@ class GetAvailableProductsUseCase @Inject constructor(
                 }
             )
         }
+}
+
+class GetAvailableProductsUseCase @Inject constructor(
+    private val productsService: ProductsService,
+    private val usersService: UsersCollectionService
+) {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend operator fun invoke(): Flow<List<CommonProduct>> {
+        return usersService.getUserList().flatMapLatest { usersResult ->
+            val availableProducers = usersResult.fold(
+                onSuccess = { userModelList ->
+                    userModelList.filter { it.isProducer && it.available == true }.map { it.id }
+                },
+                onFailure = {
+                    emptyList()
+                }
+            )
+
+            productsService.getAvailableProducts().map { products ->
+                products.fold(
+                    onSuccess = { productModelList ->
+                        productModelList.filter { productModel ->
+                            productModel.userId in availableProducers
+                        }.map { productModel ->
+                            productModel.toDomain()
+                        }
+                    },
+                    onFailure = {
+                        emptyList()
+                    }
+                )
+            }
+        }
+    }
 }

@@ -6,6 +6,7 @@ package com.reguerta.data.firebase.firestore.users
  * Created By Manuel Lopera on 8/2/24 at 16:11
  * All rights reserved 2024
  */
+
 data class UserModel(
     var id: String? = null,
     val email: String? = null,

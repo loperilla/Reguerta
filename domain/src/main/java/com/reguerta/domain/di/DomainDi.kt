@@ -101,8 +101,8 @@ object DomainDi {
         GetAllProductsByUserIdUseCase(productsService)
 
     @Provides
-    fun providesGetAvailableProductsUseCase(productsService: ProductsService) =
-        GetAvailableProductsUseCase(productsService)
+    fun providesGetAvailableProductsUseCase(productsService: ProductsService, usersService: UsersCollectionService) =
+        GetAvailableProductsUseCase(productsService, usersService)
 
     @Provides
     fun providesDeleteProductUseCase(productsService: ProductsService) = DeleteProductUseCase(productsService)
