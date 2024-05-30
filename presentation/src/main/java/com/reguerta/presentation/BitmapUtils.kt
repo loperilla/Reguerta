@@ -5,11 +5,13 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
+import com.reguerta.domain.model.Container
+import com.reguerta.domain.model.Measure
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
 import java.io.FileDescriptor
 import java.io.IOException
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 import kotlin.math.max
 import kotlin.math.min
 
@@ -21,6 +23,22 @@ import kotlin.math.min
  */
 
 fun checkAllStringAreNotEmpty(vararg inputValues: String) = inputValues.all { it.isNotEmpty() }
+
+fun getContainerSingularForm(currentType: String, items: List<Container>): String {
+    return items.find { it.plural == currentType }?.name ?: currentType
+}
+
+fun getMeasureSingularForm(currentType: String, items: List<Measure>): String {
+    return items.find { it.plural == currentType }?.name ?: currentType
+}
+
+fun getContainerPluralForm(currentType: String, items: List<Container>): String {
+    return items.find { it.name == currentType }?.plural ?: currentType
+}
+
+fun getMeasurePluralForm(currentType: String, items: List<Measure>): String {
+    return items.find { it.name == currentType }?.plural ?: currentType
+}
 
 /**
  * The rotationDegrees parameter is the rotation in degrees clockwise from the original orientation.

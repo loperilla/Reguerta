@@ -38,7 +38,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -47,6 +46,7 @@ import coil.request.ImageRequest
 import com.reguerta.presentation.R
 import com.reguerta.presentation.checkRationalPermission
 import com.reguerta.presentation.checkStoragePermission
+import com.reguerta.presentation.composables.CustomTextField
 import com.reguerta.presentation.composables.DropDownItem
 import com.reguerta.presentation.composables.DropdownSelectable
 import com.reguerta.presentation.composables.ReguertaButton
@@ -54,12 +54,12 @@ import com.reguerta.presentation.composables.ReguertaCheckBox
 import com.reguerta.presentation.composables.ReguertaCounter
 import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
-import com.reguerta.presentation.composables.SecondaryTextReguertaInput
-import com.reguerta.presentation.composables.StockText
+import com.reguerta.presentation.composables.StockProductText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
 import com.reguerta.presentation.getStoragePermissionBySdk
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
+import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_96
@@ -131,11 +131,12 @@ private fun AddProductScreen(
                 onTextChange = { newName ->
                     onEvent(AddProductEvent.OnNameChanged(newName))
                 },
-                labelText = "Nombre del producto",
+                labelText = "NOMBRE DEL PRODUCTO",
                 placeholderText = "Pulsa para escribir",
                 imeAction = ImeAction.Next,
                 modifier = Modifier
                     .padding(PADDING_SMALL)
+                    .padding(horizontal = PADDING_MEDIUM)
                     .fillMaxWidth()
             )
 
@@ -145,10 +146,11 @@ private fun AddProductScreen(
                     onEvent(AddProductEvent.OnDescriptionChanged(newDescription))
                 },
                 imeAction = ImeAction.Next,
-                labelText = "Descripción del producto",
+                labelText = "DESCRIPCIÓN DEL PRODUCTO",
                 placeholderText = "Pulsa para escribir",
                 modifier = Modifier
                     .padding(PADDING_SMALL)
+                    .padding(horizontal = PADDING_MEDIUM)
                     .fillMaxWidth()
             )
 
@@ -165,12 +167,13 @@ private fun AddProductScreen(
                     )
                 },
                 imeAction = ImeAction.Next,
-                labelText = "Precio",
+                labelText = "PRECIO EN EUROS",
                 placeholderText = "Pulsa para escribir",
                 keyboardType = KeyboardType.Number,
                 suffixValue = "€",
                 modifier = Modifier
                     .padding(PADDING_SMALL)
+                    .padding(horizontal = PADDING_MEDIUM)
                     .fillMaxWidth()
             )
 
@@ -179,7 +182,7 @@ private fun AddProductScreen(
                 enabledButton = state.isButtonEnabled,
                 onClick = { onEvent(AddProductEvent.AddProduct) },
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
+                    .padding(PADDING_MEDIUM)
                     .fillMaxWidth()
             )
         }
@@ -208,7 +211,6 @@ private fun HeaderAddProductForm(
             )
             return@rememberLauncherForActivityResult
         }
-
         map.entries.forEach {
             if (checkRationalPermission(context, it.key)) {
                 val intent = Intent(
@@ -296,8 +298,7 @@ private fun HeaderAddProductForm(
                 .wrapContentHeight()
         ) {
             Row(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -314,14 +315,13 @@ private fun HeaderAddProductForm(
                 )
             }
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround,
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(PADDING_MEDIUM, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                StockText(
+                StockProductText(
                     stockCount = state.stock,
-                    textSize = 22.sp
+                    textSize = TEXT_SIZE_LARGE
                 )
 
                 ReguertaCounter(
@@ -338,45 +338,55 @@ private fun HeaderAddProductForm(
     }
 }
 
+
 @Composable
 private fun UnityAndContainer(
     state: AddProductState,
     onEvent: (AddProductEvent) -> Unit
 ) {
+    val containerDropdownItems = if ((state.containerValue.toIntOrNull() ?: 0) > 1) {
+        state.containers.map { DropDownItem(text = it.plural) }
+    } else {
+        state.containers.map { DropDownItem(text = it.name) }
+    }
+
+    val measureDropdownItems = if ((state.measureValue.toIntOrNull() ?: 0) > 1) {
+        state.measures.map { DropDownItem(text = it.plural) }
+    } else {
+        state.measures.map { DropDownItem(text = it.name) }
+    }
+
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(PADDING_SMALL),
+            .padding(top = PADDING_MEDIUM)
+            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_EXTRA_SMALL),
     ) {
-        SecondaryTextReguertaInput(
-            text = state.containerValue,
-            onTextChange = { newContainer ->
+        CustomTextField(
+            value = state.containerValue,
+            onValueChange = { newContainer ->
                 onEvent(AddProductEvent.OnContainerValueChanges(newContainer))
             },
-            imeAction = ImeAction.Next,
+            placeholder = "0",
             keyboardType = KeyboardType.NumberPassword,
-            placeholderText = "0",
+            imeAction = ImeAction.Next,
             modifier = Modifier
-                .fillMaxWidth(0.3f)
-                .padding(PADDING_SMALL)
+                .padding(horizontal = PADDING_SMALL)
+                .fillMaxWidth(0.25f)
         )
 
         DropdownSelectable(
-            currentSelected = state.containerType.ifEmpty {
-                "Selecciona envase"
-            },
-            dropdownItems = state.containers.map {
-                DropDownItem(text = it.name)
-            },
+            currentSelected = if (state.containerType.isEmpty()) "Selecciona envase" else state.containerType,
+            dropdownItems = containerDropdownItems,
             onItemClick = {
                 onEvent(AddProductEvent.OnContainerTypeChanges(it.text))
             },
             modifier = Modifier
+                .padding(horizontal = PADDING_EXTRA_SMALL)
                 .fillMaxWidth()
-                .padding(PADDING_SMALL)
         )
     }
 
@@ -386,37 +396,34 @@ private fun UnityAndContainer(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(PADDING_SMALL),
+            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_EXTRA_SMALL),
     ) {
-        SecondaryTextReguertaInput(
-            text = state.measureValue,
-            onTextChange = { newMeasure ->
+        CustomTextField(
+            value = state.measureValue,
+            onValueChange = { newMeasure ->
                 onEvent(AddProductEvent.OnMeasuresValueChanges(newMeasure))
             },
-            imeAction = ImeAction.Next,
+            placeholder = "0",
             keyboardType = KeyboardType.NumberPassword,
-            placeholderText = "0",
+            imeAction = ImeAction.Next,
             modifier = Modifier
-                .fillMaxWidth(0.3f)
-                .padding(PADDING_SMALL)
+                .padding(horizontal = PADDING_SMALL)
+                .fillMaxWidth(0.25f)
         )
 
         DropdownSelectable(
-            currentSelected = state.measureType.ifEmpty {
-                "Selecciona unidad"
-            },
-            dropdownItems = state.measures.map {
-                DropDownItem(text = it.name)
-            },
+            currentSelected = if (state.measureType.isEmpty()) "Selecciona unidad" else state.measureType,
+            dropdownItems = measureDropdownItems,
             onItemClick = {
                 onEvent(AddProductEvent.OnMeasuresTypeChanges(it.text))
             },
             modifier = Modifier
+                .padding(horizontal = PADDING_EXTRA_SMALL)
                 .fillMaxWidth()
-                .padding(PADDING_SMALL)
         )
     }
 }
+
 
 @Preview
 @Composable

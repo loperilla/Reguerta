@@ -8,6 +8,10 @@ import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.products.EditProductUseCase
 import com.reguerta.domain.usecase.products.GetProductByIdUseCase
 import com.reguerta.presentation.checkAllStringAreNotEmpty
+import com.reguerta.presentation.getContainerPluralForm
+import com.reguerta.presentation.getContainerSingularForm
+import com.reguerta.presentation.getMeasurePluralForm
+import com.reguerta.presentation.getMeasureSingularForm
 import com.reguerta.presentation.resizeAndCropImage
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
@@ -27,6 +31,7 @@ import timber.log.Timber
  * Created By Manuel Lopera on 3/3/24 at 15:03
  * All rights reserved 2024
  */
+
 @HiltViewModel(assistedFactory = EditProductViewModelFactory::class)
 class EditProductViewModel @AssistedInject constructor(
     @Assisted private val productId: String,
@@ -74,7 +79,7 @@ class EditProductViewModel @AssistedInject constructor(
                                     containerValue = product.quantityContainer.toString(),
                                     containerType = product.container,
                                     measureValue = product.quantityWeight.toString(),
-                                    measureType = product.unity,
+                                    measureType = product.unity
                                 )
                             }
                         },
@@ -103,12 +108,7 @@ class EditProductViewModel @AssistedInject constructor(
                         with(state.value) {
                             val imageByteArray = if (bitmap != null) {
                                 async { resizeAndCropImage(bitmap) }.await()
-                            } else {
-                                // Aquí deberías tener algún mecanismo para convertir la URL existente en byteArray.
-                                // Esto puede requerir descargar la imagen de nuevo o mejor aún, tener un byteArray guardado.
-                                null
-                            }
-
+                            } else { null }
                             val productToSave = CommonProduct(
                                 container = containerType,
                                 description = description,
@@ -160,8 +160,14 @@ class EditProductViewModel @AssistedInject constructor(
 
                 is EditProductEvent.OnContainerValueChanges -> {
                     _state.update {
+                        val newContainerType = if ((newEvent.newContainerValue.toIntOrNull() ?: 0) > 1) {
+                            getContainerPluralForm(it.containerType, it.containers)
+                        } else {
+                            getContainerSingularForm(it.containerType, it.containers)
+                        }
                         it.copy(
-                            containerValue = newEvent.newContainerValue
+                            containerValue = newEvent.newContainerValue,
+                            containerType = newContainerType
                         )
                     }
                 }
@@ -192,8 +198,14 @@ class EditProductViewModel @AssistedInject constructor(
 
                 is EditProductEvent.OnMeasuresValueChanges -> {
                     _state.update {
+                        val newMeasureType = if ((newEvent.newMeasureValue.toIntOrNull() ?: 0) > 1) {
+                            getMeasurePluralForm(it.measureType, it.measures)
+                        } else {
+                            getMeasureSingularForm(it.measureType, it.measures)
+                        }
                         it.copy(
-                            measureValue = newEvent.newMeasureValue
+                            measureValue = newEvent.newMeasureValue,
+                            measureType = newMeasureType
                         )
                     }
                 }
@@ -245,4 +257,5 @@ class EditProductViewModel @AssistedInject constructor(
             )
         }
     }
+
 }

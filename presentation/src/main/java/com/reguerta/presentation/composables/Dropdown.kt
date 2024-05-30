@@ -7,6 +7,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -24,8 +25,9 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import com.reguerta.presentation.ui.PADDING_MEDIUM
+import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
+import com.reguerta.presentation.ui.SIZE_40
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.Text
@@ -68,15 +70,16 @@ fun DropdownSelectable(
                 itemHeight = with(density) { it.height.toDp() }
             },
         contentColor = Color.White,
-        containerColor = PrimaryColor,
+        containerColor = PrimaryColor.copy(0.2f),
         content = {
             Box(
                 modifier = Modifier
+                    .heightIn(SIZE_40)
                     .fillMaxWidth()
                     .indication(interactionSource, LocalIndication.current)
                     .pointerInput(true) {
                         detectTapGestures(
-                            onLongPress = {
+                            onTap = {
                                 isContextMenuVisible = true
                                 pressOffset = DpOffset(it.x.toDp(), it.y.toDp())
                             },
@@ -88,15 +91,14 @@ fun DropdownSelectable(
                             }
                         )
                     }
-                    .padding(PADDING_MEDIUM)
+                    .padding(PADDING_SMALL)
             ) {
-                TextBody(
+                TextTitle(
                     text = currentSelected,
                     textSize = TEXT_SIZE_LARGE,
-                    textColor = Color.White,
+                    textColor = Text,
                     textAlignment = TextAlign.Center,
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
             DropdownMenu(

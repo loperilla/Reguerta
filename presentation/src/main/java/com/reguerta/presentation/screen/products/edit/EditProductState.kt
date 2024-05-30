@@ -10,6 +10,7 @@ import com.reguerta.domain.model.Measure
  * Created By Manuel Lopera on 3/3/24 at 15:02
  * All rights reserved 2024
  */
+
 data class EditProductState(
     val goOut: Boolean = false,
     val bitmap: Bitmap? = null,

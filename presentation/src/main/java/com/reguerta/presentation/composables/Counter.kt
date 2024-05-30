@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -16,6 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import com.reguerta.presentation.ui.CORNER_SIZE_8
+import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.ui.Text
 
 /*****
  * Project: Reguerta
@@ -34,10 +38,11 @@ fun ReguertaCounter(
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
+            .padding(horizontal = PADDING_SMALL)
             .wrapContentSize()
             .background(
                 Color.LightGray,
-                shape = RoundedCornerShape(12)
+                shape = RoundedCornerShape(CORNER_SIZE_8)
             )
     ) {
         IconButton(
@@ -47,7 +52,7 @@ fun ReguertaCounter(
             Icon(
                 imageVector = Icons.Default.Remove,
                 contentDescription = "counter remove",
-                tint = Color.Black
+                tint = Text
             )
         }
         IconButton(
@@ -56,7 +61,7 @@ fun ReguertaCounter(
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "counter add",
-                tint = Color.Black
+                tint = Text
             )
         }
     }
@@ -67,8 +72,7 @@ fun ReguertaCounter(
 fun ReguertaCounterPreview() {
     Screen {
         Column(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             ReguertaCounter(
                 0,

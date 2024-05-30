@@ -8,6 +8,7 @@ import android.graphics.Bitmap
  * Created By Manuel Lopera on 3/3/24 at 15:03
  * All rights reserved 2024
  */
+
 sealed class EditProductEvent {
     data object GoOut : EditProductEvent()
     data class OnImageSelected(val bitmap: Bitmap) : EditProductEvent()

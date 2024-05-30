@@ -1,9 +1,16 @@
 package com.reguerta.presentation.composables
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
@@ -26,12 +33,18 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.reguerta.presentation.composables.input.PlaceholderTransformation
 import com.reguerta.presentation.composables.input.UiError
+import com.reguerta.presentation.ui.BORDER_SIZE
+import com.reguerta.presentation.ui.CORNER_SIZE_8
+import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
+import com.reguerta.presentation.ui.SIZE_40
+import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.Text
@@ -195,9 +208,7 @@ private fun SecondaryReguertaInput(
         disabledPlaceholderColor = Text,
         focusedPlaceholderColor = Text,
         errorPlaceholderColor = Text,
-        unfocusedPlaceholderColor = Text.copy(
-            alpha = 0.7f
-        ),
+        unfocusedPlaceholderColor = Text.copy(alpha = 0.7f),
         focusedContainerColor = Color.White,
         unfocusedContainerColor = Color.White,
         disabledContainerColor = Color.White,
@@ -214,7 +225,7 @@ private fun SecondaryReguertaInput(
             singleLine = true,
             textStyle = TextStyle(
                 fontFamily = cabinsketchFontFamily,
-                fontWeight = FontWeight.Normal,
+                fontWeight = FontWeight.Bold,
                 fontSize = TEXT_SIZE_LARGE
             ),
             visualTransformation = if (text.isEmpty()) {
@@ -285,9 +296,9 @@ private fun ReguertaInput(
             singleLine = true,
             trailingIcon = trailingIcon,
             label = {
-                TextBody(
+                TextTitle(
                     text = labelText,
-                    textSize = TEXT_SIZE_SMALL
+                    textSize = TEXT_SIZE_EXTRA_SMALL
                 )
             },
             textStyle = TextStyle(
@@ -321,12 +332,98 @@ private fun ReguertaInput(
                 text = uiError.message,
                 textSize = TEXT_SIZE_SMALL,
                 textColor = Color.Red,
-                modifier = Modifier
-                    .padding(horizontal = PADDING_MEDIUM)
+                modifier = Modifier.padding(horizontal = PADDING_MEDIUM)
             )
         }
     }
 }
+
+
+
+@Composable
+fun CustomTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    uiError: UiError = UiError(),
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    isError: Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Default
+) {
+    val textStyle = TextStyle(
+        fontFamily = cabinsketchFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = TEXT_SIZE_LARGE,
+        textAlign = TextAlign.Center
+    )
+
+    Box(
+        modifier = modifier
+            .height(SIZE_40)
+            .background(Color.White, RoundedCornerShape(CORNER_SIZE_8))
+            .border(
+                BORDER_SIZE,
+                if (isError) Color.Red else PrimaryColor,
+                RoundedCornerShape(CORNER_SIZE_8)
+            )
+            .padding(PADDING_SMALL)
+    ) {
+        if (value.isEmpty()) {
+            TextBody(
+                text = placeholder,
+                textSize = TEXT_SIZE_LARGE,
+                textColor = Text.copy(alpha = 0.5f),
+                textAlignment = TextAlign.Center,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            textStyle = textStyle.copy(color = Text),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = keyboardType,
+                imeAction = imeAction
+            ),
+            modifier = Modifier
+                .fillMaxSize()
+        )
+    }
+}
+
+@Composable
+fun CustomTextFieldWithLabel(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    isError: Boolean = false,
+    keyboardType: KeyboardType = KeyboardType.Text,
+    imeAction: ImeAction = ImeAction.Default
+) {
+    Column(
+        verticalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL),
+        modifier = modifier
+    ) {
+        TextTitle(
+            text = label.uppercase(),
+            textColor = Text,
+            textSize = TEXT_SIZE_SMALL
+        )
+        CustomTextField(
+            value = value,
+            onValueChange = onValueChange,
+            placeholder = placeholder,
+            isError = isError,
+            keyboardType = keyboardType,
+            imeAction = imeAction,
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+}
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

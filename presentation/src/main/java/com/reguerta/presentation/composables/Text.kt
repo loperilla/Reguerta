@@ -21,7 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import com.reguerta.presentation.ui.Background
-import com.reguerta.presentation.ui.CORNER_SIZE
+import com.reguerta.presentation.ui.CORNER_SIZE_8
 import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
@@ -97,7 +97,7 @@ fun TextBody(
 }
 
 @Composable
-fun StockText(
+fun StockProductText(
     stockCount: Int,
     modifier: Modifier = Modifier,
     textSize: TextUnit = TEXT_SIZE_MEDIUM
@@ -106,6 +106,26 @@ fun StockText(
         0 -> Color.Red
         in 1..10 -> Orange
         else -> Text
+    }
+    TextBody(
+        text = "Stock: $stockCount",
+        modifier,
+        textSize,
+        textColor = colorToDraw,
+    )
+}
+
+@Composable
+fun StockOrderText(
+    stockCount: Int,
+    modifier: Modifier = Modifier,
+    textSize: TextUnit = TEXT_SIZE_MEDIUM
+) {
+    val colorToDraw: Color = when (stockCount) {
+        0 -> Color.Red
+        in 1..10 -> Orange
+        in 11..20 -> Text
+        else -> Color.Transparent
     }
     TextBody(
         text = "Quedan: $stockCount uds.",
@@ -150,7 +170,7 @@ fun HeaderSectionText(
 ) {
     Box(
         modifier = modifier
-            .background(color = backgroundColor, shape = RoundedCornerShape(CORNER_SIZE))
+            .background(color = backgroundColor, shape = RoundedCornerShape(CORNER_SIZE_8))
             .fillMaxWidth()
             .padding(padding),
         contentAlignment = Alignment.Center
@@ -214,9 +234,11 @@ fun TextPreviews() {
             TextBody("Manuel Lopera")
             TextTitle("Manuel Lopera")
             AmountText(15.0)
-            StockText(0)
-            StockText(4)
-            StockText(34)
+            StockProductText(0)
+            StockProductText(4)
+            StockProductText(14)
+            StockProductText(24)
+            StockOrderText(34)
         }
     }
 }

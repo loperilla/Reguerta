@@ -8,6 +8,7 @@ import dagger.assisted.AssistedFactory
  * Created By Manuel Lopera on 3/3/24 at 15:04
  * All rights reserved 2024
  */
+
 @AssistedFactory
 interface EditProductViewModelFactory {
     fun create(productId: String): EditProductViewModel

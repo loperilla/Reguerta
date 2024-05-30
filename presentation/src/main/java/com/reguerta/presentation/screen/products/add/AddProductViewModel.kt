@@ -7,6 +7,10 @@ import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.products.AddProductUseCase
 import com.reguerta.presentation.checkAllStringAreNotEmpty
+import com.reguerta.presentation.getContainerPluralForm
+import com.reguerta.presentation.getContainerSingularForm
+import com.reguerta.presentation.getMeasurePluralForm
+import com.reguerta.presentation.getMeasureSingularForm
 import com.reguerta.presentation.resizeAndCropImage
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -164,8 +168,14 @@ class AddProductViewModel @Inject constructor(
 
                 is AddProductEvent.OnContainerValueChanges -> {
                     _state.update {
+                        val newContainerType = if ((event.newContainerValue.toIntOrNull() ?: 0) > 1) {
+                            getContainerPluralForm(it.containerType, it.containers)
+                        } else {
+                            getContainerSingularForm(it.containerType, it.containers)
+                        }
                         it.copy(
-                            containerValue = event.newContainerValue
+                            containerValue = event.newContainerValue,
+                            containerType = newContainerType
                         )
                     }
                 }
@@ -180,8 +190,14 @@ class AddProductViewModel @Inject constructor(
 
                 is AddProductEvent.OnMeasuresValueChanges -> {
                     _state.update {
+                        val newMeasureType = if ((event.newMeasureValue.toIntOrNull() ?: 0) > 1) {
+                            getMeasurePluralForm(it.measureType, it.measures)
+                        } else {
+                            getMeasureSingularForm(it.measureType, it.measures)
+                        }
                         it.copy(
-                            measureValue = event.newMeasureValue
+                            measureValue = event.newMeasureValue,
+                            measureType = newMeasureType
                         )
                     }
                 }

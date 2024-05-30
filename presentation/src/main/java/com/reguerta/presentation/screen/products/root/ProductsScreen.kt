@@ -39,7 +39,7 @@ import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaIconButton
 import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
-import com.reguerta.presentation.composables.StockText
+import com.reguerta.presentation.composables.StockProductText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.image.ProductImage
@@ -239,7 +239,7 @@ private fun ProductItem(
                             textColor = Text,
                             modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                         )
-                        StockText(
+                        StockProductText(
                             product.stock,
                             textSize = TEXT_SIZE_LARGE,
                             modifier = Modifier.padding(end = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)

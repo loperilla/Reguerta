@@ -69,7 +69,7 @@ import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaIconButton
 import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
-import com.reguerta.presentation.composables.StockText
+import com.reguerta.presentation.composables.StockOrderText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.image.ProductImage
@@ -498,46 +498,6 @@ fun NewOrderScreen(
     }
 }
 
-@Composable
-fun NewOrderScreenX(
-    state: NewOrderState,
-    onEvent: (NewOrderEvent) -> Unit
-) {
-    Scaffold(
-        topBar = {
-            NewOrderTopBar(state, onEvent)
-        },
-        bottomBar = {
-            NewOrderBottomBar(state, onEvent)
-        }
-    ) {
-        Column(modifier = Modifier
-            .padding(it)
-        ) {
-            if (!state.isLoading) {
-                AnimatedVisibility(visible = state.showShoppingCart) {
-                    ShoppingCartScreen(
-                        state.productsOrderLineList,
-                        onEvent
-                    )
-                }
-                AnimatedVisibility(visible = !state.showShoppingCart) {
-                    if (state.isExistOrder) {
-                        ExistingOrderScreen(state, onEvent)
-                    } else {
-                       GroupedProductsScreen(
-                            groupedProducts = state.productsGroupedByCompany,
-                            onEvent
-                        )
-                    }
-                }
-            } else {
-               CircularProgressIndicator()
-            }
-        }
-    }
-}
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GroupedProductsScreen(
@@ -734,7 +694,7 @@ private fun OrderProductItem(
                         textColor = Text,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
-                    StockText(
+                    StockOrderText(
                         product.stock,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
