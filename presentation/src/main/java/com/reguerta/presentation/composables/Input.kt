@@ -344,7 +344,6 @@ private fun ReguertaInput(
 fun CustomTextField(
     value: String,
     onValueChange: (String) -> Unit,
-    uiError: UiError = UiError(),
     modifier: Modifier = Modifier,
     placeholder: String = "",
     isError: Boolean = false,

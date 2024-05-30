@@ -419,6 +419,7 @@ fun NewOrderTopBar(
         )
     }
 }
+
 @Composable
 fun NewOrderBottomBar(
     state: NewOrderState,
