@@ -812,7 +812,7 @@ private fun OrderQuantitySelector(
                     onEvent(NewOrderEvent.PlusQuantityProduct(product.id))
                 },
                 contentColor = PrimaryColor,
-                enabledButton = product.stock > 0
+                enabledButton = product.stock > 0 && product.container != "Compromiso" && product.container != "Renuncia"
             )
         }
     }
@@ -881,8 +881,7 @@ fun AreYouSureDeletePopup(
                     imageVector = Icons.Default.Warning,
                     contentDescription = "Advertencia",
                     tint = Orange,
-                    modifier = Modifier
-                        .size(SIZE_48)
+                    modifier = Modifier.size(SIZE_48)
                 )
             }
         },
