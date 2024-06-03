@@ -25,8 +25,6 @@ fun Product.containerUnity(): String {
     return "$quantityContainerString$container $quantityWeight $unity"
 }
 
-//fun Product.containerUnity(): String = "$quantityContainer $container $quantityWeight $unity"
-
 fun Product.toDto(): ProductDTOModel = ProductDTOModel(
     container = container,
     description = description,
