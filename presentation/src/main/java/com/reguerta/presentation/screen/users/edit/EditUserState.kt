@@ -8,6 +8,7 @@ import com.reguerta.presentation.type.Email
  * Created By Manuel Lopera on 24/2/24 at 13:03
  * All rights reserved 2024
  */
+
 data class EditUserState(
     val name: String = "",
     val surname: String = "",

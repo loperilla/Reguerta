@@ -96,6 +96,11 @@ class UserScreenViewModel @Inject constructor(
                         )
                     }
                 }
+
+                UserScreenEvent.ConfirmDelete -> TODO()
+                UserScreenEvent.GoOut -> TODO()
+                UserScreenEvent.HideAreYouSureDialog -> TODO()
+                UserScreenEvent.LoadUsers -> TODO()
             }
         }
     }

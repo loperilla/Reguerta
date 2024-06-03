@@ -84,6 +84,7 @@ import com.reguerta.presentation.ui.PADDING_ULTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_ZERO
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.ui.SIZE_36
 import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.SIZE_88
 import com.reguerta.presentation.ui.SIZE_96
@@ -378,7 +379,7 @@ fun NewOrderTopBar(
                         tint = PrimaryColor,
                         modifier = Modifier
                             .padding(horizontal = PADDING_SMALL)
-                            .size(36.dp)
+                            .size(SIZE_36)
                     )
                     TextBody(
                         "Seguir comprando",

@@ -4,6 +4,7 @@ import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.mapper.toDomain
+import com.reguerta.localdata.time.WeekTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
@@ -17,7 +18,7 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 
-class GetAvailableProductsUseCaseX @Inject constructor(
+class GetAvailableProductsUseCase1 @Inject constructor(
     private val productsService: ProductsService
 ) {
     suspend operator fun invoke(): Flow<List<CommonProduct>> =
@@ -35,7 +36,7 @@ class GetAvailableProductsUseCaseX @Inject constructor(
         }
 }
 
-class GetAvailableProductsUseCase @Inject constructor(
+class GetAvailableProductsUseCase2 @Inject constructor(
     private val productsService: ProductsService,
     private val usersService: UsersCollectionService
 ) {
@@ -56,6 +57,56 @@ class GetAvailableProductsUseCase @Inject constructor(
                     onSuccess = { productModelList ->
                         productModelList.filter { productModel ->
                             productModel.userId in availableProducers
+                        }.map { productModel ->
+                            productModel.toDomain()
+                        }
+                    },
+                    onFailure = {
+                        emptyList()
+                    }
+                )
+            }
+        }
+    }
+}
+
+class GetAvailableProductsUseCase @Inject constructor(
+    private val productsService: ProductsService,
+    private val usersService: UsersCollectionService,
+    private val weekTime: WeekTime
+) {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend operator fun invoke(): Flow<List<CommonProduct>> {
+        return usersService.getUserList().flatMapLatest { usersResult ->
+            val availableProducers = usersResult.fold(
+                onSuccess = { userModelList ->
+                    userModelList.filter { it.isProducer && it.available == true }
+                },
+                onFailure = {
+                    emptyList()
+                }
+            )
+
+            val isWeekEven = weekTime.isEvenCurrentWeek()
+
+            productsService.getAvailableProducts().map { products ->
+                products.fold(
+                    onSuccess = { productModelList ->
+                        productModelList.filter { productModel ->
+                            val producer = availableProducers.find { it.id == productModel.userId }
+                            if (producer != null) {
+                                when {
+                                    producer.typeProducer == "par" && !isWeekEven -> {
+                                        productModel.container != "Compromiso" && productModel.container != "Renuncia"
+                                    }
+                                    producer.typeProducer == "impar" && isWeekEven -> {
+                                        productModel.container != "Compromiso" && productModel.container != "Renuncia"
+                                    }
+                                    else -> true
+                                }
+                            } else {
+                                false
+                            }
                         }.map { productModel ->
                             productModel.toDomain()
                         }

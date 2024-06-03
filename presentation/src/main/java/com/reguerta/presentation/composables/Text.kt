@@ -150,7 +150,7 @@ fun AmountText(
             textColor = PrimaryColor
         )
         TextBody(
-            text = String.format("%.2f", amount) + "€",
+            text = String.format("%.2f", amount) + " €",
             textSize = TEXT_TOP_BAR,
             textColor = Text
         )

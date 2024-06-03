@@ -37,6 +37,7 @@ import com.reguerta.domain.usecase.users.SignOutUseCase
 import com.reguerta.domain.usecase.users.ToggleAdminUseCase
 import com.reguerta.domain.usecase.users.ToggleProducerUseCase
 import com.reguerta.domain.usecase.week.GetCurrentWeekDayUseCase
+import com.reguerta.localdata.time.WeekTime
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -101,8 +102,11 @@ object DomainDi {
         GetAllProductsByUserIdUseCase(productsService)
 
     @Provides
-    fun providesGetAvailableProductsUseCase(productsService: ProductsService, usersService: UsersCollectionService) =
-        GetAvailableProductsUseCase(productsService, usersService)
+    fun providesGetAvailableProductsUseCase(
+        productsService: ProductsService,
+        usersService: UsersCollectionService,
+        weekTime: WeekTime
+    ) = GetAvailableProductsUseCase(productsService, usersService, weekTime)
 
     @Provides
     fun providesDeleteProductUseCase(productsService: ProductsService) = DeleteProductUseCase(productsService)

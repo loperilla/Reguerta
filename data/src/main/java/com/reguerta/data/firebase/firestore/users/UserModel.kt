@@ -19,7 +19,7 @@ data class UserModel(
     var numResignations: Int? = null,
     val typeConsumer: String? = null,
     val typeProducer: String? = null,
-    @field:JvmField var available: Boolean? = null
+    @field:JvmField var available: Boolean? = true
 )
 
 fun UserModel.toMapWithoutId(): Map<String, Any?> {

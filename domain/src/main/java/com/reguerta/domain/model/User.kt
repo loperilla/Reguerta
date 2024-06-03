@@ -40,3 +40,19 @@ fun UserModel.toDomain() = User(
     typeProducer = typeProducer ?: "",
     available = available ?: true
 )
+
+
+enum class TypeConsumerUser(val type: String) {
+    REGULAR("normal"),
+    ODD("impar"),
+    EVEN("par"),
+    NONE("sin")
+}
+
+enum class TypeProducerUser(val type: String) {
+    REGULAR("normal"),
+    ODD("impar"),
+    EVEN("par"),
+    SHOP("compras")
+}
+

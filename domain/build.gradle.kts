@@ -37,6 +37,7 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation(project(":localData"))
     ksp(libs.hilt.compiler)
 
     //Firebase

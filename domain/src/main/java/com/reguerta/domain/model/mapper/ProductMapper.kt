@@ -16,7 +16,7 @@ import com.reguerta.domain.model.interfaces.Product
  * All rights reserved 2024
  */
 
-fun Product.priceFormatted(): String = String.format("%.2f", price) + "€"
+fun Product.priceFormatted(): String = String.format("%.2f", price) + " €"
 
 fun Product.getUnitType(): UnitType = if (quantityContainer > 1) UnitType.PACK else UnitType.UNIT
 

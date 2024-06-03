@@ -11,6 +11,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 13/3/24 at 18:25
  * All rights reserved 2024
  */
+
 class WeekTimeImpl @Inject constructor() : WeekTime {
     override fun getCurrentWeek(): Int {
         val today = LocalDate.now()
@@ -20,5 +21,9 @@ class WeekTimeImpl @Inject constructor() : WeekTime {
 
     override fun getCurrentWeekDay(): Int {
         return LocalDate.now().dayOfWeek.value
+    }
+
+    override fun isEvenCurrentWeek(): Boolean {
+        return getCurrentWeek() % 2 == 0
     }
 }
