@@ -2,13 +2,10 @@ package com.reguerta.presentation.screen.received_orders
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reguerta.domain.model.received.OrderLineReceived
 import com.reguerta.domain.model.received.fullOrderName
 import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.orderline.OrderReceivedModel
-import com.reguerta.presentation.getContainerByNameOrPlural
-import com.reguerta.presentation.getMeasureByNameOrPlural
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -73,7 +70,8 @@ class ReceivedOrdersViewModel @Inject constructor(
     private val getAllContainerUseCase: GetAllContainerUseCase,
     private val orderReceivedModel: OrderReceivedModel
 ) : ViewModel() {
-    private var _state: MutableStateFlow<ReceivedOrdersState> = MutableStateFlow(ReceivedOrdersState())
+    private var _state: MutableStateFlow<ReceivedOrdersState> =
+        MutableStateFlow(ReceivedOrdersState())
     val state: StateFlow<ReceivedOrdersState> = _state.asStateFlow()
 
     init {
@@ -120,21 +118,4 @@ class ReceivedOrdersViewModel @Inject constructor(
             }
         }
     }
-
-    fun getQuantitySum(line: OrderLineReceived): String {
-        val container = getContainerByNameOrPlural(line.product.container, state.value.containers)
-        val measure = getMeasureByNameOrPlural(line.product.unity, state.value.measures)
-
-        return if (container != null && measure != null) {
-            if (container.name == "A granel") {
-                val sum = line.quantity * line.product.quantityWeight
-                "$sum ${measure.abbreviation}"
-            } else {
-                if (line.quantity > 1) container.plural else container.name
-            }
-        } else {
-            ""
-        }
-    }
 }
-
