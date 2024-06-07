@@ -8,6 +8,7 @@ import com.reguerta.domain.model.interfaces.Product
  * Created By Manuel Lopera on 29/3/24 at 10:56
  * All rights reserved 2024
  */
+
 data class OrderLineReceived(
     val orderName: String,
     val orderSurname: String,

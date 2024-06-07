@@ -38,14 +38,14 @@ fun ProductNameUnityContainer(
             textSize = TEXT_SIZE_LARGE,
             textColor = Text,
             modifier = Modifier.padding(PADDING_EXTRA_SMALL),
-            //textAlignment = TextAlign.Start
+            textAlignment = TextAlign.Center
         )
         TextBody(
             text = product.containerUnity(),
             textSize = TEXT_SIZE_SMALL,
             textColor = Text,
             modifier = Modifier.padding(PADDING_EXTRA_SMALL),
-            //textAlignment = TextAlign.Start
+            textAlignment = TextAlign.Center
         )
     }
 }

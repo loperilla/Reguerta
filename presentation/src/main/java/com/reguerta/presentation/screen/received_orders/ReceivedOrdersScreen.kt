@@ -19,13 +19,12 @@ import androidx.compose.material3.TabRow
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -43,6 +42,7 @@ import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.image.ProductImage
 import com.reguerta.presentation.composables.products.ProductNameUnityContainer
 import com.reguerta.presentation.composables.products.ProductNameUnityContainerInMyOrder
+import com.reguerta.presentation.getQuantitySum
 import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
@@ -126,7 +126,8 @@ fun ReceivedOrdersScreen(
             ) { index ->
                 if (index == 0) {
                     OrderListByProduct(
-                        orderLines = state.ordersByProduct
+                        orderLines = state.ordersByProduct,
+                        state = state
                     )
                 } else {
                     OrderListByUser(
@@ -249,6 +250,7 @@ private fun ProductOrders(
 @Composable
 fun OrderListByProduct(
     orderLines: Map<Product, List<OrderLineReceived>>,
+    state: ReceivedOrdersState,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -261,13 +263,14 @@ fun OrderListByProduct(
             item {
                 OrderByProduct(
                     product = it.key,
-                    orderLines = it.value
+                    orderLines = it.value,
+                    state = state
                 )
             }
         }
     }
 }
-
+/*
 @Composable
 fun OrderByProduct(
     product: Product,
@@ -326,6 +329,65 @@ fun OrderByProduct(
         }
     )
 }
+
+ */
+
+@Composable
+fun OrderByProduct(
+    product: Product,
+    orderLines: List<OrderLineReceived>,
+    state: ReceivedOrdersState,
+    modifier: Modifier = Modifier
+) {
+    val quantitySum = remember(state) {
+        getQuantitySum(orderLines.first { it.product == product }, state.containers, state.measures)
+    }
+    ReguertaCard(
+        modifier = modifier
+            .fillMaxWidth()
+            .wrapContentHeight(),
+        content = {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .wrapContentHeight()
+                    .padding(PADDING_EXTRA_SMALL)
+            ) {
+                ProductImage(
+                    product = product,
+                    imageSize = SIZE_72,
+                    modifier = Modifier.wrapContentWidth()
+                )
+                VerticalDivider()
+                ProductNameUnityContainer(
+                    product,
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .weight(0.6f)
+                )
+                VerticalDivider()
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.weight(0.2f)
+                ) {
+                    TextTitle(
+                        text = "${orderLines.getQuantityByProduct(product)}",
+                        textSize = TEXT_TOP_BAR,
+                        textColor = Text,
+                        modifier = Modifier.padding(PADDING_EXTRA_SMALL),
+                    )
+                    TextBody(
+                        text = quantitySum,
+                        textSize = TEXT_SIZE_SMALL,
+                        textColor = Text,
+                        modifier = Modifier.padding(PADDING_EXTRA_SMALL),
+                    )
+                }
+            }
+        }
+    )
+}
+
 
 @Preview
 @Composable
