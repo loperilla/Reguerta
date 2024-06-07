@@ -29,7 +29,6 @@ import androidx.compose.ui.util.fastForEachIndexed
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.domain.model.interfaces.Product
-import com.reguerta.domain.model.mapper.priceFormatted
 import com.reguerta.domain.model.received.OrderLineReceived
 import com.reguerta.domain.model.received.getAmount
 import com.reguerta.domain.model.received.getQuantityByProduct
@@ -131,7 +130,8 @@ fun ReceivedOrdersScreen(
                     )
                 } else {
                     OrderListByUser(
-                        orderLines = state.ordersByUser
+                        orderLines = state.ordersByUser,
+                        state = state
                     )
                 }
             }
@@ -142,6 +142,7 @@ fun ReceivedOrdersScreen(
 @Composable
 private fun OrderListByUser(
     orderLines: Map<String, List<OrderLineReceived>>,
+    state: ReceivedOrdersState,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -153,7 +154,8 @@ private fun OrderListByUser(
             item {
                 OrderByUser(
                     fullname = it.key,
-                    orderLines = it.value
+                    orderLines = it.value,
+                    state = state
                 )
             }
         }
@@ -163,7 +165,8 @@ private fun OrderListByUser(
 @Composable
 private fun OrderByUser(
     fullname: String,
-    orderLines: List<OrderLineReceived>
+    orderLines: List<OrderLineReceived>,
+    state: ReceivedOrdersState
 ) {
     ReguertaCard(
         modifier = Modifier.padding(PADDING_SMALL),
@@ -174,13 +177,13 @@ private fun OrderByUser(
                 modifier = Modifier
                     .padding(PADDING_SMALL)
                     .fillMaxWidth(),
-                textAlignment = TextAlign.Start
+                textAlignment = TextAlign.Center
             )
             HorizontalDivider()
             orderLines.forEach {
                 ProductOrders(
-                    quantity = it.quantity,
-                    product = it.product
+                    orderLine = it,
+                    state = state
                 )
                 HorizontalDivider()
             }
@@ -199,9 +202,12 @@ private fun OrderByUser(
 
 @Composable
 private fun ProductOrders(
-    quantity: Int,
-    product: Product
+    orderLine: OrderLineReceived,
+    state: ReceivedOrdersState
 ) {
+    val quantitySum = getQuantitySum(orderLine, state.containers, state.measures)
+    val totalPrice = orderLine.product.price * orderLine.quantity
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -213,7 +219,7 @@ private fun ProductOrders(
             horizontalAlignment = Alignment.Start,
             modifier = Modifier.weight(0.6f)
         ) {
-            ProductNameUnityContainerInMyOrder(product)
+            ProductNameUnityContainerInMyOrder(orderLine.product)
         }
         VerticalDivider()
         Column(
@@ -221,13 +227,13 @@ private fun ProductOrders(
             modifier = Modifier.weight(0.2f)
         ) {
             TextBody(
-                text = "$quantity",
+                text = "${orderLine.quantity}",
                 textSize = TEXT_SIZE_MEDIUM,
                 textColor = Text,
                 modifier = Modifier.padding(PADDING_EXTRA_SMALL),
             )
             TextBody(
-                text = product.container,
+                text = quantitySum,
                 textSize = TEXT_SIZE_SMALL,
                 textColor = Text,
                 modifier = Modifier.padding(PADDING_EXTRA_SMALL),
@@ -239,7 +245,7 @@ private fun ProductOrders(
             modifier = Modifier.weight(0.2f)
         ) {
             TextBody(
-                text = product.priceFormatted(),
+                text = "%.2f €".format(totalPrice),
                 textSize = TEXT_SIZE_MEDIUM,
                 textColor = Orange
             )
@@ -270,67 +276,6 @@ fun OrderListByProduct(
         }
     }
 }
-/*
-@Composable
-fun OrderByProduct(
-    product: Product,
-    orderLines: List<OrderLineReceived>,
-    modifier: Modifier = Modifier
-) {
-    ReguertaCard(
-        modifier = modifier
-            .fillMaxWidth()
-            .wrapContentHeight(),
-        content = {
-            Row(
-                //horizontalArrangement = Arrangement.SpaceAround,
-                verticalAlignment = Alignment.CenterVertically,
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .padding(PADDING_EXTRA_SMALL)
-            ) {
-                ProductImage(
-                    product = product,
-                    imageSize = SIZE_72,
-                    modifier = Modifier.wrapContentWidth()
-                )
-                VerticalDivider(
-                    thickness = 1.dp,
-                    color = Color.Black
-                )
-                ProductNameUnityContainer(
-                    product,
-                    modifier = Modifier
-                        .wrapContentHeight()
-                        .weight(0.6f)
-                )
-                VerticalDivider(
-                    thickness = 1.dp,
-                    color = Color.Black
-                )
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(0.2f)
-                ) {
-                    TextTitle(
-                        text = "${orderLines.getQuantityByProduct(product)}",
-                        textSize = TEXT_TOP_BAR,
-                        textColor = Text,
-                        modifier = Modifier.padding(PADDING_EXTRA_SMALL),
-                    )
-                    TextBody(
-                        text = product.container,
-                        textSize = TEXT_SIZE_SMALL,
-                        textColor = Text,
-                        modifier = Modifier.padding(PADDING_EXTRA_SMALL),
-                    )
-                }
-            }
-        }
-    )
-}
-
- */
 
 @Composable
 fun OrderByProduct(
