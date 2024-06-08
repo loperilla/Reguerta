@@ -43,6 +43,7 @@ import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
+import com.reguerta.presentation.ui.SIZE_36
 import com.reguerta.presentation.ui.SIZE_40
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
@@ -338,6 +339,54 @@ private fun ReguertaInput(
     }
 }
 
+@Composable
+fun CustomPhoneNumberInput(
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+    placeholder: String = "",
+    isError: Boolean = false,
+    imeAction: ImeAction = ImeAction.Default
+) {
+    val textStyle = TextStyle(
+        fontFamily = cabinsketchFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = TEXT_SIZE_LARGE,
+        textAlign = TextAlign.Center
+    )
+
+    Box(
+        modifier = modifier
+            .height(SIZE_36)
+            .background(Color.White, RoundedCornerShape(CORNER_SIZE_8))
+            .border(
+                BORDER_SIZE,
+                if (isError) Color.Red else PrimaryColor,
+                RoundedCornerShape(CORNER_SIZE_8)
+            )
+            .padding(PADDING_SMALL)
+    ) {
+        if (value.isEmpty()) {
+            TextBody(
+                text = placeholder,
+                textSize = TEXT_SIZE_LARGE,
+                textColor = Text.copy(alpha = 0.5f),
+                textAlignment = TextAlign.Center,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            textStyle = textStyle.copy(color = Text),
+            keyboardOptions = KeyboardOptions(
+                keyboardType = KeyboardType.Phone,
+                imeAction = imeAction
+            ),
+            modifier = Modifier.fillMaxSize()
+        )
+    }
+}
 
 
 @Composable

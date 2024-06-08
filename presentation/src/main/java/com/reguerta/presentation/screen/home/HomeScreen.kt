@@ -63,10 +63,8 @@ import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.SIZE_88
-import com.reguerta.presentation.ui.SecondaryBackground
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
-import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_SPECIAL_BTN
 import com.reguerta.presentation.ui.Text
@@ -262,14 +260,14 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
                     textButton = "Volver",
                     isSingleButton = false,
                     onClick = { onEvent(HomeEvent.HideDialog) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(0.48f)
                 )
                 Spacer(modifier = Modifier.width(PADDING_EXTRA_SMALL))
                 ReguertaButton(
                     textButton = "Confirmar",
                     isSingleButton = false,
                     onClick = { onEvent(HomeEvent.GoOut) },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(0.52f)
                 )
             }
         }

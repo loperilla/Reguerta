@@ -3,6 +3,7 @@ package com.reguerta.presentation.screen.users.add
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
@@ -14,7 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.reguerta.presentation.composables.PhoneNumberReguertaInput
+import com.reguerta.presentation.composables.CustomPhoneNumberInput
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCheckBox
 import com.reguerta.presentation.composables.ReguertaEmailInput
@@ -22,11 +23,15 @@ import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
+import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.ui.PADDING_ZERO
+import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -68,20 +73,20 @@ fun AddUserScreen(
         }
     ) {
         Column(
-            verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
-            modifier = Modifier.padding(it)
+            verticalArrangement = Arrangement.spacedBy(PADDING_ZERO),
+            modifier = Modifier
+                .padding(it)
+                .padding(horizontal = PADDING_MEDIUM)
         ) {
             ReguertaEmailInput(
                 state.email,
                 onTextChange = { emailValue ->
                     onEvent(AddUserEvent.EmailInputChanges(emailValue))
                 },
-                labelText = "Email",
+                labelText = "EMAIL A AUTORIZAR",
                 isValidEmail = state.email.isValidEmail,
                 placeholderText = "Pulsa para escribir",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = PADDING_MEDIUM, end = PADDING_MEDIUM)
+                modifier = Modifier.fillMaxWidth()
             )
 
             TextReguertaInput(
@@ -89,11 +94,9 @@ fun AddUserScreen(
                 onTextChange = { nameValue ->
                     onEvent(AddUserEvent.NameInputChanges(nameValue))
                 },
-                labelText = "Nombre",
+                labelText = "NOMBRE DEL REGÜERTENSE",
                 placeholderText = "Pulsa para escribir",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = PADDING_MEDIUM, end = PADDING_MEDIUM)
+                modifier = Modifier.fillMaxWidth()
             )
 
             TextReguertaInput(
@@ -101,25 +104,36 @@ fun AddUserScreen(
                 onTextChange = { surnameValue ->
                     onEvent(AddUserEvent.SurnameInputChanges(surnameValue))
                 },
-                labelText = "Apellidos",
+                labelText = "APELLIDOS DEL REGÜERTENSE",
                 placeholderText = "Pulsa para escribir",
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = PADDING_MEDIUM, end = PADDING_MEDIUM)
+                modifier = Modifier.fillMaxWidth()
             )
 
-            PhoneNumberReguertaInput(
-                state.phoneNumber,
-                onTextChange = { phoneNumberValue ->
-                    if (phoneNumberValue.length <= 9) {
-                        onEvent(AddUserEvent.PhoneNumberInputChanges(phoneNumberValue))
-                    }
-                },
-                placeholderText = "Pulsa para escribir",
+            Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = PADDING_MEDIUM, end = PADDING_MEDIUM)
-            )
+                    .padding(top = PADDING_SMALL),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextTitle(
+                    text = "TELÉFONO DEL REGÜERTENSE",
+                    textSize = TEXT_SIZE_EXTRA_SMALL,
+                    modifier = Modifier
+                        .weight(0.64f)
+                        .padding(start = PADDING_MEDIUM)
+                )
+                CustomPhoneNumberInput(
+                    value = state.phoneNumber,
+                    onValueChange = { phoneNumberValue ->
+                        if (phoneNumberValue.length <= 9) {
+                            onEvent(AddUserEvent.PhoneNumberInputChanges(phoneNumberValue))
+                        }
+                    },
+                    placeholder = "Teléfono",
+                    isError = state.phoneNumber.length != 9,
+                    modifier = Modifier.weight(0.36f)
+                )
+            }
 
             if (state.isProducer) {
                 TextReguertaInput(
@@ -127,16 +141,12 @@ fun AddUserScreen(
                     onTextChange = { companyNameValue ->
                         onEvent(AddUserEvent.CompanyNameInputChanges(companyNameValue))
                     },
-                    labelText = "Compañía",
+                    labelText = "NOMBRE DE LA EMPRESA",
                     placeholderText = "Pulsa para escribir",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = PADDING_MEDIUM, end = PADDING_MEDIUM)
+                    modifier = Modifier.fillMaxWidth()
                 )
                 Row(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .padding(top = PADDING_SMALL),
+                    modifier = Modifier.wrapContentSize(),
                     horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
@@ -148,16 +158,14 @@ fun AddUserScreen(
                     )
                     TextBody(
                         text = "Consumidor encargado de compras",
-                        textSize = TEXT_SIZE_LARGE,
+                        textSize = TEXT_SIZE_MEDIUM,
                         textColor = Text
                     )
                 }
             }
 
             Row(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(top = PADDING_SMALL),
+                modifier = Modifier.wrapContentSize(),
                 horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -175,9 +183,7 @@ fun AddUserScreen(
             }
 
             Row(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .padding(top = PADDING_SMALL),
+                modifier = Modifier.wrapContentSize(),
                 horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -194,14 +200,16 @@ fun AddUserScreen(
                 )
             }
 
+            Spacer(modifier = Modifier.weight(1f))
             ReguertaButton(
                 textButton = "Autorizar",
                 onClick = { onEvent(AddUserEvent.AddUser) },
                 enabledButton = state.isButtonEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PADDING_MEDIUM)
+                    .padding(PADDING_SMALL)
             )
+            Spacer(modifier = Modifier.weight(1f))
         }
     }
 }

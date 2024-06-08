@@ -71,8 +71,7 @@ fun ReguertaAlertDialogPrev() {
                         imageVector = Icons.Default.Info,
                         contentDescription = "Info",
                         tint = PrimaryColor,
-                        modifier = Modifier
-                            .size(SIZE_48)
+                        modifier = Modifier.size(SIZE_48)
                     )
                 }
             },
@@ -99,8 +98,7 @@ fun ReguertaAlertDialogPrev() {
                     onClick = {
 //                        onEvent(HomeEvent.GoOut)
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
             },
             dismissButton = {
@@ -109,8 +107,7 @@ fun ReguertaAlertDialogPrev() {
                     onClick = {
 //                        onEvent(HomeEvent.HideDialog)
                     },
-                    modifier = Modifier
-                        .fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth()
                 )
             },
             containerColor = DialogBackground,
