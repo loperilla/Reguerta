@@ -13,5 +13,6 @@ data class ProductsState(
     val isLoading: Boolean = false,
     val goOut: Boolean = false,
     val showAreYouSureDialog: Boolean = false,
-    val selectedProductToDelete: String = ""
+    val selectedProductToDelete: String = "",
+    val holidaysMode: Boolean = false
 )

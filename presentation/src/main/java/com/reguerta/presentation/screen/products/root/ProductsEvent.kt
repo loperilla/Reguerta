@@ -8,6 +8,7 @@ package com.reguerta.presentation.screen.products.root
  */
 sealed class ProductsEvent {
     data class ShowAreYouSureDialog(val idToDelete: String) : ProductsEvent()
+    data class HolidaysMode(val isOn: Boolean) : ProductsEvent()
     data object HideAreYouSureDialog : ProductsEvent()
     data object ConfirmDeleteProduct : ProductsEvent()
     data object GoOut : ProductsEvent()

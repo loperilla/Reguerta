@@ -12,6 +12,7 @@ import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_ULTRA_SMALL
+import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
@@ -68,7 +69,7 @@ fun ProductNameUnityContainerInMyOrder(
         )
         TextBody(
             text = product.containerUnity(),
-            textSize = TEXT_SIZE_SMALL,
+            textSize = TEXT_SIZE_EXTRA_SMALL,
             textColor = Text,
             modifier = Modifier.padding(vertical = PADDING_ULTRA_SMALL),
             textAlignment = TextAlign.Start

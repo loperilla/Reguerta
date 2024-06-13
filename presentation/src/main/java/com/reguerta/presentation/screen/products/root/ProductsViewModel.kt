@@ -57,6 +57,14 @@ class ProductsViewModel @Inject constructor(
                         )
                     }
                 }
+/*
+                ProductsEvent.HolidaysMode -> {
+                    _state.update {
+                        it.copy(holidaysMode = true)
+                    }
+                }
+
+ */
 
                 ProductsEvent.ConfirmDeleteProduct -> {
                     deleteProductUseCase(state.value.selectedProductToDelete).fold(
@@ -87,6 +95,8 @@ class ProductsViewModel @Inject constructor(
                         )
                     }
                 }
+
+                else -> {}
             }
         }
     }

@@ -11,8 +11,27 @@ import androidx.compose.ui.unit.sp
  */
 
 //TextSizes
+const val TEXT_EXTRA_SMALL = 12
+const val TEXT_SMALL = 14
+const val TEXT_MEDIUM = 16
+const val TEXT_LARGE = 18
+const val TEXT_EXTRA_LARGE = 22
+const val TEXT_TOP = 24
+const val TEXT_PLUS = 26
+
+// TextButtons
+const val TEXT_PAIR_BTN = 18
+const val TEXT_SINGLE_BTN = 22
+const val TEXT_SPECIAL_BTN = 26
+
+// TextSizes Dialogs
+const val TEXT_DLG_BODY = 15
+const val TEXT_DLG_TITLE = 20
+
+//TextSizes
 val TEXT_SIZE_EXTRA_SMALL = 12.sp
 val TEXT_SIZE_SMALL = 14.sp
+val TEXT_SIZE_SMADIUM = 15.sp
 val TEXT_SIZE_MEDIUM = 16.sp
 val TEXT_SIZE_LARGE = 18.sp
 val TEXT_SIZE_EXTRA_LARGE = 20.sp

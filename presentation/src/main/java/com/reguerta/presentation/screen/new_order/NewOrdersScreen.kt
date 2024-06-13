@@ -200,20 +200,15 @@ fun ExistingOrderScreen(
         ) {
             OrderLinesByCompany(
                 orderLines = state.orderLinesByCompanyName,
-                modifier = Modifier
-                    .weight(1f)
-                    //.padding(PADDING_SMALL)
+                modifier = Modifier.weight(1f)
             )
         }
 
         Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-                //.padding(PADDING_ZERO),
+            modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.End
         ) {
-            Spacer( modifier = Modifier
-                .weight(1f))
+            Spacer( modifier = Modifier.weight(1f))
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -260,13 +255,13 @@ private fun OrderByCompany(
 ) {
     ReguertaCard(
         modifier = Modifier.padding(
-            horizontal = PADDING_MEDIUM,
+            horizontal = PADDING_SMALL,
             vertical = PADDING_SMALL
         ),
         content = {
             TextBody(
                 text = companyName,
-                textSize = TEXT_SIZE_EXTRA_LARGE,
+                textSize = TEXT_SIZE_LARGE,
                 textColor = PrimaryColor,
                 modifier = Modifier
                     .align(Alignment.Start)
@@ -384,12 +379,10 @@ fun NewOrderTopBar(
                     TextBody(
                         "Seguir comprando",
                         textSize = TEXT_SIZE_LARGE,
-                        modifier = Modifier
-                            .padding(horizontal = PADDING_SMALL)
+                        modifier = Modifier.padding(horizontal = PADDING_SMALL)
                     )
                 },
-                modifier = Modifier
-                    .padding(PADDING_ZERO)
+                modifier = Modifier.padding(PADDING_ZERO)
             )
         }
     } else {
@@ -405,8 +398,7 @@ fun NewOrderTopBar(
                         TextBody(
                             "Ver",
                             textSize = TEXT_SIZE_LARGE,
-                            modifier = Modifier
-                                .padding(horizontal = PADDING_SMALL)
+                            modifier = Modifier.padding(horizontal = PADDING_SMALL)
                         )
                         Icon(
                             imageVector = Icons.Default.ShoppingCart,

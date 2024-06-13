@@ -1,5 +1,6 @@
 package com.reguerta.presentation.composables
 
+import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,12 +22,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
-import com.reguerta.presentation.ui.Background
+import com.reguerta.presentation.getResizedTextSize
 import com.reguerta.presentation.ui.CORNER_SIZE_8
 import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
+import com.reguerta.presentation.ui.TEXT_EXTRA_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
@@ -161,11 +164,11 @@ fun AmountText(
 fun HeaderSectionText(
     text: String,
     modifier: Modifier = Modifier,
-    textSize: TextUnit = TEXT_SIZE_LARGE,
-    textColor: Color = PrimaryColor,
+    textSize: TextUnit = getResizedTextSize(TEXT_EXTRA_LARGE),
+    textColor: Color = MaterialTheme.colorScheme.primary,
     textAlignment: TextAlign = TextAlign.Center,
     fontWeight: FontWeight = FontWeight.Bold,
-    backgroundColor: Color = Background.copy(alpha = 0.7f),
+    backgroundColor: Color = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
     padding: Dp = PADDING_SMALL
 ) {
     Box(
@@ -180,6 +183,7 @@ fun HeaderSectionText(
             color = textColor,
             fontSize = textSize,
             fontWeight = fontWeight,
+            fontFamily = cabinsketchFontFamily,
             textAlign = textAlignment
         )
     }
@@ -190,7 +194,7 @@ fun TextTitle(
     text: String,
     modifier: Modifier = Modifier,
     textSize: TextUnit = TEXT_SIZE_LARGE,
-    textColor: Color = Color.Unspecified,
+    textColor: Color = MaterialTheme.colorScheme.onBackground,
     textAlignment: TextAlign? = null
 ) {
     Text(
@@ -209,7 +213,7 @@ fun TextTitle(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
     textSize: TextUnit = TEXT_SIZE_LARGE,
-    textColor: Color = Color.Unspecified,
+    textColor: Color = MaterialTheme.colorScheme.onBackground,
     textAlignment: TextAlign? = null
 ) {
     Text(
@@ -223,7 +227,8 @@ fun TextTitle(
     )
 }
 
-@Preview
+@Preview(showBackground = true)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES, showBackground = true)
 @Composable
 fun TextPreviews() {
     Screen {
@@ -232,7 +237,8 @@ fun TextPreviews() {
         ) {
             TextRegular("Manuel Lopera")
             TextBody("Manuel Lopera")
-            TextTitle("Manuel Lopera")
+            TextTitle("Lopera y Jesús")
+            HeaderSectionText("My Company")
             AmountText(15.0)
             StockProductText(0)
             StockProductText(4)

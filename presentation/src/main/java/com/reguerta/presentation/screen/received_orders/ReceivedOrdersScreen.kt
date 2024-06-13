@@ -49,8 +49,10 @@ import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_72
+import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
+import com.reguerta.presentation.ui.TEXT_SIZE_SMADIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
@@ -148,7 +150,7 @@ private fun OrderListByUser(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(PADDING_MEDIUM)
+            .padding(PADDING_SMALL)
     ) {
         orderLines.forEach {
             item {
@@ -217,14 +219,14 @@ private fun ProductOrders(
     ) {
         Column(
             horizontalAlignment = Alignment.Start,
-            modifier = Modifier.weight(0.6f)
+            modifier = Modifier.weight(0.58f)
         ) {
             ProductNameUnityContainerInMyOrder(orderLine.product)
         }
         VerticalDivider()
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.weight(0.2f)
+            modifier = Modifier.weight(0.22f)
         ) {
             TextBody(
                 text = "${orderLine.quantity}",
@@ -234,7 +236,7 @@ private fun ProductOrders(
             )
             TextBody(
                 text = quantitySum,
-                textSize = TEXT_SIZE_SMALL,
+                textSize = TEXT_SIZE_EXTRA_SMALL,
                 textColor = Text,
                 modifier = Modifier.padding(PADDING_EXTRA_SMALL),
             )
@@ -246,7 +248,7 @@ private fun ProductOrders(
         ) {
             TextBody(
                 text = "%.2f €".format(totalPrice),
-                textSize = TEXT_SIZE_MEDIUM,
+                textSize = TEXT_SIZE_SMADIUM,
                 textColor = Orange
             )
         }
