@@ -189,6 +189,7 @@ private fun AddProductScreen(
     }
 }
 
+
 @Composable
 private fun HeaderAddProductForm(
     state: AddProductState,
@@ -337,7 +338,6 @@ private fun HeaderAddProductForm(
         }
     }
 }
-
 
 @Composable
 private fun UnityAndContainer(
