@@ -6,6 +6,7 @@ import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.new_order.NewOrderModel
+import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
 import com.reguerta.domain.usecase.products.UpdateProductStockUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 /*****
@@ -31,7 +33,8 @@ import javax.inject.Inject
 class NewOrderViewModel @Inject constructor(
     getAvailableProductsUseCase: GetAvailableProductsUseCase,
     private val orderModel: NewOrderModel,
-    private val updateProductStockUseCase: UpdateProductStockUseCase
+    private val updateProductStockUseCase: UpdateProductStockUseCase,
+    private val checkCurrentUserLoggedUseCase: CheckCurrentUserLoggedUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<NewOrderState> = MutableStateFlow(NewOrderState())
     val state: StateFlow<NewOrderState> = _state.asStateFlow()
@@ -40,6 +43,17 @@ class NewOrderViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+
+            val currentUserResult = checkCurrentUserLoggedUseCase()
+            val currentUser = currentUserResult.getOrNull()
+
+            if (currentUser == null) {
+                Timber.tag("NewOrderViewModel").e("Current user is null")
+                _state.update { it.copy(isLoading = false) }
+                // Puedes agregar lógica adicional para redirigir al usuario a la pantalla de inicio de sesión
+                return@launch
+            }
+
             listOf(
                 async {
                     getAvailableProductsUseCase().collectLatest { list ->

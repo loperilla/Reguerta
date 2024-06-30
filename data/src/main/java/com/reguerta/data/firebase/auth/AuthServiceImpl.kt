@@ -18,6 +18,7 @@ import kotlinx.coroutines.tasks.await
  * Created By Manuel Lopera on 24/1/24 at 12:04
  * All rights reserved 2024
  */
+
 class AuthServiceImpl(
     private val firebaseAuth: FirebaseAuth,
     private val userCollection: UsersCollectionService,

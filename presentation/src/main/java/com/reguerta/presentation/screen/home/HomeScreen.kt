@@ -66,6 +66,7 @@ import com.reguerta.presentation.ui.SIZE_88
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_SPECIAL_BTN
 import com.reguerta.presentation.ui.Text
 import kotlinx.coroutines.launch
@@ -185,8 +186,7 @@ private fun MakeYourOrderButton(
             text = "Mi pedido",
             textSize = TEXT_SIZE_SPECIAL_BTN,
             textColor = PrimaryColor,
-            modifier = Modifier
-                .padding(PADDING_SMALL)
+            modifier = Modifier.padding(PADDING_SMALL)
         )
     }
 }
@@ -210,8 +210,7 @@ private fun ShowYourOrderButton(
             text = "Ver tus pedidos",
             textSize = TEXT_SIZE_SPECIAL_BTN,
             textColor = PrimaryColor,
-            modifier = Modifier
-                .padding(PADDING_SMALL)
+            modifier = Modifier.padding(PADDING_SMALL)
         )
     }
 }
@@ -281,8 +280,7 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         Image(
             painter = painterResource(id = R.mipmap.firstscreenn),
             contentDescription = null,
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
+            modifier = Modifier.align(Alignment.CenterHorizontally)
         )
         Spacer(modifier = Modifier.height(PADDING_SMALL))
         prepareNavigationDrawerList(
@@ -312,10 +310,18 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
                 onClick = {
                     info.onClick()
                 },
-                modifier = Modifier
-                    .padding(NavigationDrawerItemDefaults.ItemPadding)
+                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
             )
         }
+        Spacer(modifier = Modifier.weight(1f))
+        TextBody(
+            text = "android version 0.1.6.2",
+            textSize = TEXT_SIZE_SMALL,
+            textColor = Text,
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .padding(PADDING_SMALL)
+        )
     }
 }
 
@@ -333,8 +339,7 @@ private fun showNotAuthorizedDialog() {
                     imageVector = Icons.Default.Warning,
                     contentDescription = "Advertencia",
                     tint = Orange,
-                    modifier = Modifier
-                        .size(SIZE_48)
+                    modifier = Modifier.size(SIZE_48)
                 )
             }
         },
