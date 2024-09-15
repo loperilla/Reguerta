@@ -38,14 +38,6 @@ class OrderLineServiceImpl @Inject constructor(
         list.map { entity -> entity.toDTO() }
     }
 
-    override suspend fun getLastOrderLines(orderId: String): Flow<List<OrderLineDTO>> = dao.getOrderLinesByUserAndWeek(
-        dataStore.getStringByKey(UID_KEY),
-        time.getLastWeek(),
-        orderId
-    ).map { list ->
-        list.map { entity -> entity.toDTO() }
-    }
-
     override suspend fun addOrderLineInDatabase(orderId: String, productId: String, productCompany: String) {
         dao.insertNewOrderLine(
             OrderLineEntity(

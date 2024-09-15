@@ -58,10 +58,6 @@ class NewOrderModel @Inject constructor(
         it.map { orderLineDTO -> orderLineDTO.toOrderLine() }
     }
 
-    suspend fun getLastOrderLines(): Flow<List<OrderLineProduct>> = orderLineService.getLastOrderLines(order.id).map {
-        it.map { orderLineDTO -> orderLineDTO.toOrderLine() }
-    }
-
     suspend fun deleteOrderLineLocal(productId: String) = orderLineService.deleteOrderLine(order.id, productId)
 
     suspend fun updateProductStock(productId: String, newQuantity: Int) =
