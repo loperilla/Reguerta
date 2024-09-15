@@ -19,6 +19,12 @@ class WeekTimeImpl @Inject constructor() : WeekTime {
         return today.get(weekFields.weekOfWeekBasedYear())
     }
 
+    override fun getLastWeek(): Int {
+        val lastWeek: LocalDate = LocalDate.now().minusWeeks(1)
+        val weekFields = WeekFields.of(Locale("es", "ES"))
+        return lastWeek.get(weekFields.weekOfWeekBasedYear())
+    }
+
     override fun getCurrentWeekDay(): Int {
         return LocalDate.now().dayOfWeek.value
     }

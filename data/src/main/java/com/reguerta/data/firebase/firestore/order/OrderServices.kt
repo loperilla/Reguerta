@@ -12,6 +12,8 @@ import com.reguerta.data.firebase.model.DataResult
 
 interface OrderServices {
     suspend fun getOrderByUserId(): DataResult<OrderModel, DataError.Firebase>
+    suspend fun getLastOrderByUserId(): DataResult<OrderModel, DataError.Firebase>
     suspend fun getOrderByUserId(userId: String): DataResult<OrderModel, DataError.Firebase>
+    suspend fun getLastOrderByUserId(userId: String): DataResult<OrderModel, DataError.Firebase>
     suspend fun deleteOrder(orderId: String): DataResult<Unit, DataError.Firebase>
 }

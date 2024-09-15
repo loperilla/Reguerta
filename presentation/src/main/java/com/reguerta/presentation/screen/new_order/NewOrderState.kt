@@ -1,8 +1,11 @@
 package com.reguerta.presentation.screen.new_order
 
+import com.reguerta.domain.model.Container
+import com.reguerta.domain.model.Measure
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.domain.model.received.OrderLineReceived
+import java.time.DayOfWeek
 
 /*****
  * Project: Reguerta
@@ -22,7 +25,10 @@ data class NewOrderState(
     val productsOrderLineList: List<ProductWithOrderLine> = emptyList(),
     val ordersFromExistingOrder: Map<Product, List<OrderLineReceived>> = emptyMap(),
     val orderLinesByCompanyName: Map<String, List<OrderLineReceived>> = emptyMap(),
-    val productsGroupedByCompany: Map<String, List<Product>> = emptyMap()
+    val productsGroupedByCompany: Map<String, List<Product>> = emptyMap(),
+    val currentDay: DayOfWeek = DayOfWeek.MONDAY,
+    val measures: List<Measure> = emptyList(),
+    val containers: List<Container> = emptyList()
 )
 
 enum class PopupType {

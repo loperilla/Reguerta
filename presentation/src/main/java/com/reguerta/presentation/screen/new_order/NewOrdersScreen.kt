@@ -37,6 +37,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -57,8 +58,6 @@ import com.reguerta.domain.model.mapper.priceFormatted
 import com.reguerta.domain.model.received.OrderLineReceived
 import com.reguerta.domain.model.received.getAmount
 import com.reguerta.domain.model.received.getDblAmount
-import com.reguerta.presentation.ALCAZAR
-import com.reguerta.presentation.ALCAZAR_WITH_ORDER
 import com.reguerta.presentation.composables.AmountText
 import com.reguerta.presentation.composables.BtnType
 import com.reguerta.presentation.composables.HeaderSectionText
@@ -74,6 +73,7 @@ import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.image.ProductImage
 import com.reguerta.presentation.composables.products.ProductNameUnityContainerInMyOrder
+import com.reguerta.presentation.getQuantitySum
 import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
@@ -98,6 +98,7 @@ import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.TEXT_SPECIAL
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
+import java.time.DayOfWeek
 
 /*****
  * Project: Reguerta
@@ -112,10 +113,12 @@ fun newOrderScreen(
 ) {
     val viewModel = hiltViewModel<NewOrderViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
+
     if (state.goOut) {
         navigateTo(Routes.HOME.ROOT.route)
         return
     }
+
     if (state.showPopup == PopupType.ARE_YOU_SURE_DELETE) {
         AreYouSureDeletePopup(
             onEvent = viewModel::onEvent
@@ -136,17 +139,36 @@ fun newOrderScreen(
             }
         )
     }
-    Screen {
-        if (state.isExistOrder) {
-            ExistingOrderScreen(
-                state = state,
-                onEvent = viewModel::onEvent
-            )
-        } else {
-            NewOrderScreen(
-                state = state,
-                onEvent = viewModel::onEvent
-            )
+
+    if (state.isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else {
+        Screen {
+            if (state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) {
+                if (state.isExistOrder) {
+                    LastOrderScreen(
+                        state = state,
+                        onEvent = viewModel::onEvent
+                    )
+                }
+            } else {
+                if (state.isExistOrder) {
+                    ExistingOrderScreen(
+                        state = state,
+                        onEvent = viewModel::onEvent
+                    )
+                } else {
+                    NewOrderScreen(
+                        state = state,
+                        onEvent = viewModel::onEvent
+                    )
+                }
+            }
         }
     }
 }
@@ -200,10 +222,72 @@ fun ExistingOrderScreen(
         ) {
             OrderLinesByCompany(
                 orderLines = state.orderLinesByCompanyName,
+                state =  state,
                 modifier = Modifier.weight(1f)
             )
         }
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.End
+        ) {
+            Spacer( modifier = Modifier.weight(1f))
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(PrimaryColor)
+                    .padding(PADDING_SMALL),
+                contentAlignment = Alignment.Center
+            ) {
+                TextTitle(
+                    text = "Suma total pedido: %.2f €".format(grandTotal),
+                    textSize = TEXT_TOP_BAR,
+                    textColor = Color.White
+                )
+            }
+        }
+    }
+}
 
+
+@Composable
+fun LastOrderScreen(
+    state: NewOrderState,
+    onEvent: (NewOrderEvent) -> Unit
+) {
+    val grandTotal = state.orderLinesByCompanyName.values.sumOf { it.getDblAmount() }
+
+    Scaffold(
+        topBar = {
+            ReguertaTopBar(
+                topBarText = "Mi último pedido",
+                navActionClick = {
+                    onEvent(NewOrderEvent.GoOut)
+                },
+                actions = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(PADDING_ZERO),
+                        horizontalAlignment = Alignment.End
+                    ) {
+
+                    }
+                }
+            )
+        }
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+                .padding(bottom = PADDING_LARGE + PADDING_MEDIUM)
+        ) {
+            OrderLinesByCompany(
+                orderLines = state.orderLinesByCompanyName,
+                state = state,
+                modifier = Modifier.weight(1f)
+            )
+        }
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.End
@@ -229,6 +313,7 @@ fun ExistingOrderScreen(
 @Composable
 private fun OrderLinesByCompany(
     orderLines: Map<String, List<OrderLineReceived>>,
+    state: NewOrderState,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -240,18 +325,19 @@ private fun OrderLinesByCompany(
             item {
                 OrderByCompany(
                     companyName = it.key,
-                    orderLines = it.value
+                    orderLines = it.value,
+                    state = state
                 )
             }
         }
     }
 }
 
-
 @Composable
 private fun OrderByCompany(
     companyName: String,
-    orderLines: List<OrderLineReceived>
+    orderLines: List<OrderLineReceived>,
+    state: NewOrderState
 ) {
     ReguertaCard(
         modifier = Modifier.padding(
@@ -277,7 +363,9 @@ private fun OrderByCompany(
             orderLines.forEach {
                 ProductLine(
                     quantity = it.quantity,
-                    product = it.product
+                    product = it.product,
+                    orderLines = orderLines,
+                    state = state
                 )
             }
 
@@ -303,8 +391,14 @@ private fun OrderByCompany(
 @Composable
 private fun ProductLine(
     quantity: Int,
-    product: Product
-) {  Row(
+    product: Product,
+    orderLines: List<OrderLineReceived>,
+    state: NewOrderState
+) {
+    val quantitySum = remember(state) {
+        getQuantitySum(orderLines.first { it.product == product }, state.containers, state.measures)
+    }
+    Row(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
@@ -329,7 +423,7 @@ private fun ProductLine(
                 modifier = Modifier.padding(top = PADDING_ULTRA_SMALL)
             )
             TextBody(
-                text = product.container,
+                text = quantitySum,
                 textSize = TEXT_SIZE_SMALL,
                 textColor = Text,
                 modifier = Modifier.padding(vertical = PADDING_ZERO)
@@ -349,7 +443,6 @@ private fun ProductLine(
         }
     }
 }
-
 
 @Composable
 fun NewOrderTopBar(
@@ -810,7 +903,7 @@ private fun OrderQuantitySelector(
         }
     }
 }
-
+/*
 @Preview
 @Composable
 fun NewOrderScreenPreview() {
@@ -831,7 +924,9 @@ fun NewOrderScreenPreview() {
         )
     }
 }
+*/
 
+/*
 @Preview
 @Composable
 fun ShoppingCartScreenPreview() {
@@ -857,7 +952,7 @@ fun ShoppingCartScreenPreview() {
         )
     }
 }
-
+*/
 @Composable
 fun AreYouSureDeletePopup(
     onEvent: (NewOrderEvent) -> Unit
@@ -983,7 +1078,7 @@ fun ConfirmPopup(
         }
     )
 }
-
+/*
 @Preview
 @Composable
 fun ExistingOrderScreenPreviewPreview() {
@@ -1021,7 +1116,7 @@ fun ExistingOrderScreenPreviewPreview() {
         )
     }
 }
-
+*/
 @Preview
 @Composable
 fun ShowAreYouSureDeleteOrderPreview() {

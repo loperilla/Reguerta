@@ -7,8 +7,11 @@ import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.new_order.NewOrderModel
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
+import com.reguerta.domain.usecase.container.GetAllContainerUseCase
+import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
 import com.reguerta.domain.usecase.products.UpdateProductStockUseCase
+import com.reguerta.domain.usecase.week.GetCurrentWeekDayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -19,7 +22,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
+import java.time.DayOfWeek
 import javax.inject.Inject
 
 /*****
@@ -31,7 +34,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewOrderViewModel @Inject constructor(
-    getAvailableProductsUseCase: GetAvailableProductsUseCase,
+    private val getAvailableProductsUseCase: GetAvailableProductsUseCase,
+    private val getCurrentWeek: GetCurrentWeekDayUseCase,
+    private val getAllMeasuresUseCase: GetAllMeasuresUseCase,
+    private val getAllContainerUseCase: GetAllContainerUseCase,
     private val orderModel: NewOrderModel,
     private val updateProductStockUseCase: UpdateProductStockUseCase,
     private val checkCurrentUserLoggedUseCase: CheckCurrentUserLoggedUseCase
@@ -42,80 +48,123 @@ class NewOrderViewModel @Inject constructor(
     private lateinit var initialCommonProducts: List<CommonProduct>
 
     init {
-        viewModelScope.launch {
-
+        viewModelScope.launch(Dispatchers.IO) {
             val currentUserResult = checkCurrentUserLoggedUseCase()
             val currentUser = currentUserResult.getOrNull()
 
             if (currentUser == null) {
-                Timber.tag("NewOrderViewModel").e("Current user is null")
                 _state.update { it.copy(isLoading = false) }
-                // Puedes agregar lógica adicional para redirigir al usuario a la pantalla de inicio de sesión
                 return@launch
+            }
+            _state.update {
+                it.copy(
+                    currentDay = DayOfWeek.of(getCurrentWeek())
+                )
             }
 
             listOf(
                 async {
-                    getAvailableProductsUseCase().collectLatest { list ->
-                        initialCommonProducts = list
-                        val groupedByCompany = list.groupBy { it.companyName }.toSortedMap()
+                    loadAvailableProducts(getAvailableProductsUseCase)
+                },
+                async {
+                    getAllMeasuresUseCase().collect { measureList ->
                         _state.update {
-                            it.copy(
-                                isLoading = false,
-                                productsGroupedByCompany = groupedByCompany
-                            )
+                            it.copy(measures = measureList)
                         }
                     }
-                }, async(Dispatchers.IO) {
-                    orderModel.checkIfExistOrderInFirebase().fold(
-                        onSuccess = { existOrder ->
-                            _state.update {
-                                it.copy(
-                                    isExistOrder = existOrder
-                                )
-                            }
-                            if (existOrder) {
-                                orderModel.getOrderLinesFromCurrentWeek().collectLatest { ordersReceived ->
-                                    val groupedByCompany = ordersReceived.groupBy { it.companyName }.toSortedMap()
-                                    _state.update {
-                                        it.copy(
-                                            isLoading = false,
-                                            hasOrderLine = true,
-                                            orderLinesByCompanyName = groupedByCompany,
-                                            ordersFromExistingOrder = ordersReceived.groupBy { orderLine ->
-                                                orderLine.product
-                                            }
-                                        )
-                                    }
-                                }
-                            } else {
-                                orderModel.getOrderLines().collectLatest { orderList ->
-                                    if (orderList.isNotEmpty()) {
-                                        buildProductWithOrderList(orderList)
-                                    } else {
-                                        _state.update {
-                                            it.copy(
-                                                isLoading = false,
-                                                productsGroupedByCompany = initialCommonProducts.groupBy { it.companyName }.toSortedMap(),
-                                                hasOrderLine = false
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        onFailure = { throwable ->
-                            throwable.printStackTrace()
-                            _state.update {
-                                it.copy(
-                                    isLoading = false
-                                )
-                            }
+                },
+                async  {
+                    getAllContainerUseCase().collect { containerList ->
+                        _state.update {
+                            it.copy(containers = containerList)
                         }
-                    )
+                    }
+                },
+                async {
+                    val currentDay = DayOfWeek.of(getCurrentWeek())
+                    if (currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) {
+                        handleLastWeekOrders()
+                    } else {
+                        handleCurrentWeekOrders()
+                    }
                 }
             ).awaitAll()
         }
+    }
+
+    private suspend fun loadAvailableProducts(getAvailableProductsUseCase: GetAvailableProductsUseCase) {
+        getAvailableProductsUseCase().collectLatest { list ->
+            initialCommonProducts = list
+            val groupedByCompany = list.groupBy { it.companyName }.toSortedMap()
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    productsGroupedByCompany = groupedByCompany
+                )
+            }
+        }
+    }
+
+    private suspend fun handleLastWeekOrders() {
+        orderModel.checkIfExistLastWeekOrderInFirebase().fold(
+            onSuccess = { existOrder ->
+                _state.update { it.copy(isExistOrder = existOrder) }
+                if (existOrder) {
+                    loadOrderLinesFromCurrentWeek()
+                }
+            },
+            onFailure = { handleError(it) }
+        )
+    }
+
+    private suspend fun handleCurrentWeekOrders() {
+        orderModel.checkIfExistOrderInFirebase().fold(
+            onSuccess = { existOrder ->
+                _state.update { it.copy(isExistOrder = existOrder) }
+                if (existOrder) {
+                    loadOrderLinesFromCurrentWeek()
+                }
+                else {
+                    loadNewOrderLines()
+                }
+            },
+            onFailure = { handleError(it) }
+        )
+    }
+
+    private suspend fun loadOrderLinesFromCurrentWeek() {
+        orderModel.getOrderLinesFromCurrentWeek().collectLatest { ordersReceived ->
+            val groupedByCompany = ordersReceived.groupBy { it.companyName }.toSortedMap()
+            _state.update {
+                it.copy(
+                    isLoading = false,
+                    hasOrderLine = true,
+                    orderLinesByCompanyName = groupedByCompany,
+                    ordersFromExistingOrder = ordersReceived.groupBy { orderLine -> orderLine.product }
+                )
+            }
+        }
+    }
+
+    private suspend fun loadNewOrderLines() {
+        orderModel.getOrderLines().collectLatest { orderList ->
+            if (orderList.isNotEmpty()) {
+                buildProductWithOrderList(orderList)
+            } else {
+                _state.update { it ->
+                    it.copy(
+                        isLoading = false,
+                        productsGroupedByCompany = initialCommonProducts.groupBy { it.companyName }.toSortedMap(),
+                        hasOrderLine = false
+                    )
+                }
+            }
+        }
+    }
+
+    private fun handleError(throwable: Throwable) {
+        throwable.printStackTrace()
+        _state.update { it.copy(isLoading = false) }
     }
 
     private fun buildProductWithOrderList(orderList: List<OrderLineProduct>) {
@@ -143,7 +192,6 @@ class NewOrderViewModel @Inject constructor(
                 is NewOrderEvent.GoOut -> {
                     _state.update { it.copy(goOut = true) }
                 }
-
                 is NewOrderEvent.StartOrder -> {
                     val selectedProduct = state.value.productsGroupedByCompany.values.flatten().find { it.id == newEvent.productId }
                     selectedProduct?.let {
@@ -153,7 +201,6 @@ class NewOrderViewModel @Inject constructor(
                         )
                     }
                 }
-
                 is NewOrderEvent.PlusQuantityProduct -> {
                     val productUpdated = state.value.productsOrderLineList.singleOrNull { it.id == newEvent.productId }
                     productUpdated?.let { line ->

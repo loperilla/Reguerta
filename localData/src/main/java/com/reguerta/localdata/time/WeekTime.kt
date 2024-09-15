@@ -8,6 +8,7 @@ package com.reguerta.localdata.time
  */
 interface WeekTime {
     fun getCurrentWeek(): Int
+    fun getLastWeek(): Int
     fun getCurrentWeekDay(): Int
     fun isEvenCurrentWeek(): Boolean
 }

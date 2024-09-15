@@ -41,10 +41,24 @@ class NewOrderModel @Inject constructor(
         }
     }
 
+    suspend fun checkIfExistLastWeekOrderInFirebase(): Result<Boolean> {
+        return when (val result = orderService.getLastOrderByUserId()) {
+            is DataResult.Error -> Result.failure(Exception("Order not found in firebase"))
+            is DataResult.Success -> {
+                order = result.data.toDto()
+                checkIfHasFirebaseOrderLines(order.id)
+            }
+        }
+    }
+
     private suspend fun checkIfHasFirebaseOrderLines(orderId: String): Result<Boolean> =
         orderLineService.checkIfExistOrderInFirebase(orderId)
 
     suspend fun getOrderLines(): Flow<List<OrderLineProduct>> = orderLineService.getOrderLines(order.id).map {
+        it.map { orderLineDTO -> orderLineDTO.toOrderLine() }
+    }
+
+    suspend fun getLastOrderLines(): Flow<List<OrderLineProduct>> = orderLineService.getLastOrderLines(order.id).map {
         it.map { orderLineDTO -> orderLineDTO.toOrderLine() }
     }
 

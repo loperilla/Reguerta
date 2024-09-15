@@ -89,7 +89,6 @@ fun homeScreen(
         navigateTo(Routes.AUTH.route)
         return
     }
-
     if (state.showNotAuthorizedDialog) {
         showNotAuthorizedDialog()
     }
@@ -154,7 +153,7 @@ private fun HomeScreen(
                     )
                 }
 
-                if (state.currentDay in DayOfWeek.THURSDAY..DayOfWeek.SUNDAY || BuildConfig.DEBUG) {
+                if (state.currentDay in DayOfWeek.THURSDAY..DayOfWeek.SUNDAY) {
                     MakeYourOrderButton(
                         onButtonClick = {
                             navigateTo(Routes.ORDERS.NEW.route)
@@ -315,7 +314,7 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         }
         Spacer(modifier = Modifier.weight(1f))
         TextBody(
-            text = "android version 0.1.6.2",
+            text = "android version 0.1.7.1",
             textSize = TEXT_SIZE_SMALL,
             textColor = Text,
             modifier = Modifier

@@ -47,11 +47,52 @@ class OrderServiceImpl @Inject constructor(
         }
     }
 
+    override suspend fun getLastOrderByUserId(): DataResult<OrderModel, DataError.Firebase> {
+        return try {
+            val snapshot = collection
+                .whereEqualTo(
+                    USER_ID,
+                    dataStore.getStringByKey(UID_KEY)
+                )
+                .whereEqualTo(
+                    WEEK,
+                    weekTime.getLastWeek()
+                )
+                .get()
+                .await()
+            val document = snapshot.documents.firstOrNull() ?: return insertDefaultModel()
+            val orderModel = document.toObject(OrderModel::class.java)!!
+            orderModel.orderId = document.id
+            DataResult.Success(orderModel)
+        } catch (ex: Exception) {
+            DataResult.Error(DataError.Firebase.UNKNOWN)
+        }
+    }
+
     override suspend fun getOrderByUserId(userId: String): DataResult<OrderModel, DataError.Firebase> {
         return try {
             val snapshot = collection
                 .whereEqualTo(USER_ID, userId)
                 .whereEqualTo(WEEK, weekTime.getCurrentWeek().minus(1))
+                .get()
+                .await()
+            if (snapshot.documents.isEmpty()) {
+                return DataResult.Error(DataError.Firebase.EMPTY_LIST)
+            }
+            val document = snapshot.documents.first()
+            val orderModel = document.toObject(OrderModel::class.java)!!
+            orderModel.orderId = document.id
+            DataResult.Success(orderModel)
+        } catch (ex: Exception) {
+            DataResult.Error(DataError.Firebase.UNKNOWN)
+        }
+    }
+
+    override suspend fun getLastOrderByUserId(userId: String): DataResult<OrderModel, DataError.Firebase> {
+        return try {
+            val snapshot = collection
+                .whereEqualTo(USER_ID, userId)
+                .whereEqualTo(WEEK, weekTime.getLastWeek().minus(1))
                 .get()
                 .await()
             if (snapshot.documents.isEmpty()) {

@@ -24,46 +24,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 6/2/24 at 16:37
  * All rights reserved 2024
  */
-/*
-@HiltViewModel
-class ReceivedOrdersViewModel @Inject constructor(
-    getAllMeasuresUseCase: GetAllMeasuresUseCase,
-    getAllContainerUseCase: GetAllContainerUseCase,
-    private val orderReceivedModel: OrderReceivedModel
-) : ViewModel() {
-    private var _state: MutableStateFlow<ReceivedOrdersState> = MutableStateFlow(ReceivedOrdersState())
-    val state: StateFlow<ReceivedOrdersState> = _state
 
-    init {
-        viewModelScope.launch(Dispatchers.IO) {
-            orderReceivedModel.invoke().collectLatest { orders ->
-                _state.update { state ->
-                    state.copy(
-                        ordersByUser = orders.groupBy { it.fullOrderName() },
-                        ordersByProduct = orders.groupBy { it.product }
-                    )
-                }
-            }
-        }
-    }
-
-    fun onEvent(event: ReceivedOrdersEvent) {
-        viewModelScope.launch {
-            when (event) {
-                ReceivedOrdersEvent.GoOut -> {
-                    _state.update {
-                        it.copy(
-                            goOut = true
-                        )
-                    }
-                }
-            }
-        }
-    }
-}
-
-
- */
 @HiltViewModel
 class ReceivedOrdersViewModel @Inject constructor(
     private val getAllMeasuresUseCase: GetAllMeasuresUseCase,
