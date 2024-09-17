@@ -19,7 +19,9 @@ data class UserModel(
     var numResignations: Int? = null,
     val typeConsumer: String? = null,
     val typeProducer: String? = null,
-    @field:JvmField var available: Boolean? = true
+    @field:JvmField var available: Boolean? = true,
+    val tropical1: Double? = null,
+    val tropical2: Double? = null
 )
 
 fun UserModel.toMapWithoutId(): Map<String, Any?> {
@@ -34,6 +36,8 @@ fun UserModel.toMapWithoutId(): Map<String, Any?> {
         "numResignations" to numResignations,
         "typeConsumer" to typeConsumer,
         "typeProducer" to typeProducer,
-        "available" to available
+        "available" to available,
+        "tropical1" to tropical1,
+        "tropical2" to tropical2
     ).filterValues { it != null }
 }

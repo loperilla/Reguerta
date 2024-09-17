@@ -408,7 +408,9 @@ fun UserScreenPreview() {
                         numResignations = 0,
                         typeConsumer = "normal",
                         typeProducer = "",
-                        available = true
+                        available = true,
+                        tropical1 = 0.0,
+                        tropical2 = 0.0
                     )
                 )
             ),

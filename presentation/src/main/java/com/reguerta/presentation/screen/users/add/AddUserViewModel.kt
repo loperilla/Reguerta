@@ -35,6 +35,8 @@ class AddUserViewModel @Inject constructor(
                     // Establecer valores predeterminados
                     val numResignations = 0 // Siempre 0 al añadir un nuevo usuario
                     val available = true // Siempre true al añadir un nuevo usuario
+                    val tropical1 = 0.0 // Implementar en la vista más adelante
+                    val tropical2 = 0.0 // Implementar en la vista más adelante
 
                     createUserUseCase.invoke(
                         name = currentState.name,
@@ -47,7 +49,9 @@ class AddUserViewModel @Inject constructor(
                         numResignations = numResignations,
                         typeConsumer = currentState.typeConsumer,
                         typeProducer = if (currentState.isProducer) currentState.typeProducer else "",
-                        available = available
+                        available = available,
+                        tropical1 = tropical1,
+                        tropical2 = tropical2
                     ).fold(
                         onSuccess = {
                             _state.update { it.copy(goOut = true) }

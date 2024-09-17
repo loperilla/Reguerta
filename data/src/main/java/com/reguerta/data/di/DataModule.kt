@@ -3,25 +3,18 @@ package com.reguerta.data.di
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.firestore.FirebaseFirestore
-import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.reguerta.data.firebase.auth.AuthService
 import com.reguerta.data.firebase.auth.AuthServiceImpl
-import com.reguerta.data.firebase.firestore.CONTAINER
 import com.reguerta.data.firebase.firestore.CONTAINERS_COLLECTION
-import com.reguerta.data.firebase.firestore.MEASURES
+import com.reguerta.data.firebase.firestore.FirestoreManager
 import com.reguerta.data.firebase.firestore.MEASURES_COLLECTION
-import com.reguerta.data.firebase.firestore.ORDER
 import com.reguerta.data.firebase.firestore.ORDERS_COLLECTION
 import com.reguerta.data.firebase.firestore.ORDERS_LINES_COLLECTION
-import com.reguerta.data.firebase.firestore.ORDER_LINES
-import com.reguerta.data.firebase.firestore.PRODUCTS
 import com.reguerta.data.firebase.firestore.PRODUCTS_COLLECTION
 import com.reguerta.data.firebase.firestore.PRODUCT_IMAGE_STORAGE_PATH
-import com.reguerta.data.firebase.firestore.USERS
 import com.reguerta.data.firebase.firestore.USERS_COLLECTION
 import com.reguerta.data.firebase.firestore.container.ContainerService
 import com.reguerta.data.firebase.firestore.container.ContainerServiceImpl
@@ -56,6 +49,7 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DataModule {
+
     @Singleton
     @Provides
     fun provideFirebaseAuth(): FirebaseAuth = Firebase.auth
@@ -72,12 +66,13 @@ object DataModule {
 
     @Singleton
     @Provides
-    fun provideFirestore(): FirebaseFirestore = Firebase.firestore
+    fun provideFirestoreManager(): FirestoreManager = FirestoreManager
 
     @Named(USERS_COLLECTION)
     @Singleton
     @Provides
-    fun provideUsersCollection(firestore: FirebaseFirestore) = firestore.collection(USERS)
+    fun provideUsersCollection(firestoreManager: FirestoreManager): CollectionReference =
+        firestoreManager.usersCollection
 
     @Singleton
     @Provides
@@ -89,7 +84,8 @@ object DataModule {
     @Named(PRODUCTS_COLLECTION)
     @Singleton
     @Provides
-    fun provideProductsCollection(firestore: FirebaseFirestore) = firestore.collection(PRODUCTS)
+    fun provideProductsCollection(firestoreManager: FirestoreManager): CollectionReference =
+        firestoreManager.productsCollection
 
     @Named(PRODUCT_IMAGE_STORAGE_PATH)
     @Singleton
@@ -110,7 +106,8 @@ object DataModule {
     @Named(CONTAINERS_COLLECTION)
     @Singleton
     @Provides
-    fun provideContainerCollection(firestore: FirebaseFirestore) = firestore.collection(CONTAINER)
+    fun provideContainerCollection(firestoreManager: FirestoreManager): CollectionReference =
+        firestoreManager.containersCollection
 
     @Singleton
     @Provides
@@ -121,7 +118,8 @@ object DataModule {
     @Named(ORDERS_COLLECTION)
     @Singleton
     @Provides
-    fun provideOrderCollection(firestore: FirebaseFirestore) = firestore.collection(ORDER)
+    fun provideOrderCollection(firestoreManager: FirestoreManager): CollectionReference =
+        firestoreManager.ordersCollection
 
     @Singleton
     @Provides
@@ -134,7 +132,8 @@ object DataModule {
     @Named(ORDERS_LINES_COLLECTION)
     @Singleton
     @Provides
-    fun provideOrderLinesCollection(firestore: FirebaseFirestore) = firestore.collection(ORDER_LINES)
+    fun provideOrderLinesCollection(firestoreManager: FirestoreManager): CollectionReference =
+        firestoreManager.linesCollection
 
     @Singleton
     @Provides
@@ -148,7 +147,8 @@ object DataModule {
     @Named(MEASURES_COLLECTION)
     @Singleton
     @Provides
-    fun provideMeasuresCollection(firestore: FirebaseFirestore) = firestore.collection(MEASURES)
+    fun provideMeasuresCollection(firestoreManager: FirestoreManager): CollectionReference =
+        firestoreManager.measuresCollection
 
     @Singleton
     @Provides

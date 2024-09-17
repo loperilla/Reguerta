@@ -46,7 +46,10 @@ class EditUserViewModel @AssistedInject constructor(
                         isProducer = userDomain.isProducer,
                         typeProducer = userDomain.typeProducer,
                         typeConsumer = userDomain.typeConsumer,
-                        available = userDomain.available
+                        numResignations = userDomain.numResignations,
+                        available = userDomain.available,
+                        tropical1 = userDomain.tropical1,
+                        tropical2 = userDomain.tropical2
                     )
                 }
             }, onFailure = {
@@ -77,8 +80,10 @@ class EditUserViewModel @AssistedInject constructor(
                             companyName = companyName,
                             typeProducer = typeProducer,
                             typeConsumer = typeConsumer,
-                            numResignations = 0,
-                            available = available
+                            numResignations = numResignations,
+                            available = available,
+                            tropical1 = tropical1,
+                            tropical2 = tropical2
                         ).fold(onSuccess = {
                             _state.update {
                                 it.copy(goOut = true)

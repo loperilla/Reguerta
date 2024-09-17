@@ -19,7 +19,10 @@ data class EditUserState(
     val isAdmin: Boolean = false,
     val typeProducer: String = "",
     val typeConsumer: String = "normal",
+    val numResignations: Int = 0,
     val available: Boolean = true,
+    val tropical1: Double = 0.0,
+    val tropical2: Double = 0.0,
     val goOut: Boolean = false,
     val isButtonEnabled: Boolean = false
 )

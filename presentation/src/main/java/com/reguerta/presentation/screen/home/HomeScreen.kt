@@ -153,16 +153,14 @@ private fun HomeScreen(
                     )
                 }
 
-                if (state.currentDay in DayOfWeek.THURSDAY..DayOfWeek.SUNDAY) {
-                    MakeYourOrderButton(
-                        onButtonClick = {
-                            navigateTo(Routes.ORDERS.NEW.route)
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
-                    )
-                }
+                MakeYourOrderButton(
+                    onButtonClick = {
+                        navigateTo(Routes.ORDERS.NEW.route)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
+                )
             }
         }
     }
@@ -314,7 +312,7 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         }
         Spacer(modifier = Modifier.weight(1f))
         TextBody(
-            text = "android version 0.1.7.1",
+            text = "android version 0.1.7.2",
             textSize = TEXT_SIZE_SMALL,
             textColor = Text,
             modifier = Modifier

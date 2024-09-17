@@ -11,6 +11,7 @@ import com.reguerta.localdata.database.entity.MeasureEntity
  * Created By Manuel Lopera on 16/3/24 at 11:47
  * All rights reserved 2024
  */
+
 @Dao
 interface MeasureDao {
     @Insert

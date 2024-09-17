@@ -25,6 +25,7 @@ import javax.inject.Inject
  * Created By Manuel Lopera on 8/2/24 at 16:14
  * All rights reserved 2024
  */
+
 class UserCollectionImpl @Inject constructor(
     private val collection: CollectionReference,
     private val dataStore: ReguertaDataStore
