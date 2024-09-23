@@ -45,7 +45,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.reguerta.presentation.BuildConfig
 import com.reguerta.presentation.R
 import com.reguerta.presentation.composables.InverseReguertaButton
 import com.reguerta.presentation.composables.ReguertaAlertDialog
@@ -142,7 +141,16 @@ private fun HomeScreen(
                     .padding(it)
                     .fillMaxSize()
             ) {
-                if ((state.isCurrentUserProducer && state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) || BuildConfig.DEBUG) {
+                MakeYourOrderButton(
+                    onButtonClick = {
+                        navigateTo(Routes.ORDERS.NEW.route)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
+                )
+
+                if (state.isCurrentUserProducer && state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) {
                     ShowYourOrderButton(
                         onButtonClick = {
                             navigateTo(Routes.HOME.ORDER_RECEIVED.route)
@@ -152,15 +160,6 @@ private fun HomeScreen(
                             .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
                     )
                 }
-
-                MakeYourOrderButton(
-                    onButtonClick = {
-                        navigateTo(Routes.ORDERS.NEW.route)
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
-                )
             }
         }
     }
