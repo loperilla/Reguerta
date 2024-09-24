@@ -72,7 +72,7 @@ class AuthServiceImpl(
         return try {
             firebaseAuth.signInWithEmailAndPassword(email, password).await()
             dataStore.saveStringValue(
-                UID_KEY, currentUser?.uid.orEmpty()
+                UID_KEY, "e7EfU4QIjaEDsK6yEZFd"//currentUser?.uid.orEmpty()
             )
             userCollection.saveLoggedUserInfo(
                 email

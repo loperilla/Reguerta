@@ -1,5 +1,6 @@
 package com.reguerta.domain.usecase.orderline
 
+import android.util.Log
 import com.reguerta.data.firebase.firestore.order.OrderServices
 import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
 import com.reguerta.data.firebase.firestore.products.ProductsService
@@ -28,14 +29,19 @@ class OrderReceivedModel @Inject constructor(
         orderLineService.getOrdersByCompanyAndWeek().map {
             it.fold(
                 onSuccess = { orderLines ->
+                    Log.d("OrderLines", "${orderLines.size} orderlines obtenidos")
                     val listReturn = mutableListOf<OrderLineReceived>()
                     orderLines.forEach { model ->
+                        Log.d("OrderLines", "${orderLines} orderlines obtenidos")
                         val product = productService.getProductById(model.productId.orEmpty()).getOrThrow().toDomain()
                         val order = when (val result = orderService.getOrderByUserId(model.userId.orEmpty())) {
-                            is DataResult.Error -> return@fold emptyList()
+                            is DataResult.Error -> {
+                                Log.e("OrderService", "Error al obtener pedido del usuario: ${model.userId}")
+                                null 
+                            }
                             is DataResult.Success -> result.data.toDto()
                         }
-                        listReturn.add(model.toReceived(product, order))
+                        if (order != null) { listReturn.add(model.toReceived(product, order)) }
                     }
                     listReturn
                 },

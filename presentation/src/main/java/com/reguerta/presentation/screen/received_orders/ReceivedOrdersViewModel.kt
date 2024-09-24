@@ -1,5 +1,6 @@
 package com.reguerta.presentation.screen.received_orders
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.model.received.fullOrderName
@@ -54,6 +55,12 @@ class ReceivedOrdersViewModel @Inject constructor(
                 },
                 async {
                     orderReceivedModel.invoke().collectLatest { orders ->
+                        Log.d("OrderLines", "${orders.size} Pedidos recibidos")
+                        if (orders.isEmpty()) {
+                            Log.e("OrderLines", "La lista de pedidos está vacía, no se encontraron órdenes.")
+                        } else {
+                            Log.d("OrderLines", "Pedidos: ${orders.map { it.product.name }}")
+                        }
                         _state.update { state ->
                             state.copy(
                                 ordersByUser = orders.groupBy { it.fullOrderName() },

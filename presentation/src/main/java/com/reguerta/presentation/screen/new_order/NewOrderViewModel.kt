@@ -84,7 +84,6 @@ class NewOrderViewModel @Inject constructor(
                     val currentDay = DayOfWeek.of(getCurrentWeek())
                     if (currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) {
                         handleLastWeekOrders()
-                        handleCurrentWeekOrders()
                     } else {
                         handleCurrentWeekOrders()
                     }
