@@ -209,7 +209,7 @@ class GetAvailableProductsUseCase @Inject constructor(
 
                     // Filtrar productores disponibles que tienen compromiso esta semana
                     userModelList.filter { user ->
-                        user.isProducer && user.available &&
+                        user.isProducer && user.available ?: true &&
                                 TypeProducerUser.valueOf(user.typeProducer.orEmpty()).hasCommitmentThisWeek(isEvenWeek)
                     }
                 },
