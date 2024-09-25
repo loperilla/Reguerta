@@ -45,18 +45,3 @@ fun UserModel.toDomain() = User(
     tropical2 = tropical2 ?: 0.0
 )
 
-// Estudiar usar enum para  los tipos de Consumidor y de productor
-enum class TypeConsumerUser(val type: String) {
-    REGULAR("normal"),
-    ODD("impar"),
-    EVEN("par"),
-    NONE("sin")
-}
-
-enum class TypeProducerUser(val type: String) {
-    REGULAR("normal"),
-    ODD("impar"),
-    EVEN("par"),
-    SHOP("compras")
-}
-

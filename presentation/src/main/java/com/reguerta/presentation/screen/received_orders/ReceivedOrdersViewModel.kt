@@ -1,6 +1,5 @@
 package com.reguerta.presentation.screen.received_orders
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.model.received.fullOrderName
@@ -17,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 /*****
@@ -55,12 +55,8 @@ class ReceivedOrdersViewModel @Inject constructor(
                 },
                 async {
                     orderReceivedModel.invoke().collectLatest { orders ->
-                        Log.d("OrderLines", "${orders.size} Pedidos recibidos")
-                        if (orders.isEmpty()) {
-                            Log.e("OrderLines", "La lista de pedidos está vacía, no se encontraron órdenes.")
-                        } else {
-                            Log.d("OrderLines", "Pedidos: ${orders.map { it.product.name }}")
-                        }
+                        Timber.tag("OrderLines").d("${orders.size} Pedidos recibidos")
+                        Timber.tag("OrderLines").d("Pedidos a procesar: ${orders.map { it.product.name }}")
                         _state.update { state ->
                             state.copy(
                                 ordersByUser = orders.groupBy { it.fullOrderName() },
