@@ -1,5 +1,7 @@
 package com.reguerta.domain.model.received
 
+import android.annotation.SuppressLint
+import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.model.interfaces.Product
 
 /*****
@@ -14,18 +16,27 @@ data class OrderLineReceived(
     val orderSurname: String,
     val product: Product,
     val quantity: Int,
+    val subtotal: Double,
     val companyName: String = ""
 )
 
+@SuppressLint("DefaultLocale")
 fun List<OrderLineReceived>.getAmount(): String {
-    var amount = 0f
-    forEach { amount += it.product.price * it.quantity }
+    var amount = 0.0
+    forEach {
+        amount += it.product.price * it.quantity
+    }
     return String.format("%.2f", amount) + " €"
 }
 
 fun List<OrderLineReceived>.getDblAmount(): Double {
     var amount = 0.0
-    forEach { amount += it.product.price * it.quantity }
+    forEach {
+        val subtotal = if (it.product.container == ContainerType.COMMIT_MANGOES.value || it.product.container == ContainerType.COMMIT_AVOCADOS.value) {
+            it.product.price
+        } else { it.product.price * it.quantity }
+        amount += subtotal
+    }
     return amount
 }
 

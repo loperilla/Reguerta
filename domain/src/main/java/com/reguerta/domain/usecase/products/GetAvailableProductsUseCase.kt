@@ -12,6 +12,7 @@ import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.Measure
 import com.reguerta.domain.model.mapper.toDomain
 import com.reguerta.domain.model.toDomain
+import com.reguerta.domain.usecase.container.toTypeProd
 import com.reguerta.localdata.time.WeekTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -28,6 +29,7 @@ import kotlin.math.roundToInt
  * All rights reserved 2024
  */
 
+/*
 class GetAvailableProductsUseCase1 @Inject constructor(
     private val productsService: ProductsService
 ) {
@@ -187,6 +189,8 @@ class GetAvailableProductsUseCase4 @Inject constructor(
         }
     }
 }
+
+
 class GetAvailableProductsUseCase @Inject constructor(
     private val productsService: ProductsService,
     private val usersService: UsersCollectionService,
@@ -248,6 +252,11 @@ class GetAvailableProductsUseCase @Inject constructor(
                             emptyList()
                         }
                     )
+
+
+
+
+
                 }
             }
         }
@@ -278,6 +287,92 @@ class GetAvailableProductsUseCase @Inject constructor(
 
 
     // Función para buscar la medida por nombre, abreviación o plural
+    private fun getMeasureByName(name: String, measures: List<Measure>): Measure? {
+        return measures.firstOrNull { it.name == name || it.abbreviation == name || it.plural == name }
+    }
+}
+
+ */
+
+
+class GetAvailableProductsUseCase @Inject constructor(
+    private val productsService: ProductsService,
+    private val usersService: UsersCollectionService,
+    private val weekTime: WeekTime,
+    private val authService: AuthService,
+    private val measureService: MeasureService
+) {
+    @OptIn(ExperimentalCoroutinesApi::class)
+    suspend operator fun invoke(): Flow<List<CommonProduct>> {
+        val currentUserResult = authService.checkCurrentLoggedUser()
+        val currentUser = currentUserResult.getOrNull() ?: return flowOf(emptyList())
+
+        return usersService.getUserList().flatMapLatest { usersResult ->
+            val availableProducers = usersResult.fold(
+                onSuccess = { userModelList ->
+                    val isEvenWeek = weekTime.isEvenCurrentWeek()
+                    userModelList.filter { user ->
+                        if (user.isProducer) {
+                            val typeProducer = user.typeProducer?.toTypeProd() ?: TypeProducerUser.REGULAR
+                            val hasCommitment = typeProducer.hasCommitmentThisWeek(isEvenWeek)
+                            user.available ?: true && hasCommitment
+                        } else {
+                            false
+                        }
+                    }
+                },
+                onFailure = {
+                    emptyList()
+                }
+            )
+            measureService.getMeasures().flatMapLatest { result ->
+                val measures = result.fold(
+                    onSuccess = { measureModelList ->
+                        measureModelList.map { it.toDomain() }
+                    },
+                    onFailure = { emptyList() }
+                )
+
+                productsService.getAvailableProducts().map { products ->
+                    products.fold(
+                        onSuccess = { productModelList ->
+                            productModelList
+                                .filter { productModel ->
+                                    availableProducers.any { it.id == productModel.userId }
+                                }
+                                .map { productModel ->
+                                    val modifiedProduct = modifyTropicalValues(productModel, currentUser, measures)
+                                    modifiedProduct.toDomain()
+                                }
+                        },
+                        onFailure = {
+                            emptyList()
+                        }
+                    )
+                }
+            }
+        }
+    }
+
+    private fun modifyTropicalValues(product: ProductModel, currentUser: UserModel, measures: List<Measure>): ProductModel {
+        val kgMangoes = currentUser.tropical1 ?: 0.0
+        val kgAvocados = currentUser.tropical2 ?: 0.0
+        val containerType = ContainerType.entries.firstOrNull { it.value.equals(product.container, ignoreCase = true) }
+
+        return if ((containerType == ContainerType.COMMIT_MANGOES && kgMangoes > 0.0) || (containerType == ContainerType.COMMIT_AVOCADOS && kgAvocados > 0.0)) {
+            val kilos = if (containerType == ContainerType.COMMIT_MANGOES) kgMangoes else kgAvocados
+            val measure = getMeasureByName(product.unity.orEmpty(), measures)
+
+            product.copy(
+                quantityWeight = kilos.roundToInt(),
+                price = (product.price ?: 0.0f) * kilos.toFloat(),
+                unity = if (measure != null && kilos > 1) measure.plural else product.unity
+            )
+        } else {
+            product
+        }
+    }
+
     private fun getMeasureByName(name: String, measures: List<Measure>): Measure? {
         return measures.firstOrNull { it.name == name || it.abbreviation == name || it.plural == name }
     }

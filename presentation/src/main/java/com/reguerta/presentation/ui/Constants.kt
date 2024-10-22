@@ -29,6 +29,7 @@ const val TEXT_DLG_BODY = 15
 const val TEXT_DLG_TITLE = 20
 
 //TextSizes
+val TEXT_SIZE_EXTRA_EXTRA_SMALL = 10.sp
 val TEXT_SIZE_EXTRA_SMALL = 12.sp
 val TEXT_SIZE_SMALL = 14.sp
 val TEXT_SIZE_SMADIUM = 15.sp
@@ -64,6 +65,7 @@ val SIZE_16 = 16.dp
 val SIZE_36 = 36.dp
 val SIZE_40 = 40.dp
 val SIZE_48 = 48.dp
+val SIZE_64 = 64.dp
 val SIZE_72 = 72.dp
 val SIZE_88 = 88.dp
 val SIZE_96 = 96.dp

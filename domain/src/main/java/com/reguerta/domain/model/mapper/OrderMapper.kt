@@ -24,5 +24,6 @@ fun OrderLineModel.toReceived(product: Product, order: Order) = OrderLineReceive
     orderSurname = order.surname,
     product = product,
     quantity = quantity ?: 0,
+    subtotal = (quantity ?: 0).toDouble() * product.price.toDouble(),
     companyName = companyName.orEmpty()
 )

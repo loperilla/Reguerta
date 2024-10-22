@@ -3,7 +3,7 @@ package com.reguerta.presentation.screen.products.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.model.CommonProduct
-import com.reguerta.domain.usecase.container.GetAllContainerUseCase
+import com.reguerta.domain.usecase.container.GetFilteredContainersUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.products.EditProductUseCase
 import com.reguerta.domain.usecase.products.GetProductByIdUseCase
@@ -23,7 +23,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 
 /*****
  * Project: Reguerta
@@ -36,7 +35,7 @@ import timber.log.Timber
 class EditProductViewModel @AssistedInject constructor(
     @Assisted private val productId: String,
     getAllMeasuresUseCase: GetAllMeasuresUseCase,
-    getAllContainerUseCase: GetAllContainerUseCase,
+    getFilteredContainersUseCase: GetFilteredContainersUseCase,
     getProductByIdUseCase: GetProductByIdUseCase,
     private val editProductUseCase: EditProductUseCase
 ) : ViewModel() {
@@ -56,7 +55,7 @@ class EditProductViewModel @AssistedInject constructor(
                     }
                 },
                 async {
-                    getAllContainerUseCase().collect { containerList ->
+                    getFilteredContainersUseCase().collect { containerList ->
                         _state.update {
                             it.copy(
                                 containers = containerList
@@ -67,7 +66,6 @@ class EditProductViewModel @AssistedInject constructor(
                 async {
                     getProductByIdUseCase(productId).fold(
                         onSuccess = { product ->
-                            Timber.d("Product: $product")
                             _state.update {
                                 it.copy(
                                     name = product.name,

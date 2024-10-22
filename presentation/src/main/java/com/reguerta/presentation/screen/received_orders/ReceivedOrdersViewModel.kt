@@ -16,7 +16,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import javax.inject.Inject
 
 /*****
@@ -55,8 +54,6 @@ class ReceivedOrdersViewModel @Inject constructor(
                 },
                 async {
                     orderReceivedModel.invoke().collectLatest { orders ->
-                        Timber.tag("OrderLines").d("${orders.size} Pedidos recibidos")
-                        Timber.tag("OrderLines").d("Pedidos a procesar: ${orders.map { it.product.name }}")
                         _state.update { state ->
                             state.copy(
                                 ordersByUser = orders.groupBy { it.fullOrderName() },

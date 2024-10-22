@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
  * Created By Manuel Lopera on 8/2/24 at 16:10
  * All rights reserved 2024
  */
+
 interface UsersCollectionService {
     suspend fun getUserList(): Flow<Result<List<UserModel>>>
     suspend fun getUser(id: String): Result<UserModel>

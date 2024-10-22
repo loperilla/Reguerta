@@ -21,6 +21,7 @@ data class NewOrderState(
     val hasOrderLine: Boolean = false,
     val showShoppingCart: Boolean = false,
     val showPopup: PopupType = PopupType.NONE,
+    val errorMessage: String? = null,
     val availableCommonProducts: List<Product> = emptyList(),
     val productsOrderLineList: List<ProductWithOrderLine> = emptyList(),
     val ordersFromExistingOrder: Map<Product, List<OrderLineReceived>> = emptyMap(),
@@ -28,11 +29,14 @@ data class NewOrderState(
     val productsGroupedByCompany: Map<String, List<Product>> = emptyMap(),
     val currentDay: DayOfWeek = DayOfWeek.MONDAY,
     val measures: List<Measure> = emptyList(),
-    val containers: List<Container> = emptyList()
+    val containers: List<Container> = emptyList(),
+    val kgMangoes: Int = 0,
+    val kgAvocados: Int = 0
 )
 
 enum class PopupType {
     NONE,
     ARE_YOU_SURE_DELETE,
-    ORDER_ADDED
+    ORDER_ADDED,
+    MISSING_COMMIT
 }

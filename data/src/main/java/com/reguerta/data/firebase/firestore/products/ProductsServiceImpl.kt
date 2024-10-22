@@ -1,5 +1,6 @@
 package com.reguerta.data.firebase.firestore.products
 
+import android.util.Log
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.Query
 import com.google.firebase.storage.StorageReference
@@ -128,6 +129,7 @@ class ProductsServiceImpl @Inject constructor(
                 .get()
                 .await()
             val product = document.toObject(ProductModel::class.java)!!
+            product.id = id
             Result.success(product)
         } catch (ex: Exception) {
             Result.failure(ex)

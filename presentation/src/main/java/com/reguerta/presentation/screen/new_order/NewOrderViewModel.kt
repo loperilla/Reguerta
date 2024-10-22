@@ -2,6 +2,7 @@ package com.reguerta.presentation.screen.new_order
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
@@ -9,6 +10,8 @@ import com.reguerta.domain.model.new_order.NewOrderModel
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
+import com.reguerta.domain.usecase.orderline.MapOrderLinesWithProductsUseCase
+import com.reguerta.domain.usecase.products.CheckCommitmentsUseCase
 import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
 import com.reguerta.domain.usecase.products.UpdateProductStockUseCase
 import com.reguerta.domain.usecase.week.GetCurrentWeekDayUseCase
@@ -20,10 +23,12 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 /*****
  * Project: Reguerta
@@ -40,6 +45,8 @@ class NewOrderViewModel @Inject constructor(
     private val getAllContainerUseCase: GetAllContainerUseCase,
     private val orderModel: NewOrderModel,
     private val updateProductStockUseCase: UpdateProductStockUseCase,
+    private val checkCommitmentsUseCase: CheckCommitmentsUseCase,
+    private val mapOrderLinesWithProductsUseCase: MapOrderLinesWithProductsUseCase,
     private val checkCurrentUserLoggedUseCase: CheckCurrentUserLoggedUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<NewOrderState> = MutableStateFlow(NewOrderState())
@@ -58,7 +65,9 @@ class NewOrderViewModel @Inject constructor(
             }
             _state.update {
                 it.copy(
-                    currentDay = DayOfWeek.of(getCurrentWeek())
+                    currentDay = DayOfWeek.of(getCurrentWeek()),
+                    kgMangoes = currentUser.tropical1.roundToInt(),
+                    kgAvocados = currentUser.tropical2.roundToInt()
                 )
             }
 
@@ -93,15 +102,14 @@ class NewOrderViewModel @Inject constructor(
     }
 
     private suspend fun loadAvailableProducts(getAvailableProductsUseCase: GetAvailableProductsUseCase) {
-        getAvailableProductsUseCase().collectLatest { list ->
-            initialCommonProducts = list
-            val groupedByCompany = list.groupBy { it.companyName }.toSortedMap()
-            _state.update {
-                it.copy(
-                    isLoading = false,
-                    productsGroupedByCompany = groupedByCompany
-                )
-            }
+        val list = getAvailableProductsUseCase().first()
+        initialCommonProducts = list
+        val groupedByCompany = list.groupBy { it.companyName }.toSortedMap()
+        _state.update {
+            it.copy(
+                isLoading = false,
+                productsGroupedByCompany = groupedByCompany
+            )
         }
     }
 
@@ -111,6 +119,14 @@ class NewOrderViewModel @Inject constructor(
                 _state.update { it.copy(isExistOrder = existOrder) }
                 if (existOrder) {
                     loadOrderLinesFromCurrentWeek()
+                } else {
+                    _state.update {
+                        it.copy(
+                            isLoading = false,
+                            hasOrderLine = false,
+                            isExistOrder = false
+                        )
+                    }
                 }
             },
             onFailure = { handleError(it) }
@@ -134,13 +150,14 @@ class NewOrderViewModel @Inject constructor(
 
     private suspend fun loadOrderLinesFromCurrentWeek() {
         orderModel.getOrderLinesFromCurrentWeek().collectLatest { ordersReceived ->
-            val groupedByCompany = ordersReceived.groupBy { it.companyName }.toSortedMap()
+            val mappedOrderLines = mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)
+            val groupedByCompany = mappedOrderLines.groupBy { it.companyName }.toSortedMap()
             _state.update {
                 it.copy(
                     isLoading = false,
                     hasOrderLine = true,
                     orderLinesByCompanyName = groupedByCompany,
-                    ordersFromExistingOrder = ordersReceived.groupBy { orderLine -> orderLine.product }
+                    ordersFromExistingOrder = mappedOrderLines.groupBy { it.product }
                 )
             }
         }
@@ -175,7 +192,6 @@ class NewOrderViewModel @Inject constructor(
         }
         val productsWithOrderLine = productList.filterIsInstance<ProductWithOrderLine>()
         val groupedByCompany = productList.groupBy { it.companyName }.toSortedMap()
-
         _state.update {
             it.copy(
                 isLoading = false,
@@ -240,17 +256,55 @@ class NewOrderViewModel @Inject constructor(
                 }
 
                 NewOrderEvent.PushOrder -> {
-                    val productsToPush = state.value.productsGroupedByCompany.values.flatten()
-                        .filterIsInstance<ProductWithOrderLine>()
-
-                    orderModel.pushOrderLinesToFirebase(productsToPush).fold(
-                        onSuccess = {
-                            _state.update { it.copy(showPopup = PopupType.ORDER_ADDED) }
-                        },
-                        onFailure = { throwable ->
-                            throwable.printStackTrace()
+                    val updatedProductsOrderLineList = state.value.productsOrderLineList.map {
+                        val adjustedQuantity = when (it.container) {
+                            ContainerType.COMMIT_MANGOES.value -> state.value.kgMangoes
+                            ContainerType.COMMIT_AVOCADOS.value -> state.value.kgAvocados
+                            else -> it.orderLine.quantity
                         }
-                    )
+                        val adjustedSubtotal = if (it.container == ContainerType.COMMIT_MANGOES.value ||
+                            it.container == ContainerType.COMMIT_AVOCADOS.value) {
+                            it.price.toDouble()
+                        } else {
+                            it.getAmount()
+                        }
+                        val updatedOrderLine = it.orderLine.copy(quantity = adjustedQuantity)//, subtotal = adjustedSubtotal)
+
+                        it.copy(orderLine = updatedOrderLine)
+                    }
+
+                    val productsInOrder = updatedProductsOrderLineList.map {
+                        OrderLineProduct(
+                            orderId = it.getOrderId(),
+                            userId = it.getUserId(),
+                            productId = it.id,
+                            companyName = it.companyName,
+                            quantity = it.quantity,
+                            subtotal = it.getAmount(),
+                            week = it.getWeek()
+                        )
+                    }
+
+                    val checkResult = checkCommitmentsUseCase(productsInOrder)
+
+                    if (checkResult.isSuccess) {
+                        orderModel.pushOrderLinesToFirebase(updatedProductsOrderLineList).fold(
+                            onSuccess = {
+                                _state.update { it.copy(showPopup = PopupType.ORDER_ADDED) }
+                            },
+                            onFailure = { throwable ->
+                                throwable.printStackTrace()
+                            }
+                        )
+                    } else {
+                        val errorMessage = checkResult.exceptionOrNull()?.message ?: "Error desconocido"
+                        _state.update {
+                            it.copy(
+                                showPopup = PopupType.MISSING_COMMIT,
+                                errorMessage = errorMessage
+                            )
+                        }
+                    }
                 }
 
                 NewOrderEvent.DeleteOrder -> {

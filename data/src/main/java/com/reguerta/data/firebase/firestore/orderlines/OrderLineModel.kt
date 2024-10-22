@@ -14,5 +14,6 @@ data class OrderLineModel(
     val companyName: String? = null,
     val productId: String? = null,
     val quantity: Int? = null,
+    val subtotal: Double? = null,
     val week: Int? = null
 )

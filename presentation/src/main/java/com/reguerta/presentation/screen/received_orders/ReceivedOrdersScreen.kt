@@ -1,7 +1,9 @@
 package com.reguerta.presentation.screen.received_orders
 
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,14 +48,15 @@ import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.ui.PADDING_ZERO
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.SIZE_72
+import com.reguerta.presentation.ui.SIZE_64
+import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_EXTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMADIUM
-import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
 import kotlinx.coroutines.launch
@@ -147,19 +150,40 @@ private fun OrderListByUser(
     state: ReceivedOrdersState,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
+    val grandTotal = orderLines.values.flatten().sumOf { it.subtotal }
+    Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(PADDING_SMALL)
+            .padding(bottom = PADDING_ZERO)
     ) {
-        orderLines.forEach {
-            item {
-                OrderByUser(
-                    fullname = it.key,
-                    orderLines = it.value,
-                    state = state
-                )
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .weight(1f)
+                .padding(PADDING_SMALL)
+        ) {
+            orderLines.forEach {
+                item {
+                    OrderByUser(
+                        fullname = it.key,
+                        orderLines = it.value,
+                        state = state
+                    )
+                }
             }
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(PrimaryColor)
+                .padding(PADDING_SMALL),
+            contentAlignment = Alignment.Center
+        ) {
+            TextTitle(
+                text = "Suma total general: %.2f €".format(grandTotal),
+                textSize = TEXT_TOP_BAR,
+                textColor = Text
+            )
         }
     }
 }
@@ -208,7 +232,7 @@ private fun ProductOrders(
     state: ReceivedOrdersState
 ) {
     val quantitySum = getQuantitySum(orderLine, state.containers, state.measures)
-    val totalPrice = orderLine.product.price * orderLine.quantity
+    val totalPrice =  orderLine.subtotal//orderLine.product.price * orderLine.quantity
 
     Row(
         modifier = Modifier
@@ -302,8 +326,11 @@ fun OrderByProduct(
             ) {
                 ProductImage(
                     product = product,
-                    imageSize = SIZE_72,
-                    modifier = Modifier.wrapContentWidth()
+                    imageSize = SIZE_64,
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .weight(0.2f)
+                        .padding(PADDING_ZERO)
                 )
                 VerticalDivider()
                 ProductNameUnityContainer(
@@ -315,7 +342,9 @@ fun OrderByProduct(
                 VerticalDivider()
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.weight(0.2f)
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .weight(0.2f)
                 ) {
                     TextTitle(
                         text = "${orderLines.getQuantityByProduct(product)}",
@@ -325,7 +354,7 @@ fun OrderByProduct(
                     )
                     TextBody(
                         text = quantitySum,
-                        textSize = TEXT_SIZE_SMALL,
+                        textSize = TEXT_SIZE_EXTRA_EXTRA_SMALL,
                         textColor = Text,
                         modifier = Modifier.padding(PADDING_EXTRA_SMALL),
                     )
@@ -349,6 +378,7 @@ fun ReceivedOrdersPreview() {
                             orderSurname = "Lopera",
                             product = ALCAZAR,
                             quantity = 1,
+                            subtotal = 2.5,
                             companyName = "",
                         )
                     )
@@ -360,6 +390,7 @@ fun ReceivedOrdersPreview() {
                             orderSurname = "Lopera",
                             product = ALCAZAR,
                             quantity = 1,
+                            subtotal = 2.5,
                             companyName = "",
                         )
                     )
