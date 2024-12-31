@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.kotlin.android)
     id("dagger.hilt.android.plugin")
     id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
 }
 
 android {
