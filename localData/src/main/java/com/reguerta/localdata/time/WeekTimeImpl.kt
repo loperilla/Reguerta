@@ -33,7 +33,7 @@ class WeekTimeImpl @Inject constructor() : WeekTime {
         return getCurrentWeek() % 2 == 0
     }
 
-    fun getTwoWeeksAgo(): Int {
+    override fun getTwoWeeksAgo(): Int {
         val dateTwoWeeksAgo = LocalDate.now().minusWeeks(2)
         val weekFields = WeekFields.of(Locale("es", "ES"))
         return dateTwoWeeksAgo.get(weekFields.weekOfWeekBasedYear())
