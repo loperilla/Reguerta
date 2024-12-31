@@ -6,8 +6,8 @@
  */
 
 const val GROUP_ID = "com.reguerta"
-const val VERSION_NAME = "0.1.7.4"
-const val VERSION_CODE = 12
+const val VERSION_NAME = "0.1.7.7"
+const val VERSION_CODE = 13
 const val configCompileSdkVersion = 34
 const val configTargetSdkVersion = 34
 const val configMinSdkVersion = 26
