@@ -39,12 +39,8 @@ class AuthServiceImpl(
     override suspend fun createUserWithEmailAndPassword(email: String, password: String): AuthState {
         return try {
             firebaseAuth.createUserWithEmailAndPassword(email, password).await()
-            dataStore.saveStringValue(
-                UID_KEY, currentUser?.uid.orEmpty()
-            )
-            userCollection.saveLoggedUserInfo(
-                email
-            )
+            dataStore.saveStringValue(UID_KEY, currentUser?.uid.orEmpty())
+            userCollection.saveLoggedUserInfo(email)
             AuthState.LoggedIn
         } catch (ex: Exception) {
             Log.e("AuthService", ex.message.orEmpty())
@@ -56,9 +52,7 @@ class AuthServiceImpl(
         return try {
             currentUser?.reload()?.await()
             if (isAuthenticated) {
-                userCollection.saveLoggedUserInfo(
-                    currentUser?.email.orEmpty()
-                )
+                userCollection.saveLoggedUserInfo(currentUser?.email.orEmpty())
                 AuthState.LoggedIn
             } else {
                 AuthState.Error("Error")
@@ -71,12 +65,8 @@ class AuthServiceImpl(
     override suspend fun logInWithUserPassword(email: String, password: String): AuthState {
         return try {
             firebaseAuth.signInWithEmailAndPassword(email, password).await()
-            dataStore.saveStringValue(
-                UID_KEY, currentUser?.uid.orEmpty()
-            )
-            userCollection.saveLoggedUserInfo(
-                email
-            )
+            dataStore.saveStringValue(UID_KEY, currentUser?.uid.orEmpty())
+            userCollection.saveLoggedUserInfo(email)
             AuthState.LoggedIn
         } catch (ex: Exception) {
             AuthState.Error(ex.message ?: "Error")

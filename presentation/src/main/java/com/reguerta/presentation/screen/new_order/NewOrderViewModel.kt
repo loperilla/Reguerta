@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import java.time.DayOfWeek
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -104,6 +105,7 @@ class NewOrderViewModel @Inject constructor(
     private suspend fun loadAvailableProducts(getAvailableProductsUseCase: GetAvailableProductsUseCase) {
         val list = getAvailableProductsUseCase().first()
         initialCommonProducts = list
+        Timber.tag("ORDERS").d("$list")
         val groupedByCompany = list.groupBy { it.companyName }.toSortedMap()
         _state.update {
             it.copy(

@@ -72,10 +72,7 @@ class OrderLineServiceImpl @Inject constructor(
 
     override suspend fun deleteFirebaseOrderLine(orderId: String) {
         collection
-            .whereEqualTo(
-                ORDER_ID,
-                orderId
-            )
+            .whereEqualTo(ORDER_ID, orderId)
             .get()
             .addOnSuccessListener {
                 it.documents.forEach { document ->
@@ -98,14 +95,10 @@ class OrderLineServiceImpl @Inject constructor(
     }
 
     override suspend fun getOrdersByCompanyAndWeek(): Flow<Result<List<OrderLineModel>>> = callbackFlow {
+        val previousWeek = time.getLastWeek()
         val subscription = collection
-            .whereEqualTo(
-                COMPANY_NAME,
-                dataStore.getStringByKey(COMPANY_NAME_KEY)
-            ).whereEqualTo(
-                WEEK,
-                time.getCurrentWeek().minus(1)
-            )
+            .whereEqualTo(COMPANY_NAME, dataStore.getStringByKey(COMPANY_NAME_KEY))
+            .whereEqualTo(WEEK, previousWeek)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     error.printStackTrace()
@@ -132,10 +125,7 @@ class OrderLineServiceImpl @Inject constructor(
 
     override suspend fun getOrdersByOrderId(orderId: String): Flow<Result<List<OrderLineModel>>> = callbackFlow {
         val subscription = collection
-            .whereEqualTo(
-                ORDER_ID,
-                orderId
-            )
+            .whereEqualTo(ORDER_ID, orderId)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     error.printStackTrace()
@@ -163,10 +153,7 @@ class OrderLineServiceImpl @Inject constructor(
     override suspend fun checkIfExistOrderInFirebase(orderId: String): Result<Boolean> {
         return try {
             val result = collection
-                .whereEqualTo(
-                    ORDER_ID,
-                    orderId
-                )
+                .whereEqualTo(ORDER_ID, orderId)
                 .get()
                 .await()
             Result.success(result.documents.isNotEmpty())

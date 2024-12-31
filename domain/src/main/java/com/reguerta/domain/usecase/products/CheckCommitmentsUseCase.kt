@@ -72,6 +72,7 @@ class CheckCommitmentsUseCase @Inject constructor(
                 }
                 if (mangoProducts.isNotEmpty()) {
                     val hasMangoCommit = productsInOrder.any { line ->
+
                         mangoProducts.any { it.id == line.productId }
                     }
                     if (!hasMangoCommit) {

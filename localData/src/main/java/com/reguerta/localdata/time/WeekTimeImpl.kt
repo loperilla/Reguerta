@@ -32,4 +32,10 @@ class WeekTimeImpl @Inject constructor() : WeekTime {
     override fun isEvenCurrentWeek(): Boolean {
         return getCurrentWeek() % 2 == 0
     }
+
+    fun getTwoWeeksAgo(): Int {
+        val dateTwoWeeksAgo = LocalDate.now().minusWeeks(2)
+        val weekFields = WeekFields.of(Locale("es", "ES"))
+        return dateTwoWeeksAgo.get(weekFields.weekOfWeekBasedYear())
+    }
 }
