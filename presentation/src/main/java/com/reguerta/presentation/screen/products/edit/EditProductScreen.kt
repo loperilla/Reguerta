@@ -30,6 +30,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -203,7 +204,7 @@ fun HeaderAddProductForm(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var photoUri: Uri? by remember { mutableStateOf(null) }
+    var photoUri: Uri? by rememberSaveable { mutableStateOf(null) }
 
     LaunchedEffect(key1 = state.imageUrl) {
         state.imageUrl.let { imageUrl ->
@@ -232,13 +233,10 @@ fun HeaderAddProductForm(
                 val intent = Intent(
                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                     Uri.fromParts("package", context.packageName, null)
-                )
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                ContextCompat.startActivity(
-                    context,
-                    intent,
-                    null
-                )
+                ).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
             }
         }
     }

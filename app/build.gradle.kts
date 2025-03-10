@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kspPlugin)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.androidJUnit5)
+    alias(libs.plugins.compose.compiler)
     id("dagger.hilt.android.plugin")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
@@ -10,7 +11,7 @@ plugins {
 
 android {
     namespace = "$GROUP_ID.user"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "${GROUP_ID}.user"
@@ -18,7 +19,6 @@ android {
         targetSdk = configTargetSdkVersion
         versionCode = VERSION_CODE
         versionName = VERSION_NAME
-
         testInstrumentationRunner = hiltRunnerPackage
         vectorDrawables {
             useSupportLibrary = true
@@ -41,18 +41,15 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     kotlinOptions {
-        jvmTarget = "${JavaVersion.VERSION_17}"
+        jvmTarget = "${JavaVersion.VERSION_21}"
     }
     buildFeatures {
         compose = true
-        buildConfig = false
-    }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+        buildConfig = true
     }
     packaging {
         resources {
@@ -72,9 +69,11 @@ dependencies {
     implementation(libs.hilt.navigation)
     implementation(libs.splashscreen)
     implementation(libs.timber)
+    implementation(libs.systemuicontroller)
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.annotation)
     testImplementation(project(":testUtils"))
     ksp(libs.hilt.compiler)
 

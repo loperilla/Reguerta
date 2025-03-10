@@ -26,7 +26,6 @@ class UserScreenViewModel @Inject constructor(
     private val getAllUsersUseCase: GetAllUsersUseCase,
     private val deleteUsersUseCase: DeleteUsersUseCase
 ) : ViewModel() {
-
     private var _state: MutableStateFlow<UserScreenState> = MutableStateFlow(UserScreenState())
     val state: StateFlow<UserScreenState> = _state
     fun onEvent(event: UserScreenEvent) {
@@ -96,12 +95,9 @@ class UserScreenViewModel @Inject constructor(
                         )
                     }
                 }
-
-                UserScreenEvent.ConfirmDelete -> TODO()
-                UserScreenEvent.GoOut -> TODO()
-                UserScreenEvent.HideAreYouSureDialog -> TODO()
-                UserScreenEvent.LoadUsers -> TODO()
             }
         }
     }
 }
+
+

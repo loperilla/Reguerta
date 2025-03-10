@@ -27,8 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -38,7 +38,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
@@ -162,9 +161,7 @@ private fun AddProductScreen(
             TextReguertaInput(
                 text = state.price,
                 onTextChange = { newPrice ->
-                    onEvent(
-                        AddProductEvent.OnPriceChanged(newPrice)
-                    )
+                    onEvent(AddProductEvent.OnPriceChanged(newPrice))
                 },
                 imeAction = ImeAction.Next,
                 labelText = "PRECIO EN EUROS",
@@ -197,7 +194,7 @@ private fun HeaderAddProductForm(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var photoUri: Uri? by remember { mutableStateOf(null) }
+    var photoUri: Uri? by rememberSaveable { mutableStateOf(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         photoUri = uri
     }
@@ -217,13 +214,10 @@ private fun HeaderAddProductForm(
                 val intent = Intent(
                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                     Uri.fromParts("package", context.packageName, null)
-                )
-                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                ContextCompat.startActivity(
-                    context,
-                    intent,
-                    null
-                )
+                ).apply {
+                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
+                }
+                context.startActivity(intent)
             }
         }
     }
@@ -379,7 +373,7 @@ private fun UnityAndContainer(
         )
 
         DropdownSelectable(
-            currentSelected = if (state.containerType.isEmpty()) "Selecciona envase" else state.containerType,
+            currentSelected = state.containerType.ifEmpty { "Selecciona envase" },
             dropdownItems = containerDropdownItems,
             onItemClick = {
                 onEvent(AddProductEvent.OnContainerTypeChanges(it.text))
@@ -412,7 +406,7 @@ private fun UnityAndContainer(
         )
 
         DropdownSelectable(
-            currentSelected = if (state.measureType.isEmpty()) "Selecciona unidad" else state.measureType,
+            currentSelected = state.measureType.ifEmpty { "Selecciona unidad" },
             dropdownItems = measureDropdownItems,
             onItemClick = {
                 onEvent(AddProductEvent.OnMeasuresTypeChanges(it.text))
