@@ -19,3 +19,10 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+# Firebase Performance Monitoring
+#-keepattributes *Annotation*
+#-keepattributes SourceFile,LineNumberTable
+#-keep public class com.google.firebase.perf.** { *; }
+#-keep public interface com.google.firebase.perf.** { *; }
+#-dontwarn com.google.firebase.perf.**

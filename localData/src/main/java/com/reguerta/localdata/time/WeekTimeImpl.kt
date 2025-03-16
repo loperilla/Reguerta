@@ -14,19 +14,19 @@ import javax.inject.Inject
 
 class WeekTimeImpl @Inject constructor() : WeekTime {
     override fun getCurrentWeek(): Int {
-        val today = LocalDate.now()//.plusDays(1)//.minusDays(5)  // para cambiar de dia
+        val today = LocalDate.now()//.plusDays(210)//.minusDays(5)  // para cambiar de dia
         val weekFields = WeekFields.of(Locale("es", "ES"))
         return today.get(weekFields.weekOfWeekBasedYear())
     }
 
     override fun getLastWeek(): Int {
-        val lastWeek: LocalDate = LocalDate.now().minusWeeks(1)//.plusDays(1)//.minusDays(5)
+        val lastWeek: LocalDate = LocalDate.now().minusWeeks(1)//.plusDays(210)//.minusDays(5)
         val weekFields = WeekFields.of(Locale("es", "ES"))
         return lastWeek.get(weekFields.weekOfWeekBasedYear())
     }
 
     override fun getCurrentWeekDay(): Int {
-        return LocalDate.now().dayOfWeek.value
+        return LocalDate.now().dayOfWeek.value//.plusDays(210).dayOfWeek.value
     }
 
     override fun isEvenCurrentWeek(): Boolean {

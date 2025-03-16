@@ -10,7 +10,7 @@ plugins {
 
 android {
     namespace = "$GROUP_ID.user"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "${GROUP_ID}.user"
@@ -49,7 +49,7 @@ android {
     }
     buildFeatures {
         compose = true
-        buildConfig = false
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
@@ -64,6 +64,7 @@ android {
 dependencies {
     implementation(project(":data"))
     implementation(project(":presentation"))
+    
     // Compose
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.activity)
@@ -75,12 +76,14 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.multidex)
     testImplementation(project(":testUtils"))
     ksp(libs.hilt.compiler)
 
     //Firebase
     implementation(platform(libs.firebase.bom))
     implementation(libs.bundles.firebase)
+    implementation(libs.firebase.perf)
 
     //Test
     testImplementation(libs.junit)
@@ -94,6 +97,7 @@ dependencies {
 
     // Android test
     androidTestImplementation(project(":testUtils"))
+
     // Hilt Testing
     androidTestImplementation(libs.hilt.android.testing)
     kspTest(libs.hilt.compiler)
