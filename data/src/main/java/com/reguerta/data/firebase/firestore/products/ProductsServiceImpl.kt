@@ -30,12 +30,8 @@ class ProductsServiceImpl @Inject constructor(
 ) : ProductsService {
     override suspend fun getProductsByUserId(): Flow<Result<List<ProductModel>>> = callbackFlow {
         val subscription = collection
-            .whereEqualTo(
-                USER_ID,
-                dataStore.getStringByKey(UID_KEY)
-            ).orderBy(
-                NAME, Query.Direction.ASCENDING
-            )
+            .whereEqualTo(USER_ID, dataStore.getStringByKey(UID_KEY))
+            .orderBy(NAME, Query.Direction.ASCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     error.printStackTrace()
@@ -62,12 +58,8 @@ class ProductsServiceImpl @Inject constructor(
 
     override suspend fun getAvailableProducts(): Flow<Result<List<ProductModel>>> = callbackFlow {
         val subscription = collection
-            .whereEqualTo(
-                AVAILABLE,
-                true
-            ).orderBy(
-                NAME, Query.Direction.ASCENDING
-            )
+            .whereEqualTo(AVAILABLE, true)
+            .orderBy(NAME, Query.Direction.ASCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     error.printStackTrace()

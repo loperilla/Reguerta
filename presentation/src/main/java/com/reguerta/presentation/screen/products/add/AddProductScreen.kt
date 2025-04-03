@@ -224,6 +224,7 @@ private fun HeaderAddProductForm(
                     intent,
                     null
                 )
+                context.startActivity(intent)
             }
         }
     }

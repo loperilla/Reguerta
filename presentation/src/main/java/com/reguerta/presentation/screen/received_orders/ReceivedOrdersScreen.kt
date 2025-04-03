@@ -86,7 +86,6 @@ fun receivedOrdersScreen(
     }
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ReceivedOrdersScreen(
     state: ReceivedOrdersState,
@@ -105,9 +104,7 @@ fun ReceivedOrdersScreen(
         }
     ) {
         Column(modifier = Modifier.padding(it)) {
-            TabRow(
-                selectedTabIndex = pagerState.currentPage
-            ) {
+            TabRow(selectedTabIndex = pagerState.currentPage) {
                 tabList.fastForEachIndexed { i, receivedTab ->
                     Tab(
                         selected = pagerState.currentPage == i,
@@ -125,9 +122,7 @@ fun ReceivedOrdersScreen(
                     )
                 }
             }
-            HorizontalPager(
-                state = pagerState
-            ) { index ->
+            HorizontalPager(state = pagerState) { index ->
                 if (index == 0) {
                     OrderListByProduct(
                         orderLines = state.ordersByProduct,

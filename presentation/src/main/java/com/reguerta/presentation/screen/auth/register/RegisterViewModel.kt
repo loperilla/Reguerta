@@ -97,10 +97,10 @@ class RegisterViewModel @Inject constructor(
 
     private fun checkEnabledButton(): Boolean {
         return with(_state.value) {
-            emailInput.isValidEmail &&
-                    passwordInput.isValidPassword &&
-                    repeatPasswordInput.isValidPassword &&
-                    passwordInput == repeatPasswordInput
+            emailInput.isValidEmail
+                    && passwordInput.isValidPassword
+                    && repeatPasswordInput.isValidPassword
+                    && passwordInput == repeatPasswordInput
         }
     }
 }

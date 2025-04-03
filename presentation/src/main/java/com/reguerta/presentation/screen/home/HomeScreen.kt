@@ -65,6 +65,7 @@ import com.reguerta.presentation.ui.SIZE_88
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_SPECIAL_BTN
 import com.reguerta.presentation.ui.Text
@@ -198,9 +199,7 @@ private fun ShowYourOrderButton(
         modifier = modifier,
         shape = RoundedCornerShape(32f),
         enabled = buttonIsEnabled,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = PrimaryColor.copy(0.2f)
-        )
+        colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor.copy(0.2f))
     ) {
         TextBody(
             text = "Ver tus pedidos",
@@ -311,8 +310,8 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         }
         Spacer(modifier = Modifier.weight(1f))
         TextBody(
-            text = "android version 0.1.7.4",
-            textSize = TEXT_SIZE_SMALL,
+            text = "android version 0.1.7.8",
+            textSize = TEXT_SIZE_MEDIUM,
             textColor = Text,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)

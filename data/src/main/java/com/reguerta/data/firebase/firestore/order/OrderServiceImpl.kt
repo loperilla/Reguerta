@@ -28,14 +28,8 @@ class OrderServiceImpl @Inject constructor(
     override suspend fun getOrderByUserId(): DataResult<OrderModel, DataError.Firebase> {
         return try {
             val snapshot = collection
-                .whereEqualTo(
-                    USER_ID,
-                    dataStore.getStringByKey(UID_KEY)
-                )
-                .whereEqualTo(
-                    WEEK,
-                    weekTime.getCurrentWeek()
-                )
+                .whereEqualTo(USER_ID, dataStore.getStringByKey(UID_KEY))
+                .whereEqualTo(WEEK, weekTime.getCurrentWeek())
                 .get()
                 .await()
             val document = snapshot.documents.firstOrNull() ?: return insertDefaultModel()
@@ -50,14 +44,8 @@ class OrderServiceImpl @Inject constructor(
     override suspend fun getLastOrderByUserId(): DataResult<OrderModel, DataError.Firebase> {
         return try {
             val snapshot = collection
-                .whereEqualTo(
-                    USER_ID,
-                    dataStore.getStringByKey(UID_KEY)
-                )
-                .whereEqualTo(
-                    WEEK,
-                    weekTime.getLastWeek()
-                )
+                .whereEqualTo(USER_ID, dataStore.getStringByKey(UID_KEY))
+                .whereEqualTo(WEEK, weekTime.getLastWeek())
                 .get()
                 .await()
             val document = snapshot.documents.firstOrNull() ?: return insertDefaultModel()

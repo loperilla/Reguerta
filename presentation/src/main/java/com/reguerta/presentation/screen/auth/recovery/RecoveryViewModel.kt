@@ -25,7 +25,6 @@ class RecoveryViewModel @Inject constructor(
     private var _state: MutableStateFlow<RecoveryPasswordState> = MutableStateFlow(RecoveryPasswordState())
     val state: StateFlow<RecoveryPasswordState> = _state.asStateFlow()
 
-
     fun onEvent(event: RecoveryEvent) {
         viewModelScope.launch(Dispatchers.IO) {
             when (event) {

@@ -2,8 +2,8 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kspPlugin)
     alias(libs.plugins.kotlin.android)
-    id("com.google.gms.google-services")
     alias(libs.plugins.androidJUnit5)
+    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -12,7 +12,6 @@ android {
 
     defaultConfig {
         minSdk = configMinSdkVersion
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
@@ -33,8 +32,8 @@ android {
     buildFeatures {
         compose = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+    composeCompiler {
+        reportsDestination = layout.buildDirectory.dir("compose_compiler")
     }
 }
 

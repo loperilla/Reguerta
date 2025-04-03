@@ -70,6 +70,7 @@ import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.uriToBitmap
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 /*****
  * Project: Reguerta
@@ -207,12 +208,12 @@ fun HeaderAddProductForm(
 
     LaunchedEffect(key1 = state.imageUrl) {
         state.imageUrl.let { imageUrl ->
-            photoUri = if (imageUrl.isNotEmpty()) Uri.parse(imageUrl) else null
+            photoUri = if (imageUrl.isNotEmpty()) imageUrl.toUri() else null
         }
     }
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        photoUri = uri ?: Uri.parse(state.imageUrl)
+        photoUri = uri ?: state.imageUrl.toUri()
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -239,6 +240,7 @@ fun HeaderAddProductForm(
                     intent,
                     null
                 )
+                context.startActivity(intent)
             }
         }
     }
@@ -382,7 +384,7 @@ private fun UnityAndContainer(
         )
 
         DropdownSelectable(
-            currentSelected = if (state.containerType.isEmpty()) "Selecciona envase" else state.containerType,
+            currentSelected = state.containerType.ifEmpty { "Selecciona envase" },
             dropdownItems = containerDropdownItems,
             onItemClick = {
                 onEvent(EditProductEvent.OnContainerTypeChanges(it.text))

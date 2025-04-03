@@ -20,24 +20,16 @@ import com.reguerta.presentation.ui.Routes
 fun NavGraphBuilder.authGraph(navController: NavHostController) {
     navigation(startDestination = Routes.AUTH.FIRST_SCREEN.route, route = Routes.AUTH.route) {
         composable(Routes.AUTH.FIRST_SCREEN.route) {
-            firstScreen {
-                navController.navigate(it)
-            }
+            firstScreen { navController.navigate(it) }
         }
         composable(Routes.AUTH.LOGIN.route) {
-            loginScreen {
-                navController.navigate(it)
-            }
+            loginScreen { navController.navigate(it) }
         }
         composable(Routes.AUTH.RECOVERY_PASSWORD.route) {
-            recoveryPasswordScreen {
-                navController.navigate(it)
-            }
+            recoveryPasswordScreen { navController.navigate(it) }
         }
         composable(Routes.AUTH.REGISTER.route) {
-            registerScreen {
-                navController.navigate(it)
-            }
+            registerScreen { navController.navigate(it) }
         }
     }
 }

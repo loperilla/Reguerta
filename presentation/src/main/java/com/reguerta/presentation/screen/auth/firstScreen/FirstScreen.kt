@@ -48,13 +48,11 @@ fun firstScreen(
 ) {
     Screen {
         Column(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(
-                modifier = Modifier
-                    .height(PADDING_EXTRA_LARGE)
+                modifier = Modifier.height(PADDING_EXTRA_LARGE)
             )
 
             FirstScreenTitle(
@@ -64,8 +62,7 @@ fun firstScreen(
             )
 
             Spacer(
-                modifier = Modifier
-                    .weight(0.5f)
+                modifier = Modifier.weight(0.5f)
             )
 
             Image(
@@ -78,8 +75,7 @@ fun firstScreen(
             )
 
             Spacer(
-                modifier = Modifier
-                    .weight(0.5f)
+                modifier = Modifier.weight(0.5f)
             )
 
             ReguertaButton(
@@ -91,8 +87,7 @@ fun firstScreen(
             )
 
             Spacer(
-                modifier = Modifier
-                    .weight(1f)
+                modifier = Modifier.weight(1f)
             )
 
             FirstScreenTextBottom(
@@ -105,8 +100,7 @@ fun firstScreen(
             )
 
             Spacer(
-                modifier = Modifier
-                    .height(PADDING_LARGE)
+                modifier = Modifier.height(PADDING_LARGE)
             )
         }
     }
@@ -129,8 +123,7 @@ private fun FirstScreenTitle(modifier: Modifier) {
             "La RegÜerta",
             textSize = 36.sp,
             textColor = PrimaryColor,
-            modifier = Modifier
-                .padding(PADDING_SMALL)
+            modifier = Modifier.padding(PADDING_SMALL)
         )
     }
 }

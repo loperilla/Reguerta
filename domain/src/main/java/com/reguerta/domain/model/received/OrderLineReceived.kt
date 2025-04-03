@@ -32,9 +32,12 @@ fun List<OrderLineReceived>.getAmount(): String {
 fun List<OrderLineReceived>.getDblAmount(): Double {
     var amount = 0.0
     forEach {
-        val subtotal = if (it.product.container == ContainerType.COMMIT_MANGOES.value || it.product.container == ContainerType.COMMIT_AVOCADOS.value) {
+        val subtotal = if (it.product.container == ContainerType.COMMIT_MANGOES.value
+                        || it.product.container == ContainerType.COMMIT_AVOCADOS.value) {
             it.product.price
-        } else { it.product.price * it.quantity }
+        } else {
+            it.product.price * it.quantity
+        }
         amount += subtotal
     }
     return amount

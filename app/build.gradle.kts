@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kspPlugin)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.androidJUnit5)
+    alias(libs.plugins.compose.compiler)
     id("dagger.hilt.android.plugin")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
@@ -10,7 +11,7 @@ plugins {
 
 android {
     namespace = "$GROUP_ID.user"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "${GROUP_ID}.user"
@@ -18,7 +19,6 @@ android {
         targetSdk = configTargetSdkVersion
         versionCode = VERSION_CODE
         versionName = VERSION_NAME
-
         testInstrumentationRunner = hiltRunnerPackage
         vectorDrawables {
             useSupportLibrary = true
@@ -49,10 +49,10 @@ android {
     }
     buildFeatures {
         compose = true
-        buildConfig = false
+        buildConfig = true
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = libs.versions.compose.compiler.get()
+    composeCompiler {
+        reportsDestination = layout.buildDirectory.dir("compose_compiler")
     }
     packaging {
         resources {
@@ -75,6 +75,8 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
+    implementation(libs.androidx.multidex)
+    implementation(libs.firebase.abt)
     testImplementation(project(":testUtils"))
     ksp(libs.hilt.compiler)
 

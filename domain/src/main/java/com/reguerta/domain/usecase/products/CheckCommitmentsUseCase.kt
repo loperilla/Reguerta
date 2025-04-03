@@ -25,10 +25,7 @@ class CheckCommitmentsUseCase @Inject constructor(
             val currentUserResult = authService.checkCurrentLoggedUser()
             val currentUser = currentUserResult.getOrNull() ?: return@withContext Result.failure(Exception("Usuario no autenticado"))
 
-            // Obtener los productos disponibles y procesarlos
             var availableProducts: List<ProductModel> = emptyList()
-            // Recopilar los productos disponibles
-
 
             productsService.getAvailableProducts().take(1).collect { result ->
                 result.fold(
@@ -36,15 +33,12 @@ class CheckCommitmentsUseCase @Inject constructor(
                         availableProducts = productList
                     },
                     onFailure = { error ->
-                        // Manejo de errores al obtener productos
                         throw error
                     }
                 )
             }
             val isCurrentWeekEven = weekTime.isEvenCurrentWeek()
-            val userTypeConsumer = TypeConsumerUser.entries.find { it.value == currentUser.typeConsumer }
-                ?: TypeConsumerUser.NONE
-
+            val userTypeConsumer = TypeConsumerUser.entries.find { it.value == currentUser.typeConsumer } ?: TypeConsumerUser.NONE
             val failureMessages = mutableListOf<String>()
 
             // Obtener los kilogramos de mangos y aguacates
@@ -63,7 +57,6 @@ class CheckCommitmentsUseCase @Inject constructor(
                     failureMessages.add("Has olvidado añadir la cesta compromiso. Si no deseas la cesta, debes añadir la renuncia.")
                 }
             }
-
 
             // Verificar compromiso de mangos
             if (kgMangoes > 0) {

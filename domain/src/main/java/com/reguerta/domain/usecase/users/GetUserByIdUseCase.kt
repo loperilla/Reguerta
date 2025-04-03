@@ -12,9 +12,7 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 
-class GetUserByIdUseCase @Inject constructor(
-    private val repository: UsersCollectionService
-) {
+class GetUserByIdUseCase @Inject constructor(private val repository: UsersCollectionService) {
     suspend operator fun invoke(id: String): Result<User> {
         return repository.getUser(id).fold(
             onSuccess = {

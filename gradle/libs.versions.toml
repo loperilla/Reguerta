@@ -1,24 +1,27 @@
 [versions]
-agp = "8.7.0"
+agp = "8.9.1"
 android-junit5 = "1.10.0.0"
-androidx-activity = "1.8.2"
-androidx-constraintlayout = "1.0.1"
-androidx-lifecycle = "2.7.0"
-androidx-navigation = "2.7.7"
-androidx-test-espresso = "3.5.1"
-androidx-test-ext = "1.1.5"
-appcompat = "1.6.1"
-coil = "2.6.0"
-compose-compiler = "1.5.11"
-core-ktx = "1.12.0"
-hilt-version = "2.51"
+androidx-activity = "1.10.1"
+androidx-constraintlayout = "1.1.1"
+androidx-lifecycle = "2.8.7"
+androidx-navigation = "2.8.9"
+androidx-test-espresso = "3.6.1"
+androidx-test-ext = "1.2.1"
+appcompat = "1.7.0"
+coil = "2.7.0"
+kotlin = "2.1.10"
+core-ktx = "1.15.0"
+hilt-version = "2.56.1"
 junit = "4.13.2"
-jupiter-junit = "5.10.2"
-kotlinx-coroutines-test = "1.8.0"
-ksp = "1.9.23-1.0.19"
-material = "1.11.0"
+jupiter-junit = "5.12.1"
+kotlinx-coroutines-test = "1.10.1"
+ksp = "2.1.10-1.0.29"
+material = "1.12.0"
 room-version = "2.6.1"
-runner = "1.5.2"
+runner = "1.6.2"
+firebase-perf-ktx = "21.0.5"
+multidex = "2.0.1"
+firebase-abt = "22.0.0"
 
 [libraries]
 #Compose
@@ -26,14 +29,13 @@ activity-compose = { module = "androidx.activity:activity-compose", version.ref 
 androidx-activity = { module = "androidx.activity:activity", version.ref = "androidx-activity" }
 androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
-assertk = "com.willowtreeapps.assertk:assertk:0.28.0"
-build-gradle = "com.android.tools.build:gradle:8.7.0"
+assertk = "com.willowtreeapps.assertk:assertk:0.28.1"
+build-gradle = "com.android.tools.build:gradle:8.9.1"
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-compose-bom = "androidx.compose:compose-bom:2024.03.00"
-compose-compiler = { module = "androidx.compose.compiler:compiler", version.ref = "compose-compiler" }
+compose-bom = "androidx.compose:compose-bom:2025.03.01"
 compose-constraints = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "androidx-constraintlayout" }
-compose-material3 = "androidx.compose.material3:material3:1.2.1"
-compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.6.4"
+compose-material3 = "androidx.compose.material3:material3:1.3.1"
+compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.7.8"
 compose-navigation = { module = "androidx.navigation:navigation-compose", version.ref = "androidx-navigation" }
 compose-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
 compose-ui = { module = "androidx.compose.ui:ui" }
@@ -42,24 +44,19 @@ compose-ui-test = { module = "androidx.compose.ui:ui-test-junit4" }
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
-crashlytics-gradle = "com.google.firebase:firebase-crashlytics-gradle:2.9.9"
-datastore = "androidx.datastore:datastore-preferences:1.0.0"
+datastore = "androidx.datastore:datastore-preferences:1.1.4"
+crashlytics-gradle = "com.google.firebase:firebase-crashlytics-gradle:3.0.3"
 firebase-auth = { module = "com.google.firebase:firebase-auth-ktx" }
-#Firebase
-firebase-bom = "com.google.firebase:firebase-bom:32.8.0"
-#crashlytics
-#auth
-#firestore
+firebase-bom = "com.google.firebase:firebase-bom:33.12.0"
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-database = { module = "com.google.firebase:firebase-database-ktx" }
 firebase-firestore = { module = "com.google.firebase:firebase-firestore-ktx" }
 firebase-storage = { module = "com.google.firebase:firebase-storage-ktx" }
-google-services = "com.google.gms:google-services:4.4.1"
-hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt-version" }
+google-services = "com.google.gms:google-services:4.4.2"
+hilt-android = { module = "com.google.dagger:hilt-android", version = "2.56.1" }
 hilt-android-compiler = { module = "com.google.dagger:hilt-android-compiler", version.ref = "hilt-version" }
-hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version.ref = "hilt-version" }
-hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt-version" }
-#Hilt
+hilt-android-testing = { module = "com.google.dagger:hilt-android-testing", version = "2.56.1" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version = "2.56.1" }
 hilt-gradle = { module = "com.google.dagger:hilt-android-gradle-plugin", version.ref = "hilt-version" }
 hilt-navigation = "androidx.hilt:hilt-navigation-compose:1.2.0"
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -72,7 +69,7 @@ lifecycle-compose-runtime = { module = "androidx.lifecycle:lifecycle-runtime-com
 lifecycle-compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose" }
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-mockk = "io.mockk:mockk:1.13.10"
+mockk = "io.mockk:mockk:1.13.17"
 navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "androidx-navigation" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room-version" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room-version" }
@@ -80,13 +77,15 @@ splashscreen = "androidx.core:core-splashscreen:1.0.1"
 test-espresso = { module = "androidx.test.espresso:espresso-core", version.ref = "androidx-test-espresso" }
 test-ext-junit = { module = "androidx.test.ext:junit", version.ref = "androidx-test-ext" }
 timber = "com.jakewharton.timber:timber:5.0.1"
-turbine = "app.cash.turbine:turbine:1.1.0"
+turbine = "app.cash.turbine:turbine:1.2.0"
+firebase-perf-ktx = { group = "com.google.firebase", name = "firebase-perf-ktx", version.ref = "firebase-perf-ktx" }
+androidx-multidex = { group = "androidx.multidex", name = "multidex", version.ref = "multidex" }
+firebase-abt = { group = "com.google.firebase", name = "firebase-abt", version.ref = "firebase-abt" }
 
 [bundles]
 compose = [
     "activity-compose",
     "coil",
-    "compose-compiler",
     "compose-constraints",
     "compose-material3",
     "compose-material_icons_extends",
@@ -114,6 +113,7 @@ androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidJUnit5 = { id = "de.mannodermaus.android-junit5", version.ref = "android-junit5" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 ben-manes-versions = "com.github.ben-manes.versions:0.51.0"
-kotlin-android = "org.jetbrains.kotlin.android:1.9.23"
+kotlin-android = "org.jetbrains.kotlin.android:2.1.10"
 kspPlugin = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 version-catalog-update = "nl.littlerobots.version-catalog-update:0.8.4"

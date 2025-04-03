@@ -11,9 +11,7 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 
-class AddUserUseCase @Inject constructor(
-    private val repository: UsersCollectionService
-) {
+class AddUserUseCase @Inject constructor(private val repository: UsersCollectionService) {
     suspend operator fun invoke(
         name: String,
         surname: String,

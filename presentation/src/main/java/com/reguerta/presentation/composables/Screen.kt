@@ -17,8 +17,7 @@ import com.reguerta.presentation.ui.ReguertaTheme
 fun Screen(content: @Composable () -> Unit) {
     ReguertaTheme {
         Surface(
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             content()
         }

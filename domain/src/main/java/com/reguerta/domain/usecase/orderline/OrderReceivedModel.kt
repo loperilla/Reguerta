@@ -35,18 +35,13 @@ class OrderReceivedModel @Inject constructor(
                         if (productId.isNullOrEmpty()) {
                             return@forEach // O manejar según corresponda
                         }
-
                         val productResult = productService.getProductById(productId)
                         if (productResult.isFailure) {
                             return@forEach
                         }
-
                         val product = productResult.getOrThrow().toDomain()
-
                         val order = when (val result = orderService.getOrderByUserId(model.userId.orEmpty())) {
-                            is DataResult.Error -> {
-                                null 
-                            }
+                            is DataResult.Error -> { null }
                             is DataResult.Success -> result.data.toDto()
                         }
                         if (order != null) { listReturn.add(model.toReceived(product, order)) }

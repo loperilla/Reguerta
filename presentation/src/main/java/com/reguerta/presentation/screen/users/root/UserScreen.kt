@@ -99,9 +99,7 @@ fun UserScreen(
     onEvent: (UserScreenEvent) -> Unit,
     navigateTo: (String) -> Unit
 ) {
-    AnimatedVisibility(
-        state.showAreYouSure
-    ) {
+    AnimatedVisibility(state.showAreYouSure) {
         AreYouSureDeleteDialog(onEvent)
     }
     Scaffold(
@@ -188,16 +186,14 @@ fun UserItem(
                 text = user.fullName,
                 textSize = TEXT_SIZE_LARGE,
                 textColor = Text,
-                modifier = Modifier
-                    .padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
+                modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
             )
 
             TextBody(
                 text = user.email,
                 textSize = TEXT_SIZE_LARGE,
                 textColor = Text,
-                modifier = Modifier
-                    .padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
+                modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
             )
 
             if (user.isProducer) {
@@ -205,8 +201,7 @@ fun UserItem(
                     text = "Es productor. ${user.companyName}",
                     textSize = TEXT_SIZE_MEDIUM,
                     textColor = Text,
-                    modifier = Modifier
-                        .padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
+                    modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
                 )
             }
             if (user.isAdmin) {
@@ -214,8 +209,7 @@ fun UserItem(
                     text = "Es administrador",
                     textSize = TEXT_SIZE_MEDIUM,
                     textColor = Text,
-                    modifier = Modifier
-                        .padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
+                    modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
                 )
             }
 
@@ -331,8 +325,7 @@ private fun AreYouSureDeleteDialog(
                     imageVector = Icons.Default.Warning,
                     contentDescription = "Advertencia",
                     tint = Orange,
-                    modifier = Modifier
-                        .size(SIZE_48)
+                    modifier = Modifier.size(SIZE_48)
                 )
             }
         },

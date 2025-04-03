@@ -10,9 +10,7 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 
-class DeleteUsersUseCase @Inject constructor(
-    private val repository: UsersCollectionService
-) {
+class DeleteUsersUseCase @Inject constructor(private val repository: UsersCollectionService) {
     suspend operator fun invoke(id: String): Result<Boolean> {
         return try {
             repository.deleteUser(id)

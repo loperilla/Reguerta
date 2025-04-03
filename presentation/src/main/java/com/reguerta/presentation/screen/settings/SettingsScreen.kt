@@ -19,6 +19,8 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
+import com.reguerta.presentation.ui.TEXT_SPECIAL
 
 /*****
  * Project: Reguerta
@@ -55,7 +57,7 @@ fun SettingsScreen(
                 title = {
                     TextTitle(
                         text = "Configuración",
-                        textSize = 26.sp,
+                        textSize = TEXT_SPECIAL,
                         textColor = PrimaryColor
                     )
                 },

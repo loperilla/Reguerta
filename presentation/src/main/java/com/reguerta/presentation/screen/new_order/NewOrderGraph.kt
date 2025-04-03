@@ -14,8 +14,6 @@ import com.reguerta.presentation.ui.Routes
 
 fun NavGraphBuilder.newOrderGraph(navController: NavHostController) {
     composable(Routes.ORDERS.NEW.route) {
-        newOrderScreen {
-            navController.navigate(it)
-        }
+        newOrderScreen { navController.navigate(it) }
     }
 }

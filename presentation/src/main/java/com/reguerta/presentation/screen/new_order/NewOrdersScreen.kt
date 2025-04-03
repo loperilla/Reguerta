@@ -978,7 +978,6 @@ private fun OrderQuantitySelector(
                 },
                 contentColor = PrimaryColor,
                 enabledButton = product.stock > 0
-                        && product.container != ContainerType.COMMIT.value
                         && product.container != ContainerType.RESIGN.value
                         && product.container != ContainerType.COMMIT_MANGOES.value
                         && product.container != ContainerType.COMMIT_AVOCADOS.value

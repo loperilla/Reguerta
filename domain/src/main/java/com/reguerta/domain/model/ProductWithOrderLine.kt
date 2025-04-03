@@ -48,7 +48,8 @@ data class ProductWithOrderLine(
     //fun getAmount(): Double = (orderLine.quantity * price).toDouble()
 
     fun getAmount(): Double {
-        return if (commonProduct.container == ContainerType.COMMIT_MANGOES.value || commonProduct.container == ContainerType.COMMIT_AVOCADOS.value) {
+        return if (commonProduct.container == ContainerType.COMMIT_MANGOES.value
+                || commonProduct.container == ContainerType.COMMIT_AVOCADOS.value) {
             price.toDouble()
         } else {
             (orderLine.quantity * price).toDouble()

@@ -212,8 +212,7 @@ fun recoveryPasswordScreen(
                         .padding(PADDING_SMALL)
                 )
                 Spacer(
-                    modifier = Modifier
-                        .padding(PADDING_LARGE)
+                    modifier = Modifier.padding(PADDING_LARGE)
                 )
 
                 ReguertaButton(

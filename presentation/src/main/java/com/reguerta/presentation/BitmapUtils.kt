@@ -12,6 +12,7 @@ import java.io.FileDescriptor
 import java.io.IOException
 import kotlin.math.max
 import kotlin.math.min
+import androidx.core.graphics.scale
 
 /*****
  * Project: Reguerta
@@ -62,7 +63,7 @@ suspend fun resizeAndCropImage(bitmap: Bitmap, size: Int = 300): ByteArray = wit
         resizedHeight = size
         resizedWidth = (size * aspectRatio).toInt()
     }
-    val resizedBitmap = Bitmap.createScaledBitmap(bitmap, resizedWidth, resizedHeight, true)
+    val resizedBitmap = bitmap.scale(resizedWidth, resizedHeight)
     val cropStartX = (resizedWidth - size) / 2
     val cropStartY = (resizedHeight - size) / 2
 

@@ -12,4 +12,5 @@ interface WeekTime {
     fun getLastWeek(): Int
     fun getCurrentWeekDay(): Int
     fun isEvenCurrentWeek(): Boolean
+    fun getTwoWeeksAgo(): Int
 }
