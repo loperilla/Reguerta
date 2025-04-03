@@ -235,11 +235,6 @@ fun HeaderAddProductForm(
                     Uri.fromParts("package", context.packageName, null)
                 )
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                ContextCompat.startActivity(
-                    context,
-                    intent,
-                    null
-                )
                 context.startActivity(intent)
             }
         }
