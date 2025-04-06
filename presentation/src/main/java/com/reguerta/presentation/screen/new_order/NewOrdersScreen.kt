@@ -1,5 +1,6 @@
 package com.reguerta.presentation.screen.new_order
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -48,6 +49,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.interfaces.Product
@@ -56,7 +58,6 @@ import com.reguerta.domain.model.mapper.getAmount
 import com.reguerta.domain.model.mapper.getUnitType
 import com.reguerta.domain.model.mapper.priceFormatted
 import com.reguerta.domain.model.received.OrderLineReceived
-import com.reguerta.domain.model.received.getAmount
 import com.reguerta.domain.model.received.getDblAmount
 import com.reguerta.presentation.composables.AmountText
 import com.reguerta.presentation.composables.BtnType
@@ -92,12 +93,15 @@ import com.reguerta.presentation.ui.SecondaryBackground
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
+import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.TEXT_SPECIAL
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
+import com.reguerta.presentation.ui.errorColor
+import timber.log.Timber
 import java.time.DayOfWeek
 
 /*****
@@ -140,6 +144,21 @@ fun newOrderScreen(
         )
     }
 
+    if (state.showPopup == PopupType.MISSING_COMMIT) {
+        WrongPopup(
+            title = buildAnnotatedString {
+                append("El pedido no se puede realizar")
+            },
+            body = buildAnnotatedString {
+                append(state.errorMessage ?: "Faltan productos de tu compromiso en tu pedido.")
+            },
+            onEvent = viewModel::onEvent,
+            confirmButton = {
+                viewModel.onEvent(NewOrderEvent.HideDialog)
+            }
+        )
+    }
+
     if (state.isLoading) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -150,9 +169,16 @@ fun newOrderScreen(
     } else {
         Screen {
             if (state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) {
+                Timber.tag("ORDERS").d("Es de Lunes a Miercoles")
                 if (state.isExistOrder) {
+                    Timber.tag("ORDERS").d("Hay last Order")
                     LastOrderScreen(
                         state = state,
+                        onEvent = viewModel::onEvent
+                    )
+                } else {
+                    Timber.tag("ORDERS").d("NO Hay last Order. Se muestra MSG")
+                    NoOrderScreen(
                         onEvent = viewModel::onEvent
                     )
                 }
@@ -170,6 +196,53 @@ fun newOrderScreen(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun NoOrderScreen(
+    onEvent: (NewOrderEvent) -> Unit
+) {
+    Scaffold(
+        topBar = {
+            ReguertaTopBar(
+                topBarText = "Mi último pedido",
+                navActionClick = {
+                    onEvent(NewOrderEvent.GoOut)
+                },
+                actions = {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(PADDING_ZERO),
+                        horizontalAlignment = Alignment.End
+                    ) {
+
+                    }
+                }
+            )
+        }
+    ) {
+        ReguertaCard(
+            modifier = Modifier
+                .padding(it)
+                .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_MEDIUM),
+            containerColor = errorColor.copy(0.15f),
+            content = {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(PADDING_LARGE),
+                    contentAlignment = Alignment.Center
+                ) {
+                    TextTitle(
+                        text = "No hay ningún pedido registrado.",
+                        textColor = errorColor,
+                        textAlignment = TextAlign.Center
+                    )
+                }
+            }
+        )
     }
 }
 
@@ -199,7 +272,6 @@ fun ExistingOrderScreen(
                             textColor = Orange,
                             modifier = Modifier
                                 .wrapContentWidth(Alignment.End)
-                                //.padding(top = PADDING_SMALL)
                         )
                         ReguertaIconButton(
                             onClick = {
@@ -241,7 +313,7 @@ fun ExistingOrderScreen(
                 TextTitle(
                     text = "Suma total pedido: %.2f €".format(grandTotal),
                     textSize = TEXT_TOP_BAR,
-                    textColor = Color.White
+                    textColor = Text
                 )
             }
         }
@@ -303,7 +375,7 @@ fun LastOrderScreen(
                 TextTitle(
                     text = "Suma total pedido: %.2f €".format(grandTotal),
                     textSize = TEXT_TOP_BAR,
-                    textColor = Color.White
+                    textColor = Text
                 )
             }
         }
@@ -333,6 +405,7 @@ private fun OrderLinesByCompany(
     }
 }
 
+@SuppressLint("DefaultLocale")
 @Composable
 private fun OrderByCompany(
     companyName: String,
@@ -363,6 +436,7 @@ private fun OrderByCompany(
             orderLines.forEach {
                 ProductLine(
                     quantity = it.quantity,
+                    subtotal = it.subtotal,
                     product = it.product,
                     orderLines = orderLines,
                     state = state
@@ -372,7 +446,7 @@ private fun OrderByCompany(
             HorizontalDivider(modifier = Modifier.padding(vertical = PADDING_EXTRA_SMALL))
 
             TextBody(
-                text = "Total: ${orderLines.getAmount()}",
+                text = "Total: ${String.format("%.2f", orderLines.getDblAmount())}",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
@@ -391,6 +465,7 @@ private fun OrderByCompany(
 @Composable
 private fun ProductLine(
     quantity: Int,
+    subtotal: Double,
     product: Product,
     orderLines: List<OrderLineReceived>,
     state: NewOrderState
@@ -424,7 +499,7 @@ private fun ProductLine(
             )
             TextBody(
                 text = quantitySum,
-                textSize = TEXT_SIZE_SMALL,
+                textSize = TEXT_SIZE_EXTRA_SMALL,
                 textColor = Text,
                 modifier = Modifier.padding(vertical = PADDING_ZERO)
             )
@@ -433,10 +508,12 @@ private fun ProductLine(
             horizontalAlignment = Alignment.End,
             modifier = Modifier.weight(0.2f)
         ) {
-            val subtotal = quantity * product.price
+            val adjustTotal = if (product.container == ContainerType.COMMIT_MANGOES.value || product.container == ContainerType.COMMIT_AVOCADOS.value) {
+                product.price
+            } else { quantity * product.price }
             TextBody(
-                text = "%.2f €".format(subtotal),
-                textSize = TEXT_SIZE_MEDIUM,
+                text = "%.2f €".format(adjustTotal),
+                textSize = TEXT_SIZE_SMALL,
                 textColor = Text,
                 modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
             )
@@ -472,6 +549,7 @@ fun NewOrderTopBar(
                     TextBody(
                         "Seguir comprando",
                         textSize = TEXT_SIZE_LARGE,
+                        textColor = PrimaryColor,
                         modifier = Modifier.padding(horizontal = PADDING_SMALL)
                     )
                 },
@@ -491,6 +569,7 @@ fun NewOrderTopBar(
                         TextBody(
                             "Ver",
                             textSize = TEXT_SIZE_LARGE,
+                            textColor = PrimaryColor,
                             modifier = Modifier.padding(horizontal = PADDING_SMALL)
                         )
                         Icon(
@@ -898,7 +977,10 @@ private fun OrderQuantitySelector(
                     onEvent(NewOrderEvent.PlusQuantityProduct(product.id))
                 },
                 contentColor = PrimaryColor,
-                enabledButton = product.stock > 0 && product.container != "Compromiso" && product.container != "Renuncia"
+                enabledButton = product.stock > 0
+                        && product.container != ContainerType.RESIGN.value
+                        && product.container != ContainerType.COMMIT_MANGOES.value
+                        && product.container != ContainerType.COMMIT_AVOCADOS.value
             )
         }
     }
@@ -1078,6 +1160,64 @@ fun ConfirmPopup(
         }
     )
 }
+
+
+
+@Composable
+fun WrongPopup(
+    title: AnnotatedString,
+    body: AnnotatedString,
+    confirmButton: () -> Unit,
+    onEvent: (NewOrderEvent) -> Unit
+) {
+    ReguertaAlertDialog(
+        icon = {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(SIZE_88)
+                    .background(Orange.copy(alpha = 0.2F), shape = CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = "Advertencia",
+                    tint = Orange,
+                    modifier = Modifier.size(SIZE_48)
+                )
+            }
+        },
+        onDismissRequest = { onEvent(NewOrderEvent.HideDialog) },
+        text = {
+            TextBody(
+                text = body,
+                textSize = TEXT_SIZE_DLG_BODY,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        title = {
+            TextTitle(
+                text = title,
+                textSize = TEXT_SIZE_DLG_TITLE,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        confirmButton = {
+            ReguertaButton(
+                textButton = "Aceptar",
+                isSingleButton = false,
+                btnType = BtnType.ERROR,
+                modifier = Modifier.fillMaxWidth(),
+                onClick = {
+                    confirmButton()
+                }
+            )
+        }
+    )
+}
+
+
 /*
 @Preview
 @Composable

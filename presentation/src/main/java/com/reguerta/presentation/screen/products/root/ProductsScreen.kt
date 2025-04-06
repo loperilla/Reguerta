@@ -179,8 +179,7 @@ private fun ProductItem(
             .wrapContentSize(),
         content = {
             Column(
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Row(
                     verticalAlignment = Alignment.Top,
@@ -191,8 +190,7 @@ private fun ProductItem(
                 ) {
                     ProductImage(product)
                     Row(
-                        modifier = Modifier
-                            .padding(PADDING_SMALL),
+                        modifier = Modifier.padding(PADDING_SMALL),
                         horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -228,8 +226,7 @@ private fun ProductItem(
                     )
 
                     Row(
-                        modifier = Modifier
-                            .fillMaxWidth(),
+                        modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {

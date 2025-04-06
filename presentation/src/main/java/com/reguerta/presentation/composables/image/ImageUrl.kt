@@ -40,7 +40,6 @@ fun ImageUrl(
             .build(),
         placeholder = painterResource(R.mipmap.product_no_available),
         contentDescription = "${name}_image",
-        modifier = modifier
-            .clip(RoundedCornerShape(CornerSize(12.dp)))
+        modifier = modifier.clip(RoundedCornerShape(CornerSize(12.dp)))
     )
 }

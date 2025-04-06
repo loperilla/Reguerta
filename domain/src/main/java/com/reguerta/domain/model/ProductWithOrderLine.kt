@@ -1,5 +1,6 @@
 package com.reguerta.domain.model
 
+import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.model.interfaces.Product
 
 /*****
@@ -40,17 +41,34 @@ data class ProductWithOrderLine(
 
     val quantity = orderLine.quantity
 
-    fun getQuantityUnitySelected() = "${orderLine.quantity} $container"
+    val subtotal = getAmount()
 
-    fun getAmount(): Double = (orderLine.quantity * price).toDouble()
+    //fun getQuantityUnitySelected() = "${orderLine.quantity} $container"
+
+    //fun getAmount(): Double = (orderLine.quantity * price).toDouble()
+
+    fun getAmount(): Double {
+        return if (commonProduct.container == ContainerType.COMMIT_MANGOES.value
+                || commonProduct.container == ContainerType.COMMIT_AVOCADOS.value) {
+            price.toDouble()
+        } else {
+            (orderLine.quantity * price).toDouble()
+        }
+    }
 
     fun getUnitType(): UnitType = if (commonProduct.quantityContainer > 1) UnitType.PACK else UnitType.UNIT
 
     fun getQuantity(): String = "${orderLine.quantity}"
 
     fun getUnit(): String = getUnitType().getProperForm(orderLine.quantity)
+
+    fun getOrderId(): String = orderLine.orderId
+
+    fun getUserId(): String = orderLine.userId
+
+    fun getWeek(): Int = orderLine.week
 }
-enum class UnitType(val singular: String, val plural: String) {
+enum class UnitType(val singular: String, private val plural: String) {
     UNIT("ud.", "uds."),
     PACK("pack", "packs");
 

@@ -8,13 +8,19 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storage
 import com.reguerta.data.firebase.auth.AuthService
 import com.reguerta.data.firebase.auth.AuthServiceImpl
+import com.reguerta.data.firebase.firestore.CONTAINERS
 import com.reguerta.data.firebase.firestore.CONTAINERS_COLLECTION
 import com.reguerta.data.firebase.firestore.FirestoreManager
+import com.reguerta.data.firebase.firestore.MEASURES
 import com.reguerta.data.firebase.firestore.MEASURES_COLLECTION
+import com.reguerta.data.firebase.firestore.ORDERS
 import com.reguerta.data.firebase.firestore.ORDERS_COLLECTION
 import com.reguerta.data.firebase.firestore.ORDERS_LINES_COLLECTION
+import com.reguerta.data.firebase.firestore.ORDER_LINES
+import com.reguerta.data.firebase.firestore.PRODUCTS
 import com.reguerta.data.firebase.firestore.PRODUCTS_COLLECTION
 import com.reguerta.data.firebase.firestore.PRODUCT_IMAGE_STORAGE_PATH
+import com.reguerta.data.firebase.firestore.USERS
 import com.reguerta.data.firebase.firestore.USERS_COLLECTION
 import com.reguerta.data.firebase.firestore.container.ContainerService
 import com.reguerta.data.firebase.firestore.container.ContainerServiceImpl
@@ -72,7 +78,7 @@ object DataModule {
     @Singleton
     @Provides
     fun provideUsersCollection(firestoreManager: FirestoreManager): CollectionReference =
-        firestoreManager.usersCollection
+        firestoreManager.getCollection(USERS)
 
     @Singleton
     @Provides
@@ -85,7 +91,7 @@ object DataModule {
     @Singleton
     @Provides
     fun provideProductsCollection(firestoreManager: FirestoreManager): CollectionReference =
-        firestoreManager.productsCollection
+        firestoreManager.getCollection(PRODUCTS)
 
     @Named(PRODUCT_IMAGE_STORAGE_PATH)
     @Singleton
@@ -107,7 +113,7 @@ object DataModule {
     @Singleton
     @Provides
     fun provideContainerCollection(firestoreManager: FirestoreManager): CollectionReference =
-        firestoreManager.containersCollection
+        firestoreManager.getCollection(CONTAINERS)
 
     @Singleton
     @Provides
@@ -119,7 +125,7 @@ object DataModule {
     @Singleton
     @Provides
     fun provideOrderCollection(firestoreManager: FirestoreManager): CollectionReference =
-        firestoreManager.ordersCollection
+        firestoreManager.getCollection(ORDERS)
 
     @Singleton
     @Provides
@@ -133,7 +139,7 @@ object DataModule {
     @Singleton
     @Provides
     fun provideOrderLinesCollection(firestoreManager: FirestoreManager): CollectionReference =
-        firestoreManager.linesCollection
+        firestoreManager.getCollection(ORDER_LINES)
 
     @Singleton
     @Provides
@@ -148,7 +154,7 @@ object DataModule {
     @Singleton
     @Provides
     fun provideMeasuresCollection(firestoreManager: FirestoreManager): CollectionReference =
-        firestoreManager.measuresCollection
+        firestoreManager.getCollection(MEASURES)
 
     @Singleton
     @Provides

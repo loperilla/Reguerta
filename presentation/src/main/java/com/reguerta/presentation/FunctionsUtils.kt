@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
+import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.model.Container
 import com.reguerta.domain.model.Measure
 import com.reguerta.domain.model.received.OrderLineReceived
@@ -87,21 +88,13 @@ fun getMeasureByNameOrPlural(str: String, items: List<Measure>): Measure? {
 fun getQuantitySum(line: OrderLineReceived, containers: List<Container>, measures: List<Measure>): String {
     val container = getContainerByNameOrPlural(line.product.container, containers)
     val measure = getMeasureByNameOrPlural(line.product.unity, measures)
-
-    return if (container != null && measure != null) {
-        when {
-            container.name == "A granel" -> {
-                val sum = line.quantity * line.product.quantityWeight
-                "$sum ${measure.abbreviation}"
-            }
-            container.name == "Compromiso" -> {
-                if (line.quantity > 1) "Ecocestas" else "Ecocesta"
-            }
-            else -> {
-                if (line.quantity > 1) container.plural else container.name
-            }
-        }
-    } else {
-        ""
+    val sum = line.quantity * line.product.quantityWeight
+    return when (container?.name) {
+        ContainerType.BULK.value -> { "$sum ${measure?.abbreviation ?: ""}" }
+        ContainerType.COMMIT.value -> { ContainerType.COMMIT.nameAbr() }
+        ContainerType.COMMIT_MANGOES.value -> { measure?.abbreviation ?: "" }
+        ContainerType.COMMIT_AVOCADOS.value -> { measure?.abbreviation ?: "" }
+        else -> { if (line.quantity > 1) container?.plural ?: "" else container?.name ?: "" }
     }
 }
+

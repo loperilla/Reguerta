@@ -20,7 +20,7 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 @HiltViewModel
-class ProductsViewModel @Inject constructor(
+class    ProductsViewModel @Inject constructor(
     private val getAllProductsByUserIdUseCase: GetAllProductsByUserIdUseCase,
     private val deleteProductUseCase: DeleteProductUseCase
 ) : ViewModel() {

@@ -75,8 +75,7 @@ fun OrdersScreen(
         }
     ) {
         Column(
-            modifier = Modifier
-                .padding(it)
+            modifier = Modifier.padding(it)
         ) {
 
         }

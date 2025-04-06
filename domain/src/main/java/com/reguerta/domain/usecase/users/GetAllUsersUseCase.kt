@@ -14,9 +14,7 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 
-class GetAllUsersUseCase @Inject constructor(
-    private val repository: UsersCollectionService
-) {
+class GetAllUsersUseCase @Inject constructor(private val repository: UsersCollectionService) {
     suspend operator fun invoke(): Flow<List<User>> = repository.getUserList().map {
         it.fold(
             onSuccess = { userModelList ->

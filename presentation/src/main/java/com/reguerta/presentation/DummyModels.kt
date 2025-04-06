@@ -34,6 +34,7 @@ val ALCAZAR_WITH_ORDER = ProductWithOrderLine(
         productId = "123",
         companyName = "Lopera SL",
         quantity = 1,
+        subtotal = 2.5,
         week = 1
     )
 )
@@ -43,6 +44,7 @@ val ORDER_LINE_MODEL = OrderLineReceived(
     orderSurname = "Lopera",
     product = ALCAZAR,
     quantity = 1,
+    subtotal = 2.5,
     companyName = "Lopera SL",
 )
 

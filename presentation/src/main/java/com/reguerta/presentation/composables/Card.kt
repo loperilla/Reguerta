@@ -1,11 +1,14 @@
 package com.reguerta.presentation.composables
 
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.Dp
+import com.reguerta.presentation.ui.CORNER_SIZE_8
 import com.reguerta.presentation.ui.PrimaryColor
 
 /*****
@@ -21,6 +24,7 @@ fun ReguertaCard(
     modifier: Modifier = Modifier,
     containerColor: Color = PrimaryColor.copy(0.15f),
     contentColor: Color = Color.Unspecified,
+    cornerRadius: Dp = CORNER_SIZE_8
 ) {
     val colors = CardDefaults.cardColors(
         containerColor = containerColor,
@@ -29,6 +33,7 @@ fun ReguertaCard(
     Card(
         modifier = modifier,
         colors = colors,
+        shape = RoundedCornerShape(cornerRadius),
         content = content
     )
 }

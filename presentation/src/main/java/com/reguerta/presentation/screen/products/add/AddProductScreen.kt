@@ -27,8 +27,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -161,7 +161,9 @@ private fun AddProductScreen(
             TextReguertaInput(
                 text = state.price,
                 onTextChange = { newPrice ->
-                    onEvent(AddProductEvent.OnPriceChanged(newPrice))
+                    onEvent(
+                        AddProductEvent.OnPriceChanged(newPrice)
+                    )
                 },
                 imeAction = ImeAction.Next,
                 labelText = "PRECIO EN EUROS",
@@ -194,7 +196,7 @@ private fun HeaderAddProductForm(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var photoUri: Uri? by rememberSaveable { mutableStateOf(null) }
+    var photoUri: Uri? by remember { mutableStateOf(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
         photoUri = uri
     }
@@ -214,9 +216,8 @@ private fun HeaderAddProductForm(
                 val intent = Intent(
                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                     Uri.fromParts("package", context.packageName, null)
-                ).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }
+                )
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(intent)
             }
         }

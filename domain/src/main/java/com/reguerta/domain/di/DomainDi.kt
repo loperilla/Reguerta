@@ -106,8 +106,9 @@ object DomainDi {
         productsService: ProductsService,
         usersService: UsersCollectionService,
         weekTime: WeekTime,
-        authService: AuthService
-    ) = GetAvailableProductsUseCase(productsService, usersService, weekTime, authService)
+        authService: AuthService,
+        measureService: MeasureService
+    ) = GetAvailableProductsUseCase(productsService, usersService, weekTime, authService, measureService)
 
     @Provides
     fun providesDeleteProductUseCase(productsService: ProductsService) = DeleteProductUseCase(productsService)

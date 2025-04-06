@@ -10,9 +10,7 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 
-class ToggleProducerUseCase @Inject constructor(
-    private val repository: UsersCollectionService
-) {
+class ToggleProducerUseCase @Inject constructor(private val repository: UsersCollectionService) {
     suspend operator fun invoke(id: String, newValue: Boolean) {
         repository.toggleProducer(id, newValue)
     }

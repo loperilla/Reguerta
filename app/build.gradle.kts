@@ -41,15 +41,18 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
     kotlinOptions {
-        jvmTarget = "${JavaVersion.VERSION_21}"
+        jvmTarget = "${JavaVersion.VERSION_17}"
     }
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+    composeCompiler {
+        reportsDestination = layout.buildDirectory.dir("compose_compiler")
     }
     packaging {
         resources {
@@ -69,11 +72,11 @@ dependencies {
     implementation(libs.hilt.navigation)
     implementation(libs.splashscreen)
     implementation(libs.timber)
-    implementation(libs.systemuicontroller)
 
     // Hilt
     implementation(libs.hilt.android)
-    implementation(libs.androidx.annotation)
+    implementation(libs.androidx.multidex)
+    implementation(libs.firebase.abt)
     testImplementation(project(":testUtils"))
     ksp(libs.hilt.compiler)
 

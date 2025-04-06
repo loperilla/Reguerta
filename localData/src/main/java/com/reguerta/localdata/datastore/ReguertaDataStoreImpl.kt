@@ -18,8 +18,7 @@ import javax.inject.Inject
 val Context.userPreferences by preferencesDataStore("UserDatastore")
 
 class ReguertaDataStoreImpl @Inject constructor(private val context: Context) : ReguertaDataStore {
-    override suspend fun saveStringValue(key: Preferences.Key<String>, value: String): Unit =
-        withContext(Dispatchers.IO) {
+    override suspend fun saveStringValue(key: Preferences.Key<String>, value: String): Unit = withContext(Dispatchers.IO) {
         context.userPreferences.edit { preferences ->
             preferences[key] = value
         }

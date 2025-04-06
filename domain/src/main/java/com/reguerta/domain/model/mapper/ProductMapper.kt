@@ -1,5 +1,7 @@
 package com.reguerta.domain.model.mapper
 
+import android.annotation.SuppressLint
+import android.util.Log
 import com.reguerta.data.firebase.firestore.orderlines.OrderLineDTO
 import com.reguerta.data.firebase.firestore.products.ProductDTOModel
 import com.reguerta.data.firebase.firestore.products.ProductModel
@@ -16,6 +18,7 @@ import com.reguerta.domain.model.interfaces.Product
  * All rights reserved 2024
  */
 
+@SuppressLint("DefaultLocale")
 fun Product.priceFormatted(): String = String.format("%.2f", price) + " €"
 
 fun Product.getUnitType(): UnitType = if (quantityContainer > 1) UnitType.PACK else UnitType.UNIT
@@ -39,20 +42,27 @@ fun Product.toDto(): ProductDTOModel = ProductDTOModel(
     unity = unity
 )
 
-fun ProductModel.toDomain(): CommonProduct = CommonProduct(
-    id = id.orEmpty(),
-    container = container.orEmpty(),
-    description = description.orEmpty(),
-    name = name.orEmpty(),
-    price = price ?: 0.0f,
-    available = available ?: false,
-    companyName = companyName.orEmpty(),
-    imageUrl = urlImage.orEmpty(),
-    stock = stock ?: 0,
-    quantityContainer = quantityContainer ?: 0,
-    quantityWeight = quantityWeight ?: 0,
-    unity = unity.orEmpty()
-)
+fun ProductModel.toDomain(): CommonProduct {
+    Log.d("ProductModel", "ProductModel antes de convertir a dominio: $this")
+    if (this.id == null) {
+        Log.e("ProductModel", "Product ID is null for userId=${this.userId}, name=${this.name}, companyName=${this.companyName}")
+    }
+    return CommonProduct(
+        id = id.orEmpty(),
+        container = container.orEmpty(),
+        description = description.orEmpty(),
+        name = name.orEmpty(),
+        price = price ?: 0.0f,
+        available = available ?: false,
+        companyName = companyName.orEmpty(),
+        imageUrl = urlImage.orEmpty(),
+        stock = stock ?: 0,
+        quantityContainer = quantityContainer ?: 0,
+        quantityWeight = quantityWeight ?: 0,
+        unity = unity.orEmpty()
+    )
+}
+
 
 fun ProductModel.toDomain(
     measure: Measure
@@ -80,5 +90,5 @@ fun ProductWithOrderLine.toOrderLineDto() = OrderLineDTO(
     quantity = quantity,
     week = orderLine.week,
     companyName = companyName,
-    subtotal = getAmount()
+    subtotal = subtotal//getAmount()
 )

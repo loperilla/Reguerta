@@ -10,8 +10,6 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 
-class SignOutUseCase @Inject constructor(
-    private val authService: AuthService
-) {
+class SignOutUseCase @Inject constructor(private val authService: AuthService) {
     suspend operator fun invoke() = authService.signOut()
 }

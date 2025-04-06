@@ -12,10 +12,10 @@ import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_ULTRA_SMALL
+import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
-import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
+import com.reguerta.presentation.ui.TEXT_SIZE_SMADIUM
 import com.reguerta.presentation.ui.Text
 
 /*****
@@ -36,14 +36,14 @@ fun ProductNameUnityContainer(
     ) {
         TextTitle(
             text = product.name,
-            textSize = TEXT_SIZE_LARGE,
-            textColor = Text,
+            textSize = TEXT_SIZE_MEDIUM,
+            textColor = PrimaryColor,
             modifier = Modifier.padding(PADDING_EXTRA_SMALL),
             textAlignment = TextAlign.Center
         )
         TextBody(
             text = product.containerUnity(),
-            textSize = TEXT_SIZE_SMALL,
+            textSize = TEXT_SIZE_EXTRA_SMALL,
             textColor = Text,
             modifier = Modifier.padding(PADDING_EXTRA_SMALL),
             textAlignment = TextAlign.Center
@@ -62,7 +62,7 @@ fun ProductNameUnityContainerInMyOrder(
     ) {
         TextBody(
             text = product.name,
-            textSize = TEXT_SIZE_MEDIUM,
+            textSize = TEXT_SIZE_SMADIUM,
             textColor = Text,
             modifier = Modifier.padding(
                 top = PADDING_EXTRA_SMALL)

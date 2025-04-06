@@ -46,8 +46,7 @@ fun CheckboxPreview() {
     Screen {
         Column(
             verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             ReguertaCheckBox(
                 isChecked = true,

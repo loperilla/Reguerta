@@ -30,7 +30,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -71,6 +70,7 @@ import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.uriToBitmap
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 /*****
  * Project: Reguerta
@@ -204,16 +204,16 @@ fun HeaderAddProductForm(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    var photoUri: Uri? by rememberSaveable { mutableStateOf(null) }
+    var photoUri: Uri? by remember { mutableStateOf(null) }
 
     LaunchedEffect(key1 = state.imageUrl) {
         state.imageUrl.let { imageUrl ->
-            photoUri = if (imageUrl.isNotEmpty()) Uri.parse(imageUrl) else null
+            photoUri = if (imageUrl.isNotEmpty()) imageUrl.toUri() else null
         }
     }
 
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) { uri ->
-        photoUri = uri ?: Uri.parse(state.imageUrl)
+        photoUri = uri ?: state.imageUrl.toUri()
     }
 
     val permissionLauncher = rememberLauncherForActivityResult(
@@ -233,9 +233,8 @@ fun HeaderAddProductForm(
                 val intent = Intent(
                     Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
                     Uri.fromParts("package", context.packageName, null)
-                ).apply {
-                    flags = Intent.FLAG_ACTIVITY_NEW_TASK
-                }
+                )
+                intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 context.startActivity(intent)
             }
         }
@@ -380,7 +379,7 @@ private fun UnityAndContainer(
         )
 
         DropdownSelectable(
-            currentSelected = if (state.containerType.isEmpty()) "Selecciona envase" else state.containerType,
+            currentSelected = state.containerType.ifEmpty { "Selecciona envase" },
             dropdownItems = containerDropdownItems,
             onItemClick = {
                 onEvent(EditProductEvent.OnContainerTypeChanges(it.text))

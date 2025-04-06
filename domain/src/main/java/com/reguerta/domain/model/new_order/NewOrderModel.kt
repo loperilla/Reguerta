@@ -63,9 +63,8 @@ class NewOrderModel @Inject constructor(
     suspend fun updateProductStock(productId: String, newQuantity: Int) =
         orderLineService.updateQuantity(order.id, productId, newQuantity)
 
-    suspend fun addLocalOrderLine(
-        productId: String, productCompany: String
-    ) = orderLineService.addOrderLineInDatabase(order.id, productId, productCompany)
+    suspend fun addLocalOrderLine(productId: String, productCompany: String) =
+        orderLineService.addOrderLineInDatabase(order.id, productId, productCompany)
 
     suspend fun pushOrderLinesToFirebase(listToPush: List<ProductWithOrderLine>): Result<Unit> {
         val dtoList = listToPush.map {

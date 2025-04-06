@@ -8,6 +8,7 @@ import com.reguerta.domain.model.interfaces.Product
  * Created By Manuel Lopera on 25/2/24 at 11:25
  * All rights reserved 2024
  */
+
 data class CommonProduct(
     override val id: String = "",
     override val container: String = "",

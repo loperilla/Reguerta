@@ -10,8 +10,6 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 
-class GetCurrentWeekDayUseCase @Inject constructor(
-    private val authService: AuthService
-) {
+class GetCurrentWeekDayUseCase @Inject constructor(private val authService: AuthService) {
     suspend operator fun invoke(): Int = authService.getCurrentWeek()
 }

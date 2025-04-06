@@ -32,9 +32,7 @@ class UserCollectionImpl @Inject constructor(
 ) : UsersCollectionService {
     override suspend fun getUserList(): Flow<Result<List<UserModel>>> = callbackFlow {
         val subscription = collection
-            .orderBy(
-                NAME, Query.Direction.ASCENDING
-            )
+            .orderBy(NAME, Query.Direction.ASCENDING)
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     error.printStackTrace()
@@ -70,10 +68,7 @@ class UserCollectionImpl @Inject constructor(
 
     override suspend fun saveLoggedUserInfo(email: String) {
         val snapshot = collection
-            .whereEqualTo(
-                USER_EMAIL,
-                email
-            )
+            .whereEqualTo(USER_EMAIL, email)
             .get()
             .await()
         val documentSearch = snapshot.documents.firstOrNull()
@@ -81,32 +76,20 @@ class UserCollectionImpl @Inject constructor(
         user = user?.copy(id = documentSearch?.id)
         user?.let { model ->
             model.id?.let {
-                dataStore.saveStringValue(
-                    UID_KEY, it
-                )
+                dataStore.saveStringValue(UID_KEY, it)
             }
             model.companyName?.let { company ->
-                dataStore.saveStringValue(
-                    COMPANY_NAME_KEY, company
-                )
+                dataStore.saveStringValue(COMPANY_NAME_KEY, company)
             }
-            dataStore.saveBooleanValue(
-                IS_ADMIN_KEY, model.isAdmin
-            )
-            dataStore.saveBooleanValue(
-                IS_PRODUCER_KEY, model.isProducer
-            )
+            dataStore.saveBooleanValue(IS_ADMIN_KEY, model.isAdmin)
+            dataStore.saveBooleanValue(IS_PRODUCER_KEY, model.isProducer)
 
             model.name?.let { name ->
-                dataStore.saveStringValue(
-                    NAME_KEY, name
-                )
+                dataStore.saveStringValue(NAME_KEY, name)
             }
 
             model.surname?.let {
-                dataStore.saveStringValue(
-                    SURNAME_KEY, it
-                )
+                dataStore.saveStringValue(SURNAME_KEY, it)
             }
         }
     }
