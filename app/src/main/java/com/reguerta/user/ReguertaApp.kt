@@ -20,7 +20,7 @@ class ReguertaApp : Application() {
         super.onCreate()
         FirebaseApp.initializeApp(this)
 
-        val environment = if (!BuildConfig.DEBUG) FirestoreEnvironment.DEVELOP else FirestoreEnvironment.PRODUCTION
+        val environment = if (BuildConfig.DEBUG) FirestoreEnvironment.DEVELOP else FirestoreEnvironment.PRODUCTION
         FirestoreManager.setEnvironment(environment)
         FirestoreManager.configureFirestore()
 
