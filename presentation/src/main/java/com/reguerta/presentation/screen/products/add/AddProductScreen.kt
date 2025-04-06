@@ -375,7 +375,7 @@ private fun UnityAndContainer(
         )
 
         DropdownSelectable(
-            currentSelected = if (state.containerType.isEmpty()) "Selecciona envase" else state.containerType,
+            currentSelected = state.containerType.ifEmpty { "Selecciona envase" },
             dropdownItems = containerDropdownItems,
             onItemClick = {
                 onEvent(AddProductEvent.OnContainerTypeChanges(it.text))
@@ -408,7 +408,7 @@ private fun UnityAndContainer(
         )
 
         DropdownSelectable(
-            currentSelected = if (state.measureType.isEmpty()) "Selecciona unidad" else state.measureType,
+            currentSelected = state.measureType.ifEmpty { "Selecciona unidad" },
             dropdownItems = measureDropdownItems,
             onItemClick = {
                 onEvent(AddProductEvent.OnMeasuresTypeChanges(it.text))
