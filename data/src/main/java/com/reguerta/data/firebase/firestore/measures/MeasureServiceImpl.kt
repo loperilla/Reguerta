@@ -7,6 +7,10 @@ import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import javax.inject.Inject
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /*****
  * Project: Reguerta
@@ -23,25 +27,41 @@ class MeasureServiceImpl @Inject constructor(
         val persistedMeasure = measureDao.getAllMeasures()
         if (persistedMeasure.isNotEmpty()) {
             trySend(Result.success(persistedMeasure.toModel()))
-            awaitClose()
-        } else {
-            getNetworkMeasures().collect { result ->
-                result.onSuccess { measureList ->
-                    measureDao.insertAllMeasures(measureList.toEntity())
-                    trySend(Result.success(measureList))
-                    awaitClose()
+            close() // Cerramos directamente el flujo ya que no hay escucha activa de snapshot
+            return@callbackFlow
+        }
+
+        val subscription = collection.addSnapshotListener { snapshot, error ->
+            if (error != null) {
+                trySend(Result.failure(error))
+                close(error)
+                return@addSnapshotListener
+            }
+
+            val result = snapshot?.documents?.mapNotNull { document ->
+                document.toObject(MeasureModel::class.java)?.apply {
+                    id = document.id
                 }
-                result.onFailure {
-                    trySend(Result.failure(it))
-                    awaitClose()
+            } ?: emptyList()
+
+            if (result.isNotEmpty()) {
+                CoroutineScope(Dispatchers.IO).launch {
+                    measureDao.insertAllMeasures(result.toEntity())
                 }
+                trySend(Result.success(result))
+            } else {
+                trySend(Result.success(emptyList()))
             }
         }
+
+        awaitClose { subscription.remove() }
     }
 
     override suspend fun getMeasureByName(name: String): Result<MeasureModel> {
         return try {
-            Result.success(measureDao.getMeasureByName(name).toModel())
+            withContext(Dispatchers.IO) {
+                Result.success(measureDao.getMeasureByName(name).toModel())
+            }
         } catch (ex: Exception) {
             Result.failure(ex)
         }

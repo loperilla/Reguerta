@@ -10,7 +10,9 @@ import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.datastore.SURNAME_KEY
 import com.reguerta.localdata.datastore.UID_KEY
 import com.reguerta.localdata.time.WeekTime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /*****
@@ -27,8 +29,9 @@ class OrderServiceImpl @Inject constructor(
 ) : OrderServices {
     override suspend fun getOrderByUserId(): DataResult<OrderModel, DataError.Firebase> {
         return try {
+            val uid = withContext(Dispatchers.IO) { dataStore.getStringByKey(UID_KEY) }
             val snapshot = collection
-                .whereEqualTo(USER_ID, dataStore.getStringByKey(UID_KEY))
+                .whereEqualTo(USER_ID, uid)
                 .whereEqualTo(WEEK, weekTime.getCurrentWeek())
                 .get()
                 .await()
@@ -43,8 +46,9 @@ class OrderServiceImpl @Inject constructor(
 
     override suspend fun getLastOrderByUserId(): DataResult<OrderModel, DataError.Firebase> {
         return try {
+            val uid = withContext(Dispatchers.IO) { dataStore.getStringByKey(UID_KEY) }
             val snapshot = collection
-                .whereEqualTo(USER_ID, dataStore.getStringByKey(UID_KEY))
+                .whereEqualTo(USER_ID, uid)
                 .whereEqualTo(WEEK, weekTime.getLastWeek())
                 .get()
                 .await()
@@ -97,11 +101,18 @@ class OrderServiceImpl @Inject constructor(
 
     private suspend fun insertDefaultModel(): DataResult<OrderModel, DataError.Firebase> {
         return try {
+            val (uid, name, surname) = withContext(Dispatchers.IO) {
+                Triple(
+                    dataStore.getStringByKey(UID_KEY),
+                    dataStore.getStringByKey(NAME_KEY),
+                    dataStore.getStringByKey(SURNAME_KEY)
+                )
+            }
             val orderModelDefault = OrderModel(
                 week = weekTime.getCurrentWeek(),
-                userId = dataStore.getStringByKey(UID_KEY),
-                name = dataStore.getStringByKey(NAME_KEY),
-                surname = dataStore.getStringByKey(SURNAME_KEY)
+                userId = uid,
+                name = name,
+                surname = surname
             )
             val documentReference = collection
                 .add(orderModelDefault.toMapWithoutId())

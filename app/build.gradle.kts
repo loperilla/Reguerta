@@ -56,6 +56,7 @@ android {
         }
         debug {
             applicationIdSuffix = ".debug"
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

@@ -48,6 +48,7 @@ class ProductsServiceImpl @Inject constructor(
                             productList.add(model)
                         }
                     }
+                    Log.d("PRODUCTS_SERVICE", "Productos del usuario recibidos: ${productList.size}")
                     trySend(Result.success(productList))
                 }
             }
@@ -76,6 +77,7 @@ class ProductsServiceImpl @Inject constructor(
                             productList.add(model)
                         }
                     }
+                    Log.d("PRODUCTS_SERVICE", "Productos disponibles recibidos: ${productList.size}")
                     trySend(Result.success(productList))
                 }
             }

@@ -53,6 +53,10 @@ fun loginScreen(
     val viewModel = hiltViewModel<LoginViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
+    LaunchedEffect(Unit) {
+        viewModel.autoLoginIfDebug()
+    }
+
     if (state.goOut) {
         navigateTo(Routes.HOME.route)
         return

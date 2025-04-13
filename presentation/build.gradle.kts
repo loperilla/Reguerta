@@ -14,6 +14,7 @@ android {
         minSdk = configMinSdkVersion
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
+        buildConfigField("Boolean", "IS_DEBUG", "true")
     }
 
     buildTypes {
@@ -31,6 +32,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeCompiler {
         reportsDestination = layout.buildDirectory.dir("compose_compiler")

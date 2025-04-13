@@ -10,11 +10,13 @@ import com.reguerta.localdata.datastore.COMPANY_NAME_KEY
 import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.datastore.UID_KEY
 import com.reguerta.localdata.time.WeekTime
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 /*****
@@ -30,28 +32,32 @@ class OrderLineServiceImpl @Inject constructor(
     private val time: WeekTime,
     private val dataStore: ReguertaDataStore
 ) : OrderLineService {
-    override suspend fun getOrderLines(orderId: String): Flow<List<OrderLineDTO>> = dao.getOrderLinesByUserAndWeek(
-        dataStore.getStringByKey(UID_KEY),
-        time.getCurrentWeek(),
-        orderId
-    ).map { list ->
-        list.map { entity -> entity.toDTO() }
+    override suspend fun getOrderLines(orderId: String): Flow<List<OrderLineDTO>> = withContext(Dispatchers.IO) {
+        dao.getOrderLinesByUserAndWeek(
+            dataStore.getStringByKey(UID_KEY),
+            time.getCurrentWeek(),
+            orderId
+        ).map { list ->
+            list.map { entity -> entity.toDTO() }
+        }
     }
 
     override suspend fun addOrderLineInDatabase(orderId: String, productId: String, productCompany: String) {
-        dao.insertNewOrderLine(
-            OrderLineEntity(
-                orderId = orderId,
-                userId = dataStore.getStringByKey(UID_KEY),
-                productId = productId,
-                quantity = 1,
-                week = time.getCurrentWeek(),
-                companyName = productCompany
+        withContext(Dispatchers.IO) {
+            dao.insertNewOrderLine(
+                OrderLineEntity(
+                    orderId = orderId,
+                    userId = dataStore.getStringByKey(UID_KEY),
+                    productId = productId,
+                    quantity = 1,
+                    week = time.getCurrentWeek(),
+                    companyName = productCompany
+                )
             )
-        )
+        }
     }
 
-    override suspend fun updateQuantity(orderId: String, productId: String, quantity: Int) {
+    override suspend fun updateQuantity(orderId: String, productId: String, quantity: Int) = withContext(Dispatchers.IO) {
         dao.updateQuantity(
             dataStore.getStringByKey(UID_KEY),
             time.getCurrentWeek(),
@@ -61,7 +67,7 @@ class OrderLineServiceImpl @Inject constructor(
         )
     }
 
-    override suspend fun deleteOrderLine(orderId: String, productId: String) {
+    override suspend fun deleteOrderLine(orderId: String, productId: String) = withContext(Dispatchers.IO) {
         dao.deleteOrder(
             dataStore.getStringByKey(UID_KEY),
             time.getCurrentWeek(),
@@ -95,8 +101,11 @@ class OrderLineServiceImpl @Inject constructor(
     }
 
     override suspend fun getOrdersByCompanyAndWeek(): Flow<Result<List<OrderLineModel>>> = callbackFlow {
+        val companyName = withContext(Dispatchers.IO) {
+            dataStore.getStringByKey(COMPANY_NAME_KEY)
+        }
         val subscription = collection
-            .whereEqualTo(COMPANY_NAME, dataStore.getStringByKey(COMPANY_NAME_KEY))
+            .whereEqualTo(COMPANY_NAME, companyName)
             .whereEqualTo(WEEK, time.getCurrentWeek().minus(1))
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {

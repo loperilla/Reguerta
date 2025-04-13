@@ -37,6 +37,7 @@ class ReceivedOrdersViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(isLoading = true) }
             listOf(
                 async {
                     getAllMeasuresUseCase().collect { measureList ->
@@ -54,8 +55,9 @@ class ReceivedOrdersViewModel @Inject constructor(
                 },
                 async {
                     orderReceivedModel.invoke().collectLatest { orders ->
-                        _state.update { state ->
-                            state.copy(
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
                                 ordersByUser = orders.groupBy { it.fullOrderName() },
                                 ordersByProduct = orders.groupBy { it.product }
                             )
@@ -63,6 +65,7 @@ class ReceivedOrdersViewModel @Inject constructor(
                     }
                 }
             ).awaitAll()
+            _state.update { it.copy(isLoading = false) }
         }
     }
 

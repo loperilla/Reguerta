@@ -35,6 +35,7 @@ import com.reguerta.domain.model.received.OrderLineReceived
 import com.reguerta.domain.model.received.getAmount
 import com.reguerta.domain.model.received.getQuantityByProduct
 import com.reguerta.presentation.ALCAZAR
+import com.reguerta.presentation.composables.LoadingAnimation
 import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
@@ -46,6 +47,7 @@ import com.reguerta.presentation.composables.products.ProductNameUnityContainerI
 import com.reguerta.presentation.getQuantitySum
 import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
+import com.reguerta.presentation.ui.PADDING_LARGE
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PADDING_ZERO
@@ -59,6 +61,7 @@ import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMADIUM
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
+import com.reguerta.presentation.ui.errorColor
 import kotlinx.coroutines.launch
 
 /*****
@@ -78,11 +81,23 @@ fun receivedOrdersScreen(
         navigateTo(Routes.HOME.route)
         return
     }
-    Screen {
-        ReceivedOrdersScreen(
-            state = state,
-            onEvent = viewModel::onEvent
-        )
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                LoadingAnimation()
+            }
+        } else {
+            Screen {
+                ReceivedOrdersScreen(
+                    state = state,
+                    onEvent = viewModel::onEvent
+                )
+            }
+        }
     }
 }
 
@@ -103,36 +118,59 @@ fun ReceivedOrdersScreen(
             )
         }
     ) {
-        Column(modifier = Modifier.padding(it)) {
-            TabRow(selectedTabIndex = pagerState.currentPage) {
-                tabList.fastForEachIndexed { i, receivedTab ->
-                    Tab(
-                        selected = pagerState.currentPage == i,
-                        onClick = {
-                            coroutineScope.launch {
-                                pagerState.animateScrollToPage(i)
-                            }
-                        },
-                        text = {
-                            TextTitle(
-                                text = receivedTab.title,
-                                textSize = TEXT_SIZE_LARGE
-                            )
-                        }
-                    )
+        if (state.ordersByProduct.isEmpty()) {
+            ReguertaCard(
+                modifier = Modifier
+                    .padding(it)
+                    .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_MEDIUM),
+                containerColor = errorColor.copy(0.15f),
+                content = {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(PADDING_LARGE),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        TextTitle(
+                            text = "No has recibido ningún pedido esta semana.",
+                            textColor = errorColor,
+                            textAlignment = TextAlign.Center
+                        )
+                    }
                 }
-            }
-            HorizontalPager(state = pagerState) { index ->
-                if (index == 0) {
-                    OrderListByProduct(
-                        orderLines = state.ordersByProduct,
-                        state = state
-                    )
-                } else {
-                    OrderListByUser(
-                        orderLines = state.ordersByUser,
-                        state = state
-                    )
+            )
+        } else {
+            Column(modifier = Modifier.padding(it)) {
+                TabRow(selectedTabIndex = pagerState.currentPage) {
+                    tabList.fastForEachIndexed { i, receivedTab ->
+                        Tab(
+                            selected = pagerState.currentPage == i,
+                            onClick = {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(i)
+                                }
+                            },
+                            text = {
+                                TextTitle(
+                                    text = receivedTab.title,
+                                    textSize = TEXT_SIZE_LARGE
+                                )
+                            }
+                        )
+                    }
+                }
+                HorizontalPager(state = pagerState) { index ->
+                    if (index == 0) {
+                        OrderListByProduct(
+                            orderLines = state.ordersByProduct,
+                            state = state
+                        )
+                    } else {
+                        OrderListByUser(
+                            orderLines = state.ordersByUser,
+                            state = state
+                        )
+                    }
                 }
             }
         }
@@ -360,38 +398,3 @@ fun OrderByProduct(
 }
 
 
-@Preview
-@Composable
-fun ReceivedOrdersPreview() {
-    Screen {
-        ReceivedOrdersScreen(
-            state = ReceivedOrdersState(
-                ordersByProduct = mapOf(
-                    ALCAZAR to listOf(
-                        OrderLineReceived(
-                            orderName = "Manuel",
-                            orderSurname = "Lopera",
-                            product = ALCAZAR,
-                            quantity = 1,
-                            subtotal = 2.5,
-                            companyName = "",
-                        )
-                    )
-                ),
-                ordersByUser = mapOf(
-                    "Manuel Lopera" to listOf(
-                        OrderLineReceived(
-                            orderName = "Manuel",
-                            orderSurname = "Lopera",
-                            product = ALCAZAR,
-                            quantity = 1,
-                            subtotal = 2.5,
-                            companyName = "",
-                        )
-                    )
-                )
-            ),
-            onEvent = {}
-        )
-    }
-}

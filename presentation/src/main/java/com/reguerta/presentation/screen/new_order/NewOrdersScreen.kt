@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -33,6 +34,7 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import com.reguerta.presentation.composables.ReguertaCircularProgress
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -63,6 +65,7 @@ import com.reguerta.presentation.composables.AmountText
 import com.reguerta.presentation.composables.BtnType
 import com.reguerta.presentation.composables.HeaderSectionText
 import com.reguerta.presentation.composables.InverseReguertaButton
+import com.reguerta.presentation.composables.LoadingAnimation
 import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCard
@@ -159,40 +162,39 @@ fun newOrderScreen(
         )
     }
 
-    if (state.isLoading) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            CircularProgressIndicator()
-        }
-    } else {
-        Screen {
-            if (state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) {
-                Timber.tag("ORDERS").d("Es de Lunes a Miercoles")
-                if (state.isExistOrder) {
-                    Timber.tag("ORDERS").d("Hay last Order")
-                    LastOrderScreen(
-                        state = state,
-                        onEvent = viewModel::onEvent
-                    )
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                LoadingAnimation()
+            }
+        } else {
+            Screen {
+                if (state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) {
+                    if (state.isExistOrder) {
+                        LastOrderScreen(
+                            state = state,
+                            onEvent = viewModel::onEvent
+                        )
+                    } else {
+                        NoOrderScreen(
+                            onEvent = viewModel::onEvent
+                        )
+                    }
                 } else {
-                    Timber.tag("ORDERS").d("NO Hay last Order. Se muestra MSG")
-                    NoOrderScreen(
-                        onEvent = viewModel::onEvent
-                    )
-                }
-            } else {
-                if (state.isExistOrder) {
-                    ExistingOrderScreen(
-                        state = state,
-                        onEvent = viewModel::onEvent
-                    )
-                } else {
-                    NewOrderScreen(
-                        state = state,
-                        onEvent = viewModel::onEvent
-                    )
+                    if (state.isExistOrder) {
+                        ExistingOrderScreen(
+                            state = state,
+                            onEvent = viewModel::onEvent
+                        )
+                    } else {
+                        NewOrderScreen(
+                            state = state,
+                            onEvent = viewModel::onEvent
+                        )
+                    }
                 }
             }
         }
@@ -623,20 +625,20 @@ fun NewOrderScreen(
     state: NewOrderState,
     onEvent: (NewOrderEvent) -> Unit
 ) {
-    Scaffold(
-        topBar = {
-            NewOrderTopBar(state, onEvent)
-        },
-        bottomBar = {
-            NewOrderBottomBar(state, onEvent)
-        }
-    ) {
-        Box(
-            modifier = Modifier
-                .padding(it)
-                .fillMaxSize()
+    if (!state.isLoading) {
+        Scaffold(
+            topBar = {
+                NewOrderTopBar(state, onEvent)
+            },
+            bottomBar = {
+                NewOrderBottomBar(state, onEvent)
+            }
         ) {
-            if (!state.isLoading) {
+            Box(
+                modifier = Modifier
+                    .padding(it)
+                    .fillMaxSize()
+            ) {
                 Column {
                     AnimatedVisibility(visible = state.showShoppingCart) {
                         ShoppingCartScreen(
@@ -655,11 +657,18 @@ fun NewOrderScreen(
                         }
                     }
                 }
-            } else {
-                CircularProgressIndicator(
-                    modifier = Modifier.align(Alignment.Center)
-                )
             }
+        }
+    } else {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(64.dp),
+                color = Color.Red // para pruebas, visible
+            )
         }
     }
 }

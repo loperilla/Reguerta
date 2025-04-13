@@ -1,5 +1,7 @@
 package com.reguerta.localdata.time
 
+import java.time.LocalDate
+
 /*****
  * Project: Reguerta
  * From: com.reguerta.localdata.time
@@ -13,4 +15,6 @@ interface WeekTime {
     fun getCurrentWeekDay(): Int
     fun isEvenCurrentWeek(): Boolean
     fun getTwoWeeksAgo(): Int
+    fun setTestDate(date: LocalDate)
+    fun clearTestDate()
 }

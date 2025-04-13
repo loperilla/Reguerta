@@ -1,4 +1,5 @@
 package com.reguerta.presentation.screen.new_order
+import android.util.Log
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,6 +20,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -63,18 +65,22 @@ class NewOrderViewModel @Inject constructor(
                 _state.update { it.copy(isLoading = false) }
                 return@launch
             }
+
             _state.update {
                 it.copy(
+                    isLoading = true,
                     currentDay = DayOfWeek.of(getCurrentWeek()),
                     kgMangoes = currentUser.tropical1.roundToInt(),
                     kgAvocados = currentUser.tropical2.roundToInt()
                 )
             }
+            delay(500)
+            if (!loadAvailableProducts(getAvailableProductsUseCase)) {
+                return@launch
+            }
 
+            // Luego lanza en paralelo las demás tareas
             listOf(
-                async {
-                    loadAvailableProducts(getAvailableProductsUseCase)
-                },
                 async {
                     getAllMeasuresUseCase().collect { measureList ->
                         _state.update {
@@ -98,18 +104,26 @@ class NewOrderViewModel @Inject constructor(
                     }
                 }
             ).awaitAll()
+            _state.update { it.copy(isLoading = false) }
         }
     }
 
-    private suspend fun loadAvailableProducts(getAvailableProductsUseCase: GetAvailableProductsUseCase) {
-        val list = getAvailableProductsUseCase().first()
-        initialCommonProducts = list
-        val groupedByCompany = list.groupBy { it.companyName }.toSortedMap()
-        _state.update {
-            it.copy(
-                isLoading = false,
-                productsGroupedByCompany = groupedByCompany
-            )
+    private suspend fun loadAvailableProducts(getAvailableProductsUseCase: GetAvailableProductsUseCase): Boolean {
+        return try {
+            val list = getAvailableProductsUseCase().first()
+            if (list.isEmpty()) throw IllegalStateException("Lista de productos vacía")
+            initialCommonProducts = list
+            val groupedByCompany = list.groupBy { it.companyName }.toSortedMap()
+            _state.update {
+                it.copy(
+                    productsGroupedByCompany = groupedByCompany
+                )
+            }
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            handleError(e)
+            return false
         }
     }
 

@@ -14,6 +14,7 @@ import com.reguerta.domain.model.received.OrderLineReceived
 
 data class ReceivedOrdersState(
     val goOut: Boolean = false,
+    val isLoading: Boolean = true,
     val ordersByUser: Map<String, List<OrderLineReceived>> = emptyMap(),
     val ordersByProduct: Map<Product, List<OrderLineReceived>> = emptyMap(),
     val measures: List<Measure> = emptyList(),

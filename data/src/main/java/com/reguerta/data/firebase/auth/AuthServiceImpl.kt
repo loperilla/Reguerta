@@ -11,6 +11,7 @@ import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.localdata.datastore.UID_KEY
 import com.reguerta.localdata.time.WeekTime
 import kotlinx.coroutines.tasks.await
+import java.time.LocalDate
 
 /*****
  * Project: Reguerta
@@ -90,5 +91,13 @@ class AuthServiceImpl(
         } catch (ex: Exception) {
             DataResult.Error(DataError.Firebase.NOT_FOUND)
         }
+    }
+
+    override fun simulateCurrentDate(date: LocalDate) {
+        weekTime.setTestDate(date)
+    }
+
+    override fun resetSimulatedDate() {
+        weekTime.clearTestDate()
     }
 }

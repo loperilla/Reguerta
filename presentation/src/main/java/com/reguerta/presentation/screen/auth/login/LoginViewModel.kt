@@ -3,6 +3,7 @@ package com.reguerta.presentation.screen.auth.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.usecase.auth.LoginUseCase
+import com.reguerta.presentation.BuildConfig
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,7 +12,9 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
+import java.time.LocalDate
 
 /*****
  * Project: Reguerta
@@ -21,7 +24,7 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase,
+    private val loginUseCase: LoginUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<LoginState> = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state.asStateFlow()
@@ -99,6 +102,43 @@ class LoginViewModel @Inject constructor(
         return with(_state.value) {
             emailInput.isValidEmail &&
                     passwordInput.isValidPassword
+        }
+    }
+
+    fun autoLoginIfDebug() {
+        if (BuildConfig.DEBUG) {
+            val testDate = LocalDate.of(2025, 4, 14)
+            viewModelScope.launch {
+                val email = "ophiura@yahoo.es"
+                val password = "Reguerta161274"
+                try {
+                    loginUseCase(email, password, testDate).fold(
+                        onSuccess = {
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    goOut = true
+                                )
+                            }
+                            Timber.tag("LOGIN").d("Login automático exitoso")
+                        },
+                        onFailure = { result ->
+                            _state.update {
+                                it.copy(
+                                    isLoading = false,
+                                    errorMessage = result.message.orEmpty()
+                                )
+                            }
+                            Timber.tag("LOGIN").e("Login automático fallido: ${result.message}")
+                        }
+                    )
+                } catch (e: Exception) {
+                    _state.update {
+                        it.copy(isLoading = false, errorMessage = e.message.orEmpty())
+                    }
+                    Timber.tag("LOGIN").e(e, "Excepción en login automático")
+                }
+            }
         }
     }
 }

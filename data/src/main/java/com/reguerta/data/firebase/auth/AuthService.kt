@@ -4,6 +4,7 @@ import com.reguerta.data.AuthState
 import com.reguerta.data.firebase.firestore.users.UserModel
 import com.reguerta.data.firebase.model.DataError
 import com.reguerta.data.firebase.model.DataResult
+import java.time.LocalDate
 
 /*****
  * Project: Reguerta
@@ -20,4 +21,6 @@ interface AuthService {
     suspend fun checkCurrentLoggedUser(): Result<UserModel>
     suspend fun getCurrentWeek(): Int
     suspend fun sendRecoveryPasswordEmail(email: String): DataResult<Unit, DataError.Firebase>
+    fun simulateCurrentDate(date: LocalDate)
+    fun resetSimulatedDate()
 }
