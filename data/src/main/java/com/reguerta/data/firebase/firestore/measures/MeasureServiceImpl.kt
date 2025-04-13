@@ -66,7 +66,7 @@ class MeasureServiceImpl @Inject constructor(
             Result.failure(ex)
         }
     }
-
+/*
     private suspend fun getNetworkMeasures(): Flow<Result<List<MeasureModel>>> = callbackFlow {
         val subscription = collection.addSnapshotListener { snapshot, error ->
             if (error != null) {
@@ -91,6 +91,7 @@ class MeasureServiceImpl @Inject constructor(
             subscription.remove()
         }
     }
+ */
 
     private fun List<MeasureEntity>.toModel() = map {
         MeasureModel(

@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,7 +33,6 @@ import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import com.reguerta.presentation.composables.ReguertaCircularProgress
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
@@ -104,7 +102,6 @@ import com.reguerta.presentation.ui.TEXT_SPECIAL
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.errorColor
-import timber.log.Timber
 import java.time.DayOfWeek
 
 /*****

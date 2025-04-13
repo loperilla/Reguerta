@@ -1,6 +1,5 @@
 package com.reguerta.presentation.screen.received_orders
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -26,7 +25,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.util.fastForEachIndexed
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -34,7 +32,6 @@ import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.domain.model.received.OrderLineReceived
 import com.reguerta.domain.model.received.getAmount
 import com.reguerta.domain.model.received.getQuantityByProduct
-import com.reguerta.presentation.ALCAZAR
 import com.reguerta.presentation.composables.LoadingAnimation
 import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaTopBar
