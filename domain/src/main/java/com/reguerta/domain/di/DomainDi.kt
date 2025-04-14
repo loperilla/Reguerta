@@ -8,7 +8,7 @@ import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import com.reguerta.domain.model.mapper.MeasureMapper
-import com.reguerta.domain.model.new_order.NewOrderModel
+import com.reguerta.domain.model.NewOrderModel
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.auth.LoginUseCase
 import com.reguerta.domain.usecase.auth.RefreshUserUseCase

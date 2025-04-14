@@ -1,6 +1,5 @@
 package com.reguerta.domain.usecase.orderline
 
-import android.util.Log
 import com.reguerta.data.firebase.firestore.order.OrderServices
 import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
 import com.reguerta.data.firebase.firestore.products.ProductsService
@@ -8,7 +7,7 @@ import com.reguerta.data.firebase.model.DataResult
 import com.reguerta.domain.model.mapper.toDomain
 import com.reguerta.domain.model.mapper.toDto
 import com.reguerta.domain.model.mapper.toReceived
-import com.reguerta.domain.model.received.OrderLineReceived
+import com.reguerta.domain.model.OrderLineReceived
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

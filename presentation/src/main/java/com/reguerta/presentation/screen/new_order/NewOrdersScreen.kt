@@ -57,8 +57,8 @@ import com.reguerta.domain.model.mapper.containerUnity
 import com.reguerta.domain.model.mapper.getAmount
 import com.reguerta.domain.model.mapper.getUnitType
 import com.reguerta.domain.model.mapper.priceFormatted
-import com.reguerta.domain.model.received.OrderLineReceived
-import com.reguerta.domain.model.received.getDblAmount
+import com.reguerta.domain.model.OrderLineReceived
+import com.reguerta.domain.model.getDblAmount
 import com.reguerta.presentation.composables.AmountText
 import com.reguerta.presentation.composables.BtnType
 import com.reguerta.presentation.composables.HeaderSectionText

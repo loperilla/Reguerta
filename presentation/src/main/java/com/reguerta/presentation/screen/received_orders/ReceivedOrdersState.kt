@@ -3,7 +3,7 @@ package com.reguerta.presentation.screen.received_orders
 import com.reguerta.domain.model.Container
 import com.reguerta.domain.model.Measure
 import com.reguerta.domain.model.interfaces.Product
-import com.reguerta.domain.model.received.OrderLineReceived
+import com.reguerta.domain.model.OrderLineReceived
 
 /*****
  * Project: Reguerta

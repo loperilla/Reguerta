@@ -7,7 +7,7 @@ import androidx.compose.ui.unit.sp
 import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.model.Container
 import com.reguerta.domain.model.Measure
-import com.reguerta.domain.model.received.OrderLineReceived
+import com.reguerta.domain.model.OrderLineReceived
 import com.reguerta.presentation.ui.TEXT_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_EXTRA_LARGE

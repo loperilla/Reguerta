@@ -29,9 +29,9 @@ import androidx.compose.ui.util.fastForEachIndexed
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.domain.model.interfaces.Product
-import com.reguerta.domain.model.received.OrderLineReceived
-import com.reguerta.domain.model.received.getAmount
-import com.reguerta.domain.model.received.getQuantityByProduct
+import com.reguerta.domain.model.OrderLineReceived
+import com.reguerta.domain.model.getAmount
+import com.reguerta.domain.model.getQuantityByProduct
 import com.reguerta.presentation.composables.LoadingAnimation
 import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaTopBar

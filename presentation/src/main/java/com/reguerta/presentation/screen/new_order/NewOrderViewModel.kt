@@ -6,7 +6,7 @@ import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
-import com.reguerta.domain.model.new_order.NewOrderModel
+import com.reguerta.domain.model.NewOrderModel
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase

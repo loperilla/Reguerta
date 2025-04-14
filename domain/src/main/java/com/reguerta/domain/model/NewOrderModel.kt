@@ -1,18 +1,13 @@
-package com.reguerta.domain.model.new_order
+package com.reguerta.domain.model
 
 import com.reguerta.data.firebase.firestore.order.OrderServices
 import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.model.DataResult
-import com.reguerta.domain.model.Order
-import com.reguerta.domain.model.OrderLineProduct
-import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.mapper.toDomain
 import com.reguerta.domain.model.mapper.toDto
 import com.reguerta.domain.model.mapper.toOrderLineDto
 import com.reguerta.domain.model.mapper.toReceived
-import com.reguerta.domain.model.received.OrderLineReceived
-import com.reguerta.domain.model.toOrderLine
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject

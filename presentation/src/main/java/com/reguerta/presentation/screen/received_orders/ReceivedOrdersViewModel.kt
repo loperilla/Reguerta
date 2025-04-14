@@ -2,7 +2,7 @@ package com.reguerta.presentation.screen.received_orders
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reguerta.domain.model.received.fullOrderName
+import com.reguerta.domain.model.fullOrderName
 import com.reguerta.domain.usecase.container.GetAllContainerUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.orderline.OrderReceivedModel

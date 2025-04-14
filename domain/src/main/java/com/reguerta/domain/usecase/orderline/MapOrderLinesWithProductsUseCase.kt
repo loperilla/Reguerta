@@ -2,7 +2,7 @@ package com.reguerta.domain.usecase.orderline
 
 import android.util.Log
 import com.reguerta.domain.model.CommonProduct
-import com.reguerta.domain.model.received.OrderLineReceived
+import com.reguerta.domain.model.OrderLineReceived
 import javax.inject.Inject
 
 class MapOrderLinesWithProductsUseCase @Inject constructor() {

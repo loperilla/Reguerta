@@ -4,7 +4,7 @@ import com.reguerta.domain.model.Container
 import com.reguerta.domain.model.Measure
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.interfaces.Product
-import com.reguerta.domain.model.received.OrderLineReceived
+import com.reguerta.domain.model.OrderLineReceived
 import java.time.DayOfWeek
 
 /*****

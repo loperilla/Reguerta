@@ -1,4 +1,4 @@
-package com.reguerta.domain.model.received
+package com.reguerta.domain.model
 
 import android.annotation.SuppressLint
 import com.reguerta.domain.enums.ContainerType

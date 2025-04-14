@@ -3,7 +3,7 @@ package com.reguerta.presentation
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
-import com.reguerta.domain.model.received.OrderLineReceived
+import com.reguerta.domain.model.OrderLineReceived
 
 /*****
  * Project: Reguerta
