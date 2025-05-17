@@ -9,8 +9,8 @@ import kotlinx.coroutines.flow.Flow
  * All rights reserved 2024
  */
 
-interface MeasureService {
+interface MeasuresService {
     suspend fun getMeasures(): Flow<Result<List<MeasureModel>>>
-
     suspend fun getMeasureByName(name: String): Result<MeasureModel>
+    suspend fun getAllMeasures(): Result<List<MeasureModel>>
 }

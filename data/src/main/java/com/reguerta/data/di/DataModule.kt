@@ -22,14 +22,14 @@ import com.reguerta.data.firebase.firestore.PRODUCTS_COLLECTION
 import com.reguerta.data.firebase.firestore.PRODUCT_IMAGE_STORAGE_PATH
 import com.reguerta.data.firebase.firestore.USERS
 import com.reguerta.data.firebase.firestore.USERS_COLLECTION
-import com.reguerta.data.firebase.firestore.container.ContainerService
-import com.reguerta.data.firebase.firestore.container.ContainerServiceImpl
-import com.reguerta.data.firebase.firestore.measures.MeasureService
-import com.reguerta.data.firebase.firestore.measures.MeasureServiceImpl
-import com.reguerta.data.firebase.firestore.order.OrderServiceImpl
-import com.reguerta.data.firebase.firestore.order.OrderServices
-import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
-import com.reguerta.data.firebase.firestore.orderlines.OrderLineServiceImpl
+import com.reguerta.data.firebase.firestore.containers.ContainersService
+import com.reguerta.data.firebase.firestore.containers.ContainersServiceImpl
+import com.reguerta.data.firebase.firestore.measures.MeasuresService
+import com.reguerta.data.firebase.firestore.measures.MeasuresServiceImpl
+import com.reguerta.data.firebase.firestore.orders.OrdersServiceImpl
+import com.reguerta.data.firebase.firestore.orders.OrdersService
+import com.reguerta.data.firebase.firestore.orderlines.OrderLinesService
+import com.reguerta.data.firebase.firestore.orderlines.OrderLinesServiceImpl
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.firestore.products.ProductsServiceImpl
 import com.reguerta.data.firebase.firestore.users.UserCollectionImpl
@@ -119,7 +119,7 @@ object DataModule {
     @Provides
     fun provideContainerCollectionService(
         @Named(CONTAINERS_COLLECTION) collection: CollectionReference
-    ): ContainerService = ContainerServiceImpl(collection)
+    ): ContainersService = ContainersServiceImpl(collection)
 
     @Named(ORDERS_COLLECTION)
     @Singleton
@@ -133,7 +133,7 @@ object DataModule {
         @Named(ORDERS_COLLECTION) collection: CollectionReference,
         dataStore: ReguertaDataStore,
         weekTime: WeekTime
-    ): OrderServices = OrderServiceImpl(collection, dataStore, weekTime)
+    ): OrdersService = OrdersServiceImpl(collection, dataStore, weekTime)
 
     @Named(ORDERS_LINES_COLLECTION)
     @Singleton
@@ -148,7 +148,7 @@ object DataModule {
         orderLineDao: OrderLineDao,
         dataStore: ReguertaDataStore,
         weekTime: WeekTime
-    ): OrderLineService = OrderLineServiceImpl(collection, orderLineDao, weekTime, dataStore)
+    ): OrderLinesService = OrderLinesServiceImpl(collection, orderLineDao, weekTime, dataStore)
 
     @Named(MEASURES_COLLECTION)
     @Singleton
@@ -161,5 +161,5 @@ object DataModule {
     fun provideMeasuresCollectionService(
         @Named(MEASURES_COLLECTION) collection: CollectionReference,
         measureDao: MeasureDao
-    ): MeasureService = MeasureServiceImpl(collection, measureDao)
+    ): MeasuresService = MeasuresServiceImpl(collection, measureDao)
 }

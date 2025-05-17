@@ -1,6 +1,6 @@
-package com.reguerta.domain.usecase.orderline
+package com.reguerta.domain.usecase.orderlines
 
-import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
+import com.reguerta.data.firebase.firestore.orderlines.OrderLinesService
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.toOrderLine
 import kotlinx.coroutines.flow.Flow
@@ -15,10 +15,10 @@ import javax.inject.Inject
  */
 
 class GetOrderLinesUseCase @Inject constructor(
-    private val orderLineService: OrderLineService
+    private val orderLinesService: OrderLinesService
 ) {
     suspend operator fun invoke(orderId: String): Flow<List<OrderLineProduct>> =
-        orderLineService.getOrderLines(orderId).map {
+        orderLinesService.getOrderLines(orderId).map {
             it.map { orderLineDTO -> orderLineDTO.toOrderLine() }
         }
 }

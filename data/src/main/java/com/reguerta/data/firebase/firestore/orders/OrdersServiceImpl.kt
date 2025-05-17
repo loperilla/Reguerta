@@ -1,4 +1,4 @@
-package com.reguerta.data.firebase.firestore.order
+package com.reguerta.data.firebase.firestore.orders
 
 import com.google.firebase.firestore.CollectionReference
 import com.reguerta.data.firebase.firestore.USER_ID
@@ -13,6 +13,7 @@ import com.reguerta.localdata.time.WeekTime
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
+import android.util.Log
 import javax.inject.Inject
 
 /*****
@@ -22,11 +23,11 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 
-class OrderServiceImpl @Inject constructor(
+class OrdersServiceImpl @Inject constructor(
     private val collection: CollectionReference,
     private val dataStore: ReguertaDataStore,
     private val weekTime: WeekTime
-) : OrderServices {
+) : OrdersService {
     override suspend fun getOrderByUserId(): DataResult<OrderModel, DataError.Firebase> {
         return try {
             val uid = withContext(Dispatchers.IO) { dataStore.getStringByKey(UID_KEY) }
@@ -37,7 +38,7 @@ class OrderServiceImpl @Inject constructor(
                 .await()
             val document = snapshot.documents.firstOrNull() ?: return insertDefaultModel()
             val orderModel = document.toObject(OrderModel::class.java)!!
-            orderModel.orderId = document.id
+            orderModel.id = document.id
             DataResult.Success(orderModel)
         } catch (ex: Exception) {
             DataResult.Error(DataError.Firebase.UNKNOWN)
@@ -54,7 +55,7 @@ class OrderServiceImpl @Inject constructor(
                 .await()
             val document = snapshot.documents.firstOrNull() ?: return insertDefaultModel()
             val orderModel = document.toObject(OrderModel::class.java)!!
-            orderModel.orderId = document.id
+            orderModel.id = document.id
             DataResult.Success(orderModel)
         } catch (ex: Exception) {
             DataResult.Error(DataError.Firebase.UNKNOWN)
@@ -73,7 +74,7 @@ class OrderServiceImpl @Inject constructor(
             }
             val document = snapshot.documents.first()
             val orderModel = document.toObject(OrderModel::class.java)!!
-            orderModel.orderId = document.id
+            orderModel.id = document.id
             DataResult.Success(orderModel)
         } catch (ex: Exception) {
             DataResult.Error(DataError.Firebase.UNKNOWN)
@@ -92,7 +93,7 @@ class OrderServiceImpl @Inject constructor(
             }
             val document = snapshot.documents.first()
             val orderModel = document.toObject(OrderModel::class.java)!!
-            orderModel.orderId = document.id
+            orderModel.id = document.id
             DataResult.Success(orderModel)
         } catch (ex: Exception) {
             DataResult.Error(DataError.Firebase.UNKNOWN)
@@ -117,7 +118,7 @@ class OrderServiceImpl @Inject constructor(
             val documentReference = collection
                 .add(orderModelDefault.toMapWithoutId())
                 .await()
-            orderModelDefault.orderId = documentReference.id
+            orderModelDefault.id = documentReference.id
             DataResult.Success(orderModelDefault)
         } catch (ex: Exception) {
             DataResult.Error(DataError.Firebase.UNKNOWN)
@@ -133,6 +134,28 @@ class OrderServiceImpl @Inject constructor(
             DataResult.Success(Unit)
         } catch (ex: Exception) {
             DataResult.Error(DataError.Firebase.UNKNOWN)
+        }
+    }
+
+    override suspend fun getAllOrders(): Result<List<OrderModel>> {
+        return try {
+            val currentWeek = weekTime.getCurrentWeek()
+            val lastWeek = weekTime.getLastWeek()
+
+            val snapshot = collection
+                .whereIn(WEEK, listOf(currentWeek, lastWeek))
+                .get()
+                .await()
+
+            val orders = snapshot.documents.mapNotNull { doc ->
+                doc.toObject(OrderModel::class.java)?.apply { id = doc.id }
+            }
+
+            Log.d("ORDERS_SERVICE", "Pedidos recibidos: ${orders.size}")
+            Result.success(orders)
+        } catch (e: Exception) {
+            Log.e("ORDERS_SERVICE", "Error al obtener pedidos", e)
+            Result.failure(e)
         }
     }
 }

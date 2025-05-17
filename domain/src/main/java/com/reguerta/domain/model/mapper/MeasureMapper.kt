@@ -1,6 +1,6 @@
 package com.reguerta.domain.model.mapper
 
-import com.reguerta.data.firebase.firestore.measures.MeasureService
+import com.reguerta.data.firebase.firestore.measures.MeasuresService
 import com.reguerta.domain.model.Measure
 import com.reguerta.domain.model.toDomain
 import javax.inject.Inject
@@ -13,9 +13,9 @@ import javax.inject.Inject
  */
 
 class MeasureMapper @Inject constructor(
-    private val measureService: MeasureService
+    private val measuresService: MeasuresService
 ) {
     suspend fun getSingleMeasure(name: String): Result<Measure> {
-        return measureService.getMeasureByName(name).map { it.toDomain() }
+        return measuresService.getMeasureByName(name).map { it.toDomain() }
     }
 }

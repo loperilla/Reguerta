@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
  * All rights reserved 2024
  */
 
-interface OrderLineService {
+interface OrderLinesService {
     suspend fun getOrderLines(orderId: String): Flow<List<OrderLineDTO>>
     suspend fun addOrderLineInDatabase(orderId: String, productId: String, productCompany: String)
     suspend fun updateQuantity(orderId: String, productId: String, quantity: Int)
@@ -19,4 +19,5 @@ interface OrderLineService {
     suspend fun getOrdersByCompanyAndWeek(): Flow<Result<List<OrderLineModel>>>
     suspend fun getOrdersByOrderId(orderId: String): Flow<Result<List<OrderLineModel>>>
     suspend fun checkIfExistOrderInFirebase(orderId: String): Result<Boolean>
+    suspend fun getAllOrderLinesByOrderId(orderId: String): Result<List<OrderLineModel>>
 }

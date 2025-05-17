@@ -1,7 +1,7 @@
 package com.reguerta.domain.model
 
-import com.reguerta.data.firebase.firestore.order.OrderServices
-import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
+import com.reguerta.data.firebase.firestore.orders.OrdersService
+import com.reguerta.data.firebase.firestore.orderlines.OrderLinesService
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.model.DataResult
 import com.reguerta.domain.model.mapper.toDomain
@@ -21,8 +21,8 @@ import javax.inject.Inject
 
 class NewOrderModel @Inject constructor(
     private val productService: ProductsService,
-    private val orderService: OrderServices,
-    private val orderLineService: OrderLineService
+    private val orderService: OrdersService,
+    private val orderLinesService: OrderLinesService
 ) {
     private lateinit var order: Order
 
@@ -47,26 +47,26 @@ class NewOrderModel @Inject constructor(
     }
 
     private suspend fun checkIfHasFirebaseOrderLines(orderId: String): Result<Boolean> =
-        orderLineService.checkIfExistOrderInFirebase(orderId)
+        orderLinesService.checkIfExistOrderInFirebase(orderId)
 
-    suspend fun getOrderLines(): Flow<List<OrderLineProduct>> = orderLineService.getOrderLines(order.id).map {
+    suspend fun getOrderLines(): Flow<List<OrderLineProduct>> = orderLinesService.getOrderLines(order.id).map {
         it.map { orderLineDTO -> orderLineDTO.toOrderLine() }
     }
 
-    suspend fun deleteOrderLineLocal(productId: String) = orderLineService.deleteOrderLine(order.id, productId)
+    suspend fun deleteOrderLineLocal(productId: String) = orderLinesService.deleteOrderLine(order.id, productId)
 
     suspend fun updateProductStock(productId: String, newQuantity: Int) =
-        orderLineService.updateQuantity(order.id, productId, newQuantity)
+        orderLinesService.updateQuantity(order.id, productId, newQuantity)
 
     suspend fun addLocalOrderLine(productId: String, productCompany: String) {
-        orderLineService.addOrderLineInDatabase(order.id, productId, productCompany)
+        orderLinesService.addOrderLineInDatabase(order.id, productId, productCompany)
     }
 
     suspend fun pushOrderLinesToFirebase(listToPush: List<ProductWithOrderLine>): Result<Unit> {
         val dtoList = listToPush.map {
             it.toOrderLineDto()
         }
-        return orderLineService.addOrderLineInFirebase(dtoList).fold(
+        return orderLinesService.addOrderLineInFirebase(dtoList).fold(
             onSuccess = {
                 Result.success(Unit)
             },
@@ -77,7 +77,7 @@ class NewOrderModel @Inject constructor(
     }
 
     suspend fun getOrderLinesFromCurrentWeek(): Flow<List<OrderLineReceived>> =
-        orderLineService.getOrdersByOrderId(order.id).map {
+        orderLinesService.getOrdersByOrderId(order.id).map {
             it.fold(
                 onSuccess = { orderLines ->
                     val listReturn = mutableListOf<OrderLineReceived>()
@@ -94,7 +94,7 @@ class NewOrderModel @Inject constructor(
         }
 
     suspend fun deleteOrder() {
-        orderLineService.deleteFirebaseOrderLine(order.id)
+        orderLinesService.deleteFirebaseOrderLine(order.id)
         orderService.deleteOrder(order.id)
     }
 }

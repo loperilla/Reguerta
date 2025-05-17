@@ -21,6 +21,9 @@ import com.reguerta.presentation.ui.TEXT_SMALL
 import com.reguerta.presentation.ui.TEXT_SPECIAL_BTN
 import com.reguerta.presentation.ui.TEXT_TOP
 import timber.log.Timber
+import com.google.firebase.Timestamp
+import com.reguerta.domain.enums.CriticalTable
+import java.time.DayOfWeek
 
 @Composable
 fun Int.resize(): TextUnit {
@@ -56,8 +59,6 @@ fun ResizedTextSizes() {
     val dlgBody = getResizedTextSize(TEXT_DLG_BODY)
     val dlgTitle = getResizedTextSize(TEXT_DLG_TITLE)
 }
-
-
 
 fun checkAllStringAreNotEmpty(vararg inputValues: String) = inputValues.all { it.isNotEmpty() }
 
@@ -98,3 +99,49 @@ fun getQuantitySum(line: OrderLineReceived, containers: List<Container>, measure
     }
 }
 
+fun isVersionGreater(version1: String, version2: String): Boolean {
+    val parts1 = version1.split(".").map { it.toIntOrNull() ?: 0 }
+    val parts2 = version2.split(".").map { it.toIntOrNull() ?: 0 }
+
+    val maxLength = maxOf(parts1.size, parts2.size)
+    val padded1 = parts1 + List(maxLength - parts1.size) { 0 }
+    val padded2 = parts2 + List(maxLength - parts2.size) { 0 }
+
+    for (i in 0 until maxLength) {
+        if (padded1[i] > padded2[i]) return true
+        if (padded1[i] < padded2[i]) return false
+    }
+
+    return false
+}
+
+fun getTablesToSync(
+    remoteTimestamps: Map<String, Timestamp>,
+    localTimestamps: Map<String, Timestamp>
+): List<String> {
+    return remoteTimestamps.filter { (key, remoteValue) ->
+        val localValue = localTimestamps[key]
+        localValue == null || remoteValue.toDate().after(localValue.toDate())
+    }.map { it.key }.also {
+    Timber.tag("SyncCheck").d("Tables to sync: $it")
+    }
+}
+
+fun getActiveCriticalTables(
+    isAdmin: Boolean,
+    isProducer: Boolean,
+    currentDay: DayOfWeek
+): List<CriticalTable> {
+    val result = mutableListOf(CriticalTable.PRODUCTS, CriticalTable.CONTAINERS, CriticalTable.MEASURES)
+
+    if (isAdmin) result += CriticalTable.USERS
+
+    if (isProducer && currentDay in listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY)) {
+        result += CriticalTable.ORDERS
+    }
+    Timber.tag("SYNC_CriticalTables").d(
+        "isAdmin=%s, isProducer=%s, currentDay=%s → CriticalTables=%s",
+        isAdmin, isProducer, currentDay, result
+    )
+    return result
+}

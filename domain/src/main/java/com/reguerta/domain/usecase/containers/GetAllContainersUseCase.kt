@@ -1,6 +1,6 @@
-package com.reguerta.domain.usecase.container
+package com.reguerta.domain.usecase.containers
 
-import com.reguerta.data.firebase.firestore.container.ContainerService
+import com.reguerta.data.firebase.firestore.containers.ContainersService
 import com.reguerta.domain.model.Container
 import com.reguerta.domain.model.toDomain
 import kotlinx.coroutines.flow.Flow
@@ -14,11 +14,11 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 
-class GetAllContainerUseCase @Inject constructor(
-    private val containerService: ContainerService
+class GetAllContainersUseCase @Inject constructor(
+    private val containersService: ContainersService
 ) {
     suspend operator fun invoke(): Flow<List<Container>> {
-        return containerService.getContainers().map {
+        return containersService.getContainers().map {
             it.fold(
                 onSuccess = { containerModelList ->
                     containerModelList.map { containerModel ->

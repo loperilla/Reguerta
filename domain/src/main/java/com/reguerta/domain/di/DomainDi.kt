@@ -1,12 +1,13 @@
 package com.reguerta.domain.di
 
 import com.reguerta.data.firebase.auth.AuthService
-import com.reguerta.data.firebase.firestore.container.ContainerService
-import com.reguerta.data.firebase.firestore.measures.MeasureService
-import com.reguerta.data.firebase.firestore.order.OrderServices
-import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
+import com.reguerta.data.firebase.firestore.containers.ContainersService
+import com.reguerta.data.firebase.firestore.measures.MeasuresService
+import com.reguerta.data.firebase.firestore.orders.OrdersService
+import com.reguerta.data.firebase.firestore.orderlines.OrderLinesService
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.firestore.users.UsersCollectionService
+import com.reguerta.domain.repository.ConfigRepositoryImpl
 import com.reguerta.domain.model.mapper.MeasureMapper
 import com.reguerta.domain.model.NewOrderModel
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
@@ -14,14 +15,16 @@ import com.reguerta.domain.usecase.auth.LoginUseCase
 import com.reguerta.domain.usecase.auth.RefreshUserUseCase
 import com.reguerta.domain.usecase.auth.RegisterUseCase
 import com.reguerta.domain.usecase.auth.SendRecoveryPasswordEmailUseCase
-import com.reguerta.domain.usecase.container.GetAllContainerUseCase
+import com.reguerta.domain.usecase.config.GetConfigUseCase
+import com.reguerta.domain.usecase.config.UpdateTableTimestampsUseCase
+import com.reguerta.domain.usecase.containers.GetAllContainersUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
-import com.reguerta.domain.usecase.orderline.AddOrderLineUseCase
-import com.reguerta.domain.usecase.orderline.DeleteOrderLineUseCase
-import com.reguerta.domain.usecase.orderline.GetOrderLinesUseCase
-import com.reguerta.domain.usecase.orderline.OrderReceivedModel
-import com.reguerta.domain.usecase.orderline.PushOrderLineToFirebaseUseCase
-import com.reguerta.domain.usecase.orderline.UpdateQuantityOrderLineUseCase
+import com.reguerta.domain.usecase.orderlines.AddOrderLineUseCase
+import com.reguerta.domain.usecase.orderlines.DeleteOrderLineUseCase
+import com.reguerta.domain.usecase.orderlines.GetOrderLinesUseCase
+import com.reguerta.domain.usecase.orderlines.OrderReceivedModel
+import com.reguerta.domain.usecase.orderlines.PushOrderLineToFirebaseUseCase
+import com.reguerta.domain.usecase.orderlines.UpdateQuantityOrderLineUseCase
 import com.reguerta.domain.usecase.products.AddProductUseCase
 import com.reguerta.domain.usecase.products.DeleteProductUseCase
 import com.reguerta.domain.usecase.products.EditProductUseCase
@@ -42,6 +45,8 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
+import com.reguerta.domain.usecase.products.SyncProductsUseCase
+import com.reguerta.localdata.datastore.ReguertaDataStore
 
 /*****
  * Project: Reguerta
@@ -107,8 +112,8 @@ object DomainDi {
         usersService: UsersCollectionService,
         weekTime: WeekTime,
         authService: AuthService,
-        measureService: MeasureService
-    ) = GetAvailableProductsUseCase(productsService, usersService, weekTime, authService, measureService)
+        measuresService: MeasuresService
+    ) = GetAvailableProductsUseCase(productsService, usersService, weekTime, authService, measuresService)
 
     @Provides
     fun providesDeleteProductUseCase(productsService: ProductsService) = DeleteProductUseCase(productsService)
@@ -123,43 +128,60 @@ object DomainDi {
     fun providesEditProductByIdUseCase(productsService: ProductsService) = EditProductUseCase(productsService)
 
     @Provides
-    fun providesAllMeasuresUseCase(measureService: MeasureService) = GetAllMeasuresUseCase(measureService)
+    fun providesAllMeasuresUseCase(measuresService: MeasuresService) = GetAllMeasuresUseCase(measuresService)
 
     @Provides
-    fun providesAllContainerUseCase(containerService: ContainerService) = GetAllContainerUseCase(containerService)
+    fun providesAllContainersUseCase(containersService: ContainersService) = GetAllContainersUseCase(containersService)
 
     @Provides
-    fun providesGetOrderLinesUseCase(orderLineService: OrderLineService) = GetOrderLinesUseCase(orderLineService)
+    fun providesGetOrderLinesUseCase(orderLinesService: OrderLinesService) = GetOrderLinesUseCase(orderLinesService)
 
     @Provides
-    fun providesAddOrderLinesUseCase(orderLineService: OrderLineService) = AddOrderLineUseCase(orderLineService)
+    fun providesAddOrderLinesUseCase(orderLinesService: OrderLinesService) = AddOrderLineUseCase(orderLinesService)
 
     @Provides
-    fun providesUpdateQuantityOrderLinesUseCase(orderLineService: OrderLineService) =
-        UpdateQuantityOrderLineUseCase(orderLineService)
+    fun providesUpdateQuantityOrderLinesUseCase(orderLinesService: OrderLinesService) =
+        UpdateQuantityOrderLineUseCase(orderLinesService)
 
     @Provides
-    fun providesDeleteOrderLinesUseCase(orderLineService: OrderLineService) =
-        DeleteOrderLineUseCase(orderLineService)
+    fun providesDeleteOrderLinesUseCase(orderLinesService: OrderLinesService) =
+        DeleteOrderLineUseCase(orderLinesService)
 
     @Provides
-    fun providesPushOrderLinesToFirebaseUseCase(orderLineService: OrderLineService) =
-        PushOrderLineToFirebaseUseCase(orderLineService)
+    fun providesPushOrderLinesToFirebaseUseCase(orderLinesService: OrderLinesService) =
+        PushOrderLineToFirebaseUseCase(orderLinesService)
 
     @Provides
-    fun providesMeasureMapper(measureService: MeasureService) = MeasureMapper(measureService)
+    fun providesMeasureMapper(measuresService: MeasuresService) = MeasureMapper(measuresService)
 
     @Provides
     fun providesOrderLineReceivedModel(
-        orderLineService: OrderLineService,
+        orderLinesService: OrderLinesService,
         productsService: ProductsService,
-        orderServices: OrderServices
-    ) = OrderReceivedModel(orderLineService, productsService, orderServices)
+        ordersService: OrdersService
+    ) = OrderReceivedModel(orderLinesService, productsService, ordersService)
 
     @Provides
     fun provideNewOrderModel(
         productsService: ProductsService,
-        orderServices: OrderServices,
-        orderLinesServices: OrderLineService
-    ) = NewOrderModel(productsService, orderServices, orderLinesServices)
+        ordersService: OrdersService,
+        orderLinesServices: OrderLinesService
+    ) = NewOrderModel(productsService, ordersService, orderLinesServices)
+
+
+    @Provides
+    fun provideGetConfigUseCase(configRepositoryImpl: ConfigRepositoryImpl): GetConfigUseCase {
+        return GetConfigUseCase(configRepositoryImpl)
+    }
+
+    @Provides
+    fun provideSyncProductsUseCase(
+        productsService: ProductsService,
+        dataStore: ReguertaDataStore
+    ): SyncProductsUseCase = SyncProductsUseCase(productsService, dataStore)
+
+    @Provides
+    fun provideUpdateTableTimestampsUseCase(configRepositoryImpl: ConfigRepositoryImpl): UpdateTableTimestampsUseCase {
+        return UpdateTableTimestampsUseCase(configRepositoryImpl)
+    }
 }

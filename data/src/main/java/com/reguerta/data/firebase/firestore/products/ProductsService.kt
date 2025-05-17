@@ -17,4 +17,5 @@ interface ProductsService {
     suspend fun getProductById(id: String): Result<ProductModel>
     suspend fun editProduct(id: String, product: ProductDTOModel, byteArray: ByteArray?): Result<Unit>
     suspend fun updateStockProduct(id: String, newStock: Int): Result<Unit>
+    suspend fun getAllProducts(): Result<List<ProductModel>>
 }

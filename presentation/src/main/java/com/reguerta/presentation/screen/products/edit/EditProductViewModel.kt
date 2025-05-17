@@ -3,10 +3,11 @@ package com.reguerta.presentation.screen.products.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.model.CommonProduct
-import com.reguerta.domain.usecase.container.GetFilteredContainersUseCase
+import com.reguerta.domain.usecase.containers.GetFilteredContainersUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.products.EditProductUseCase
 import com.reguerta.domain.usecase.products.GetProductByIdUseCase
+import com.reguerta.domain.usecase.config.UpdateTableTimestampsUseCase
 import com.reguerta.presentation.checkAllStringAreNotEmpty
 import com.reguerta.presentation.getContainerPluralForm
 import com.reguerta.presentation.getContainerSingularForm
@@ -37,7 +38,8 @@ class EditProductViewModel @AssistedInject constructor(
     getAllMeasuresUseCase: GetAllMeasuresUseCase,
     getFilteredContainersUseCase: GetFilteredContainersUseCase,
     getProductByIdUseCase: GetProductByIdUseCase,
-    private val editProductUseCase: EditProductUseCase
+    private val editProductUseCase: EditProductUseCase,
+    private val updateTableTimestampsUseCase: UpdateTableTimestampsUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<EditProductState> = MutableStateFlow(EditProductState())
     val state: StateFlow<EditProductState> = _state
@@ -126,6 +128,7 @@ class EditProductViewModel @AssistedInject constructor(
                                 imageByteArray
                             ).fold(
                                 onSuccess = {
+                                    updateTableTimestampsUseCase("products")
                                     _state.update {
                                         it.copy(
                                             goOut = true

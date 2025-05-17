@@ -2,6 +2,7 @@ package com.reguerta.presentation.screen.users.edit
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.reguerta.domain.usecase.config.UpdateTableTimestampsUseCase
 import com.reguerta.domain.usecase.users.EditUserUseCase
 import com.reguerta.domain.usecase.users.GetUserByIdUseCase
 import com.reguerta.presentation.checkAllStringAreNotEmpty
@@ -27,7 +28,8 @@ import timber.log.Timber
 class EditUserViewModel @AssistedInject constructor(
     @Assisted private val userId: String,
     private val getUserUseCase: GetUserByIdUseCase,
-    private val editUserUseCase: EditUserUseCase
+    private val editUserUseCase: EditUserUseCase,
+    private val updateTableTimestampsUseCase: UpdateTableTimestampsUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<EditUserState> = MutableStateFlow(EditUserState())
     val state: StateFlow<EditUserState> = _state.asStateFlow()
@@ -85,6 +87,7 @@ class EditUserViewModel @AssistedInject constructor(
                             tropical1 = tropical1,
                             tropical2 = tropical2
                         ).fold(onSuccess = {
+                            updateTableTimestampsUseCase("users")
                             _state.update {
                                 it.copy(goOut = true)
                             }

@@ -1,7 +1,7 @@
-package com.reguerta.domain.usecase.orderline
+package com.reguerta.domain.usecase.orderlines
 
-import com.reguerta.data.firebase.firestore.order.OrderServices
-import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
+import com.reguerta.data.firebase.firestore.orders.OrdersService
+import com.reguerta.data.firebase.firestore.orderlines.OrderLinesService
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.model.DataResult
 import com.reguerta.domain.model.mapper.toDomain
@@ -20,12 +20,12 @@ import javax.inject.Inject
  */
 
 class OrderReceivedModel @Inject constructor(
-    private val orderLineService: OrderLineService,
+    private val orderLinesService: OrderLinesService,
     private val productService: ProductsService,
-    private val orderService: OrderServices
+    private val orderService: OrdersService
 ) {
     suspend operator fun invoke(): Flow<List<OrderLineReceived>> =
-        orderLineService.getOrdersByCompanyAndWeek().map {
+        orderLinesService.getOrdersByCompanyAndWeek().map {
             it.fold(
                 onSuccess = { orderLines ->
                     val listReturn = mutableListOf<OrderLineReceived>()

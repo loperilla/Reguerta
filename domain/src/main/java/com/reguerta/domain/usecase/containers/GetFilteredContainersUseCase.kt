@@ -1,7 +1,7 @@
-package com.reguerta.domain.usecase.container
+package com.reguerta.domain.usecase.containers
 
 import com.reguerta.data.firebase.auth.AuthService
-import com.reguerta.data.firebase.firestore.container.ContainerService
+import com.reguerta.data.firebase.firestore.containers.ContainersService
 import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.enums.TypeProducerUser
 import com.reguerta.domain.model.Container
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class GetFilteredContainersUseCase @Inject constructor(
-    private val containerService: ContainerService,
+    private val containersService: ContainersService,
     private val authService: AuthService
 ) {
     suspend operator fun invoke(): Flow<List<Container>> {
@@ -21,7 +21,7 @@ class GetFilteredContainersUseCase @Inject constructor(
         val isTropicalProducer = currentUser.companyName == "Los Tropicales"
         val producerType = currentUser.typeProducer?.toTypeProd() ?: TypeProducerUser.REGULAR
 
-        return containerService.getContainers().map { result ->
+        return containersService.getContainers().map { result ->
             result.fold(
                 onSuccess = { containerModelList ->
                     val containers = containerModelList.map { containerModel ->
