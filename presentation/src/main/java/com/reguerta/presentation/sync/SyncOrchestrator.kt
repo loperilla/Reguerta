@@ -31,9 +31,9 @@ object SyncOrchestrator {
         criticalTables: List<String>
     ): List<String> {
         return criticalTables.filter { tableKey ->
-            val remote = remoteTimestamps[tableKey]?.seconds ?: return@filter false
-            val local = localTimestamps[tableKey] ?: return@filter true
-            remote > local
+            val remoteMillis = remoteTimestamps[tableKey]?.toDate()?.time ?: return@filter false
+            val localMillis = localTimestamps[tableKey] ?: return@filter true
+            remoteMillis > localMillis
         }
     }
 }

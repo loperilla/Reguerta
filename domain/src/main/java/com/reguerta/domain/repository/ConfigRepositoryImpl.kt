@@ -1,6 +1,7 @@
 package com.reguerta.domain.repository
 
 import com.google.firebase.Timestamp
+import com.google.firebase.firestore.FieldValue
 import com.reguerta.data.firebase.firestore.FirestoreManager
 import javax.inject.Inject
 import kotlin.coroutines.resume
@@ -58,7 +59,7 @@ class ConfigRepositoryImpl @Inject constructor() : ConfigRepository {
     override suspend fun updateTableTimestamp(table: String) = suspendCoroutine<Unit> { cont ->
         FirestoreManager.getCollection("config")
             .document("global")
-            .update("lastTimestamps.$table", System.currentTimeMillis())
+            .update("lastTimestamps.$table", FieldValue.serverTimestamp())
             .addOnSuccessListener { cont.resume(Unit) }
             .addOnFailureListener { cont.resumeWithException(it) }
     }
