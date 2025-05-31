@@ -8,12 +8,13 @@ import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.NewOrderModel
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
-import com.reguerta.domain.usecase.container.GetAllContainerUseCase
+import com.reguerta.domain.usecase.containers.GetAllContainersUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
-import com.reguerta.domain.usecase.orderline.MapOrderLinesWithProductsUseCase
+import com.reguerta.domain.usecase.orderlines.MapOrderLinesWithProductsUseCase
 import com.reguerta.domain.usecase.products.CheckCommitmentsUseCase
 import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
 import com.reguerta.domain.usecase.products.UpdateProductStockUseCase
+import com.reguerta.domain.usecase.config.UpdateTableTimestampsUseCase
 import com.reguerta.domain.usecase.week.GetCurrentWeekDayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -43,12 +44,13 @@ class NewOrderViewModel @Inject constructor(
     private val getAvailableProductsUseCase: GetAvailableProductsUseCase,
     private val getCurrentWeek: GetCurrentWeekDayUseCase,
     private val getAllMeasuresUseCase: GetAllMeasuresUseCase,
-    private val getAllContainerUseCase: GetAllContainerUseCase,
+    private val getAllContainersUseCase: GetAllContainersUseCase,
     private val orderModel: NewOrderModel,
     private val updateProductStockUseCase: UpdateProductStockUseCase,
     private val checkCommitmentsUseCase: CheckCommitmentsUseCase,
     private val mapOrderLinesWithProductsUseCase: MapOrderLinesWithProductsUseCase,
-    private val checkCurrentUserLoggedUseCase: CheckCurrentUserLoggedUseCase
+    private val checkCurrentUserLoggedUseCase: CheckCurrentUserLoggedUseCase,
+    private val updateTableTimestampsUseCase: UpdateTableTimestampsUseCase,
 ) : ViewModel() {
     private var _state: MutableStateFlow<NewOrderState> = MutableStateFlow(NewOrderState())
     val state: StateFlow<NewOrderState> = _state.asStateFlow()
@@ -88,7 +90,7 @@ class NewOrderViewModel @Inject constructor(
                     }
                 },
                 async  {
-                    getAllContainerUseCase().collect { containerList ->
+                    getAllContainersUseCase().collect { containerList ->
                         _state.update {
                             it.copy(containers = containerList)
                         }
@@ -303,6 +305,7 @@ class NewOrderViewModel @Inject constructor(
                     if (checkResult.isSuccess) {
                         orderModel.pushOrderLinesToFirebase(updatedProductsOrderLineList).fold(
                             onSuccess = {
+                                updateTableTimestampsUseCase("orders")
                                 _state.update { it.copy(showPopup = PopupType.ORDER_ADDED) }
                             },
                             onFailure = { throwable ->
@@ -331,6 +334,7 @@ class NewOrderViewModel @Inject constructor(
                         }
                     }
                     orderModel.deleteOrder()
+                    updateTableTimestampsUseCase("orders")
                     _state.update { it.copy(goOut = true) }
                 }
 

@@ -1,6 +1,6 @@
 package com.reguerta.domain.model
 
-import com.reguerta.data.firebase.firestore.container.ContainerModel
+import com.reguerta.data.firebase.firestore.containers.ContainerModel
 
 /*****
  * Project: Reguerta

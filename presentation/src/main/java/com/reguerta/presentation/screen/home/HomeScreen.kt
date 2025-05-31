@@ -1,5 +1,11 @@
 package com.reguerta.presentation.screen.home
 
+import com.reguerta.presentation.composables.LoadingAnimation
+
+import com.reguerta.presentation.screen.config.ConfigViewModel
+import android.content.Context
+import android.content.Intent
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -35,14 +41,15 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import kotlinx.coroutines.flow.first
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.presentation.R
@@ -70,6 +77,13 @@ import com.reguerta.presentation.ui.TEXT_SIZE_SPECIAL_BTN
 import com.reguerta.presentation.ui.Text
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
+import com.reguerta.domain.repository.ConfigCheckResult
+import androidx.core.net.toUri
+import com.google.firebase.Timestamp
+import com.reguerta.domain.repository.ConfigModel
+import com.reguerta.presentation.sync.ForegroundSyncManager
+import kotlinx.coroutines.flow.collectLatest
+import timber.log.Timber
 
 /*****
  * Project: Reguerta
@@ -84,6 +98,12 @@ fun homeScreen(
 ) {
     val viewModel = hiltViewModel<HomeViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val configViewModel: ConfigViewModel = hiltViewModel()
+    LaunchedEffect(Unit) {
+        configViewModel.loadConfig()
+    }
+    val config by configViewModel.config.collectAsStateWithLifecycle()
+    val context = LocalContext.current
     if (state.goOut) {
         navigateTo(Routes.AUTH.route)
         return
@@ -91,11 +111,17 @@ fun homeScreen(
     if (state.showNotAuthorizedDialog) {
         showNotAuthorizedDialog()
     }
+    when (state.configCheckResult) {
+        ConfigCheckResult.ForceUpdate -> ForceUpdateDialog(config, context)
+        ConfigCheckResult.RecommendUpdate -> RecommendUpdateDialog(config, context, viewModel::onEvent)
+        else -> {}
+    }
     Screen {
         HomeScreen(
             state = state,
             onEvent = viewModel::onEvent,
-            navigateTo = navigateTo
+            navigateTo = navigateTo,
+            viewModel = viewModel
         )
     }
 }
@@ -104,8 +130,32 @@ fun homeScreen(
 private fun HomeScreen(
     state: HomeState,
     onEvent: (HomeEvent) -> Unit,
-    navigateTo: (String) -> Unit
-) {
+    navigateTo: (String) -> Unit,
+    viewModel: HomeViewModel
+)
+{
+    if (state.isLoading) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            LoadingAnimation()
+        }
+        return
+    }
+    val configViewModel: ConfigViewModel = hiltViewModel()
+
+    LaunchedEffect(Unit) {
+        ForegroundSyncManager.syncRequested.collectLatest {
+            val loadedConfig = requireNotNull(configViewModel.config.first { it != null })
+            viewModel.triggerSyncIfNeeded(
+                config = loadedConfig,
+                isAdmin = state.isCurrentUserAdmin,
+                isProducer = state.isCurrentUserProducer,
+                currentDay = state.currentDay
+            )
+        }
+    }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
@@ -126,8 +176,7 @@ private fun HomeScreen(
                     navIcon = Icons.Outlined.Menu
                 )
             },
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         ) {
             AnimatedVisibility(
                 visible = state.showAreYouSure
@@ -436,17 +485,135 @@ private fun prepareNavigationDrawerList(
     }
 }
 
-@Preview
 @Composable
-fun HomePreview() {
-    Screen {
-        HomeScreen(
-            state = HomeState(
-                isCurrentUserAdmin = false,
-                isCurrentUserProducer = false
-            ),
-            onEvent = {},
-            navigateTo = {}
-        )
-    }
+private fun ForceUpdateDialog(config: ConfigModel?, context: Context) {
+    ReguertaAlertDialog(
+        icon = {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(SIZE_88)
+                    .background(Orange.copy(alpha = 0.2F), shape = CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Warning,
+                    contentDescription = "Actualización requerida",
+                    tint = Orange,
+                    modifier = Modifier.size(SIZE_48)
+                )
+            }
+        },
+        onDismissRequest = { /* No permitir cerrar */ },
+        text = {
+            TextBody(
+                text = "Para seguir usando la app necesitas actualizarla a la versión mínima requerida.",
+                textSize = TEXT_SIZE_DLG_BODY,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        title = {
+            TextTitle(
+                text = "Actualización obligatoria",
+                textSize = TEXT_SIZE_DLG_TITLE,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.weight(1f))
+                ReguertaButton(
+                    textButton = "Actualizar",
+                    isSingleButton = true,
+                    onClick = {
+                        val storeUrl = config?.versions?.get("android")?.storeUrl.orEmpty()
+                        if (storeUrl.isNotEmpty()) {
+                            val intent = Intent(Intent.ACTION_VIEW, storeUrl.toUri())
+                            context.startActivity(intent)
+                        }
+                    }
+                )
+                Spacer(modifier = Modifier.weight(1f))
+            }
+        }
+    )
+}
+
+@Composable
+private fun RecommendUpdateDialog(config: ConfigModel?,
+                                  context: Context,
+                                  onEvent: (HomeEvent) -> Unit) {
+    ReguertaAlertDialog(
+        icon = {
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier
+                    .size(SIZE_88)
+                    .background(PrimaryColor.copy(alpha = 0.2F), shape = CircleShape)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Info,
+                    contentDescription = "Info",
+                    tint = PrimaryColor,
+                    modifier = Modifier.size(SIZE_48)
+                )
+            }
+        },
+        onDismissRequest = { /* Cerrable si lo deseas */ },
+        text = {
+            TextBody(
+                text = "Hay una nueva versión de la app disponible. Te recomendamos actualizar para disfrutar de las últimas mejoras.",
+                textSize = TEXT_SIZE_DLG_BODY,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        title = {
+            TextTitle(
+                text = "Actualización disponible",
+                textSize = TEXT_SIZE_DLG_TITLE,
+                textColor = Text,
+                textAlignment = TextAlign.Center
+            )
+        },
+        confirmButton = {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                InverseReguertaButton(
+                    textButton = "Cerrar",
+                    isSingleButton = false,
+                    onClick = { onEvent(HomeEvent.HideDialog) },
+                    modifier = Modifier.weight(0.48f)
+                )
+                Spacer(modifier = Modifier.width(PADDING_EXTRA_SMALL))
+                ReguertaButton(
+                    textButton = "Actualizar",
+                    isSingleButton = false,
+                    onClick = {
+                        val storeUrl = config?.versions?.get("android")?.storeUrl.orEmpty()
+                        if (storeUrl.isNotEmpty()) {
+                            val intent = Intent(Intent.ACTION_VIEW, storeUrl.toUri())
+                            context.startActivity(intent)
+                        }
+                    },
+                    modifier = Modifier.weight(0.52f)
+                )
+            }
+        }
+    )
+}
+
+fun loadLocalTimestamps(): Map<String, Timestamp> {
+    // Simulación: fechas antiguas para forzar la sincronización
+    return mapOf(
+        "users" to Timestamp(1000, 0),
+        "products" to Timestamp(1000, 0),
+        "orders" to Timestamp(1000, 0)
+    )
 }

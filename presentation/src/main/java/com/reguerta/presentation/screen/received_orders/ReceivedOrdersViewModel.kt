@@ -3,9 +3,9 @@ package com.reguerta.presentation.screen.received_orders
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.model.fullOrderName
-import com.reguerta.domain.usecase.container.GetAllContainerUseCase
+import com.reguerta.domain.usecase.containers.GetAllContainersUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
-import com.reguerta.domain.usecase.orderline.OrderReceivedModel
+import com.reguerta.domain.usecase.orderlines.OrderReceivedModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -28,7 +28,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ReceivedOrdersViewModel @Inject constructor(
     private val getAllMeasuresUseCase: GetAllMeasuresUseCase,
-    private val getAllContainerUseCase: GetAllContainerUseCase,
+    private val getAllContainersUseCase: GetAllContainersUseCase,
     private val orderReceivedModel: OrderReceivedModel
 ) : ViewModel() {
     private var _state: MutableStateFlow<ReceivedOrdersState> =
@@ -47,7 +47,7 @@ class ReceivedOrdersViewModel @Inject constructor(
                     }
                 },
                 async {
-                    getAllContainerUseCase().collect { containerList ->
+                    getAllContainersUseCase().collect { containerList ->
                         _state.update {
                             it.copy(containers = containerList)
                         }

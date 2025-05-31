@@ -11,6 +11,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import android.util.Log
+import com.google.firebase.firestore.Query
+import kotlinx.coroutines.tasks.await
 
 /*****
  * Project: Reguerta
@@ -19,10 +22,10 @@ import kotlinx.coroutines.withContext
  * All rights reserved 2024
  */
 
-class MeasureServiceImpl @Inject constructor(
+class MeasuresServiceImpl @Inject constructor(
     private val collection: CollectionReference,
     private val measureDao: MeasureDao
-) : MeasureService {
+) : MeasuresService {
     override suspend fun getMeasures(): Flow<Result<List<MeasureModel>>> = callbackFlow {
         val persistedMeasure = measureDao.getAllMeasures()
         if (persistedMeasure.isNotEmpty()) {
@@ -116,5 +119,29 @@ class MeasureServiceImpl @Inject constructor(
             plural = it.plural.orEmpty(),
             type = it.type.orEmpty()
         )
+    }
+
+    override suspend fun getAllMeasures(): Result<List<MeasureModel>> {
+        return try {
+            val snapshot = collection
+                .orderBy("name", Query.Direction.ASCENDING)
+                .get()
+                .await()
+
+            val measures = snapshot.documents.mapNotNull { doc ->
+                doc.toObject(MeasureModel::class.java)?.apply { id = doc.id }
+            }
+
+            // Opcional: persistir en base de datos local
+            if (measures.isNotEmpty()) {
+                measureDao.insertAllMeasures(measures.toEntity())
+            }
+
+            Log.d("MEASURES_SERVICE", "Medidas recibidas: ${measures.size}")
+            Result.success(measures)
+        } catch (e: Exception) {
+            Log.e("MEASURES_SERVICE", "Error al obtener las medidas", e)
+            Result.failure(e)
+        }
     }
 }

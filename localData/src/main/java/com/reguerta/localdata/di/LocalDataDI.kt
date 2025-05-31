@@ -31,7 +31,7 @@ object LocalDataDI {
 
     @Singleton
     @Provides
-    fun provideReguertaDataStore(context: Context): ReguertaDataStore = ReguertaDataStoreImpl(context)
+    fun provideReguertaDataStore(@ApplicationContext context: Context): ReguertaDataStore = ReguertaDataStoreImpl(context)
 
     @Singleton
     @Provides

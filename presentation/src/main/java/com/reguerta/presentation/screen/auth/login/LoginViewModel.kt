@@ -107,7 +107,7 @@ class LoginViewModel @Inject constructor(
 
     fun autoLoginIfDebug() {
         if (BuildConfig.DEBUG) {
-            val testDate = LocalDate.of(2025, 5, 30)
+            val testDate = LocalDate.of(2025, 5, 19)
             viewModelScope.launch {
                 val email = "ophiura@yahoo.es"
                 val password = "Reguerta161274"

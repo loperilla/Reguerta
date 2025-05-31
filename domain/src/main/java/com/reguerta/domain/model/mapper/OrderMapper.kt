@@ -1,6 +1,6 @@
 package com.reguerta.domain.model.mapper
 
-import com.reguerta.data.firebase.firestore.order.OrderModel
+import com.reguerta.data.firebase.firestore.orders.OrderModel
 import com.reguerta.data.firebase.firestore.orderlines.OrderLineModel
 import com.reguerta.domain.model.Order
 import com.reguerta.domain.model.interfaces.Product
@@ -14,7 +14,7 @@ import com.reguerta.domain.model.OrderLineReceived
  */
 
 fun OrderModel.toDto() = Order(
-    id = orderId.orEmpty(),
+    id = id.orEmpty(),
     name = name.orEmpty(),
     surname = surname.orEmpty()
 )

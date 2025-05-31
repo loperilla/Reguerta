@@ -1,4 +1,4 @@
-package com.reguerta.data.firebase.firestore.container
+package com.reguerta.data.firebase.firestore.containers
 
 import kotlinx.coroutines.flow.Flow
 
@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
  * All rights reserved 2024
  */
 
-interface ContainerService {
+interface ContainersService {
     suspend fun getContainers(): Flow<Result<List<ContainerModel>>>
+    suspend fun getAllContainers(): Result<List<ContainerModel>>
 }

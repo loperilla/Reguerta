@@ -3,7 +3,8 @@ package com.reguerta.presentation.screen.products.add
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.model.CommonProduct
-import com.reguerta.domain.usecase.container.GetFilteredContainersUseCase
+import com.reguerta.domain.usecase.config.UpdateTableTimestampsUseCase
+import com.reguerta.domain.usecase.containers.GetFilteredContainersUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
 import com.reguerta.domain.usecase.products.AddProductUseCase
 import com.reguerta.presentation.checkAllStringAreNotEmpty
@@ -34,7 +35,8 @@ import javax.inject.Inject
 class AddProductViewModel @Inject constructor(
     getAllMeasuresUseCase: GetAllMeasuresUseCase,
     getFilteredContainersUseCase: GetFilteredContainersUseCase,
-    private val addProductUseCase: AddProductUseCase
+    private val addProductUseCase: AddProductUseCase,
+    private val updateTableTimestampsUseCase: UpdateTableTimestampsUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<AddProductState> = MutableStateFlow(AddProductState())
     val state: StateFlow<AddProductState> = _state.asStateFlow()
@@ -144,6 +146,7 @@ class AddProductViewModel @Inject constructor(
                                 imageByteArray
                             ).fold(
                                 onSuccess = {
+                                    updateTableTimestampsUseCase("products")
                                     _state.update {
                                         it.copy(
                                             goOut = true

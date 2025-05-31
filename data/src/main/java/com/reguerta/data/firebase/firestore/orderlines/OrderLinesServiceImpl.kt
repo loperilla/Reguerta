@@ -18,6 +18,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.tasks.await
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import android.util.Log
 
 /*****
  * Project: Reguerta
@@ -26,12 +27,12 @@ import javax.inject.Inject
  * All rights reserved 2024
  */
 
-class OrderLineServiceImpl @Inject constructor(
+class OrderLinesServiceImpl @Inject constructor(
     private val collection: CollectionReference,
     private val dao: OrderLineDao,
     private val time: WeekTime,
     private val dataStore: ReguertaDataStore
-) : OrderLineService {
+) : OrderLinesService {
     override suspend fun getOrderLines(orderId: String): Flow<List<OrderLineDTO>> = withContext(Dispatchers.IO) {
         dao.getOrderLinesByUserAndWeek(
             dataStore.getStringByKey(UID_KEY),
@@ -167,6 +168,25 @@ class OrderLineServiceImpl @Inject constructor(
             Result.success(result.documents.isNotEmpty())
         } catch (ex: Exception) {
             Result.failure(ex)
+        }
+    }
+
+    override suspend fun getAllOrderLinesByOrderId(orderId: String): Result<List<OrderLineModel>> {
+        return try {
+            val snapshot = collection
+                .whereEqualTo(ORDER_ID, orderId)
+                .get()
+                .await()
+
+            val orderLines = snapshot.documents.mapNotNull { doc ->
+                doc.toObject(OrderLineModel::class.java)?.apply { id = doc.id }
+            }
+
+            Log.d("ORDERLINES_SERVICE", "OrderLines del pedido $orderId: ${orderLines.size}")
+            Result.success(orderLines)
+        } catch (e: Exception) {
+            Log.e("ORDERLINES_SERVICE", "Error al obtener orderLines para $orderId", e)
+            Result.failure(e)
         }
     }
 }

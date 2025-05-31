@@ -1,4 +1,4 @@
-package com.reguerta.data.firebase.firestore.order
+package com.reguerta.data.firebase.firestore.orders
 
 /*****
  * Project: Reguerta
@@ -8,7 +8,7 @@ package com.reguerta.data.firebase.firestore.order
  */
 
 data class OrderModel(
-    var orderId: String? = null,
+    var id: String = "",
     val userId: String? = null,
     val name: String? = null,
     val surname: String? = null,

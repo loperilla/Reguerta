@@ -1,6 +1,6 @@
 package com.reguerta.domain.usecase.measures
 
-import com.reguerta.data.firebase.firestore.measures.MeasureService
+import com.reguerta.data.firebase.firestore.measures.MeasuresService
 import com.reguerta.domain.model.Measure
 import com.reguerta.domain.model.toDomain
 import kotlinx.coroutines.flow.Flow
@@ -15,10 +15,10 @@ import javax.inject.Inject
  */
 
 class GetAllMeasuresUseCase @Inject constructor(
-    private val measureService: MeasureService
+    private val measuresService: MeasuresService
 ) {
     suspend operator fun invoke(): Flow<List<Measure>> {
-        return measureService.getMeasures().map {
+        return measuresService.getMeasures().map {
             it.fold(
                 onSuccess = { measureModelList ->
                     measureModelList.map { measureModel ->

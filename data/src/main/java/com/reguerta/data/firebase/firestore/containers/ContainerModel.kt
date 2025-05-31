@@ -1,8 +1,8 @@
-package com.reguerta.data.firebase.firestore.container
+package com.reguerta.data.firebase.firestore.containers
 
 /*****
  * Project: Reguerta
- * From: com.reguerta.data.firebase.firestore.container
+ * From: com.reguerta.data.firebase.firestore.containers
  * Created By Manuel Lopera on 2/3/24 at 12:48
  * All rights reserved 2024
  */

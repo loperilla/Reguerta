@@ -15,6 +15,7 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
         buildConfigField("Boolean", "IS_DEBUG", "true")
+        buildConfigField("String", "VERSION_NAME", "\"$VERSION_NAME\"")
     }
 
     buildTypes {
@@ -41,7 +42,7 @@ android {
 
 dependencies {
     implementation(project(":domain"))
-
+    implementation(project(":localData"))
     // Compose
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.activity)
@@ -50,6 +51,7 @@ dependencies {
     implementation(libs.hilt.navigation)
     implementation(libs.splashscreen)
     implementation(libs.timber)
+    implementation(libs.firebase.common.ktx)
 
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)

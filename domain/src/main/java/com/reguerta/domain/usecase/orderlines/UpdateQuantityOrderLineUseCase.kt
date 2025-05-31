@@ -1,6 +1,6 @@
-package com.reguerta.domain.usecase.orderline
+package com.reguerta.domain.usecase.orderlines
 
-import com.reguerta.data.firebase.firestore.orderlines.OrderLineService
+import com.reguerta.data.firebase.firestore.orderlines.OrderLinesService
 import javax.inject.Inject
 
 /*****
@@ -11,8 +11,8 @@ import javax.inject.Inject
  */
 
 class UpdateQuantityOrderLineUseCase @Inject constructor(
-    private val orderLineService: OrderLineService
+    private val orderLinesService: OrderLinesService
 ) {
     suspend operator fun invoke(orderId: String, productId: String, quantity: Int) =
-        orderLineService.updateQuantity(orderId, productId, quantity)
+        orderLinesService.updateQuantity(orderId, productId, quantity)
 }

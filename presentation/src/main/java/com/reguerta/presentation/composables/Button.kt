@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -60,9 +61,14 @@ fun ReguertaButton(
     isSingleButton: Boolean = true,
     btnType: BtnType = BtnType.INFO
 ) {
+    val finalModifier = if (isSingleButton) {
+        modifier.fillMaxWidth()
+    } else {
+        modifier
+    }
     Button(
         onClick = onClick,
-        modifier = modifier,
+        modifier = finalModifier,
         enabled = enabledButton,
         colors = ButtonDefaults.buttonColors(
             containerColor = getContainerColor(btnType),

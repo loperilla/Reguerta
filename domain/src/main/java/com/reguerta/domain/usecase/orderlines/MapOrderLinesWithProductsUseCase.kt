@@ -1,4 +1,4 @@
-package com.reguerta.domain.usecase.orderline
+package com.reguerta.domain.usecase.orderlines
 
 import android.util.Log
 import com.reguerta.domain.model.CommonProduct

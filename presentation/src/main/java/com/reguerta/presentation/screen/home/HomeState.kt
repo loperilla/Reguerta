@@ -1,5 +1,6 @@
 package com.reguerta.presentation.screen.home
 
+import com.reguerta.domain.repository.ConfigCheckResult
 import java.time.DayOfWeek
 
 /*****
@@ -14,5 +15,7 @@ data class HomeState(
     val showNotAuthorizedDialog: Boolean = false,
     val isCurrentUserAdmin: Boolean = false,
     val isCurrentUserProducer: Boolean = false,
-    val currentDay: DayOfWeek = DayOfWeek.MONDAY
+    val currentDay: DayOfWeek = DayOfWeek.MONDAY,
+    val configCheckResult: ConfigCheckResult? = null,
+    val isLoading: Boolean = false
 )

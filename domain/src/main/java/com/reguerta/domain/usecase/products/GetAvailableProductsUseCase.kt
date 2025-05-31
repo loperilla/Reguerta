@@ -1,7 +1,7 @@
 package com.reguerta.domain.usecase.products
 
 import com.reguerta.data.firebase.auth.AuthService
-import com.reguerta.data.firebase.firestore.measures.MeasureService
+import com.reguerta.data.firebase.firestore.measures.MeasuresService
 import com.reguerta.data.firebase.firestore.products.ProductModel
 import com.reguerta.data.firebase.firestore.products.ProductsService
 import com.reguerta.data.firebase.firestore.users.UserModel
@@ -12,7 +12,7 @@ import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.Measure
 import com.reguerta.domain.model.mapper.toDomain
 import com.reguerta.domain.model.toDomain
-import com.reguerta.domain.usecase.container.toTypeProd
+import com.reguerta.domain.usecase.containers.toTypeProd
 import com.reguerta.localdata.time.WeekTime
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
@@ -300,7 +300,7 @@ class GetAvailableProductsUseCase @Inject constructor(
     private val usersService: UsersCollectionService,
     private val weekTime: WeekTime,
     private val authService: AuthService,
-    private val measureService: MeasureService
+    private val measuresService: MeasuresService
 ) {
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend operator fun invoke(): Flow<List<CommonProduct>> {
@@ -325,7 +325,7 @@ class GetAvailableProductsUseCase @Inject constructor(
                     emptyList()
                 }
             )
-            measureService.getMeasures().flatMapLatest { result ->
+            measuresService.getMeasures().flatMapLatest { result ->
                 val measures = result.fold(
                     onSuccess = { measureModelList ->
                         measureModelList.map { it.toDomain() }

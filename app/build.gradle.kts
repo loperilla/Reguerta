@@ -83,6 +83,7 @@ android {
 dependencies {
     implementation(project(":data"))
     implementation(project(":presentation"))
+    implementation(project(":localData"))
     // Compose
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.activity)
@@ -96,6 +97,7 @@ dependencies {
     implementation(libs.hilt.android)
     implementation(libs.androidx.multidex)
     implementation(libs.firebase.abt)
+    implementation(libs.androidx.lifecycle.process)
     testImplementation(project(":testUtils"))
     ksp(libs.hilt.compiler)
 

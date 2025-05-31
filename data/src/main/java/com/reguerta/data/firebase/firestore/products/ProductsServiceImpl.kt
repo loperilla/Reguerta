@@ -165,4 +165,23 @@ class ProductsServiceImpl @Inject constructor(
             Result.failure(ex)
         }
     }
+
+    override suspend fun getAllProducts(): Result<List<ProductModel>> {
+        return try {
+            val snapshot = collection
+                .orderBy(NAME, Query.Direction.ASCENDING)
+                .get()
+                .await()
+
+            val productList = snapshot.documents.mapNotNull { doc ->
+                doc.toObject(ProductModel::class.java)?.apply { id = doc.id }
+            }
+
+            Log.d("PRODUCTS_SERVICE", "Todos los productos recibidos: ${productList.size}")
+            Result.success(productList)
+        } catch (e: Exception) {
+            Log.e("PRODUCTS_SERVICE", "Error al obtener todos los productos", e)
+            Result.failure(e)
+        }
+    }
 }

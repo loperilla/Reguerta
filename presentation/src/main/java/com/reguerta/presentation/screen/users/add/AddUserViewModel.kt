@@ -3,6 +3,7 @@ package com.reguerta.presentation.screen.users.add
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.usecase.users.AddUserUseCase
+import com.reguerta.domain.usecase.config.UpdateTableTimestampsUseCase
 import com.reguerta.presentation.checkAllStringAreNotEmpty
 import com.reguerta.presentation.type.isValidEmail
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +23,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AddUserViewModel @Inject constructor(
-    private val createUserUseCase: AddUserUseCase
+    private val createUserUseCase: AddUserUseCase,
+    private val updateTableTimestampsUseCase: UpdateTableTimestampsUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<AddUserState> = MutableStateFlow(AddUserState())
     val state: StateFlow<AddUserState> = _state
@@ -54,6 +56,7 @@ class AddUserViewModel @Inject constructor(
                         tropical2 = tropical2
                     ).fold(
                         onSuccess = {
+                            updateTableTimestampsUseCase("users")
                             _state.update { it.copy(goOut = true) }
                         },
                         onFailure = {
