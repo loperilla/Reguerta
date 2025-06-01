@@ -2,12 +2,10 @@ package com.reguerta.user
 
 import android.app.Application
 import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.firebase.FirebaseApp
 import com.reguerta.data.firebase.firestore.FirestoreEnvironment
 import com.reguerta.data.firebase.firestore.FirestoreManager
-import com.reguerta.presentation.sync.ForegroundSyncManager
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
