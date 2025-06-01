@@ -41,9 +41,4 @@ class ReguertaApp : Application(), DefaultLifecycleObserver {
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
     }
-
-    override fun onStart(owner: LifecycleOwner) {
-        Timber.tag("LifecycleDebug").d("App ha vuelto al primer plano")
-        ForegroundSyncManager.requestSyncFromAppLifecycle()
-    }
 }

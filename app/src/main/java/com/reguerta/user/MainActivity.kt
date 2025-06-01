@@ -6,8 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.runtime.LaunchedEffect
 import com.reguerta.presentation.MainNavigation
 import com.reguerta.presentation.UiState
+import com.reguerta.presentation.sync.ForegroundSyncManager
 import com.reguerta.presentation.ui.ReguertaTheme
 import com.reguerta.presentation.ui.Routes
 import dagger.hilt.android.AndroidEntryPoint
@@ -21,6 +23,16 @@ class MainActivity : ComponentActivity() {
             ReguertaTheme {
                 val viewModel: MainActivityViewModel = hiltViewModel()
                 val splashState = viewModel.splashState.collectAsStateWithLifecycle().value
+
+                LaunchedEffect(Unit) {
+                    viewModel.onAppForegrounded()
+                }
+
+                LaunchedEffect(splashState) {
+                    if (splashState == UiState.Success) {
+                        ForegroundSyncManager.requestSyncFromAppLifecycle()
+                    }
+                }
 
                 splashScreen.setKeepOnScreenCondition {
                     when (splashState) {

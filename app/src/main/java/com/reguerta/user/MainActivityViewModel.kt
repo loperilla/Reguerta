@@ -34,4 +34,23 @@ class MainActivityViewModel @Inject constructor(
             }
         }
     }
+
+    fun onAppForegrounded() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
+            if (user != null) {
+                user.getIdToken(true)
+                    .addOnSuccessListener {
+                        _splashState.value = UiState.Success
+                    }
+                    .addOnFailureListener {
+                        // Maneja el error: navega a login o muestra mensaje según tu lógica
+                        _splashState.value = UiState.Error
+                    }
+            } else {
+                // No hay usuario, puedes cambiar el estado o redirigir al login
+                _splashState.value = UiState.Error
+            }
+        }
+    }
 }
