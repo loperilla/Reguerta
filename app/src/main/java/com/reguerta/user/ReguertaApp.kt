@@ -19,12 +19,15 @@ import timber.log.Timber
 @HiltAndroidApp
 class ReguertaApp : Application(), DefaultLifecycleObserver {
     override fun onCreate() {
+        Timber.i("SYNC_ReguertaApp: onCreate lanzado")
         super<Application>.onCreate()
         FirebaseApp.initializeApp(this)
 
         val environment = if (BuildConfig.DEBUG) FirestoreEnvironment.DEVELOP else FirestoreEnvironment.PRODUCTION
         FirestoreManager.setEnvironment(environment)
         FirestoreManager.configureFirestore()
+
+        Timber.i("SYNC_ReguertaApp: Firebase y entorno inicializados (${environment.path})")
 
         if (BuildConfig.DEBUG) {
             Timber.plant(
@@ -34,9 +37,16 @@ class ReguertaApp : Application(), DefaultLifecycleObserver {
                     }
                 }
             )
+        } else {
+            Timber.plant(object : Timber.Tree() {
+                override fun log(priority: Int, tag: String?, message: String, t: Throwable?) {
+                    android.util.Log.println(priority, tag, message)
+                }
+            })
         }
         Timber.tag("ReguertaApp").d("Entorno seleccionado: ${environment.path}")
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
+        Timber.i("SYNC_ReguertaApp: Observer de ciclo de vida añadido")
     }
 }

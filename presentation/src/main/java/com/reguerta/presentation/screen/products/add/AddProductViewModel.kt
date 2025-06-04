@@ -45,22 +45,12 @@ class AddProductViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             listOf(
                 async {
-                    getAllMeasuresUseCase().collect { measureList ->
-                        _state.update {
-                            it.copy(
-                                measures = measureList
-                            )
-                        }
-                    }
+                    val measures = getAllMeasuresUseCase()
+                    _state.update { it.copy(measures = measures) }
                 },
                 async {
-                    getFilteredContainersUseCase().collect { containerList ->
-                        _state.update {
-                            it.copy(
-                                containers = containerList
-                            )
-                        }
-                    }
+                    val containers = getFilteredContainersUseCase()
+                    _state.update { it.copy(containers = containers) }
                 }
             ).awaitAll()
         }

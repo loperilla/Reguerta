@@ -44,6 +44,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.first
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -104,6 +105,40 @@ fun homeScreen(
     }
     val config by configViewModel.config.collectAsStateWithLifecycle()
     val context = LocalContext.current
+
+    // --- Loader primer arranque y recarga productos tras sync global ---
+    // State para el loader inicial
+    var showInitialLoader by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(true) }
+    val isFirstRun by viewModel.isFirstRun.collectAsStateWithLifecycle()
+    val isSyncFinished by viewModel.isSyncFinished.collectAsStateWithLifecycle()
+
+    LaunchedEffect(isFirstRun, isSyncFinished) {
+        if (isFirstRun && isSyncFinished) {
+            viewModel.preloadCriticalDataIfNeeded()
+            kotlinx.coroutines.delay(2000)
+            showInitialLoader = false
+            Timber.i("SYNC_Loader inicial terminado, mostrando Home con botones activos")
+            // viewModel.forceSync() // Eliminado: No recargamos explícitamente tras el loader inicial
+            viewModel.setFirstRunFalse()
+        }
+        if (!isFirstRun) showInitialLoader = false
+    }
+    // --- Fin loader primer arranque ---
+
+    // Loader bloqueante inicial: solo si showInitialLoader es true
+    if (showInitialLoader) {
+        Timber.i("SYNC_Mostrando loader inicial (primer arranque o esperando datos críticos)")
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            LoadingAnimation()
+            androidx.compose.material3.Text("Preparando datos por primera vez...", color = Color.White)
+        }
+        return
+    }
+    Timber.i("SYNC_Montando Composable homeScreen - loader inicial ya ha desaparecido")
+
     if (state.goOut) {
         navigateTo(Routes.AUTH.route)
         return
@@ -132,8 +167,9 @@ private fun HomeScreen(
     onEvent: (HomeEvent) -> Unit,
     navigateTo: (String) -> Unit,
     viewModel: HomeViewModel
-)
-{
+) {
+    Timber.i("SYNC_Montando Composable HomeScreen (privado)")
+    // Loader bloqueante (solo si NO está el loader inicial)
     if (state.isLoading) {
         Box(
             modifier = Modifier.fillMaxSize(),
@@ -192,6 +228,7 @@ private fun HomeScreen(
             ) {
                 MakeYourOrderButton(
                     onButtonClick = {
+                        Timber.i("SYNC_Botón Mi pedido pulsado, navegando a: ${Routes.ORDERS.NEW.route}")
                         navigateTo(Routes.ORDERS.NEW.route)
                     },
                     modifier = Modifier
@@ -202,6 +239,7 @@ private fun HomeScreen(
                 if (state.isCurrentUserProducer && state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) {
                     ShowYourOrderButton(
                         onButtonClick = {
+                            Timber.i("SYNC_Botón Ver tus pedidos pulsado, navegando a: ${Routes.HOME.ORDER_RECEIVED.route}")
                             navigateTo(Routes.HOME.ORDER_RECEIVED.route)
                         },
                         modifier = Modifier
@@ -358,7 +396,7 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         }
         Spacer(modifier = Modifier.weight(1f))
         TextBody(
-            text = "android version 0.2.0.1",
+            text = "android version 0.2.0.3",
             textSize = TEXT_SIZE_MEDIUM,
             textColor = Text,
             modifier = Modifier

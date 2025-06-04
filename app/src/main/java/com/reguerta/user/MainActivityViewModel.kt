@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 /*****
@@ -26,11 +27,24 @@ class MainActivityViewModel @Inject constructor(
     private var _splashState: MutableStateFlow<UiState> = MutableStateFlow(UiState.Loading)
     val splashState: StateFlow<UiState> = _splashState.asStateFlow()
 
+    private val _sessionExpired = MutableStateFlow(false)
+    val sessionExpired = _sessionExpired.asStateFlow()
+
     init {
+        Timber.i("SYNC_MainActivityViewModel: init lanzado")
         viewModelScope.launch(Dispatchers.IO) {
-            _splashState.value = when (authService.refreshUser()) {
-                is AuthState.Error -> UiState.Error
-                AuthState.LoggedIn -> UiState.Success
+            Timber.i("SYNC_MainActivityViewModel: Ejecutando refreshUser()")
+            when (authService.refreshUser()) {
+                is AuthState.Error -> {
+                    Timber.i("SYNC_MainActivityViewModel: refreshUser -> Error (UiState.Error)")
+                    _splashState.value = UiState.Error
+                    _sessionExpired.value = true
+                }
+                AuthState.LoggedIn -> {
+                    Timber.i("SYNC_MainActivityViewModel: refreshUser -> LoggedIn (UiState.Success)")
+                    _splashState.value = UiState.Success
+                    _sessionExpired.value = false
+                }
             }
         }
     }
@@ -39,18 +53,28 @@ class MainActivityViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val user = com.google.firebase.auth.FirebaseAuth.getInstance().currentUser
             if (user != null) {
+                Timber.i("SYNC_MainActivityViewModel: onAppForegrounded, user encontrado: ${user.email}")
                 user.getIdToken(true)
                     .addOnSuccessListener {
+                        Timber.i("SYNC_MainActivityViewModel: Token refreshed successfully for user: ${user.email} (UiState.Success)")
                         _splashState.value = UiState.Success
+                        _sessionExpired.value = false
                     }
-                    .addOnFailureListener {
-                        // Maneja el error: navega a login o muestra mensaje según tu lógica
+                    .addOnFailureListener { e ->
+                        Timber.e("SYNC_MainActivityViewModel: Error refreshing token: ${e.message} (UiState.Error)")
                         _splashState.value = UiState.Error
+                        _sessionExpired.value = true
                     }
             } else {
-                // No hay usuario, puedes cambiar el estado o redirigir al login
+                Timber.e("SYNC_MainActivityViewModel: No user found, setting splashState to Error")
                 _splashState.value = UiState.Error
+                _sessionExpired.value = true
             }
         }
+    }
+
+    fun resetSessionExpired() {
+        Timber.i("SYNC_MainActivityViewModel: resetSessionExpired, sessionExpired=false")
+        _sessionExpired.value = false
     }
 }

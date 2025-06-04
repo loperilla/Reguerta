@@ -19,30 +19,6 @@ import javax.inject.Inject
 class ContainersServiceImpl @Inject constructor(
     private val collection: CollectionReference
 ) : ContainersService {
-    override suspend fun getContainers(): Flow<Result<List<ContainerModel>>> = callbackFlow {
-        val subscription = collection.addSnapshotListener { snapshot, error ->
-            if (error != null) {
-                error.printStackTrace()
-                trySend(Result.failure(error))
-                close(error)
-                return@addSnapshotListener
-            }
-            snapshot?.let { query ->
-                val containerList = mutableListOf<ContainerModel>()
-                query.documents.forEach { document ->
-                    val containersModel = document.toObject(ContainerModel::class.java)
-                    containersModel?.let { model ->
-                        model.id = document.id
-                        containerList.add(model)
-                    }
-                }
-                trySend(Result.success(containerList))
-            }
-        }
-        awaitClose {
-            subscription.remove()
-        }
-    }
 
     override suspend fun getAllContainers(): Result<List<ContainerModel>> {
         return try {

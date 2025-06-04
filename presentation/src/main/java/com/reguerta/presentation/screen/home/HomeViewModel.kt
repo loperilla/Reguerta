@@ -14,6 +14,7 @@ import com.reguerta.domain.usecase.products.SyncProductsUseCase
 import com.reguerta.domain.usecase.containers.SyncContainersUseCase
 import com.reguerta.domain.usecase.measures.SyncMeasuresUseCase
 import com.reguerta.domain.usecase.orderlines.SyncOrdersAndOrderLinesUseCase
+import com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase
 import com.reguerta.presentation.isVersionGreater
 import com.reguerta.presentation.BuildConfig
 import com.reguerta.presentation.getActiveCriticalTables
@@ -27,6 +28,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.stateIn
 import timber.log.Timber
 import java.time.DayOfWeek
 import javax.inject.Inject
@@ -39,8 +42,8 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    checkUserUseCase: CheckCurrentUserLoggedUseCase,
-    getCurrentWeek: GetCurrentWeekDayUseCase,
+    private val checkUserUseCase: CheckCurrentUserLoggedUseCase,
+    private val getCurrentWeek: GetCurrentWeekDayUseCase,
     private val signOutUseCase: SignOutUseCase,
     private val getConfigUseCase: GetConfigUseCase,
     private val syncProductsUseCase: SyncProductsUseCase,
@@ -48,9 +51,19 @@ class HomeViewModel @Inject constructor(
     private val syncMeasuresUseCase: SyncMeasuresUseCase,
     private val syncOrdersAndOrderLinesUseCase: SyncOrdersAndOrderLinesUseCase,
     private val dataStore: ReguertaDataStore,
+    private val preloadCriticalDataUseCase: com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase,
 ) : ViewModel() {
+    private val _isSyncFinished = MutableStateFlow(false)
+    val isSyncFinished: StateFlow<Boolean> = _isSyncFinished.asStateFlow()
+
     private var _state: MutableStateFlow<HomeState> = MutableStateFlow(HomeState())
     val state: StateFlow<HomeState> = _state.asStateFlow()
+
+    val isFirstRun: StateFlow<Boolean> = dataStore.isFirstRun.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.Eagerly,
+        initialValue = true
+    )
 
     private var hasSyncedInSession = false
 
@@ -65,6 +78,12 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun setFirstRunFalse() {
+        viewModelScope.launch(Dispatchers.IO) {
+            dataStore.setIsFirstRun(false)
+        }
+    }
+
 
     fun triggerSyncIfNeeded(config: ConfigModel, isAdmin: Boolean, isProducer: Boolean, currentDay: DayOfWeek) {
         if (!hasSyncedInSession) {
@@ -76,6 +95,31 @@ class HomeViewModel @Inject constructor(
                     triggerBackgroundSync(config, isAdmin, isProducer, currentDay)
                 }
             }
+        }
+    }
+
+    fun forceSync() {
+        Timber.i("SYNC: forceSync lanzada a las ${System.currentTimeMillis()}")
+        viewModelScope.launch(Dispatchers.IO) {
+            val userResult = checkUserUseCase()
+            userResult.fold(
+                onSuccess = { user ->
+                    // Aquí puedes llamar a la suspend function porque ya estás en una corrutina
+                    val config = getConfigUseCase()
+                    val currentDay = DayOfWeek.of(getCurrentWeek())
+                    hasSyncedInSession = false // Permite que triggerSyncIfNeeded vuelva a sincronizar
+                    _isSyncFinished.value = false
+                    triggerSyncIfNeeded(
+                        config,
+                        user.isAdmin,
+                        user.isProducer,
+                        currentDay
+                    )
+                },
+                onFailure = {
+                    _state.update { it.copy(showNotAuthorizedDialog = true, isLoading = false) }
+                }
+            )
         }
     }
 
@@ -96,23 +140,23 @@ class HomeViewModel @Inject constructor(
                     "orders" to { syncOrdersAndOrderLinesUseCase(it) }
                 )
             )
+            Timber.i("SYNC: triggerBackgroundSync - SyncOrchestrator terminó, se pone isSyncFinished = true en ${System.currentTimeMillis()}")
+            _isSyncFinished.value = true
         }
     }
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            _state.update { it.copy(isLoading = true) }
-            val result = checkAppState(getConfigUseCase())
-            _state.update { it.copy(configCheckResult = result) }
-
-            if (result != ConfigCheckResult.Ok) {
-                _state.update { it.copy(isLoading = false) }
-                return@launch
-            }
-
             val userResult = checkUserUseCase()
             userResult.fold(
                 onSuccess = { user ->
+                    _state.update { it.copy(isLoading = true) }
+                    val result = checkAppState(getConfigUseCase())
+                    _state.update { it.copy(configCheckResult = result) }
+                    if (result != ConfigCheckResult.Ok) {
+                        _state.update { it.copy(isLoading = false) }
+                        return@launch
+                    }
                     val currentDay = DayOfWeek.of(getCurrentWeek())
                     _state.update {
                         it.copy(
@@ -122,6 +166,7 @@ class HomeViewModel @Inject constructor(
                             isLoading = false
                         )
                     }
+                    _isSyncFinished.value = false
                     // Lanzar sincronización tras cargar el usuario
                     triggerSyncIfNeeded(
                         getConfigUseCase(),
@@ -129,11 +174,11 @@ class HomeViewModel @Inject constructor(
                         user.isProducer,
                         currentDay
                     )
+                    return@launch // Añade este return para evitar duplicar el flujo de usuario
                 },
                 onFailure = {
-                    _state.update {
-                        it.copy(showNotAuthorizedDialog = true, isLoading = false)
-                    }
+                    _state.update { it.copy(showNotAuthorizedDialog = true, isLoading = false) }
+                    return@launch
                 }
             )
         }
@@ -169,6 +214,12 @@ class HomeViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    fun preloadCriticalDataIfNeeded() {
+        viewModelScope.launch(Dispatchers.IO) {
+            preloadCriticalDataUseCase()
         }
     }
 }

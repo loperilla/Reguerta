@@ -17,18 +17,15 @@ import javax.inject.Inject
 class GetAllMeasuresUseCase @Inject constructor(
     private val measuresService: MeasuresService
 ) {
-    suspend operator fun invoke(): Flow<List<Measure>> {
-        return measuresService.getMeasures().map {
-            it.fold(
-                onSuccess = { measureModelList ->
-                    measureModelList.map { measureModel ->
-                        measureModel.toDomain()
-                    }
-                },
-                onFailure = {
-                    emptyList()
-                }
-            )
-        }
+    suspend operator fun invoke(): List<Measure> {
+        val start = System.currentTimeMillis()
+        val result = measuresService.getAllMeasures()
+        val elapsed = System.currentTimeMillis() - start
+        println("SYNC_ \uD83D\uDD25 getAllMeasuresUseCase tardó $elapsed ms")
+
+        return result.fold(
+            onSuccess = { list -> list.map { it.toDomain() } },
+            onFailure = { emptyList() }
+        )
     }
 }

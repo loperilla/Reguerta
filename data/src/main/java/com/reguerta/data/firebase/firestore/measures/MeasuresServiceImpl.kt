@@ -14,6 +14,7 @@ import kotlinx.coroutines.withContext
 import android.util.Log
 import com.google.firebase.firestore.Query
 import kotlinx.coroutines.tasks.await
+import kotlinx.coroutines.withTimeout
 
 /*****
  * Project: Reguerta
@@ -123,24 +124,33 @@ class MeasuresServiceImpl @Inject constructor(
 
     override suspend fun getAllMeasures(): Result<List<MeasureModel>> {
         return try {
-            val snapshot = collection
-                .orderBy("name", Query.Direction.ASCENDING)
-                .get()
-                .await()
+            Log.i("SYNC_MEASURES", "Antes de withTimeout en getAllMeasures")
+            val snapshot = withTimeout(5000) {
+                try {
+                    Log.i("SYNC_MEASURES", "Dentro de withTimeout - antes de get().await()")
+                    collection
+                       // .orderBy("name", Query.Direction.ASCENDING)
+                        .get()
+                        .await()
+                } catch (e: Exception) {
+                    Log.e("SYNC_MEASURES", "Error dentro de withTimeout en get().await()", e)
+                    throw e
+                }
+            }
+            Log.i("SYNC_MEASURES", "Después de get().await()")
 
             val measures = snapshot.documents.mapNotNull { doc ->
                 doc.toObject(MeasureModel::class.java)?.apply { id = doc.id }
             }
 
-            // Opcional: persistir en base de datos local
             if (measures.isNotEmpty()) {
                 measureDao.insertAllMeasures(measures.toEntity())
             }
 
-            Log.d("MEASURES_SERVICE", "Medidas recibidas: ${measures.size}")
+            Log.d("SYNC_MEASURES", "Medidas recibidas (once): ${measures.size}")
             Result.success(measures)
         } catch (e: Exception) {
-            Log.e("MEASURES_SERVICE", "Error al obtener las medidas", e)
+            Log.e("SYNC_MEASURES", "Error en getAllMeasures", e)
             Result.failure(e)
         }
     }

@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import timber.log.Timber
 import javax.inject.Inject
 
 /*****
@@ -40,17 +41,15 @@ class ReceivedOrdersViewModel @Inject constructor(
             _state.update { it.copy(isLoading = true) }
             listOf(
                 async {
-                    getAllMeasuresUseCase().collect { measureList ->
-                        _state.update {
-                            it.copy(measures = measureList)
-                        }
+                    val measureList = getAllMeasuresUseCase()
+                    _state.update {
+                        it.copy(measures = measureList)
                     }
                 },
                 async {
-                    getAllContainersUseCase().collect { containerList ->
-                        _state.update {
-                            it.copy(containers = containerList)
-                        }
+                    val containerList = getAllContainersUseCase()
+                    _state.update {
+                        it.copy(containers = containerList)
                     }
                 },
                 async {
@@ -80,6 +79,41 @@ class ReceivedOrdersViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+    fun forceReload() {
+        Timber.i("SYNC: forceReload lanzada en ${this::class.simpleName} a las ${System.currentTimeMillis()}")
+        viewModelScope.launch(Dispatchers.IO) {
+            _state.update { it.copy(isLoading = true) }
+            listOf(
+                async {
+                    val measureList = getAllMeasuresUseCase()
+                    Timber.i("SYNC: collect de MEASURES en ${this@ReceivedOrdersViewModel::class.simpleName} a las ${System.currentTimeMillis()} - tamaño: ${measureList.size}")
+                    _state.update {
+                        it.copy(measures = measureList)
+                    }
+                },
+                async {
+                    val containerList = getAllContainersUseCase()
+                    Timber.i("SYNC: collect de CONTAINERS en ${this@ReceivedOrdersViewModel::class.simpleName} a las ${System.currentTimeMillis()} - tamaño: ${containerList.size}")
+                    _state.update {
+                        it.copy(containers = containerList)
+                    }
+                },
+                async {
+                    orderReceivedModel.invoke().collectLatest { orders ->
+                        Timber.i("SYNC: collect de ORDERS en ${this@ReceivedOrdersViewModel::class.simpleName} a las ${System.currentTimeMillis()} - tamaño: ${orders.size}")
+                        _state.update {
+                            it.copy(
+                                isLoading = false,
+                                ordersByUser = orders.groupBy { it.fullOrderName() },
+                                ordersByProduct = orders.groupBy { it.product }
+                            )
+                        }
+                    }
+                }
+            ).awaitAll()
+            _state.update { it.copy(isLoading = false) }
         }
     }
 }

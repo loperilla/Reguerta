@@ -184,4 +184,10 @@ object DomainDi {
     fun provideUpdateTableTimestampsUseCase(configRepositoryImpl: ConfigRepositoryImpl): UpdateTableTimestampsUseCase {
         return UpdateTableTimestampsUseCase(configRepositoryImpl)
     }
+
+    @Provides
+    fun providePreloadCriticalDataUseCase(
+        usersService: UsersCollectionService
+    ): com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase =
+        com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase(usersService)
 }

@@ -15,23 +15,19 @@ class GetFilteredContainersUseCase @Inject constructor(
     private val containersService: ContainersService,
     private val authService: AuthService
 ) {
-    suspend operator fun invoke(): Flow<List<Container>> {
+    suspend operator fun invoke(): List<Container> {
         val currentUserResult = authService.checkCurrentLoggedUser()
-        val currentUser = currentUserResult.getOrNull() ?: return flowOf(emptyList())
+        val currentUser = currentUserResult.getOrNull() ?: return emptyList()
         val isTropicalProducer = currentUser.companyName == "Los Tropicales"
         val producerType = currentUser.typeProducer?.toTypeProd() ?: TypeProducerUser.REGULAR
 
-        return containersService.getContainers().map { result ->
-            result.fold(
-                onSuccess = { containerModelList ->
-                    val containers = containerModelList.map { containerModel ->
-                        containerModel.toDomain()
-                    }
-                    filterByProducerType(containers, producerType, isTropicalProducer)
-                },
-                onFailure = { emptyList() }
-            )
-        }
+        return containersService.getAllContainers().fold(
+            onSuccess = { containerModelList ->
+                val containers = containerModelList.map { it.toDomain() }
+                filterByProducerType(containers, producerType, isTropicalProducer)
+            },
+            onFailure = { emptyList() }
+        )
     }
 
     private fun filterByProducerType(
@@ -58,5 +54,3 @@ class GetFilteredContainersUseCase @Inject constructor(
 fun String.toTypeProd(): TypeProducerUser {
     return TypeProducerUser.entries.find { it.value == this.lowercase() } ?: TypeProducerUser.REGULAR
 }
-
-

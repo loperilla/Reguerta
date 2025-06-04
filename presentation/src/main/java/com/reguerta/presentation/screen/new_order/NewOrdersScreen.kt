@@ -37,6 +37,8 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -76,6 +78,7 @@ import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.image.ProductImage
 import com.reguerta.presentation.composables.products.ProductNameUnityContainerInMyOrder
 import com.reguerta.presentation.getQuantitySum
+import com.reguerta.presentation.screen.home.HomeViewModel
 import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
@@ -102,7 +105,9 @@ import com.reguerta.presentation.ui.TEXT_SPECIAL
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.errorColor
+import kotlinx.coroutines.delay
 import java.time.DayOfWeek
+import timber.log.Timber
 
 /*****
  * Project: Reguerta
@@ -117,6 +122,9 @@ fun newOrderScreen(
 ) {
     val viewModel = hiltViewModel<NewOrderViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val homeViewModel = hiltViewModel<HomeViewModel>()
+    val isSyncFinished by homeViewModel.isSyncFinished.collectAsState()
+
 
     if (state.goOut) {
         navigateTo(Routes.HOME.ROOT.route)
@@ -161,6 +169,7 @@ fun newOrderScreen(
 
     Box(modifier = Modifier.fillMaxSize()) {
         if (state.isLoading) {
+            Timber.i("SYNC_UI: Loading visible! state.isLoading = true")
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -168,6 +177,7 @@ fun newOrderScreen(
                 LoadingAnimation()
             }
         } else {
+            Timber.i("SYNC_UI: Loading oculto. state.isLoading = false. Mostrando contenido.")
             Screen {
                 if (state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) {
                     if (state.isExistOrder) {

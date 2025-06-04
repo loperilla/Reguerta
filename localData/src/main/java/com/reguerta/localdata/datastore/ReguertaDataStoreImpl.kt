@@ -3,12 +3,15 @@ package com.reguerta.localdata.datastore
 import android.content.Context
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.Flow
 
 /*****
  * Project: Reguerta
@@ -20,6 +23,7 @@ import javax.inject.Inject
 val Context.userPreferences by preferencesDataStore("UserDatastore")
 
 class ReguertaDataStoreImpl @Inject constructor(private val context: Context) : ReguertaDataStore {
+    private val isFirstRunKey = booleanPreferencesKey("is_first_run")
     override suspend fun saveStringValue(key: Preferences.Key<String>, value: String): Unit = withContext(Dispatchers.IO) {
         context.userPreferences.edit { preferences ->
             preferences[key] = value
@@ -79,4 +83,19 @@ class ReguertaDataStoreImpl @Inject constructor(private val context: Context) : 
             prefsMap[longPreferencesKey("sync_ts_$key")] as? Long ?: 0L
         }
     }
+
+    override suspend fun setIsFirstRun(value: Boolean) {
+        context.userPreferences.edit { prefs ->
+            prefs[isFirstRunKey] = value
+        }
+    }
+
+    override suspend fun getIsFirstRun(): Boolean = withContext(Dispatchers.IO) {
+        context.userPreferences.data.first()[isFirstRunKey] ?: true // Por defecto true
+    }
+
+    override val isFirstRun: Flow<Boolean>
+        get() = context.userPreferences.data.map { prefs ->
+            prefs[isFirstRunKey] ?: true
+        }
 }

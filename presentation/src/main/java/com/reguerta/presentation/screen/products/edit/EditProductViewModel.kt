@@ -48,21 +48,19 @@ class EditProductViewModel @AssistedInject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             listOf(
                 async {
-                    getAllMeasuresUseCase().collect { measureList ->
-                        _state.update {
-                            it.copy(
-                                measures = measureList
-                            )
-                        }
+                    val measureList = getAllMeasuresUseCase()
+                    _state.update {
+                        it.copy(
+                            measures = measureList
+                        )
                     }
                 },
                 async {
-                    getFilteredContainersUseCase().collect { containerList ->
-                        _state.update {
-                            it.copy(
-                                containers = containerList
-                            )
-                        }
+                    val containerList = getFilteredContainersUseCase()
+                    _state.update {
+                        it.copy(
+                            containers = containerList
+                        )
                     }
                 },
                 async {

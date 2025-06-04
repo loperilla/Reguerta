@@ -7,6 +7,7 @@ import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.NewOrderModel
+import com.reguerta.domain.model.mapper.toDomain
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.containers.GetAllContainersUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
@@ -26,8 +27,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeoutOrNull
+import timber.log.Timber
 import java.time.DayOfWeek
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -59,147 +63,311 @@ class NewOrderViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
-            val currentUserResult = checkCurrentUserLoggedUseCase()
-            val currentUser = currentUserResult.getOrNull()
+            /***********************************************************************
+             * ANÁLISIS DE FLUJOS EN withTimeoutOrNull(15_000) DEL INIT
+             *
+             * El bloque principal de inicialización está envuelto en un withTimeoutOrNull(15_000).
+             * Dentro de este bloque se ejecutan varias operaciones secuenciales y en paralelo (async).
+             *
+             * 1) OPERACIONES PREVIAS AL PARALELISMO:
+             *    - checkCurrentUserLoggedUseCase()
+             *      > Llama a un use case que probablemente consulta preferencia local o caché de usuario.
+             *      > Operación SEGURA. No depende de red ni de un flow prolongado.
+             *    - getCurrentWeek()
+             *      > Use case sencillo, probablemente cálculo local.
+             *      > Operación SEGURA.
+             *    - loadAvailableProducts(getAvailableProductsUseCase)
+             *      > Esta función ESPECIALMENTE IMPORTANTE:
+             *      > Internamente usa getAvailableProductsUseCase().first(), que es un Flow (puede ser de Firestore).
+             *      > Si el flow no emite nunca, puede quedarse esperando.
+             *      > Tiene un bucle de reintentos (hasta 10, con delay de 300ms) y fallback a getAllProductsDirect().
+             *      > getAllProductsDirect() es una llamada directa (probable acceso a red/Firestore).
+             *      > Si Firestore se cuelga o la red va lenta, aquí puede haber bloqueo.
+             *      > OPERACIÓN POTENCIALMENTE PROBLEMÁTICA: Si el flow nunca emite o la red/firestore está lenta, puede agotar el timeout.
+             *
+             * 2) OPERACIONES EN PARALELO (listOf(async { ... }).awaitAll()):
+             *    - async #1: getAllMeasuresUseCase()
+             *      > Llama a un use case para obtener medidas.
+             *      > Probable acceso a Firestore o BD remota.
+             *      > Si Firestore está lento o el flow nunca emite, puede colgarse.
+             *      > OPERACIÓN POTENCIALMENTE PROBLEMÁTICA.
+             *    - async #2: getAllContainersUseCase()
+             *      > Similar al anterior, pero para contenedores.
+             *      > Probable acceso a Firestore o BD remota.
+             *      > OPERACIÓN POTENCIALMENTE PROBLEMÁTICA.
+             *    - async #3: handleLastWeekOrders() / handleCurrentWeekOrders()
+             *      > Dependiendo del día, llama a uno u otro.
+             *      > Ambos llaman a orderModel.checkIfExistLastWeekOrderInFirebase() o checkIfExistOrderInFirebase()
+             *      > Estos métodos acceden a Firestore (llamada de red).
+             *      > Si existe pedido, llama a loadOrderLinesFromCurrentWeek(), que hace collectLatest sobre un Flow (Firestore).
+             *      > Si no existe pedido, puede llamar a loadNewOrderLines(), que también hace collectLatest sobre un Flow.
+             *      > Si el flow nunca emite, o Firestore está lento, puede quedarse esperando.
+             *      > OPERACIÓN POTENCIALMENTE PROBLEMÁTICA: Puede colgarse si Firestore/flow no responde.
+             *
+             * SÍNTESIS:
+             * - SEGURAS:
+             *   - checkCurrentUserLoggedUseCase()
+             *   - getCurrentWeek()
+             * - POTENCIALMENTE PROBLEMÁTICAS (pueden agotar el timeout si Firestore/Flow/red no responde):
+             *   - loadAvailableProducts(getAvailableProductsUseCase) [por uso de Flow y getAllProductsDirect()]
+             *   - async { getAllMeasuresUseCase() }
+             *   - async { getAllContainersUseCase() }
+             *   - async { handleLastWeekOrders() / handleCurrentWeekOrders() } (por uso de métodos que acceden a Firestore y collectLatest sobre Flows)
+             *
+             * NOTA: El problema principal surge si alguna llamada a Firestore/Flow no responde o se queda esperando indefinidamente.
+             *       Como awaitAll espera a que TODOS los async terminen, si uno se cuelga, los demás también "esperan" y el timeout global se agota.
+             *
+             * EVIDENCIA EN LOGS:
+             * - Los errores de timeout aparecen asociados a los async de pedidos y contenedores, lo que confirma que son candidatos a colgarse.
+             ***********************************************************************/
+            Timber.i("SYNC_TRACE - Inicio de bloque withTimeoutOrNull de 15s")
+            val result = kotlinx.coroutines.withTimeoutOrNull(3_000) {
+                try {
+                    Timber.i("SYNC_INIT de NewOrderViewModel lanzado a las ${System.currentTimeMillis()}")
+                    val currentUserResult = checkCurrentUserLoggedUseCase()
+                    val currentUser = currentUserResult.getOrNull()
 
-            if (currentUser == null) {
-                _state.update { it.copy(isLoading = false) }
-                return@launch
-            }
-
-            _state.update {
-                it.copy(
-                    isLoading = true,
-                    currentDay = DayOfWeek.of(getCurrentWeek()),
-                    kgMangoes = currentUser.tropical1.roundToInt(),
-                    kgAvocados = currentUser.tropical2.roundToInt()
-                )
-            }
-            delay(500)
-            if (!loadAvailableProducts(getAvailableProductsUseCase)) {
-                return@launch
-            }
-
-            // Luego lanza en paralelo las demás tareas
-            listOf(
-                async {
-                    getAllMeasuresUseCase().collect { measureList ->
+                    if (currentUser == null) {
+                        Timber.w("SYNC_INIT - currentUser es null, abortando carga inicial en NewOrderViewModel")
                         _state.update {
-                            it.copy(measures = measureList)
+                            Timber.i("SYNC_DEBUG isLoading puesto a false en [init: currentUser==null]")
+                            it.copy(isLoading = false)
                         }
+                        return@withTimeoutOrNull
                     }
-                },
-                async  {
-                    getAllContainersUseCase().collect { containerList ->
-                        _state.update {
-                            it.copy(containers = containerList)
-                        }
+
+                    _state.update {
+                        it.copy(
+                            isLoading = true,
+                            currentDay = DayOfWeek.of(getCurrentWeek()),
+                            kgMangoes = currentUser.tropical1.roundToInt(),
+                            kgAvocados = currentUser.tropical2.roundToInt()
+                        )
                     }
-                },
-                async {
-                    val currentDay = DayOfWeek.of(getCurrentWeek())
-                    if (currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) {
-                        handleLastWeekOrders()
-                    } else {
-                        handleCurrentWeekOrders()
+                    Timber.i("SYNC_DEBUG Antes de loadAvailableProducts en [init]")
+                    if (!loadAvailableProducts(getAvailableProductsUseCase)) {
+                        Timber.i("SYNC_DEBUG isLoading puesto a false en [init: loadAvailableProducts==false]")
+                        _state.update { it.copy(isLoading = false) }
+                        return@withTimeoutOrNull
                     }
+                    Timber.i("SYNC_DEBUG Después de loadAvailableProducts en [init]")
+
+                    // --- NUEVO BLOQUE: jobs individuales para detectar bloqueo ---
+                    val job1 = async {
+                        withTimeoutOrNull(2_000) {
+                            val measureList = getAllMeasuresUseCase()
+                            _state.update { it.copy(measures = measureList) }
+                        } ?: Timber.w("SYNC_TIMEOUT interno en medidas")
+                    }
+                    val job2 = async {
+                        withTimeoutOrNull(2_000) {
+                            val containerList = getAllContainersUseCase()
+                            _state.update { it.copy(containers = containerList) }
+                        } ?: Timber.w("SYNC_TIMEOUT interno en containers")
+                    }
+                    val job3 = async {
+                        withTimeoutOrNull(2_000) {
+                            if (state.value.currentDay in DayOfWeek.THURSDAY..DayOfWeek.SUNDAY) {
+                                handleCurrentWeekOrders()
+                            } else {
+                                handleLastWeekOrders()
+                            }
+                        } ?: Timber.w("SYNC_TIMEOUT interno en orders")
+                    }
+
+                    val result = withTimeoutOrNull(15_000) {
+                        awaitAll(job1, job2, job3)
+                        Timber.i("SYNC_TRACE - awaitAll completado sin timeout")
+                    }
+
+                    Timber.i("SYNC_JOB_STATUS - job1 isCompleted=${job1.isCompleted}, job2 isCompleted=${job2.isCompleted}, job3 isCompleted=${job3.isCompleted}")
+                } finally {
+                    Timber.i("SYNC_TRACE - Entrando en finally del bloque withTimeoutOrNull")
+                    Timber.i("🔥 SYNC_UI: Ocultando loader desde init")
+                    _state.update { it.copy(isLoading = false) }
+                    Timber.i("SYNC_DEBUG isLoading puesto a false en finally [init]")
                 }
-            ).awaitAll()
-            _state.update { it.copy(isLoading = false) }
+            }
+            if (result == null) {
+                Timber.i("SYNC_TRACE - withTimeoutOrNull devolvió null por timeout")
+                Timber.e("SYNC_TIMEOUT: El ciclo principal del ViewModel ha excedido 15s. Forzando loader a false.")
+                _state.update {
+                    Timber.i("SYNC_DEBUG isLoading puesto a false tras timeout [init]")
+                    it.copy(isLoading = false)
+                }
+            }
         }
     }
 
     private suspend fun loadAvailableProducts(getAvailableProductsUseCase: GetAvailableProductsUseCase): Boolean {
-        return try {
-            val list = getAvailableProductsUseCase().first()
-            if (list.isEmpty()) throw IllegalStateException("Lista de productos vacía")
-            initialCommonProducts = list
-            val groupedByCompany = list.groupBy { it.companyName }.toSortedMap()
-            _state.update {
-                it.copy(
-                    productsGroupedByCompany = groupedByCompany
-                )
+        Timber.i("SYNC_Entrando en loadAvailableProducts()")
+        var intentos = 0
+        val maxIntentos = 10
+        val delayMillis = 300L
+        while (intentos < maxIntentos) {
+            try {
+                Timber.i("SYNC_DEBUG Antes de getAvailableProductsUseCase().first() en loadAvailableProducts")
+                val list = getAvailableProductsUseCase().first()
+                Timber.i("SYNC_DEBUG Después de getAvailableProductsUseCase().first() en loadAvailableProducts")
+                Timber.i("SYNC_loadAvailableProducts - intento ${intentos + 1}: productos obtenidos: ${list.size} - ids: ${list.joinToString { it.id }}")
+                if (list.isNotEmpty()) {
+                    // Solo actualizamos el estado si la lista cambia
+                    if (::initialCommonProducts.isInitialized && initialCommonProducts == list) {
+                        Timber.i("SYNC_loadAvailableProducts - la lista recibida es igual a la actual, no actualizo el estado")
+                        return true
+                    }
+                    initialCommonProducts = list
+                    val groupedByCompany = list.groupBy { it.companyName }.toSortedMap()
+                    _state.update {
+                        it.copy(
+                            productsGroupedByCompany = groupedByCompany
+                        )
+                    }
+                    Timber.i("SYNC_loadAvailableProducts - estado actualizado con productos: ${groupedByCompany.values.flatten().size}")
+                    return true
+                } else if (intentos == 1) {
+                    // Tras 2 intentos (intentos 0 y 1), forzamos carga directa
+                    Timber.i("SYNC_DEBUG Antes de getAllProductsDirect en loadAvailableProducts")
+                    val directList = getAvailableProductsUseCase.getAllProductsDirect().getOrDefault(emptyList())
+                    Timber.i("SYNC_DEBUG Después de getAllProductsDirect en loadAvailableProducts")
+                    Timber.i("SYNC_loadAvailableProducts - getAllProductsDirect(): ${directList.size} productos")
+                    if (directList.isNotEmpty()) {
+                        if (::initialCommonProducts.isInitialized && initialCommonProducts == directList) {
+                            Timber.i("SYNC_loadAvailableProducts - la lista directa recibida es igual a la actual, no actualizo el estado")
+                            return true
+                        }
+                        initialCommonProducts = directList
+                        val groupedByCompany = directList.groupBy { it.companyName }.toSortedMap()
+                        _state.update {
+                            it.copy(
+                                productsGroupedByCompany = groupedByCompany
+                            )
+                        }
+                        Timber.i("SYNC_loadAvailableProducts - estado actualizado con productos directos: ${groupedByCompany.values.flatten().size}")
+                        return true
+                    }
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                Timber.e(e, "SYNC_Error en loadAvailableProducts: ${e.message}")
+                handleError(e)
+                return false
             }
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            handleError(e)
-            return false
+            // Si está vacío, esperamos y reintentamos
+            intentos++
+            Timber.i("SYNC_loadAvailableProducts - lista vacía, reintentando (${intentos + 1})...")
+            kotlinx.coroutines.delay(delayMillis)
         }
+        Timber.e("SYNC_loadAvailableProducts - No se pudieron obtener productos tras $maxIntentos intentos")
+        handleError(IllegalStateException("No se pudieron obtener productos tras $maxIntentos intentos"))
+        return false
     }
 
     private suspend fun handleLastWeekOrders() {
+        Timber.i("SYNC_handleLastWeekOrders: comprobando si existe pedido anterior...")
+        Timber.i("SYNC_DEBUG Antes de checkIfExistLastWeekOrderInFirebase en handleLastWeekOrders")
         orderModel.checkIfExistLastWeekOrderInFirebase().fold(
             onSuccess = { existOrder ->
+                Timber.i("SYNC_DEBUG Después de checkIfExistLastWeekOrderInFirebase en handleLastWeekOrders")
+                Timber.i("SYNC_handleLastWeekOrders - existe pedido anterior: $existOrder")
                 _state.update { it.copy(isExistOrder = existOrder) }
                 if (existOrder) {
+                    Timber.i("SYNC_DEBUG Antes de loadOrderLinesFromCurrentWeek en handleLastWeekOrders")
                     loadOrderLinesFromCurrentWeek()
+                    Timber.i("SYNC_DEBUG Después de loadOrderLinesFromCurrentWeek en handleLastWeekOrders")
                 } else {
                     _state.update {
                         it.copy(
-                            isLoading = false,
                             hasOrderLine = false,
                             isExistOrder = false
                         )
                     }
                 }
             },
-            onFailure = { handleError(it) }
+            onFailure = {
+                Timber.e(it, "SYNC_handleLastWeekOrders - onFailure: ${it.message}")
+                handleError(it)
+            }
         )
     }
 
     private suspend fun handleCurrentWeekOrders() {
+        Timber.i("SYNC_handleCurrentWeekOrders: comprobando si existe pedido actual...")
+        Timber.i("SYNC_DEBUG Antes de checkIfExistOrderInFirebase en handleCurrentWeekOrders")
         orderModel.checkIfExistOrderInFirebase().fold(
             onSuccess = { existOrder ->
+                Timber.i("SYNC_DEBUG Después de checkIfExistOrderInFirebase en handleCurrentWeekOrders")
+                Timber.i("SYNC_handleCurrentWeekOrders - existe pedido actual: $existOrder")
                 _state.update { it.copy(isExistOrder = existOrder) }
                 if (existOrder) {
+                    Timber.i("SYNC_DEBUG Antes de loadOrderLinesFromCurrentWeek en handleCurrentWeekOrders")
                     loadOrderLinesFromCurrentWeek()
-                }
-                else {
+                    Timber.i("SYNC_DEBUG Después de loadOrderLinesFromCurrentWeek en handleCurrentWeekOrders")
+                } else {
+                    Timber.i("SYNC_DEBUG Antes de loadNewOrderLines en handleCurrentWeekOrders")
                     loadNewOrderLines()
+                    Timber.i("SYNC_DEBUG Después de loadNewOrderLines en handleCurrentWeekOrders")
                 }
             },
-            onFailure = { handleError(it) }
+            onFailure = {
+                Timber.e(it, "SYNC_handleCurrentWeekOrders - onFailure: ${it.message}")
+                handleError(it)
+            }
         )
     }
 
     private suspend fun loadOrderLinesFromCurrentWeek() {
-        orderModel.getOrderLinesFromCurrentWeek().collectLatest { ordersReceived ->
-            val mappedOrderLines = mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)
-            val groupedByCompany = mappedOrderLines.groupBy { it.companyName }.toSortedMap()
-            _state.update {
-                it.copy(
-                    isLoading = false,
-                    hasOrderLine = true,
-                    orderLinesByCompanyName = groupedByCompany,
-                    ordersFromExistingOrder = mappedOrderLines.groupBy { it.product }
-                )
-            }
+        Timber.i("SYNC_Entrando en loadOrderLinesFromCurrentWeek()")
+        Timber.i("SYNC_DEBUG Antes de getOrderLinesFromCurrentWeek.firstOrNull en loadOrderLinesFromCurrentWeek")
+        val ordersReceived = withTimeoutOrNull(1000) {
+            orderModel.getOrderLinesFromCurrentWeek().firstOrNull()
+        } ?: return
+        Timber.i("SYNC_DEBUG Dentro de firstOrNull en loadOrderLinesFromCurrentWeek")
+        val mappedOrderLines =
+            mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)
+        val groupedByCompany = mappedOrderLines.groupBy { it.companyName }.toSortedMap()
+        Timber.i("SYNC_loadOrderLinesFromCurrentWeek - orderLines agrupadas: ${groupedByCompany.values.flatten().size}")
+        _state.update {
+            it.copy(
+                hasOrderLine = true,
+                orderLinesByCompanyName = groupedByCompany,
+                ordersFromExistingOrder = mappedOrderLines.groupBy { it.product }
+            )
         }
+        Timber.i("SYNC_DEBUG Después de getOrderLinesFromCurrentWeek.firstOrNull en loadOrderLinesFromCurrentWeek")
     }
 
     private suspend fun loadNewOrderLines() {
-        orderModel.getOrderLines().collectLatest { orderList ->
-            if (orderList.isNotEmpty()) {
-                buildProductWithOrderList(orderList)
-            } else {
-                _state.update { it ->
-                    it.copy(
-                        isLoading = false,
-                        productsGroupedByCompany = initialCommonProducts.groupBy { it.companyName }.toSortedMap(),
-                        hasOrderLine = false
-                    )
+        Timber.i("SYNC_Entrando en loadNewOrderLines()")
+        Timber.i("SYNC_DEBUG Antes de getOrderLines.collectLatest en loadNewOrderLines")
+        withTimeoutOrNull(1000) {
+            orderModel.getOrderLines().collectLatest { orderList ->
+                Timber.i("SYNC_DEBUG Dentro de collectLatest en loadNewOrderLines")
+                Timber.i("SYNC_loadNewOrderLines - orderList.size=${orderList.size}")
+                if (orderList.isNotEmpty()) {
+                    Timber.i("SYNC_DEBUG Antes de buildProductWithOrderList en loadNewOrderLines")
+                    buildProductWithOrderList(orderList)
+                    Timber.i("SYNC_DEBUG Después de buildProductWithOrderList en loadNewOrderLines")
+                } else {
+                    _state.update { it ->
+                        it.copy(
+                            productsGroupedByCompany = initialCommonProducts.groupBy { it.companyName }
+                                .toSortedMap(),
+                            hasOrderLine = false
+                        )
+                    }
                 }
             }
-        }
+        } ?: Timber.w("SYNC_TIMEOUT interno en collectLatest de loadNewOrderLines")
+        Timber.i("SYNC_DEBUG Después de getOrderLines.collectLatest en loadNewOrderLines")
     }
 
     private fun handleError(throwable: Throwable) {
         throwable.printStackTrace()
-        _state.update { it.copy(isLoading = false) }
     }
 
     private fun buildProductWithOrderList(orderList: List<OrderLineProduct>) {
+        Timber.i("SYNC_Entrando en buildProductWithOrderList(), orderList.size=${orderList.size}")
         val productList = initialCommonProducts.map { common ->
             orderList.find { it.productId == common.id }?.let { order ->
                 ProductWithOrderLine(common, order)
@@ -207,9 +375,9 @@ class NewOrderViewModel @Inject constructor(
         }
         val productsWithOrderLine = productList.filterIsInstance<ProductWithOrderLine>()
         val groupedByCompany = productList.groupBy { it.companyName }.toSortedMap()
+        Timber.i("SYNC_buildProductWithOrderList - productsOrderLineList.size=${productsWithOrderLine.size}")
         _state.update {
             it.copy(
-                isLoading = false,
                 hasOrderLine = productsWithOrderLine.isNotEmpty(),
                 productsGroupedByCompany = groupedByCompany,
                 productsOrderLineList = productsWithOrderLine
@@ -223,8 +391,10 @@ class NewOrderViewModel @Inject constructor(
                 is NewOrderEvent.GoOut -> {
                     _state.update { it.copy(goOut = true) }
                 }
+
                 is NewOrderEvent.StartOrder -> {
-                    val selectedProduct = state.value.productsGroupedByCompany.values.flatten().find { it.id == newEvent.productId }
+                    val selectedProduct = state.value.productsGroupedByCompany.values.flatten()
+                        .find { it.id == newEvent.productId }
                     selectedProduct?.let {
                         orderModel.addLocalOrderLine(
                             newEvent.productId,
@@ -232,19 +402,29 @@ class NewOrderViewModel @Inject constructor(
                         )
                     }
                 }
+
                 is NewOrderEvent.PlusQuantityProduct -> {
-                    val productUpdated = state.value.productsOrderLineList.singleOrNull { it.id == newEvent.productId }
+                    val productUpdated =
+                        state.value.productsOrderLineList.singleOrNull { it.id == newEvent.productId }
                     productUpdated?.let { line ->
                         val newQuantity = line.quantity.plus(1)
                         orderModel.updateProductStock(newEvent.productId, newQuantity)
                         _state.update { currentState ->
-                            val newList = currentState.productsOrderLineList.map { if (it.id == newEvent.productId) it.copy(orderLine = it.orderLine.copy(quantity = newQuantity)) else it }
+                            val newList = currentState.productsOrderLineList.map {
+                                if (it.id == newEvent.productId) it.copy(
+                                    orderLine = it.orderLine.copy(
+                                        quantity = newQuantity
+                                    )
+                                ) else it
+                            }
                             currentState.copy(productsOrderLineList = newList)
                         }
                     }
                 }
+
                 is NewOrderEvent.MinusQuantityProduct -> {
-                    val productUpdated = state.value.productsOrderLineList.singleOrNull { it.id == newEvent.productId }
+                    val productUpdated =
+                        state.value.productsOrderLineList.singleOrNull { it.id == newEvent.productId }
                     productUpdated?.let { line ->
                         val newQuantity = line.quantity.minus(1)
                         if (newQuantity == 0) {
@@ -255,7 +435,13 @@ class NewOrderViewModel @Inject constructor(
                         } else {
                             orderModel.updateProductStock(newEvent.productId, newQuantity)
                             _state.update { currentState ->
-                                val newList = currentState.productsOrderLineList.map { if (it.id == newEvent.productId) it.copy(orderLine = it.orderLine.copy(quantity = newQuantity)) else it }
+                                val newList = currentState.productsOrderLineList.map {
+                                    if (it.id == newEvent.productId) it.copy(
+                                        orderLine = it.orderLine.copy(
+                                            quantity = newQuantity
+                                        )
+                                    ) else it
+                                }
                                 currentState.copy(productsOrderLineList = newList)
                             }
                         }
@@ -277,13 +463,16 @@ class NewOrderViewModel @Inject constructor(
                             ContainerType.COMMIT_AVOCADOS.value -> state.value.kgAvocados
                             else -> it.orderLine.quantity
                         }
-                        val adjustedSubtotal = if (it.container == ContainerType.COMMIT_MANGOES.value ||
-                            it.container == ContainerType.COMMIT_AVOCADOS.value) {
-                            it.price.toDouble()
-                        } else {
-                            it.getAmount()
-                        }
-                        val updatedOrderLine = it.orderLine.copy(quantity = adjustedQuantity)//, subtotal = adjustedSubtotal)
+                        val adjustedSubtotal =
+                            if (it.container == ContainerType.COMMIT_MANGOES.value ||
+                                it.container == ContainerType.COMMIT_AVOCADOS.value
+                            ) {
+                                it.price.toDouble()
+                            } else {
+                                it.getAmount()
+                            }
+                        val updatedOrderLine =
+                            it.orderLine.copy(quantity = adjustedQuantity)//, subtotal = adjustedSubtotal)
 
                         it.copy(orderLine = updatedOrderLine)
                     }
@@ -313,7 +502,8 @@ class NewOrderViewModel @Inject constructor(
                             }
                         )
                     } else {
-                        val errorMessage = checkResult.exceptionOrNull()?.message ?: "Error desconocido"
+                        val errorMessage =
+                            checkResult.exceptionOrNull()?.message ?: "Error desconocido"
                         _state.update {
                             it.copy(
                                 showPopup = PopupType.MISSING_COMMIT,
@@ -344,4 +534,111 @@ class NewOrderViewModel @Inject constructor(
         }
     }
 
+    fun forceReload() {
+        Timber.i("SYNC_forceReload lanzada en ${this::class.simpleName} a las ${System.currentTimeMillis()}")
+        viewModelScope.launch(Dispatchers.IO) {
+            /***********************************************************************
+             * ANÁLISIS DE FLUJOS EN withTimeoutOrNull(3_000) DE forceReload()
+             *
+             * El análisis es análogo al del init:
+             * - checkCurrentUserLoggedUseCase() y getCurrentWeek() son SEGURAS (locales).
+             * - getAllProductsDirect() y loadAvailableProducts() son POTENCIALMENTE PROBLEMÁTICAS (pueden depender de red/Firestore/Flow).
+             * - async { getAllMeasuresUseCase() }, async { getAllContainersUseCase() }, async { handleLastWeekOrders()/handleCurrentWeekOrders() }
+             *   son POTENCIALMENTE PROBLEMÁTICAS (acceso a Firestore/red/Flow).
+             ***********************************************************************/
+            val result = kotlinx.coroutines.withTimeoutOrNull(3_000) {
+                try {
+                    val currentUserResult = checkCurrentUserLoggedUseCase()
+                    val currentUser = currentUserResult.getOrNull()
+
+                    if (currentUser == null) {
+                        _state.update {
+                            Timber.i("SYNC_DEBUG isLoading puesto a false en [forceReload: currentUser==null]")
+                            it.copy(isLoading = false)
+                        }
+                        return@withTimeoutOrNull
+                    }
+
+                    _state.update {
+                        it.copy(
+                            isLoading = true,
+                            currentDay = DayOfWeek.of(getCurrentWeek()),
+                            kgMangoes = currentUser.tropical1.roundToInt(),
+                            kgAvocados = currentUser.tropical2.roundToInt()
+                        )
+                    }
+                    // getAllProductsDirect() y loadAvailableProducts() pueden colgarse si la red/Firestore está lenta.
+                    Timber.i("SYNC_DEBUG Antes de getAllProductsDirect en forceReload")
+                    val allProductsResult = getAvailableProductsUseCase.getAllProductsDirect()
+                    Timber.i("SYNC_DEBUG Después de getAllProductsDirect en forceReload")
+                    allProductsResult.onSuccess { products ->
+                        Timber.i("SYNC_getAllProducts directa en forceReload - productos recibidos: ${products.size}")
+                        if (products.isNotEmpty()) {
+                            initialCommonProducts = products
+                            Timber.i("SYNC_forceReload - initialCommonProducts actualizado: ${initialCommonProducts.size}")
+                            val groupedByCompany = products.groupBy { it.companyName.orEmpty() }.toSortedMap()
+                            _state.update {
+                                it.copy(
+                                    productsGroupedByCompany = groupedByCompany
+                                )
+                            }
+                        }
+                    }.onFailure { error ->
+                        Timber.e(error, "SYNC_Error en getAllProducts directa en forceReload")
+                    }
+
+                    Timber.i("SYNC_DEBUG Antes de loadAvailableProducts en [forceReload]")
+                    if (!loadAvailableProducts(getAvailableProductsUseCase)) {
+                        Timber.i("SYNC_DEBUG isLoading puesto a false en [forceReload: loadAvailableProducts==false]")
+                        _state.update { it.copy(isLoading = false) }
+                        return@withTimeoutOrNull
+                    }
+                    Timber.i("SYNC_DEBUG Después de loadAvailableProducts en [forceReload]")
+                    // --- ANÁLISIS DE async { ... } EN ESTE BLOQUE ---
+                    // async #1: getAllMeasuresUseCase() --> POTENCIALMENTE PROBLEMÁTICO (Firestore/red)
+                    // async #2: getAllContainersUseCase() --> POTENCIALMENTE PROBLEMÁTICO (Firestore/red)
+                    // async #3: handleLastWeekOrders() / handleCurrentWeekOrders() --> POTENCIALMENTE PROBLEMÁTICO (Firestore/red/Flow)
+                    val job1 = async {
+                        withTimeoutOrNull(2_000) {
+                            val measureList = getAllMeasuresUseCase()
+                            Timber.i("SYNC_collect de MEASURES en ${this@NewOrderViewModel::class.simpleName} a las ${System.currentTimeMillis()} - tamaño: ${measureList.size}")
+                            _state.update { it.copy(measures = measureList) }
+                        } ?: Timber.w("SYNC_TIMEOUT interno en medidas")
+                    }
+                    val job2 = async {
+                        withTimeoutOrNull(2_000) {
+                            val containerList = getAllContainersUseCase()
+                            Timber.i("SYNC_collect de CONTAINERS en ${this@NewOrderViewModel::class.simpleName} a las ${System.currentTimeMillis()} - tamaño: ${containerList.size}")
+                            _state.update { it.copy(containers = containerList) }
+                        } ?: Timber.w("SYNC_TIMEOUT interno en containers")
+                    }
+                    val job3 = async {
+                        withTimeoutOrNull(2_000) {
+                            if (state.value.currentDay in DayOfWeek.THURSDAY..DayOfWeek.SUNDAY) {
+                                Timber.i("SYNC_DEBUG Antes de handleCurrentWeekOrders en [forceReload]")
+                                handleCurrentWeekOrders()
+                                Timber.i("SYNC_DEBUG Después de handleCurrentWeekOrders en [forceReload]")
+                            } else {
+                                Timber.i("SYNC_DEBUG Antes de handleLastWeekOrders en [forceReload]")
+                                handleLastWeekOrders()
+                                Timber.i("SYNC_DEBUG Después de handleLastWeekOrders en [forceReload]")
+                            }
+                        } ?: Timber.w("SYNC_TIMEOUT interno en orders")
+                    }
+                    awaitAll(job1, job2, job3)
+                } finally {
+                    Timber.i("🔥 SYNC_UI: Ocultando loader desde forceReload")
+                    _state.update { it.copy(isLoading = false) }
+                    Timber.i("SYNC_DEBUG isLoading puesto a false en finally [forceReload]")
+                }
+            }
+            if (result == null) {
+                Timber.e("SYNC_TIMEOUT: El ciclo principal del ViewModel ha excedido 15s. Forzando loader a false. [forceReload]")
+                _state.update {
+                    Timber.i("SYNC_DEBUG isLoading puesto a false tras timeout [forceReload]")
+                    it.copy(isLoading = false)
+                }
+            }
+        }
+    }
 }

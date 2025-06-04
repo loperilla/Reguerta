@@ -1,8 +1,6 @@
 package com.reguerta.localdata.datastore
 
 import androidx.datastore.preferences.core.Preferences
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 /*****
  * Project: Reguerta
@@ -22,4 +20,7 @@ interface ReguertaDataStore {
     suspend fun saveAllSyncTimestamps(timestamps: Map<String, Long>)
     suspend fun getAllSyncTimestamps(): Map<String, Long>
     suspend fun getSyncTimestampsFor(tableKeys: List<String>): Map<String, Long>
+    suspend fun setIsFirstRun(value: Boolean)
+    suspend fun getIsFirstRun(): Boolean
+    val isFirstRun: kotlinx.coroutines.flow.Flow<Boolean>
 }

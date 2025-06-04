@@ -77,20 +77,15 @@ class NewOrderModel @Inject constructor(
     }
 
     suspend fun getOrderLinesFromCurrentWeek(): Flow<List<OrderLineReceived>> =
-        orderLinesService.getOrdersByOrderId(order.id).map {
-            it.fold(
-                onSuccess = { orderLines ->
-                    val listReturn = mutableListOf<OrderLineReceived>()
-                    orderLines.forEach { model ->
-                        val product = productService.getProductById(model.productId.orEmpty()).getOrThrow().toDomain()
-                        listReturn.add(model.toReceived(product, order))
-                    }
-                    listReturn
-                },
-                onFailure = {
-                    emptyList()
+        orderLinesService.getOrdersByOrderId(order.id).map { result ->
+            val listReturn = mutableListOf<OrderLineReceived>()
+            result.onSuccess { orderLines ->
+                orderLines.forEach { model ->
+                    val product = productService.getProductById(model.productId.orEmpty()).getOrThrow().toDomain()
+                    listReturn.add(model.toReceived(product, order))
                 }
-            )
+            }
+            listReturn
         }
 
     suspend fun deleteOrder() {

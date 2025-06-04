@@ -10,6 +10,5 @@ import kotlinx.coroutines.flow.Flow
  */
 
 interface ContainersService {
-    suspend fun getContainers(): Flow<Result<List<ContainerModel>>>
     suspend fun getAllContainers(): Result<List<ContainerModel>>
 }

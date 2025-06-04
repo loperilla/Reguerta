@@ -19,6 +19,8 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -42,6 +44,7 @@ import com.reguerta.presentation.composables.image.ProductImage
 import com.reguerta.presentation.composables.products.ProductNameUnityContainer
 import com.reguerta.presentation.composables.products.ProductNameUnityContainerInMyOrder
 import com.reguerta.presentation.getQuantitySum
+import com.reguerta.presentation.screen.home.HomeViewModel
 import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_LARGE
@@ -59,6 +62,7 @@ import com.reguerta.presentation.ui.TEXT_SIZE_SMADIUM
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
 import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.errorColor
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /*****
@@ -74,6 +78,16 @@ fun receivedOrdersScreen(
 ) {
     val viewModel = hiltViewModel<ReceivedOrdersViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val homeViewModel = hiltViewModel<HomeViewModel>()
+    val isSyncFinished by homeViewModel.isSyncFinished.collectAsState()
+
+    LaunchedEffect(isSyncFinished) {
+        if (isSyncFinished) {
+            delay(700)
+            viewModel.forceReload()
+        }
+    }
+
     if (state.goOut) {
         navigateTo(Routes.HOME.route)
         return

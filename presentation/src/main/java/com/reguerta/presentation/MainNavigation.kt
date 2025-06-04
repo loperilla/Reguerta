@@ -16,6 +16,7 @@ import com.reguerta.presentation.screen.received_orders.receivedOrdersScreen
 import com.reguerta.presentation.screen.settings.settingsScreen
 import com.reguerta.presentation.screen.users.usersGraph
 import com.reguerta.presentation.ui.Routes
+import timber.log.Timber
 
 /*****
  * Project: Reguerta
@@ -37,21 +38,25 @@ fun MainNavigation(
             authGraph(navController)
             navigation(startDestination = Routes.HOME.ROOT.route, route = Routes.HOME.route) {
                 composable(Routes.HOME.ROOT.route) {
+                    Timber.i("SYNC_Navegando a HomeScreen (HOME.ROOT)")
                     homeScreen {
                         navController.navigate(it)
                     }
                 }
                 composable(Routes.HOME.ORDERS.route) {
+                    Timber.i("SYNC_Navegando a OrdersScreen (HOME.ORDERS)")
                     ordersScreen {
                         navController.navigate(it)
                     }
                 }
                 composable(Routes.HOME.ORDER_RECEIVED.route) {
+                    Timber.i("SYNC_Navegando a ReceivedOrdersScreen (HOME.ORDER_RECEIVED)")
                     receivedOrdersScreen {
                         navController.navigate(it)
                     }
                 }
                 composable(Routes.HOME.SETTINGS.route) {
+                    Timber.i("SYNC_Navegando a SettingsScreen (HOME.SETTINGS)")
                     settingsScreen {
                         navController.navigate(it)
                     }

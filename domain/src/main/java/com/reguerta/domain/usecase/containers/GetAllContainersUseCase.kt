@@ -17,18 +17,10 @@ import javax.inject.Inject
 class GetAllContainersUseCase @Inject constructor(
     private val containersService: ContainersService
 ) {
-    suspend operator fun invoke(): Flow<List<Container>> {
-        return containersService.getContainers().map {
-            it.fold(
-                onSuccess = { containerModelList ->
-                    containerModelList.map { containerModel ->
-                        containerModel.toDomain()
-                    }
-                },
-                onFailure = {
-                    emptyList()
-                }
-            )
-        }
+    suspend operator fun invoke(): List<Container> {
+        return containersService.getAllContainers().fold(
+            onSuccess = { list -> list.map { it.toDomain() } },
+            onFailure = { emptyList() }
+        )
     }
 }
