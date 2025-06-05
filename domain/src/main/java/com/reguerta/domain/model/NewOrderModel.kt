@@ -24,7 +24,7 @@ class NewOrderModel @Inject constructor(
     private val orderService: OrdersService,
     private val orderLinesService: OrderLinesService
 ) {
-    private lateinit var order: Order
+    lateinit var order: Order
 
     suspend fun checkIfExistOrderInFirebase(): Result<Boolean> {
         return when (val result = orderService.getOrderByUserId()) {

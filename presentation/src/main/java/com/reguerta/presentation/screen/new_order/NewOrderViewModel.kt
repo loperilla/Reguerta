@@ -7,7 +7,6 @@ import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.NewOrderModel
-import com.reguerta.domain.model.mapper.toDomain
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.containers.GetAllContainersUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
@@ -63,6 +62,15 @@ class NewOrderViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            // Determinar si estamos en la rama de fin de semana (jueves a domingo) o entre semana (lunes a miércoles)
+            val today = java.time.LocalDate.now()
+            val isWeekendBranch = today.dayOfWeek in listOf(
+                DayOfWeek.THURSDAY,
+                DayOfWeek.FRIDAY,
+                DayOfWeek.SATURDAY,
+                DayOfWeek.SUNDAY
+            )
+            Timber.i("FLOW_BRANCH - Día actual: ${today.dayOfWeek}, isWeekendBranch: $isWeekendBranch")
             /***********************************************************************
              * ANÁLISIS DE FLUJOS EN withTimeoutOrNull(15_000) DEL INIT
              *
@@ -121,7 +129,7 @@ class NewOrderViewModel @Inject constructor(
              * - Los errores de timeout aparecen asociados a los async de pedidos y contenedores, lo que confirma que son candidatos a colgarse.
              ***********************************************************************/
             Timber.i("SYNC_TRACE - Inicio de bloque withTimeoutOrNull de 15s")
-            val result = kotlinx.coroutines.withTimeoutOrNull(3_000) {
+            val result = withTimeoutOrNull(3_000) {
                 try {
                     Timber.i("SYNC_INIT de NewOrderViewModel lanzado a las ${System.currentTimeMillis()}")
                     val currentUserResult = checkCurrentUserLoggedUseCase()
@@ -167,7 +175,8 @@ class NewOrderViewModel @Inject constructor(
                     }
                     val job3 = async {
                         withTimeoutOrNull(2_000) {
-                            if (state.value.currentDay in DayOfWeek.THURSDAY..DayOfWeek.SUNDAY) {
+                            // Usar isWeekendBranch para decidir el flujo
+                            if (isWeekendBranch) {
                                 handleCurrentWeekOrders()
                             } else {
                                 handleLastWeekOrders()
@@ -256,7 +265,7 @@ class NewOrderViewModel @Inject constructor(
             // Si está vacío, esperamos y reintentamos
             intentos++
             Timber.i("SYNC_loadAvailableProducts - lista vacía, reintentando (${intentos + 1})...")
-            kotlinx.coroutines.delay(delayMillis)
+            delay(delayMillis)
         }
         Timber.e("SYNC_loadAvailableProducts - No se pudieron obtener productos tras $maxIntentos intentos")
         handleError(IllegalStateException("No se pudieron obtener productos tras $maxIntentos intentos"))
@@ -300,9 +309,7 @@ class NewOrderViewModel @Inject constructor(
                 Timber.i("SYNC_handleCurrentWeekOrders - existe pedido actual: $existOrder")
                 _state.update { it.copy(isExistOrder = existOrder) }
                 if (existOrder) {
-                    Timber.i("SYNC_DEBUG Antes de loadOrderLinesFromCurrentWeek en handleCurrentWeekOrders")
                     loadOrderLinesFromCurrentWeek()
-                    Timber.i("SYNC_DEBUG Después de loadOrderLinesFromCurrentWeek en handleCurrentWeekOrders")
                 } else {
                     Timber.i("SYNC_DEBUG Antes de loadNewOrderLines en handleCurrentWeekOrders")
                     loadNewOrderLines()
@@ -322,6 +329,10 @@ class NewOrderViewModel @Inject constructor(
         val ordersReceived = withTimeoutOrNull(1000) {
             orderModel.getOrderLinesFromCurrentWeek().firstOrNull()
         } ?: return
+        Timber.i("DEBUG_ORDERLINES - orderLines recibidas: ${ordersReceived.size}")
+        ordersReceived.firstOrNull()?.let { first ->
+            Timber.i("DEBUG_ORDERLINES - Primera orderLine recibida: $first")
+        }
         Timber.i("SYNC_DEBUG Dentro de firstOrNull en loadOrderLinesFromCurrentWeek")
         val mappedOrderLines =
             mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)
@@ -349,10 +360,11 @@ class NewOrderViewModel @Inject constructor(
                     buildProductWithOrderList(orderList)
                     Timber.i("SYNC_DEBUG Después de buildProductWithOrderList en loadNewOrderLines")
                 } else {
-                    _state.update { it ->
+                    val availableProducts = getAvailableProductsUseCase().first()
+                    Timber.i("SYNC_loadNewOrderLines - productos disponibles: ${availableProducts.size}")
+                    _state.update {
                         it.copy(
-                            productsGroupedByCompany = initialCommonProducts.groupBy { it.companyName }
-                                .toSortedMap(),
+                            productsGroupedByCompany = availableProducts.groupBy { it.companyName }.toSortedMap(),
                             hasOrderLine = false
                         )
                     }
@@ -537,18 +549,28 @@ class NewOrderViewModel @Inject constructor(
     fun forceReload() {
         Timber.i("SYNC_forceReload lanzada en ${this::class.simpleName} a las ${System.currentTimeMillis()}")
         viewModelScope.launch(Dispatchers.IO) {
+            // Determinar si estamos en la rama de fin de semana (jueves a domingo) o entre semana (lunes a miércoles)
+            val today = java.time.LocalDate.now()
+            val isWeekendBranch = today.dayOfWeek in listOf(
+                DayOfWeek.THURSDAY,
+                DayOfWeek.FRIDAY,
+                DayOfWeek.SATURDAY,
+                DayOfWeek.SUNDAY
+            )
+            Timber.i("FLOW_BRANCH - Día actual: ${today.dayOfWeek}, isWeekendBranch: $isWeekendBranch")
             /***********************************************************************
              * ANÁLISIS DE FLUJOS EN withTimeoutOrNull(3_000) DE forceReload()
              *
              * El análisis es análogo al del init:
              * - checkCurrentUserLoggedUseCase() y getCurrentWeek() son SEGURAS (locales).
-             * - getAllProductsDirect() y loadAvailableProducts() son POTENCIALMENTE PROBLEMÁTICAS (pueden depender de red/Firestore/Flow).
+             * - getAllProductsDirect() es POTENCIALMENTE PROBLEMÁTICA (puede depender de red/Firestore/Flow).
              * - async { getAllMeasuresUseCase() }, async { getAllContainersUseCase() }, async { handleLastWeekOrders()/handleCurrentWeekOrders() }
              *   son POTENCIALMENTE PROBLEMÁTICAS (acceso a Firestore/red/Flow).
              ***********************************************************************/
-            val result = kotlinx.coroutines.withTimeoutOrNull(3_000) {
+            val result = withTimeoutOrNull(3_000) {
                 try {
                     val currentUserResult = checkCurrentUserLoggedUseCase()
+                    Timber.i("SYNC_TRACE - currentUserResult: $currentUserResult")
                     val currentUser = currentUserResult.getOrNull()
 
                     if (currentUser == null) {
@@ -559,6 +581,9 @@ class NewOrderViewModel @Inject constructor(
                         return@withTimeoutOrNull
                     }
 
+                    val currentWeekId = getCurrentWeek()
+                    Timber.i("DEBUG_FORCE_RELOAD - Semana actual: $currentWeekId")
+
                     _state.update {
                         it.copy(
                             isLoading = true,
@@ -567,16 +592,19 @@ class NewOrderViewModel @Inject constructor(
                             kgAvocados = currentUser.tropical2.roundToInt()
                         )
                     }
-                    // getAllProductsDirect() y loadAvailableProducts() pueden colgarse si la red/Firestore está lenta.
+
+                    // getAllProductsDirect() puede colgarse si la red/Firestore está lenta.
                     Timber.i("SYNC_DEBUG Antes de getAllProductsDirect en forceReload")
                     val allProductsResult = getAvailableProductsUseCase.getAllProductsDirect()
+                    Timber.i("SYNC_TRACE - Resultado getAllProductsDirect: $allProductsResult")
                     Timber.i("SYNC_DEBUG Después de getAllProductsDirect en forceReload")
                     allProductsResult.onSuccess { products ->
                         Timber.i("SYNC_getAllProducts directa en forceReload - productos recibidos: ${products.size}")
+                        Timber.i("SYNC_getAllProducts directa en forceReload - ids: ${products.joinToString { it.id }}")
                         if (products.isNotEmpty()) {
                             initialCommonProducts = products
                             Timber.i("SYNC_forceReload - initialCommonProducts actualizado: ${initialCommonProducts.size}")
-                            val groupedByCompany = products.groupBy { it.companyName.orEmpty() }.toSortedMap()
+                            val groupedByCompany = products.groupBy { it.companyName }.toSortedMap()
                             _state.update {
                                 it.copy(
                                     productsGroupedByCompany = groupedByCompany
@@ -587,13 +615,6 @@ class NewOrderViewModel @Inject constructor(
                         Timber.e(error, "SYNC_Error en getAllProducts directa en forceReload")
                     }
 
-                    Timber.i("SYNC_DEBUG Antes de loadAvailableProducts en [forceReload]")
-                    if (!loadAvailableProducts(getAvailableProductsUseCase)) {
-                        Timber.i("SYNC_DEBUG isLoading puesto a false en [forceReload: loadAvailableProducts==false]")
-                        _state.update { it.copy(isLoading = false) }
-                        return@withTimeoutOrNull
-                    }
-                    Timber.i("SYNC_DEBUG Después de loadAvailableProducts en [forceReload]")
                     // --- ANÁLISIS DE async { ... } EN ESTE BLOQUE ---
                     // async #1: getAllMeasuresUseCase() --> POTENCIALMENTE PROBLEMÁTICO (Firestore/red)
                     // async #2: getAllContainersUseCase() --> POTENCIALMENTE PROBLEMÁTICO (Firestore/red)
@@ -614,7 +635,8 @@ class NewOrderViewModel @Inject constructor(
                     }
                     val job3 = async {
                         withTimeoutOrNull(2_000) {
-                            if (state.value.currentDay in DayOfWeek.THURSDAY..DayOfWeek.SUNDAY) {
+                            // Usar isWeekendBranch para decidir el flujo
+                            if (isWeekendBranch) {
                                 Timber.i("SYNC_DEBUG Antes de handleCurrentWeekOrders en [forceReload]")
                                 handleCurrentWeekOrders()
                                 Timber.i("SYNC_DEBUG Después de handleCurrentWeekOrders en [forceReload]")

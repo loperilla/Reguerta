@@ -18,7 +18,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import timber.log.Timber
 import javax.inject.Inject
 import kotlin.math.roundToInt
 
@@ -36,6 +38,20 @@ class GetAvailableProductsUseCase @Inject constructor(
     private val authService: AuthService,
     private val measuresService: MeasuresService
 ) {
+    private suspend fun retryGetUsersWithDelay(
+        maxAttempts: Int = 5,
+        delayMillis: Long = 1000
+    ): List<UserModel> {
+        repeat(maxAttempts - 1) {
+            val result = usersService.getUserList().first().getOrNull()
+            if (!result.isNullOrEmpty()) return result
+            Timber.w("SYNC_DEBUG_USECASE - Retry $it: empty user list, retrying in $delayMillis ms")
+            kotlinx.coroutines.delay(delayMillis)
+        }
+        // último intento
+        return usersService.getUserList().first().getOrNull().orEmpty()
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend operator fun invoke(): Flow<List<CommonProduct>> {
         val currentUserResult = authService.checkCurrentLoggedUser()
@@ -45,7 +61,16 @@ class GetAvailableProductsUseCase @Inject constructor(
             val availableProducers = usersResult.fold(
                 onSuccess = { userModelList ->
                     val isEvenWeek = weekTime.isEvenCurrentWeek()
-                    userModelList.filter { user ->
+                    Timber.i("SYNC_DEBUG_USECASE - Total userModelList size: ${userModelList.size}")
+
+                    val finalUserList = if (userModelList.isEmpty()) {
+                        Timber.w("SYNC_DEBUG_USECASE - userModelList is empty, retrying with exponential delay")
+                        retryGetUsersWithDelay()
+                    } else {
+                        userModelList
+                    }
+
+                    val filtered = finalUserList.filter { user ->
                         if (user.isProducer) {
                             val typeProducer = user.typeProducer?.toTypeProd() ?: TypeProducerUser.REGULAR
                             val hasCommitment = typeProducer.hasCommitmentThisWeek(isEvenWeek)
@@ -54,8 +79,11 @@ class GetAvailableProductsUseCase @Inject constructor(
                             false
                         }
                     }
+                    Timber.i("SYNC_DEBUG_USECASE - Available producers after filtering: ${filtered.size}")
+                    filtered
                 },
                 onFailure = {
+                    Timber.w("SYNC_DEBUG_USECASE - getUserList failed: $it")
                     emptyList()
                 }
             )
@@ -68,9 +96,11 @@ class GetAvailableProductsUseCase @Inject constructor(
                 )
 
                 productsService.getAvailableProducts().map { products ->
+                    Timber.i("SYNC_DEBUG_USECASE - Product models fetched: ${products.getOrNull()?.size ?: 0}")
                     products.fold(
                         onSuccess = { productModelList ->
-                            productModelList
+                            Timber.i("SYNC_DEBUG_USECASE - Filtered by available producers: ${productModelList.count { productModel -> availableProducers.any { it.id == productModel.userId } }}")
+                            val mappedList = productModelList
                                 .filter { productModel ->
                                     availableProducers.any { it.id == productModel.userId }
                                 }
@@ -78,6 +108,8 @@ class GetAvailableProductsUseCase @Inject constructor(
                                     val modifiedProduct = modifyTropicalValues(productModel, currentUser, measures)
                                     modifiedProduct.toDomain()
                                 }
+                            Timber.i("SYNC_DEBUG_USECASE - Final available products toDomain: ${mappedList.size}")
+                            mappedList
                         },
                         onFailure = {
                             emptyList()
@@ -117,4 +149,3 @@ class GetAvailableProductsUseCase @Inject constructor(
         }
     }
 }
-
