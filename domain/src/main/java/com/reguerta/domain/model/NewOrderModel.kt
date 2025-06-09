@@ -9,6 +9,7 @@ import com.reguerta.domain.model.mapper.toDto
 import com.reguerta.domain.model.mapper.toOrderLineDto
 import com.reguerta.domain.model.mapper.toReceived
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -49,11 +50,13 @@ class NewOrderModel @Inject constructor(
     private suspend fun checkIfHasFirebaseOrderLines(orderId: String): Result<Boolean> =
         orderLinesService.checkIfExistOrderInFirebase(orderId)
 
-    suspend fun getOrderLines(): Flow<List<OrderLineProduct>> = orderLinesService.getOrderLines(order.id).map {
-        it.map { orderLineDTO -> orderLineDTO.toOrderLine() }
-    }
+    suspend fun getOrderLines(): Flow<List<OrderLineProduct>> =
+        orderLinesService.getOrderLines(order.id).map {
+            it.map { orderLineDTO -> orderLineDTO.toOrderLine() }
+        }
 
-    suspend fun deleteOrderLineLocal(productId: String) = orderLinesService.deleteOrderLine(order.id, productId)
+    suspend fun deleteOrderLineLocal(productId: String) =
+        orderLinesService.deleteOrderLine(order.id, productId)
 
     suspend fun updateProductStock(productId: String, newQuantity: Int) =
         orderLinesService.updateQuantity(order.id, productId, newQuantity)
@@ -81,7 +84,9 @@ class NewOrderModel @Inject constructor(
             val listReturn = mutableListOf<OrderLineReceived>()
             result.onSuccess { orderLines ->
                 orderLines.forEach { model ->
-                    val product = productService.getProductById(model.productId.orEmpty()).getOrThrow().toDomain()
+                    val product =
+                        productService.getProductById(model.productId.orEmpty()).getOrThrow()
+                            .toDomain()
                     listReturn.add(model.toReceived(product, order))
                 }
             }
@@ -92,4 +97,9 @@ class NewOrderModel @Inject constructor(
         orderLinesService.deleteFirebaseOrderLine(order.id)
         orderService.deleteOrder(order.id)
     }
+
+    suspend fun getOrderLinesList(): List<OrderLineProduct> {
+        return getOrderLines().first()
+    }
+
 }

@@ -168,40 +168,50 @@ fun newOrderScreen(
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (state.isLoading) {
-            Timber.i("SYNC_UI: Loading visible! state.isLoading = true")
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                LoadingAnimation()
+        when (state.uiState) {
+            NewOrderUiMode.LOADING -> {
+                Timber.i("SYNC_UI: Loading visible! state.uiState = LOADING")
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingAnimation()
+                }
             }
-        } else {
-            Timber.i("SYNC_UI: Loading oculto. state.isLoading = false. Mostrando contenido.")
-            Screen {
-                if (state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) {
-                    if (state.isExistOrder) {
-                        LastOrderScreen(
-                            state = state,
-                            onEvent = viewModel::onEvent
-                        )
-                    } else {
-                        NoOrderScreen(
-                            onEvent = viewModel::onEvent
-                        )
-                    }
-                } else {
-                    if (state.isExistOrder) {
-                        ExistingOrderScreen(
-                            state = state,
-                            onEvent = viewModel::onEvent
-                        )
-                    } else {
-                        NewOrderScreen(
-                            state = state,
-                            onEvent = viewModel::onEvent
-                        )
-                    }
+            NewOrderUiMode.SELECT_PRODUCTS -> {
+                Timber.i("SYNC_UI: Modo selección de productos.")
+                Screen {
+                    NewOrderScreen(
+                        state = state,
+                        onEvent = viewModel::onEvent
+                    )
+                }
+            }
+            NewOrderUiMode.EDIT_ORDER -> {
+                Timber.i("SYNC_UI: Modo edición de pedido existente.")
+                Screen {
+                    ExistingOrderScreen(
+                        state = state,
+                        onEvent = viewModel::onEvent
+                    )
+                }
+            }
+            NewOrderUiMode.SHOW_PREVIOUS_ORDER -> {
+                Timber.i("SYNC_UI: Modo mostrar pedido anterior.")
+                Screen {
+                    LastOrderScreen(
+                        state = state,
+                        onEvent = viewModel::onEvent
+                    )
+                }
+            }
+            NewOrderUiMode.ERROR -> {
+                Timber.i("SYNC_UI: Error visible. Mensaje: ${state.errorMessage}")
+                Screen {
+                    NoOrderScreen(
+                        onEvent = viewModel::onEvent
+                    )
+                    // Opcional: muestra mensaje de error más explícito usando state.errorMessage
                 }
             }
         }
@@ -293,25 +303,8 @@ fun ExistingOrderScreen(
                     }
                 }
             )
-        }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it)
-                .padding(bottom = PADDING_LARGE + PADDING_MEDIUM)
-        ) {
-            OrderLinesByCompany(
-                orderLines = state.orderLinesByCompanyName,
-                state =  state,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.End
-        ) {
-            Spacer( modifier = Modifier.weight(1f))
+        },
+        bottomBar = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -325,6 +318,18 @@ fun ExistingOrderScreen(
                     textColor = Text
                 )
             }
+        }
+    ) { it ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
+            OrderLinesByCompany(
+                orderLines = state.orderLinesByCompanyName,
+                state =  state,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }
@@ -351,29 +356,12 @@ fun LastOrderScreen(
                             .padding(PADDING_ZERO),
                         horizontalAlignment = Alignment.End
                     ) {
-
+                        // No actions for last order
                     }
                 }
             )
-        }
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(it)
-                .padding(bottom = PADDING_LARGE + PADDING_MEDIUM)
-        ) {
-            OrderLinesByCompany(
-                orderLines = state.orderLinesByCompanyName,
-                state = state,
-                modifier = Modifier.weight(1f)
-            )
-        }
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalAlignment = Alignment.End
-        ) {
-            Spacer( modifier = Modifier.weight(1f))
+        },
+        bottomBar = {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -387,6 +375,18 @@ fun LastOrderScreen(
                     textColor = Text
                 )
             }
+        }
+    ) { it ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it)
+        ) {
+            OrderLinesByCompany(
+                orderLines = state.orderLinesByCompanyName,
+                state = state,
+                modifier = Modifier.weight(1f)
+            )
         }
     }
 }
@@ -654,22 +654,17 @@ fun NewOrderScreen(
                         )
                     }
                     AnimatedVisibility(visible = !state.showShoppingCart) {
-                        if (state.isExistOrder) {
-                            ExistingOrderScreen(state, onEvent)
-                        } else {
-                            GroupedProductsScreen(
-                                groupedProducts = state.productsGroupedByCompany,
-                                onEvent
-                            )
-                        }
+                        GroupedProductsScreen(
+                            groupedProducts = state.productsGroupedByCompany,
+                            onEvent = onEvent
+                        )
                     }
                 }
             }
         }
     } else {
         Box(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
             CircularProgressIndicator(

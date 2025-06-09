@@ -14,9 +14,18 @@ import java.time.DayOfWeek
  * All rights reserved 2024
  */
 
+enum class NewOrderUiMode {
+    LOADING,
+    SELECT_PRODUCTS,
+    EDIT_ORDER,
+    SHOW_PREVIOUS_ORDER,
+    ERROR
+}
+
 data class NewOrderState(
     val goOut: Boolean = false,
     val isLoading: Boolean = true,
+    val uiState: NewOrderUiMode = NewOrderUiMode.LOADING,
     val isExistOrder: Boolean = false,
     val hasOrderLine: Boolean = false,
     val showShoppingCart: Boolean = false,
@@ -31,7 +40,8 @@ data class NewOrderState(
     val measures: List<Measure> = emptyList(),
     val containers: List<Container> = emptyList(),
     val kgMangoes: Int = 0,
-    val kgAvocados: Int = 0
+    val kgAvocados: Int = 0,
+    val loadingMessage: String? = null
 )
 
 enum class PopupType {

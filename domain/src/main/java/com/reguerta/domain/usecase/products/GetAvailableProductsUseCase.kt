@@ -40,7 +40,7 @@ class GetAvailableProductsUseCase @Inject constructor(
 ) {
     private suspend fun retryGetUsersWithDelay(
         maxAttempts: Int = 5,
-        delayMillis: Long = 1000
+        delayMillis: Long = 2000
     ): List<UserModel> {
         repeat(maxAttempts - 1) {
             val result = usersService.getUserList().first().getOrNull()
@@ -62,13 +62,16 @@ class GetAvailableProductsUseCase @Inject constructor(
                 onSuccess = { userModelList ->
                     val isEvenWeek = weekTime.isEvenCurrentWeek()
                     Timber.i("SYNC_DEBUG_USECASE - Total userModelList size: ${userModelList.size}")
+                    Timber.i("SYNC_TRACE_USECASE - Primeros IDs de usuarios cargados: ${userModelList.take(5).map { it.id }}")
+                    Timber.i("SYNC_TRACE_USECASE - Todos los user IDs: ${userModelList.map { it.id }}")
 
                     val finalUserList = if (userModelList.isEmpty()) {
                         Timber.w("SYNC_DEBUG_USECASE - userModelList is empty, retrying with exponential delay")
                         retryGetUsersWithDelay()
                     } else {
-                        userModelList
+                        userModelList.distinctBy { it.id }
                     }
+                    Timber.i("SYNC_TRACE_USECASE - Productores detectados (sin filtrar): ${finalUserList.count { it.isProducer }}")
 
                     val filtered = finalUserList.filter { user ->
                         if (user.isProducer) {
@@ -80,6 +83,7 @@ class GetAvailableProductsUseCase @Inject constructor(
                         }
                     }
                     Timber.i("SYNC_DEBUG_USECASE - Available producers after filtering: ${filtered.size}")
+                    Timber.i("SYNC_TRACE_USECASE - IDs de productores disponibles: ${filtered.map { it.id }}")
                     filtered
                 },
                 onFailure = {
@@ -97,6 +101,7 @@ class GetAvailableProductsUseCase @Inject constructor(
 
                 productsService.getAvailableProducts().map { products ->
                     Timber.i("SYNC_DEBUG_USECASE - Product models fetched: ${products.getOrNull()?.size ?: 0}")
+                    Timber.i("SYNC_TRACE_USECASE - IDs productos crudos: ${products.getOrNull()?.take(5)?.map { it.id }}")
                     products.fold(
                         onSuccess = { productModelList ->
                             Timber.i("SYNC_DEBUG_USECASE - Filtered by available producers: ${productModelList.count { productModel -> availableProducers.any { it.id == productModel.userId } }}")
@@ -109,6 +114,7 @@ class GetAvailableProductsUseCase @Inject constructor(
                                     modifiedProduct.toDomain()
                                 }
                             Timber.i("SYNC_DEBUG_USECASE - Final available products toDomain: ${mappedList.size}")
+                            Timber.i("SYNC_TRACE_USECASE - Productos finales a mostrar: ${mappedList.size} | IDs: ${mappedList.map { it.id }}")
                             mappedList
                         },
                         onFailure = {

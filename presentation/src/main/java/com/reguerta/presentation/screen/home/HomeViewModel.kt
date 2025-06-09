@@ -85,14 +85,19 @@ class HomeViewModel @Inject constructor(
     }
 
 
-    fun triggerSyncIfNeeded(config: ConfigModel, isAdmin: Boolean, isProducer: Boolean, currentDay: DayOfWeek) {
+    fun triggerSyncIfNeeded(
+        config: ConfigModel,
+        isAdmin: Boolean,
+        isProducer: Boolean,
+        currentDay: DayOfWeek
+    ) {
         if (!hasSyncedInSession) {
             hasSyncedInSession = true
-            triggerBackgroundSync(config, isAdmin, isProducer, currentDay)
+            triggerBackgroundSync(config, isAdmin, isProducer, currentDay, skipProductSync = true)
         } else {
             viewModelScope.launch(Dispatchers.IO) {
                 ForegroundSyncManager.checkAndSyncIfNeeded {
-                    triggerBackgroundSync(config, isAdmin, isProducer, currentDay)
+                    triggerBackgroundSync(config, isAdmin, isProducer, currentDay, skipProductSync = true)
                 }
             }
         }
@@ -123,8 +128,23 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun triggerBackgroundSync(config: ConfigModel, isAdmin: Boolean, isProducer: Boolean, currentDay: DayOfWeek) {
+    private fun triggerBackgroundSync(
+        config: ConfigModel,
+        isAdmin: Boolean,
+        isProducer: Boolean,
+        currentDay: DayOfWeek,
+        skipProductSync: Boolean = false
+    ) {
         viewModelScope.launch(Dispatchers.IO) {
+            val syncMap = mutableMapOf<String, suspend (com.google.firebase.Timestamp) -> Unit>()
+
+            if (!skipProductSync) {
+                syncMap["products"] = { syncProductsUseCase(it) }
+                syncMap["containers"] = { syncContainersUseCase(it) }
+                syncMap["measures"] = { syncMeasuresUseCase(it) }
+            }
+            syncMap["orders"] = { syncOrdersAndOrderLinesUseCase(it) }
+
             SyncOrchestrator.runSyncIfNeeded(
                 getRemoteTimestamps = { config.lastTimestamps },
                 getLocalTimestamps = {
@@ -132,31 +152,48 @@ class HomeViewModel @Inject constructor(
                         getActiveCriticalTables(isAdmin, isProducer, currentDay).map { it.name.lowercase() }
                     )
                 },
-                getCriticalTables = { getActiveCriticalTables(isAdmin, isProducer, currentDay).map { it.name.lowercase() } },
-                syncActions = mapOf(
-                    "products" to { syncProductsUseCase(it) },
-                    "containers" to { syncContainersUseCase(it) },
-                    "measures" to { syncMeasuresUseCase(it) },
-                    "orders" to { syncOrdersAndOrderLinesUseCase(it) }
-                )
+                getCriticalTables = {
+                    getActiveCriticalTables(isAdmin, isProducer, currentDay).map { it.name.lowercase() }
+                },
+                syncActions = syncMap
             )
             Timber.i("SYNC: triggerBackgroundSync - SyncOrchestrator terminó, se pone isSyncFinished = true en ${System.currentTimeMillis()}")
             _isSyncFinished.value = true
         }
     }
 
+    // INIT: Al iniciar, carga usuario y configuración, controla errores y actualiza el estado atómicamente.
     init {
         viewModelScope.launch(Dispatchers.IO) {
+            // Siempre marcamos como cargando y ocultamos el diálogo de no autorizado al entrar
+            _state.update { it.copy(isLoading = true, showNotAuthorizedDialog = false) }
+
+            // Paso 1: Comprobar usuario
             val userResult = checkUserUseCase()
             userResult.fold(
                 onSuccess = { user ->
-                    _state.update { it.copy(isLoading = true) }
-                    val result = checkAppState(getConfigUseCase())
+                    // Paso 2: Obtener configuración de forma segura
+                    val configResult = runCatching { getConfigUseCase() }
+                    val result = configResult.fold(
+                        onSuccess = { config ->
+                            // Comprobar el estado de la app según la config
+                            checkAppState(config)
+                        },
+                        onFailure = {
+                            // Si falla la config, forzar actualización y mostrar error
+                            _state.update { it.copy(isLoading = false, configCheckResult = ConfigCheckResult.ForceUpdate) }
+                            Timber.e(it, "Error al obtener configuración, se fuerza actualización")
+                            return@launch
+                        }
+                    )
+                    // Actualizar el resultado de comprobación de config
                     _state.update { it.copy(configCheckResult = result) }
+                    // Si la configuración requiere forzar actualización, no continuar
                     if (result != ConfigCheckResult.Ok) {
                         _state.update { it.copy(isLoading = false) }
                         return@launch
                     }
+                    // Paso 3: Usuario y configuración correctos, obtener día actual
                     val currentDay = DayOfWeek.of(getCurrentWeek())
                     _state.update {
                         it.copy(
@@ -166,17 +203,21 @@ class HomeViewModel @Inject constructor(
                             isLoading = false
                         )
                     }
-                    _isSyncFinished.value = false
-                    // Lanzar sincronización tras cargar el usuario
-                    triggerSyncIfNeeded(
-                        getConfigUseCase(),
-                        user.isAdmin,
-                        user.isProducer,
-                        currentDay
-                    )
-                    return@launch // Añade este return para evitar duplicar el flujo de usuario
+                    // Solo lanzar sincronización si la config es válida
+                    if (result == ConfigCheckResult.Ok) {
+                        _isSyncFinished.value = false
+                        // Lanzar sincronización tras cargar el usuario y config
+                        triggerSyncIfNeeded(
+                            configResult.getOrNull() ?: getConfigUseCase(),
+                            user.isAdmin,
+                            user.isProducer,
+                            currentDay
+                        )
+                    }
+                    // Si no, el flujo termina aquí y no se queda en loading
                 },
                 onFailure = {
+                    // Si falla usuario, mostrar diálogo y quitar loading
                     _state.update { it.copy(showNotAuthorizedDialog = true, isLoading = false) }
                     return@launch
                 }
