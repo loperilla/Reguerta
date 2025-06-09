@@ -165,8 +165,7 @@ class NewOrderViewModel @Inject constructor(
         orderModel.checkIfExistLastWeekOrderInFirebase().fold(
             onSuccess = { existOrder ->
                 if (existOrder) {
-                    retryLoadOrderLinesWithDelay()
-                    _state.update { it.copy(uiState = NewOrderUiMode.SHOW_PREVIOUS_ORDER) }
+                    observeOrderLinesFromCurrentWeek(isEdit = false)
                 } else {
                     _state.update {
                         it.copy(
@@ -196,8 +195,7 @@ class NewOrderViewModel @Inject constructor(
         orderModel.checkIfExistOrderInFirebase().fold(
             onSuccess = { existOrder ->
                 if (existOrder) {
-                    loadOrderLinesFromCurrentWeek()
-                    _state.update { it.copy(uiState = NewOrderUiMode.EDIT_ORDER) }
+                    observeOrderLinesFromCurrentWeek(isEdit = true)
                 } else {
                     Timber.i("SYNC_handleCurrentWeekOrders - No hay pedido actual, no se ejecuta loadNewOrderLines() para no sobreescribir productos disponibles.")
                     val success = loadAvailableProducts(getAvailableProductsUseCase)
@@ -556,18 +554,31 @@ class NewOrderViewModel @Inject constructor(
         return productsWithOrderLine
     }
 
-    private suspend fun retryLoadOrderLinesWithDelay(
-        maxRetries: Int = 10,
-        delayMillis: Long = 2500
-    ) {
-        repeat(maxRetries) { attempt ->
-            loadOrderLinesFromCurrentWeek()
-            val count = state.value.orderLinesByCompanyName.values.flatten().size
-            Timber.i("SYNC: Intento $attempt: Orderlines encontradas tras sync = $count")
-            if (count > 0) return // Sal del retry en cuanto tengas datos
-            delay(delayMillis)
+
+    private fun observeOrderLinesFromCurrentWeek(isEdit: Boolean = true) {
+        viewModelScope.launch(Dispatchers.IO) {
+            orderModel.getOrderLinesFromCurrentWeek().collectLatest { ordersReceived ->
+                Timber.i("SYNC_FLOW: Recibidas orderlines desde Flow, ${ordersReceived.size} líneas.")
+                if (!::initialCommonProducts.isInitialized) {
+                    Timber.w("initialCommonProducts NO inicializado, descargando productos antes de mapear orderlines")
+                    val availableProducts = getAvailableProductsUseCase().firstOrNull() ?: emptyList()
+                    initialCommonProducts = availableProducts
+                }
+                val mappedOrderLines =
+                    mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)
+                val groupedByCompany = mappedOrderLines.groupBy { it.companyName }.toSortedMap()
+
+                val newUiState = if (isEdit) NewOrderUiMode.EDIT_ORDER else NewOrderUiMode.SHOW_PREVIOUS_ORDER
+
+                _state.update {
+                    it.copy(
+                        orderLinesByCompanyName = groupedByCompany,
+                        ordersFromExistingOrder = mappedOrderLines.groupBy { it.product },
+                        uiState = newUiState
+                    )
+                }
+            }
         }
-        Timber.w("SYNC: No se encontraron orderlines tras $maxRetries reintentos post-sync.")
     }
 
 }

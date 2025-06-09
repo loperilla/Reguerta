@@ -128,59 +128,71 @@ fun ReceivedOrdersScreen(
                 }
             )
         }
-    ) {
-        if (state.ordersByProduct.isEmpty()) {
-            ReguertaCard(
-                modifier = Modifier
-                    .padding(it)
-                    .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_MEDIUM),
-                containerColor = errorColor.copy(0.15f),
-                content = {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(PADDING_LARGE),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        TextTitle(
-                            text = "No has recibido ningún pedido esta semana.",
-                            textColor = errorColor,
-                            textAlignment = TextAlign.Center
-                        )
-                    }
+    ) { it ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(it),
+            contentAlignment = Alignment.Center
+        ) {
+            when {
+                state.isLoading -> {
+                    LoadingAnimation()
                 }
-            )
-        } else {
-            Column(modifier = Modifier.padding(it)) {
-                TabRow(selectedTabIndex = pagerState.currentPage) {
-                    tabList.fastForEachIndexed { i, receivedTab ->
-                        Tab(
-                            selected = pagerState.currentPage == i,
-                            onClick = {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(i)
-                                }
-                            },
-                            text = {
+                state.ordersByProduct.isEmpty() -> {
+                    ReguertaCard(
+                        modifier = Modifier
+                            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_MEDIUM),
+                        containerColor = errorColor.copy(0.15f),
+                        content = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(PADDING_LARGE),
+                                contentAlignment = Alignment.Center
+                            ) {
                                 TextTitle(
-                                    text = receivedTab.title,
-                                    textSize = TEXT_SIZE_LARGE
+                                    text = "No has recibido ningún pedido esta semana.",
+                                    textColor = errorColor,
+                                    textAlignment = TextAlign.Center
                                 )
                             }
-                        )
-                    }
+                        }
+                    )
                 }
-                HorizontalPager(state = pagerState) { index ->
-                    if (index == 0) {
-                        OrderListByProduct(
-                            orderLines = state.ordersByProduct,
-                            state = state
-                        )
-                    } else {
-                        OrderListByUser(
-                            orderLines = state.ordersByUser,
-                            state = state
-                        )
+                else -> {
+                    Column(modifier = Modifier.fillMaxSize()) {
+                        TabRow(selectedTabIndex = pagerState.currentPage) {
+                            tabList.fastForEachIndexed { i, receivedTab ->
+                                Tab(
+                                    selected = pagerState.currentPage == i,
+                                    onClick = {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(i)
+                                        }
+                                    },
+                                    text = {
+                                        TextTitle(
+                                            text = receivedTab.title,
+                                            textSize = TEXT_SIZE_LARGE
+                                        )
+                                    }
+                                )
+                            }
+                        }
+                        HorizontalPager(state = pagerState) { index ->
+                            if (index == 0) {
+                                OrderListByProduct(
+                                    orderLines = state.ordersByProduct,
+                                    state = state
+                                )
+                            } else {
+                                OrderListByUser(
+                                    orderLines = state.ordersByUser,
+                                    state = state
+                                )
+                            }
+                        }
                     }
                 }
             }

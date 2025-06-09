@@ -325,11 +325,20 @@ fun ExistingOrderScreen(
                 .fillMaxSize()
                 .padding(it)
         ) {
-            OrderLinesByCompany(
-                orderLines = state.orderLinesByCompanyName,
-                state =  state,
-                modifier = Modifier.weight(1f)
-            )
+            if (state.orderLinesByCompanyName.values.flatten().isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingAnimation()
+                }
+            } else {
+                OrderLinesByCompany(
+                    orderLines = state.orderLinesByCompanyName,
+                    state =  state,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }
@@ -382,11 +391,20 @@ fun LastOrderScreen(
                 .fillMaxSize()
                 .padding(it)
         ) {
-            OrderLinesByCompany(
-                orderLines = state.orderLinesByCompanyName,
-                state = state,
-                modifier = Modifier.weight(1f)
-            )
+            if (state.orderLinesByCompanyName.values.flatten().isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingAnimation()
+                }
+            } else {
+                OrderLinesByCompany(
+                    orderLines = state.orderLinesByCompanyName,
+                    state = state,
+                    modifier = Modifier.weight(1f)
+                )
+            }
         }
     }
 }

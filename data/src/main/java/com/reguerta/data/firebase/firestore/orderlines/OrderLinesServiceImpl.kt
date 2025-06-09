@@ -102,9 +102,10 @@ class OrderLinesServiceImpl @Inject constructor(
     }
 
     override suspend fun getOrdersByCompanyAndWeek(): Flow<Result<List<OrderLineModel>>> = callbackFlow {
-        val companyName = withContext(Dispatchers.IO) {
-            dataStore.getStringByKey(COMPANY_NAME_KEY)
-        }
+        // HACK para pruebas: forzamos el companyName al de un productor real con pedidos recibidos
+        //val companyName = "El Laurel de Cantillo"
+        // Para producción, volver a dejar:
+        val companyName = withContext(Dispatchers.IO) { dataStore.getStringByKey(COMPANY_NAME_KEY) }
         val subscription = collection
             .whereEqualTo(COMPANY_NAME, companyName)
             .whereEqualTo(WEEK, time.getCurrentWeek().minus(1))

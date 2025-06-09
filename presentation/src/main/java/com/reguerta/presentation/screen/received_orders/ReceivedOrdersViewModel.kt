@@ -37,34 +37,30 @@ class ReceivedOrdersViewModel @Inject constructor(
     val state: StateFlow<ReceivedOrdersState> = _state.asStateFlow()
 
     init {
+        // 1. Pone loader
+        _state.update { it.copy(isLoading = true) }
+        // 2. Carga medidas y contenedores en paralelo
         viewModelScope.launch(Dispatchers.IO) {
-            _state.update { it.copy(isLoading = true) }
-            listOf(
-                async {
-                    val measureList = getAllMeasuresUseCase()
-                    _state.update {
-                        it.copy(measures = measureList)
-                    }
-                },
-                async {
-                    val containerList = getAllContainersUseCase()
-                    _state.update {
-                        it.copy(containers = containerList)
-                    }
-                },
-                async {
-                    orderReceivedModel.invoke().collectLatest { orders ->
-                        _state.update {
-                            it.copy(
-                                isLoading = false,
-                                ordersByUser = orders.groupBy { it.fullOrderName() },
-                                ordersByProduct = orders.groupBy { it.product }
-                            )
-                        }
-                    }
+            launch {
+                val measureList = getAllMeasuresUseCase()
+                _state.update { it.copy(measures = measureList) }
+            }
+            launch {
+                val containerList = getAllContainersUseCase()
+                _state.update { it.copy(containers = containerList) }
+            }
+        }
+        // 3. Observa el Flow de pedidos recibidos (¡reactivo!)
+        viewModelScope.launch(Dispatchers.IO) {
+            orderReceivedModel.invoke().collectLatest { orders ->
+                _state.update {
+                    it.copy(
+                        isLoading = false, // loader solo se quita aquí
+                        ordersByUser = orders.groupBy { it.fullOrderName() },
+                        ordersByProduct = orders.groupBy { it.product }
+                    )
                 }
-            ).awaitAll()
-            _state.update { it.copy(isLoading = false) }
+            }
         }
     }
 
