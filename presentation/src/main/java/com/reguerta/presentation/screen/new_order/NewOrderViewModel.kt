@@ -69,7 +69,7 @@ class NewOrderViewModel @Inject constructor(
 
     // Determina el flujo principal según el día y el usuario autenticado
     private suspend fun determineAndExecuteFlow() {
-        Timber.i("SYNC_INIT - Entrando en determineAndExecuteFlow()")
+        Timber.i("SYNC_SYNC_INIT - Entrando en determineAndExecuteFlow()")
         _state.update { it.copy(uiState = NewOrderUiMode.LOADING) }
         val today = DayOfWeek.of(getCurrentWeek())
         val isWeekendBranch = today in listOf(
@@ -78,14 +78,14 @@ class NewOrderViewModel @Inject constructor(
             DayOfWeek.SATURDAY,
             DayOfWeek.SUNDAY
         )
-        Timber.i("FLOW_BRANCH - Día actual: $today, isWeekendBranch: $isWeekendBranch")
+        Timber.i("SYNC_FLOW_BRANCH - Día actual: $today, isWeekendBranch: $isWeekendBranch")
 
         _state.update { it.copy(currentDay = today) }
 
         val currentUserResult = checkCurrentUserLoggedUseCase()
         val currentUser = currentUserResult.getOrNull()
         if (currentUser == null) {
-            Timber.w("SYNC_INIT - currentUser es null, abortando flujo")
+            Timber.w("SYNC_SYNC_INIT - currentUser es null, abortando flujo")
             _state.update {
                 it.copy(
                     uiState = NewOrderUiMode.ERROR,
@@ -103,40 +103,45 @@ class NewOrderViewModel @Inject constructor(
         }
 
         if (isWeekendBranch) {
-            Timber.i("SYNC_FLOW: Ejecutando flujo de fin de semana (jueves a domingo)")
+            Timber.i("SYNC_SYNC_FLOW: Ejecutando flujo de fin de semana (jueves a domingo)")
             handleCurrentWeekOrders()
         } else {
-            Timber.i("SYNC_FLOW: Ejecutando flujo de entre semana (lunes a miércoles)")
+            Timber.i("SYNC_SYNC_FLOW: Ejecutando flujo de entre semana (lunes a miércoles)")
             handleLastWeekOrders()
         }
     }
 
     // Carga los productos disponibles, reintenta si es necesario
     private suspend fun loadAvailableProducts(getAvailableProductsUseCase: GetAvailableProductsUseCase): Boolean {
-        Timber.i("SYNC_FORCE_RELOAD - Ejecutando loadAvailableProducts()")
+        Timber.i("SYNC_SYNC_FORCE_RELOAD - Ejecutando loadAvailableProducts()")
         var intentos = 0
         val maxIntentos = 10
         val delayMillis = 300L
         while (intentos < maxIntentos) {
             try {
+                Timber.i("SYNC_LOAD_PRODUCTS - Intento $intentos: Llamando a getAvailableProductsUseCase()")
                 val availableProducts = getAvailableProductsUseCase().first()
+                Timber.i("SYNC_LOAD_PRODUCTS - Productos obtenidos (${availableProducts.size}): $availableProducts")
                 if (availableProducts.isNotEmpty()) {
                     if (::initialCommonProducts.isInitialized && initialCommonProducts == availableProducts) {
                         return true
                     }
                     initialCommonProducts = availableProducts
+                    Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
                     _state.update {
                         it.copy(
                             productsGroupedByCompany = availableProducts.groupBy { it.companyName }
                                 .toSortedMap()
                         )
                     }
-                    Timber.i("Productos recargados: ${availableProducts.size}")
+                    Timber.i("SYNC_Productos recargados: ${availableProducts.size}")
                     return true
                 }
             } catch (e: Exception) {
-                Timber.e(e, "Error al cargar productos disponibles: ${e.message}")
+                Timber.e(e, "SYNC_ERROR_LOAD_PRODUCTS - ${e.message}")
+                Timber.e(e, "SYNC_Error al cargar productos disponibles: ${e.message}")
                 handleError(e)
+                Timber.e("SYNC_UI_STATE - Cambiando a ERROR. Estado actual: $_state")
                 _state.update {
                     it.copy(
                         uiState = NewOrderUiMode.ERROR,
@@ -148,8 +153,9 @@ class NewOrderViewModel @Inject constructor(
             intentos++
             delay(delayMillis)
         }
-        Timber.e("No se pudieron obtener productos tras $maxIntentos intentos")
+        Timber.e("SYNC_LOAD_PRODUCTS - No se pudieron obtener productos tras $maxIntentos intentos")
         handleError(IllegalStateException("No se pudieron obtener productos tras $maxIntentos intentos"))
+        Timber.e("SYNC_UI_STATE - Cambiando a ERROR. Estado actual: $_state")
         _state.update {
             it.copy(
                 uiState = NewOrderUiMode.ERROR,
@@ -161,24 +167,27 @@ class NewOrderViewModel @Inject constructor(
 
     // Maneja el flujo de pedidos de la semana pasada
     private suspend fun handleLastWeekOrders() {
-        Timber.i("SYNC_handleLastWeekOrders: comprobando si existe pedido anterior...")
+        Timber.i("SYNC_SYNC_handleLastWeekOrders: comprobando si existe pedido anterior...")
         orderModel.checkIfExistLastWeekOrderInFirebase().fold(
             onSuccess = { existOrder ->
                 if (existOrder) {
                     observeOrderLinesFromCurrentWeek(isEdit = false)
                 } else {
+                    Timber.e("SYNC_UI_STATE - Cambiando a ERROR. Estado actual: $_state")
                     _state.update {
                         it.copy(
                             uiState = NewOrderUiMode.ERROR,
                             errorMessage = "No hay pedido anterior disponible"
                         )
                     }
-                    Timber.i("SYNC_FLOW_TYPE - No hay pedido anterior, se mostrará pantalla vacía (LastOrderScreen sin datos)")
+                    Timber.i("SYNC_SYNC_FLOW_TYPE - No hay pedido anterior, se mostrará pantalla vacía (LastOrderScreen sin datos)")
                 }
             },
             onFailure = {
-                Timber.e(it, "SYNC_handleLastWeekOrders - onFailure: ${it.message}")
+                Timber.e(it, "SYNC_ERROR_HANDLE_ORDER - ${it.message}")
+                Timber.e(it, "SYNC_SYNC_handleLastWeekOrders - onFailure: ${it.message}")
                 handleError(it)
+                Timber.e("SYNC_UI_STATE - Cambiando a ERROR. Estado actual: $_state")
                 _state.update {
                     it.copy(
                         uiState = NewOrderUiMode.ERROR,
@@ -191,30 +200,33 @@ class NewOrderViewModel @Inject constructor(
 
     // Maneja el flujo de pedidos de la semana actual
     private suspend fun handleCurrentWeekOrders() {
-        Timber.i("SYNC_handleCurrentWeekOrders: comprobando si existe pedido actual...")
+        Timber.i("SYNC_SYNC_handleCurrentWeekOrders: comprobando si existe pedido actual...")
         orderModel.checkIfExistOrderInFirebase().fold(
             onSuccess = { existOrder ->
                 if (existOrder) {
                     observeOrderLinesFromCurrentWeek(isEdit = true)
                 } else {
-                    Timber.i("SYNC_handleCurrentWeekOrders - No hay pedido actual, no se ejecuta loadNewOrderLines() para no sobreescribir productos disponibles.")
+                    Timber.i("SYNC_SYNC_handleCurrentWeekOrders - No hay pedido actual, no se ejecuta loadNewOrderLines() para no sobreescribir productos disponibles.")
                     val success = loadAvailableProducts(getAvailableProductsUseCase)
                     if (success) {
                         _state.update { it.copy(uiState = NewOrderUiMode.SELECT_PRODUCTS) }
                     } else {
+                        Timber.e("SYNC_UI_STATE - Cambiando a ERROR. Estado actual: $_state")
                         _state.update {
                             it.copy(
                                 uiState = NewOrderUiMode.ERROR,
                                 errorMessage = "No se pudieron cargar productos disponibles"
                             )
                         }
-                        Timber.w("SYNC_WARNING - No se pudieron cargar productos disponibles correctamente")
+                        Timber.w("SYNC_SYNC_WARNING - No se pudieron cargar productos disponibles correctamente")
                     }
                 }
             },
             onFailure = {
-                Timber.e(it, "SYNC_handleCurrentWeekOrders - onFailure: ${it.message}")
+                Timber.e(it, "SYNC_ERROR_HANDLE_ORDER - ${it.message}")
+                Timber.e(it, "SYNC_SYNC_handleCurrentWeekOrders - onFailure: ${it.message}")
                 handleError(it)
+                Timber.e("SYNC_UI_STATE - Cambiando a ERROR. Estado actual: $_state")
                 _state.update {
                     it.copy(
                         uiState = NewOrderUiMode.ERROR,
@@ -227,15 +239,16 @@ class NewOrderViewModel @Inject constructor(
 
     // Carga las líneas de pedido de la semana actual
     private suspend fun loadOrderLinesFromCurrentWeek() {
-        Timber.i("SYNC_Entrando en loadOrderLinesFromCurrentWeek()")
+        Timber.i("SYNC_SYNC_Entrando en loadOrderLinesFromCurrentWeek()")
         val ordersReceived = withTimeoutOrNull(1000) {
             orderModel.getOrderLinesFromCurrentWeek().firstOrNull()
         } ?: return
         if (!::initialCommonProducts.isInitialized) {
             // Si los productos no han sido inicializados, los descargamos antes de mapear.
-            Timber.w("initialCommonProducts NO inicializado, descargando productos antes de mapear orderlines")
+            Timber.w("SYNC_initialCommonProducts NO inicializado, descargando productos antes de mapear orderlines")
             val availableProducts = getAvailableProductsUseCase().firstOrNull() ?: emptyList()
             initialCommonProducts = availableProducts
+            Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
         }
         val mappedOrderLines =
             mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)
@@ -251,7 +264,7 @@ class NewOrderViewModel @Inject constructor(
 
     // TODO: Revisar si sigue siendo necesario tras la refactorización de uiState
     private suspend fun loadNewOrderLines() {
-        Timber.i("SYNC_Entrando en loadNewOrderLines()")
+        Timber.i("SYNC_SYNC_Entrando en loadNewOrderLines()")
         try {
             val orderList = orderModel.getOrderLines().first()
             if (orderList.isNotEmpty()) {
@@ -266,13 +279,15 @@ class NewOrderViewModel @Inject constructor(
                 }
             }
         } catch (e: Exception) {
-            Timber.e(e, "SYNC_Exception en loadNewOrderLines: ${e.message}")
+            Timber.e(e, "SYNC_ERROR_HANDLE_ORDER - ${e.message}")
+            Timber.e(e, "SYNC_SYNC_Exception en loadNewOrderLines: ${e.message}")
             handleError(e)
         }
     }
 
     // Maneja errores y actualiza el estado de error
     private fun handleError(throwable: Throwable) {
+        Timber.e(throwable, "SYNC_ERROR_HANDLE - ${throwable.message}")
         _state.update {
             it.copy(
                 uiState = NewOrderUiMode.ERROR,
@@ -293,6 +308,7 @@ class NewOrderViewModel @Inject constructor(
                 productList.add(common)
             }
         }
+        Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
         val productsWithOrderLine = productList.filterIsInstance<ProductWithOrderLine>()
         val groupedByCompany = productList.groupBy { it.companyName }.toSortedMap()
         _state.update {
@@ -456,7 +472,7 @@ class NewOrderViewModel @Inject constructor(
 
     // Recarga los datos principales del pedido y productos
     fun forceReload() {
-        Timber.i("SYNC_FORCE_RELOAD - Ejecutando forceReload()")
+        Timber.i("SYNC_SYNC_FORCE_RELOAD - Ejecutando forceReload()")
         viewModelScope.launch(Dispatchers.IO) {
             val today = java.time.LocalDate.now()
             val isWeekendBranch = today.dayOfWeek in listOf(
@@ -484,6 +500,7 @@ class NewOrderViewModel @Inject constructor(
                     allProductsResult.onSuccess { products ->
                         if (products.isNotEmpty()) {
                             initialCommonProducts = products
+                            Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
                             val groupedByCompany = products.groupBy { it.companyName }.toSortedMap()
                             _state.update {
                                 it.copy(
@@ -493,7 +510,7 @@ class NewOrderViewModel @Inject constructor(
                         }
                     }
                     allProductsResult.onFailure { error ->
-                        Timber.e(error, "SYNC_Error en getAllProducts directa en forceReload")
+                        Timber.e(error, "SYNC_SYNC_Error en getAllProducts directa en forceReload")
                     }
                     val job1 = async {
                         withTimeoutOrNull(2_000) {
@@ -534,7 +551,7 @@ class NewOrderViewModel @Inject constructor(
                 }
             }
             if (result == null) {
-                Timber.e("SYNC_TIMEOUT: El ciclo principal del ViewModel ha excedido timeout. [forceReload]")
+                Timber.e("SYNC_SYNC_TIMEOUT: El ciclo principal del ViewModel ha excedido timeout. [forceReload]")
             }
         }
     }
@@ -550,6 +567,7 @@ class NewOrderViewModel @Inject constructor(
                 productList.add(common)
             }
         }
+        Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
         val productsWithOrderLine = productList.filterIsInstance<ProductWithOrderLine>()
         return productsWithOrderLine
     }
@@ -558,18 +576,22 @@ class NewOrderViewModel @Inject constructor(
     private fun observeOrderLinesFromCurrentWeek(isEdit: Boolean = true) {
         viewModelScope.launch(Dispatchers.IO) {
             orderModel.getOrderLinesFromCurrentWeek().collectLatest { ordersReceived ->
-                Timber.i("SYNC_FLOW: Recibidas orderlines desde Flow, ${ordersReceived.size} líneas.")
+                Timber.i("SYNC_ORDERLINES_FLOW - Recibidas ${ordersReceived.size} orderlines del Flow")
+                ordersReceived.forEach { Timber.i("SYNC_ORDERLINE_FLOW - $it") }
                 if (!::initialCommonProducts.isInitialized) {
-                    Timber.w("initialCommonProducts NO inicializado, descargando productos antes de mapear orderlines")
+                    Timber.w("SYNC_initialCommonProducts NO inicializado, descargando productos antes de mapear orderlines")
                     val availableProducts = getAvailableProductsUseCase().firstOrNull() ?: emptyList()
                     initialCommonProducts = availableProducts
+                    Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
                 }
                 val mappedOrderLines =
                     mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)
+                Timber.i("SYNC_ORDERLINES_FLOW - Orderlines mapeadas (${mappedOrderLines.size})")
                 val groupedByCompany = mappedOrderLines.groupBy { it.companyName }.toSortedMap()
 
                 val newUiState = if (isEdit) NewOrderUiMode.EDIT_ORDER else NewOrderUiMode.SHOW_PREVIOUS_ORDER
 
+                Timber.i("SYNC_ORDERLINES_FLOW - Estado actualizado: orderLinesByCompanyName=${groupedByCompany.size}, ordersFromExistingOrder=${mappedOrderLines.groupBy { it.product }.size}")
                 _state.update {
                     it.copy(
                         orderLinesByCompanyName = groupedByCompany,

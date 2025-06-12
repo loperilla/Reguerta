@@ -650,14 +650,10 @@ fun NewOrderScreen(
     state: NewOrderState,
     onEvent: (NewOrderEvent) -> Unit
 ) {
-    if (!state.isLoading) {
+    if (state.uiState == NewOrderUiMode.SELECT_PRODUCTS) {
         Scaffold(
-            topBar = {
-                NewOrderTopBar(state, onEvent)
-            },
-            bottomBar = {
-                NewOrderBottomBar(state, onEvent)
-            }
+            topBar = { NewOrderTopBar(state, onEvent) },
+            bottomBar = { NewOrderBottomBar(state, onEvent) }
         ) {
             Box(
                 modifier = Modifier
@@ -680,7 +676,7 @@ fun NewOrderScreen(
                 }
             }
         }
-    } else {
+    } else if (state.isLoading) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -690,6 +686,9 @@ fun NewOrderScreen(
                 color = Color.Red // para pruebas, visible
             )
         }
+    } else {
+        // (deja igual el resto de modos: EDIT_ORDER, SHOW_PREVIOUS_ORDER, ERROR)
+        // No toques el bloque para EDIT_ORDER, SHOW_PREVIOUS_ORDER ni ERROR
     }
 }
 

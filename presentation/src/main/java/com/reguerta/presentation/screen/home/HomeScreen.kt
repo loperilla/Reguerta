@@ -396,7 +396,7 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         }
         Spacer(modifier = Modifier.weight(1f))
         TextBody(
-            text = "android version 0.2.0.3",
+            text = "android version 0.2.0.4",
             textSize = TEXT_SIZE_MEDIUM,
             textColor = Text,
             modifier = Modifier
