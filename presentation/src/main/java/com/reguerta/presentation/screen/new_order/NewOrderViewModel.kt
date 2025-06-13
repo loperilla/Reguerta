@@ -314,7 +314,8 @@ class NewOrderViewModel @Inject constructor(
         _state.update {
             it.copy(
                 productsGroupedByCompany = groupedByCompany,
-                productsOrderLineList = productsWithOrderLine
+                productsOrderLineList = productsWithOrderLine,
+                hasOrderLine = productsWithOrderLine.isNotEmpty()
             )
         }
     }
@@ -335,6 +336,7 @@ class NewOrderViewModel @Inject constructor(
                             newEvent.productId,
                             it.companyName
                         )
+                        // Siempre reconstruir la lista global y grouping tras añadir línea
                         buildProductWithOrderList(orderModel.getOrderLinesList())
                     }
                 }
@@ -345,16 +347,8 @@ class NewOrderViewModel @Inject constructor(
                     productUpdated?.let { line ->
                         val newQuantity = line.quantity.plus(1)
                         orderModel.updateProductStock(newEvent.productId, newQuantity)
-                        _state.update { currentState ->
-                            val newList = currentState.productsOrderLineList.map {
-                                if (it.id == newEvent.productId) it.copy(
-                                    orderLine = it.orderLine.copy(
-                                        quantity = newQuantity
-                                    )
-                                ) else it
-                            }
-                            currentState.copy(productsOrderLineList = newList)
-                        }
+                        // Siempre reconstruir la lista global y grouping tras actualizar cantidad
+                        buildProductWithOrderList(orderModel.getOrderLinesList())
                     }
                 }
 
@@ -365,21 +359,12 @@ class NewOrderViewModel @Inject constructor(
                         val newQuantity = line.quantity.minus(1)
                         if (newQuantity == 0) {
                             orderModel.deleteOrderLineLocal(newEvent.productId)
-                            _state.update { currentState ->
-                                currentState.copy(productsOrderLineList = currentState.productsOrderLineList.filter { it.id != newEvent.productId })
-                            }
+                            // Siempre reconstruir la lista global y grouping tras borrar línea
+                            buildProductWithOrderList(orderModel.getOrderLinesList())
                         } else {
                             orderModel.updateProductStock(newEvent.productId, newQuantity)
-                            _state.update { currentState ->
-                                val newList = currentState.productsOrderLineList.map {
-                                    if (it.id == newEvent.productId) it.copy(
-                                        orderLine = it.orderLine.copy(
-                                            quantity = newQuantity
-                                        )
-                                    ) else it
-                                }
-                                currentState.copy(productsOrderLineList = newList)
-                            }
+                            // Siempre reconstruir la lista global y grouping tras actualizar cantidad
+                            buildProductWithOrderList(orderModel.getOrderLinesList())
                         }
                     }
                 }
@@ -389,10 +374,12 @@ class NewOrderViewModel @Inject constructor(
                 }
 
                 NewOrderEvent.ShowShoppingCart -> {
+                    Timber.i("SYNC_VIEWMODEL_EVENT - Ejecutando ShowShoppingCart, productsOrderLineList.size = ${state.value.productsOrderLineList.size}")
                     _state.update { it.copy(showShoppingCart = true) }
                 }
 
                 NewOrderEvent.PushOrder -> {
+                    _state.update { it.copy(isOrdering = true) }
                     val updatedProductsOrderLineList = state.value.productsOrderLineList.map {
                         val adjustedQuantity = when (it.container) {
                             ContainerType.COMMIT_MANGOES.value -> state.value.kgMangoes
@@ -432,9 +419,11 @@ class NewOrderViewModel @Inject constructor(
                             onSuccess = {
                                 updateTableTimestampsUseCase("orders")
                                 _state.update { it.copy(showPopup = PopupType.ORDER_ADDED) }
+                                _state.update { it.copy(isOrdering = false) }
                             },
                             onFailure = { throwable ->
                                 throwable.printStackTrace()
+                                _state.update { it.copy(isOrdering = false) }
                             }
                         )
                     } else {
@@ -450,6 +439,7 @@ class NewOrderViewModel @Inject constructor(
                 }
 
                 NewOrderEvent.DeleteOrder -> {
+                    _state.update { it.copy(isDeletingOrder = true) }
                     for (orderLines in state.value.ordersFromExistingOrder.values.flatten()) {
                         val product = initialCommonProducts.find { it.id == orderLines.product.id }
                         product?.let {
@@ -461,6 +451,7 @@ class NewOrderViewModel @Inject constructor(
                     }
                     orderModel.deleteOrder()
                     updateTableTimestampsUseCase("orders")
+                    _state.update { it.copy(isDeletingOrder = false) }
                     _state.update { it.copy(goOut = true) }
                 }
 
@@ -572,17 +563,16 @@ class NewOrderViewModel @Inject constructor(
         return productsWithOrderLine
     }
 
-
     private fun observeOrderLinesFromCurrentWeek(isEdit: Boolean = true) {
         viewModelScope.launch(Dispatchers.IO) {
             orderModel.getOrderLinesFromCurrentWeek().collectLatest { ordersReceived ->
                 Timber.i("SYNC_ORDERLINES_FLOW - Recibidas ${ordersReceived.size} orderlines del Flow")
-                ordersReceived.forEach { Timber.i("SYNC_ORDERLINE_FLOW - $it") }
+                // Eliminado log detallado de cada orderline para salida limpia
                 if (!::initialCommonProducts.isInitialized) {
                     Timber.w("SYNC_initialCommonProducts NO inicializado, descargando productos antes de mapear orderlines")
                     val availableProducts = getAvailableProductsUseCase().firstOrNull() ?: emptyList()
                     initialCommonProducts = availableProducts
-                    Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
+                    // Eliminado log detallado de productos inicializados para salida limpia
                 }
                 val mappedOrderLines =
                     mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)

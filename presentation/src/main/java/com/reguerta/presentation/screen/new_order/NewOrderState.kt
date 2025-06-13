@@ -28,6 +28,8 @@ data class NewOrderState(
     val uiState: NewOrderUiMode = NewOrderUiMode.LOADING,
     val isExistOrder: Boolean = false,
     val hasOrderLine: Boolean = false,
+    val isOrdering: Boolean = false,
+    val isDeletingOrder: Boolean = false,
     val showShoppingCart: Boolean = false,
     val showPopup: PopupType = PopupType.NONE,
     val errorMessage: String? = null,

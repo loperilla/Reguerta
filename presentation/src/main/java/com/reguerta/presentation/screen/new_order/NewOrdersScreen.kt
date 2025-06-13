@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -133,7 +134,8 @@ fun newOrderScreen(
 
     if (state.showPopup == PopupType.ARE_YOU_SURE_DELETE) {
         AreYouSureDeletePopup(
-            onEvent = viewModel::onEvent
+            onEvent = viewModel::onEvent,
+            isDeletingOrder = state.isDeletingOrder
         )
     }
 
@@ -590,6 +592,7 @@ fun NewOrderTopBar(
             actions = {
                 InverseReguertaButton(
                     onClick = {
+                        Timber.i("SYNC_UI_EVENT - Pulsado botón VER CARRITO")
                         onEvent(NewOrderEvent.ShowShoppingCart)
                     },
                     content = {
@@ -618,7 +621,7 @@ fun NewOrderBottomBar(
     onEvent: (NewOrderEvent) -> Unit
 ) {
     if (state.showShoppingCart) {
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentSize(Alignment.BottomCenter)
@@ -633,7 +636,7 @@ fun NewOrderBottomBar(
                 onClick = {
                     onEvent(NewOrderEvent.PushOrder)
                 },
-                enabledButton = state.hasOrderLine,
+                enabledButton = state.hasOrderLine && !state.isOrdering,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
@@ -641,6 +644,13 @@ fun NewOrderBottomBar(
                         horizontal = PADDING_MEDIUM
                     )
             )
+            if (state.isOrdering) {
+                LoadingAnimation(
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(top = PADDING_SMALL)
+                )
+            }
         }
     }
 }
@@ -650,6 +660,8 @@ fun NewOrderScreen(
     state: NewOrderState,
     onEvent: (NewOrderEvent) -> Unit
 ) {
+    // Log el valor de showShoppingCart directamente desde el estado del ViewModel
+    Timber.i("SYNC_UI_STATE - showShoppingCart = ${state.showShoppingCart}")
     if (state.uiState == NewOrderUiMode.SELECT_PRODUCTS) {
         Scaffold(
             topBar = { NewOrderTopBar(state, onEvent) },
@@ -1013,59 +1025,11 @@ private fun OrderQuantitySelector(
         }
     }
 }
-/*
-@Preview
-@Composable
-fun NewOrderScreenPreview() {
-    Screen {
-        NewOrderScreen(
-            state = NewOrderState(
-                isLoading = false,
-                hasOrderLine = true,
-                availableCommonProducts = listOf(
-                    ALCAZAR,
-                    ALCAZAR.copy(
-                        stock = 0
-                    ),
-                    ALCAZAR_WITH_ORDER
-                )
-            ),
-            onEvent = {}
-        )
-    }
-}
-*/
 
-/*
-@Preview
-@Composable
-fun ShoppingCartScreenPreview() {
-    Screen {
-        NewOrderScreen(
-            state = NewOrderState(
-                isLoading = false,
-                hasOrderLine = true,
-                showShoppingCart = true,
-                availableCommonProducts = listOf(
-                    ALCAZAR,
-                    ALCAZAR_WITH_ORDER
-                ),
-                productsOrderLineList = listOf(
-                    ALCAZAR_WITH_ORDER.copy(
-                        orderLine = ALCAZAR_WITH_ORDER.orderLine.copy(
-                            quantity = 2
-                        )
-                    )
-                )
-            ),
-            onEvent = {}
-        )
-    }
-}
-*/
 @Composable
 fun AreYouSureDeletePopup(
-    onEvent: (NewOrderEvent) -> Unit
+    onEvent: (NewOrderEvent) -> Unit,
+    isDeletingOrder: Boolean
 ) {
     ReguertaAlertDialog(
         icon = {
@@ -1085,16 +1049,27 @@ fun AreYouSureDeletePopup(
         },
         onDismissRequest = { onEvent(NewOrderEvent.HideDialog) },
         text = {
-            TextBody(
-                text = buildAnnotatedString {
-                    append("Esta a punto de eliminar un pedido. \n")
-                    append("Se restaurarán los stocks. \n")
-                    append("Luego podrá realizar su pedido de nuevo.\n")
-                },
-                textSize = TEXT_SIZE_DLG_BODY,
-                textColor = Text,
-                textAlignment = TextAlign.Center
-            )
+            if (isDeletingOrder) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp),
+                    contentAlignment = Alignment.Center
+                ) {
+                    LoadingAnimation(modifier = Modifier.size(80.dp))
+                }
+            } else {
+                TextBody(
+                    text = buildAnnotatedString {
+                        append("Esta a punto de eliminar un pedido. \n")
+                        append("Se restaurarán los stocks. \n")
+                        append("Luego podrá realizar su pedido de nuevo.\n")
+                    },
+                    textSize = TEXT_SIZE_DLG_BODY,
+                    textColor = Text,
+                    textAlignment = TextAlign.Center
+                )
+            }
         },
         title = {
             TextTitle(
@@ -1108,30 +1083,36 @@ fun AreYouSureDeletePopup(
             )
         },
         confirmButton = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = PADDING_EXTRA_SMALL, vertical = PADDING_SMALL),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_SMALL)
-            ) {
-                InverseReguertaButton(
-                    textButton = "Volver",
-                    isSingleButton = false,
-                    btnType = BtnType.ERROR,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        onEvent(NewOrderEvent.HideDialog)
-                    }
-                )
-                ReguertaButton(
-                    textButton = "Aceptar",
-                    isSingleButton = false,
-                    btnType = BtnType.ERROR,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        onEvent(NewOrderEvent.DeleteOrder)
-                    }
-                )
+            if (isDeletingOrder) {
+                Spacer(Modifier.height(0.dp))
+            } else {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = PADDING_EXTRA_SMALL, vertical = PADDING_SMALL),
+                    horizontalArrangement = Arrangement.spacedBy(PADDING_SMALL)
+                ) {
+                    InverseReguertaButton(
+                        textButton = "Volver",
+                        isSingleButton = false,
+                        btnType = BtnType.ERROR,
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            onEvent(NewOrderEvent.HideDialog)
+                        },
+                        enabledButton = true
+                    )
+                    ReguertaButton(
+                        textButton = "Aceptar",
+                        isSingleButton = false,
+                        btnType = BtnType.ERROR,
+                        modifier = Modifier.weight(1f),
+                        onClick = {
+                            onEvent(NewOrderEvent.DeleteOrder)
+                        },
+                        enabledButton = true
+                    )
+                }
             }
         }
     )
@@ -1189,8 +1170,6 @@ fun ConfirmPopup(
     )
 }
 
-
-
 @Composable
 fun WrongPopup(
     title: AnnotatedString,
@@ -1243,56 +1222,4 @@ fun WrongPopup(
             )
         }
     )
-}
-
-
-/*
-@Preview
-@Composable
-fun ExistingOrderScreenPreviewPreview() {
-    Screen {
-        ExistingOrderScreen(
-            state = NewOrderState(
-                isLoading = false,
-                hasOrderLine = true,
-                showShoppingCart = true,
-                availableCommonProducts = listOf(
-                    ALCAZAR,
-                    ALCAZAR_WITH_ORDER
-                ),
-                productsOrderLineList = listOf(
-                    ALCAZAR_WITH_ORDER.copy(
-                        orderLine = ALCAZAR_WITH_ORDER.orderLine.copy(
-                            quantity = 2
-                        )
-                    )
-                ),
-                isExistOrder = true,
-                ordersFromExistingOrder = mapOf(
-                    ALCAZAR to listOf(
-                        OrderLineReceived(
-                            orderName = "Manuel",
-                            orderSurname = "Lopera",
-                            product = ALCAZAR,
-                            quantity = 1,
-                            companyName = "",
-                        )
-                    )
-                )
-            ),
-            onEvent = {}
-        )
-    }
-}
-*/
-@Preview
-@Composable
-fun ShowAreYouSureDeleteOrderPreview() {
-    Screen {
-        AreYouSureDeletePopup(
-            onEvent = {
-
-            }
-        )
-    }
 }

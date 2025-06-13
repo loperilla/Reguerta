@@ -133,7 +133,7 @@ fun homeScreen(
             contentAlignment = Alignment.Center
         ) {
             LoadingAnimation()
-            androidx.compose.material3.Text("Preparando datos por primera vez...", color = Color.White)
+            androidx.compose.material3.Text("Preparando datos por primera vez...", color = PrimaryColor)
         }
         return
     }
@@ -396,7 +396,7 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         }
         Spacer(modifier = Modifier.weight(1f))
         TextBody(
-            text = "android version 0.2.0.5",
+            text = "android version 0.2.0.6",
             textSize = TEXT_SIZE_MEDIUM,
             textColor = Text,
             modifier = Modifier
@@ -644,14 +644,5 @@ private fun RecommendUpdateDialog(config: ConfigModel?,
                 )
             }
         }
-    )
-}
-
-fun loadLocalTimestamps(): Map<String, Timestamp> {
-    // Simulación: fechas antiguas para forzar la sincronización
-    return mapOf(
-        "users" to Timestamp(1000, 0),
-        "products" to Timestamp(1000, 0),
-        "orders" to Timestamp(1000, 0)
     )
 }
