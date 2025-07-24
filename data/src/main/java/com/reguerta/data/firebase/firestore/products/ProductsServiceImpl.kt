@@ -57,32 +57,54 @@ class ProductsServiceImpl @Inject constructor(
         }
     }
 
-    override suspend fun getAvailableProducts(): Flow<Result<List<ProductModel>>> = callbackFlow {
-        val subscription = collection
-            .whereEqualTo(AVAILABLE, true)
-            .orderBy(NAME, Query.Direction.ASCENDING)
-            .addSnapshotListener { snapshot, error ->
-                if (error != null) {
-                    error.printStackTrace()
-                    trySend(Result.failure(error))
-                    close(error)
-                    return@addSnapshotListener
+    override suspend fun getAvailableProducts(forceFromServer: Boolean): Flow<Result<List<ProductModel>>> = callbackFlow {
+        if (forceFromServer) {
+            try {
+                val snapshot = collection
+                    .whereEqualTo(AVAILABLE, true)
+                    .orderBy(NAME, Query.Direction.ASCENDING)
+                    .get()
+                    .await()
+
+                val productList = snapshot.documents.mapNotNull { doc ->
+                    doc.toObject(ProductModel::class.java)?.apply { id = doc.id }
                 }
-                snapshot?.let { query ->
-                    val productList = mutableListOf<ProductModel>()
-                    query.documents.forEach { document ->
-                        val product = document.toObject(ProductModel::class.java)
-                        product?.let { model ->
-                            model.id = document.id
-                            productList.add(model)
-                        }
-                    }
-                    Log.d("PRODUCTS_SERVICE", "Productos disponibles recibidos: ${productList.size}")
-                    trySend(Result.success(productList))
-                }
+
+                Log.d("PRODUCTS_SERVICE", "Productos disponibles (forzados desde servidor): ${productList.size}")
+                trySend(Result.success(productList))
+                close()
+            } catch (e: Exception) {
+                e.printStackTrace()
+                trySend(Result.failure(e))
+                close(e)
             }
-        awaitClose {
-            subscription.remove()
+        } else {
+            val subscription = collection
+                .whereEqualTo(AVAILABLE, true)
+                .orderBy(NAME, Query.Direction.ASCENDING)
+                .addSnapshotListener { snapshot, error ->
+                    if (error != null) {
+                        error.printStackTrace()
+                        trySend(Result.failure(error))
+                        close(error)
+                        return@addSnapshotListener
+                    }
+                    snapshot?.let { query ->
+                        val productList = mutableListOf<ProductModel>()
+                        query.documents.forEach { document ->
+                            val product = document.toObject(ProductModel::class.java)
+                            product?.let { model ->
+                                model.id = document.id
+                                productList.add(model)
+                            }
+                        }
+                        Log.d("PRODUCTS_SERVICE", "Productos disponibles recibidos: ${productList.size}")
+                        trySend(Result.success(productList))
+                    }
+                }
+            awaitClose {
+                subscription.remove()
+            }
         }
     }
 

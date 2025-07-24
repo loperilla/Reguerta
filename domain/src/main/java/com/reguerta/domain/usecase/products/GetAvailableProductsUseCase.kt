@@ -53,7 +53,7 @@ class GetAvailableProductsUseCase @Inject constructor(
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend operator fun invoke(): Flow<List<CommonProduct>> {
+    suspend operator fun invoke(forceFromServer: Boolean = false): Flow<List<CommonProduct>> {
         val currentUserResult = authService.checkCurrentLoggedUser()
         val currentUser = currentUserResult.getOrNull() ?: return flowOf(emptyList())
 
@@ -96,10 +96,13 @@ class GetAvailableProductsUseCase @Inject constructor(
                     onSuccess = { measureModelList ->
                         measureModelList.map { it.toDomain() }
                     },
-                    onFailure = { emptyList() }
+                    onFailure = {
+                        Timber.w("SYNC_DEBUG_USECASE - getMeasures failed: $it")
+                        emptyList()
+                    }
                 )
 
-                productsService.getAvailableProducts().map { products ->
+                productsService.getAvailableProducts(forceFromServer).map { products ->
                     Timber.i("SYNC_DEBUG_USECASE - Product models fetched: ${products.getOrNull()?.size ?: 0}")
                     Timber.i("SYNC_TRACE_USECASE - IDs productos crudos: ${products.getOrNull()?.take(5)?.map { it.id }}")
                     products.fold(

@@ -27,7 +27,7 @@ class CheckCommitmentsUseCase @Inject constructor(
 
             var availableProducts: List<ProductModel> = emptyList()
 
-            productsService.getAvailableProducts().take(1).collect { result ->
+            productsService.getAvailableProducts(forceFromServer = true).take(1).collect { result ->
                 result.fold(
                     onSuccess = { productList ->
                         availableProducts = productList

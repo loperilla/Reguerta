@@ -475,11 +475,7 @@ class NewOrderViewModel @Inject constructor(
             val result = withTimeoutOrNull(3_000) {
                 try {
                     val currentUserResult = checkCurrentUserLoggedUseCase()
-                    val currentUser = currentUserResult.getOrNull()
-                    if (currentUser == null) {
-                        return@withTimeoutOrNull
-                    }
-                    val currentWeekId = getCurrentWeek()
+                    val currentUser = currentUserResult.getOrNull() ?: return@withTimeoutOrNull
                     _state.update {
                         it.copy(
                             currentDay = DayOfWeek.of(getCurrentWeek()),
@@ -487,21 +483,20 @@ class NewOrderViewModel @Inject constructor(
                             kgAvocados = currentUser.tropical2.roundToInt()
                         )
                     }
-                    val allProductsResult = getAvailableProductsUseCase.getAllProductsDirect()
-                    allProductsResult.onSuccess { products ->
-                        if (products.isNotEmpty()) {
-                            initialCommonProducts = products
+                    try {
+                        val availableProducts = getAvailableProductsUseCase(forceFromServer = true).first()
+                        if (availableProducts.isNotEmpty()) {
+                            initialCommonProducts = availableProducts
                             Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
-                            val groupedByCompany = products.groupBy { it.companyName }.toSortedMap()
+                            val groupedByCompany = availableProducts.groupBy { it.companyName }.toSortedMap()
                             _state.update {
                                 it.copy(
                                     productsGroupedByCompany = groupedByCompany
                                 )
                             }
                         }
-                    }
-                    allProductsResult.onFailure { error ->
-                        Timber.e(error, "SYNC_SYNC_Error en getAllProducts directa en forceReload")
+                    } catch (e: Exception) {
+                        Timber.e(e, "SYNC_SYNC_Error al forzar carga de productos en forceReload")
                     }
                     val job1 = async {
                         withTimeoutOrNull(2_000) {
@@ -574,8 +569,7 @@ class NewOrderViewModel @Inject constructor(
                     initialCommonProducts = availableProducts
                     // Eliminado log detallado de productos inicializados para salida limpia
                 }
-                val mappedOrderLines =
-                    mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)
+                val mappedOrderLines = mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)
                 Timber.i("SYNC_ORDERLINES_FLOW - Orderlines mapeadas (${mappedOrderLines.size})")
                 val groupedByCompany = mappedOrderLines.groupBy { it.companyName }.toSortedMap()
 
