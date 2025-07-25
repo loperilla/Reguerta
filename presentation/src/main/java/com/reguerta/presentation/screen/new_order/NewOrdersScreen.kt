@@ -39,6 +39,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -125,6 +126,11 @@ fun newOrderScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val isSyncFinished by homeViewModel.isSyncFinished.collectAsState()
+
+    val reloadOnce = remember { true }
+    LaunchedEffect(reloadOnce) {
+        viewModel.forceReloadOnce()
+    }
 
 
     if (state.goOut) {

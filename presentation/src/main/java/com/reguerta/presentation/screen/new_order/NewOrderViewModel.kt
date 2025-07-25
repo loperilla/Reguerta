@@ -61,6 +61,8 @@ class NewOrderViewModel @Inject constructor(
 
     private lateinit var initialCommonProducts: List<CommonProduct>
 
+    private var hasForcedReload = false
+
     init {
         viewModelScope.launch(Dispatchers.IO) {
             determineAndExecuteFlow()
@@ -237,54 +239,6 @@ class NewOrderViewModel @Inject constructor(
         )
     }
 
-    // Carga las líneas de pedido de la semana actual
-    private suspend fun loadOrderLinesFromCurrentWeek() {
-        Timber.i("SYNC_SYNC_Entrando en loadOrderLinesFromCurrentWeek()")
-        val ordersReceived = withTimeoutOrNull(1000) {
-            orderModel.getOrderLinesFromCurrentWeek().firstOrNull()
-        } ?: return
-        if (!::initialCommonProducts.isInitialized) {
-            // Si los productos no han sido inicializados, los descargamos antes de mapear.
-            Timber.w("SYNC_initialCommonProducts NO inicializado, descargando productos antes de mapear orderlines")
-            val availableProducts = getAvailableProductsUseCase().firstOrNull() ?: emptyList()
-            initialCommonProducts = availableProducts
-            Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
-        }
-        val mappedOrderLines =
-            mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)
-        val groupedByCompany = mappedOrderLines.groupBy { it.companyName }.toSortedMap()
-
-        _state.update {
-            it.copy(
-                orderLinesByCompanyName = groupedByCompany,
-                ordersFromExistingOrder = mappedOrderLines.groupBy { it.product }
-            )
-        }
-    }
-
-    // TODO: Revisar si sigue siendo necesario tras la refactorización de uiState
-    private suspend fun loadNewOrderLines() {
-        Timber.i("SYNC_SYNC_Entrando en loadNewOrderLines()")
-        try {
-            val orderList = orderModel.getOrderLines().first()
-            if (orderList.isNotEmpty()) {
-                buildProductWithOrderList(orderList)
-            } else {
-                val availableProducts = getAvailableProductsUseCase().first()
-                _state.update {
-                    it.copy(
-                        productsGroupedByCompany = availableProducts.groupBy { it.companyName }
-                            .toSortedMap()
-                    )
-                }
-            }
-        } catch (e: Exception) {
-            Timber.e(e, "SYNC_ERROR_HANDLE_ORDER - ${e.message}")
-            Timber.e(e, "SYNC_SYNC_Exception en loadNewOrderLines: ${e.message}")
-            handleError(e)
-        }
-    }
-
     // Maneja errores y actualiza el estado de error
     private fun handleError(throwable: Throwable) {
         Timber.e(throwable, "SYNC_ERROR_HANDLE - ${throwable.message}")
@@ -386,6 +340,7 @@ class NewOrderViewModel @Inject constructor(
                             ContainerType.COMMIT_AVOCADOS.value -> state.value.kgAvocados
                             else -> it.orderLine.quantity
                         }
+                        /*
                         val adjustedSubtotal =
                             if (it.container == ContainerType.COMMIT_MANGOES.value ||
                                 it.container == ContainerType.COMMIT_AVOCADOS.value
@@ -394,6 +349,8 @@ class NewOrderViewModel @Inject constructor(
                             } else {
                                 it.getAmount()
                             }
+
+                         */
                         val updatedOrderLine =
                             it.orderLine.copy(quantity = adjustedQuantity)//, subtotal = adjustedSubtotal)
 
@@ -484,11 +441,13 @@ class NewOrderViewModel @Inject constructor(
                         )
                     }
                     try {
-                        val availableProducts = getAvailableProductsUseCase(forceFromServer = true).first()
+                        val availableProducts =
+                            getAvailableProductsUseCase(forceFromServer = true).first()
                         if (availableProducts.isNotEmpty()) {
                             initialCommonProducts = availableProducts
                             Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
-                            val groupedByCompany = availableProducts.groupBy { it.companyName }.toSortedMap()
+                            val groupedByCompany =
+                                availableProducts.groupBy { it.companyName }.toSortedMap()
                             _state.update {
                                 it.copy(
                                     productsGroupedByCompany = groupedByCompany
@@ -542,22 +501,6 @@ class NewOrderViewModel @Inject constructor(
         }
     }
 
-    // TODO: Revisar si sigue siendo necesario tras la refactorización de uiState
-    private fun buildProductWithOrderListReturningList(orderList: List<OrderLineProduct>): List<ProductWithOrderLine> {
-        val productList = mutableListOf<Product>()
-        for (common in initialCommonProducts) {
-            val matchingOrder = orderList.find { it.productId == common.id }
-            if (matchingOrder != null) {
-                productList.add(ProductWithOrderLine(common, matchingOrder))
-            } else {
-                productList.add(common)
-            }
-        }
-        Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
-        val productsWithOrderLine = productList.filterIsInstance<ProductWithOrderLine>()
-        return productsWithOrderLine
-    }
-
     private fun observeOrderLinesFromCurrentWeek(isEdit: Boolean = true) {
         viewModelScope.launch(Dispatchers.IO) {
             orderModel.getOrderLinesFromCurrentWeek().collectLatest { ordersReceived ->
@@ -565,15 +508,18 @@ class NewOrderViewModel @Inject constructor(
                 // Eliminado log detallado de cada orderline para salida limpia
                 if (!::initialCommonProducts.isInitialized) {
                     Timber.w("SYNC_initialCommonProducts NO inicializado, descargando productos antes de mapear orderlines")
-                    val availableProducts = getAvailableProductsUseCase().firstOrNull() ?: emptyList()
+                    val availableProducts =
+                        getAvailableProductsUseCase().firstOrNull() ?: emptyList()
                     initialCommonProducts = availableProducts
                     // Eliminado log detallado de productos inicializados para salida limpia
                 }
-                val mappedOrderLines = mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)
+                val mappedOrderLines =
+                    mapOrderLinesWithProductsUseCase(ordersReceived, initialCommonProducts)
                 Timber.i("SYNC_ORDERLINES_FLOW - Orderlines mapeadas (${mappedOrderLines.size})")
                 val groupedByCompany = mappedOrderLines.groupBy { it.companyName }.toSortedMap()
 
-                val newUiState = if (isEdit) NewOrderUiMode.EDIT_ORDER else NewOrderUiMode.SHOW_PREVIOUS_ORDER
+                val newUiState =
+                    if (isEdit) NewOrderUiMode.EDIT_ORDER else NewOrderUiMode.SHOW_PREVIOUS_ORDER
 
                 Timber.i("SYNC_ORDERLINES_FLOW - Estado actualizado: orderLinesByCompanyName=${groupedByCompany.size}, ordersFromExistingOrder=${mappedOrderLines.groupBy { it.product }.size}")
                 _state.update {
@@ -587,4 +533,13 @@ class NewOrderViewModel @Inject constructor(
         }
     }
 
+    fun forceReloadOnce() {
+        if (hasForcedReload) {
+            Timber.i("SYNC_DEBUG - forceReloadOnce() ya fue ejecutado, se omite.")
+            return
+        }
+        Timber.i("SYNC_DEBUG - Ejecutando forceReloadOnce() por primera vez")
+        hasForcedReload = true
+        forceReload()
+    }
 }
