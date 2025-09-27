@@ -132,8 +132,7 @@ class NewOrderViewModel @Inject constructor(
                     Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
                     _state.update {
                         it.copy(
-                            productsGroupedByCompany = availableProducts.groupBy { it.companyName }
-                                .toSortedMap()
+                            productsGroupedByCompany = availableProducts.groupBy { product -> product.companyName }.toSortedMap()
                         )
                     }
                     Timber.i("SYNC_Productos recargados: ${availableProducts.size}")
@@ -190,10 +189,10 @@ class NewOrderViewModel @Inject constructor(
                 Timber.e(it, "SYNC_SYNC_handleLastWeekOrders - onFailure: ${it.message}")
                 handleError(it)
                 Timber.e("SYNC_UI_STATE - Cambiando a ERROR. Estado actual: $_state")
-                _state.update {
-                    it.copy(
+                _state.update { orderState ->
+                    orderState.copy(
                         uiState = NewOrderUiMode.ERROR,
-                        errorMessage = it.errorMessage ?: "Error desconocido"
+                        errorMessage = orderState.errorMessage ?: "Error desconocido"
                     )
                 }
             }
@@ -229,10 +228,10 @@ class NewOrderViewModel @Inject constructor(
                 Timber.e(it, "SYNC_SYNC_handleCurrentWeekOrders - onFailure: ${it.message}")
                 handleError(it)
                 Timber.e("SYNC_UI_STATE - Cambiando a ERROR. Estado actual: $_state")
-                _state.update {
-                    it.copy(
+                _state.update { orderState ->
+                    orderState.copy(
                         uiState = NewOrderUiMode.ERROR,
-                        errorMessage = it.errorMessage ?: "Error desconocido"
+                        errorMessage = orderState.errorMessage ?: "Error desconocido"
                     )
                 }
             }
@@ -419,7 +418,7 @@ class NewOrderViewModel @Inject constructor(
     }
 
     // Recarga los datos principales del pedido y productos
-    fun forceReload() {
+    private fun forceReload() {
         Timber.i("SYNC_SYNC_FORCE_RELOAD - Ejecutando forceReload()")
         viewModelScope.launch(Dispatchers.IO) {
             val today = java.time.LocalDate.now()
@@ -522,8 +521,8 @@ class NewOrderViewModel @Inject constructor(
                     if (isEdit) NewOrderUiMode.EDIT_ORDER else NewOrderUiMode.SHOW_PREVIOUS_ORDER
 
                 Timber.i("SYNC_ORDERLINES_FLOW - Estado actualizado: orderLinesByCompanyName=${groupedByCompany.size}, ordersFromExistingOrder=${mappedOrderLines.groupBy { it.product }.size}")
-                _state.update {
-                    it.copy(
+                _state.update { orderState ->
+                    orderState.copy(
                         orderLinesByCompanyName = groupedByCompany,
                         ordersFromExistingOrder = mappedOrderLines.groupBy { it.product },
                         uiState = newUiState
