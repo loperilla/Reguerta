@@ -98,6 +98,7 @@ dependencies {
     implementation(libs.androidx.multidex)
     implementation(libs.firebase.abt)
     implementation(libs.androidx.lifecycle.process)
+    implementation(libs.androidx.core)
     testImplementation(project(":testUtils"))
     ksp(libs.hilt.compiler)
 

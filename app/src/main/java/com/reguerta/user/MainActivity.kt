@@ -7,18 +7,14 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Text
-import androidx.compose.material3.Button
 import com.reguerta.presentation.MainNavigation
 import com.reguerta.presentation.UiState
-import com.reguerta.presentation.composables.ReguertaAlertDialog
-import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.sync.ForegroundSyncManager
 import com.reguerta.presentation.ui.ReguertaTheme
 import com.reguerta.presentation.ui.Routes
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
+import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 
@@ -28,6 +24,8 @@ class MainActivity : ComponentActivity() {
         Timber.i("SYNC_MainActivity: onCreate lanzado")
         val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
+
+        WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {
             ReguertaTheme {
                 Timber.i("SYNC_MainActivity: Entrando en setContent/Composable raíz")
