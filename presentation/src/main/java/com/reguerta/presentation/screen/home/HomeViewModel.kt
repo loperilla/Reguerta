@@ -4,21 +4,20 @@ import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.domain.repository.ConfigCheckResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.reguerta.domain.enums.CriticalTable
+import com.reguerta.domain.enums.WeekDay
 import com.reguerta.domain.repository.ConfigModel
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.users.SignOutUseCase
 import com.reguerta.domain.usecase.week.GetCurrentWeekDayUseCase
+import com.reguerta.domain.usecase.config.GetDeliveryDayUseCase
 import com.reguerta.domain.usecase.config.GetConfigUseCase
 import com.reguerta.domain.usecase.products.SyncProductsUseCase
 import com.reguerta.domain.usecase.containers.SyncContainersUseCase
 import com.reguerta.domain.usecase.measures.SyncMeasuresUseCase
 import com.reguerta.domain.usecase.orderlines.SyncOrdersAndOrderLinesUseCase
-import com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase
 import com.reguerta.presentation.isVersionGreater
 import com.reguerta.presentation.BuildConfig
 import com.reguerta.presentation.getActiveCriticalTables
-import com.reguerta.presentation.getTablesToSync
 import com.reguerta.presentation.sync.SyncOrchestrator
 import com.reguerta.presentation.sync.ForegroundSyncManager
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -44,6 +43,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     private val checkUserUseCase: CheckCurrentUserLoggedUseCase,
     private val getCurrentWeek: GetCurrentWeekDayUseCase,
+    private val getDeliveryDayUseCase: GetDeliveryDayUseCase,
     private val signOutUseCase: SignOutUseCase,
     private val getConfigUseCase: GetConfigUseCase,
     private val syncProductsUseCase: SyncProductsUseCase,
@@ -89,15 +89,16 @@ class HomeViewModel @Inject constructor(
         config: ConfigModel,
         isAdmin: Boolean,
         isProducer: Boolean,
-        currentDay: DayOfWeek
+        currentDay: DayOfWeek,
+        deliveryDay: WeekDay
     ) {
         if (!hasSyncedInSession) {
             hasSyncedInSession = true
-            triggerBackgroundSync(config, isAdmin, isProducer, currentDay, skipProductSync = true)
+            triggerBackgroundSync(config, isAdmin, isProducer, currentDay, deliveryDay, skipProductSync = true)
         } else {
             viewModelScope.launch(Dispatchers.IO) {
                 ForegroundSyncManager.checkAndSyncIfNeeded {
-                    triggerBackgroundSync(config, isAdmin, isProducer, currentDay, skipProductSync = true)
+                    triggerBackgroundSync(config, isAdmin, isProducer, currentDay, deliveryDay, skipProductSync = true)
                 }
             }
         }
@@ -111,6 +112,7 @@ class HomeViewModel @Inject constructor(
                 onSuccess = { user ->
                     // Aquí puedes llamar a la suspend function porque ya estás en una corrutina
                     val config = getConfigUseCase()
+                    val deliveryDay = getDeliveryDayUseCase()
                     val currentDay = DayOfWeek.of(getCurrentWeek())
                     hasSyncedInSession = false // Permite que triggerSyncIfNeeded vuelva a sincronizar
                     _isSyncFinished.value = false
@@ -118,7 +120,8 @@ class HomeViewModel @Inject constructor(
                         config,
                         user.isAdmin,
                         user.isProducer,
-                        currentDay
+                        currentDay,
+                        deliveryDay
                     )
                 },
                 onFailure = {
@@ -133,6 +136,7 @@ class HomeViewModel @Inject constructor(
         isAdmin: Boolean,
         isProducer: Boolean,
         currentDay: DayOfWeek,
+        deliveryDay: WeekDay,
         skipProductSync: Boolean = false
     ) {
         viewModelScope.launch(Dispatchers.IO) {
@@ -149,11 +153,11 @@ class HomeViewModel @Inject constructor(
                 getRemoteTimestamps = { config.lastTimestamps },
                 getLocalTimestamps = {
                     dataStore.getSyncTimestampsFor(
-                        getActiveCriticalTables(isAdmin, isProducer, currentDay).map { it.name.lowercase() }
+                        getActiveCriticalTables(isAdmin, isProducer, currentDay, deliveryDay).map { it.name.lowercase() }
                     )
                 },
                 getCriticalTables = {
-                    getActiveCriticalTables(isAdmin, isProducer, currentDay).map { it.name.lowercase() }
+                    getActiveCriticalTables(isAdmin, isProducer, currentDay, deliveryDay).map { it.name.lowercase() }
                 },
                 syncActions = syncMap
             )
@@ -181,7 +185,7 @@ class HomeViewModel @Inject constructor(
                         },
                         onFailure = {
                             // Si falla la config, forzar actualización y mostrar error
-                            _state.update { it.copy(isLoading = false, configCheckResult = ConfigCheckResult.ForceUpdate) }
+                            _state.update { homeState -> homeState.copy(isLoading = false, configCheckResult = ConfigCheckResult.ForceUpdate) }
                             Timber.e(it, "Error al obtener configuración, se fuerza actualización")
                             return@launch
                         }
@@ -195,11 +199,13 @@ class HomeViewModel @Inject constructor(
                     }
                     // Paso 3: Usuario y configuración correctos, obtener día actual
                     val currentDay = DayOfWeek.of(getCurrentWeek())
+                    val deliveryDay = getDeliveryDayUseCase()
                     _state.update {
                         it.copy(
                             isCurrentUserAdmin = user.isAdmin,
                             isCurrentUserProducer = user.isProducer,
                             currentDay = currentDay,
+                            deliveryDay = deliveryDay,
                             isLoading = false
                         )
                     }
@@ -211,7 +217,8 @@ class HomeViewModel @Inject constructor(
                             configResult.getOrNull() ?: getConfigUseCase(),
                             user.isAdmin,
                             user.isProducer,
-                            currentDay
+                            currentDay,
+                            deliveryDay
                         )
                     }
                     // Si no, el flujo termina aquí y no se queda en loading

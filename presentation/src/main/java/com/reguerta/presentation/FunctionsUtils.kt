@@ -23,16 +23,17 @@ import com.reguerta.presentation.ui.TEXT_TOP
 import timber.log.Timber
 import com.google.firebase.Timestamp
 import com.reguerta.domain.enums.CriticalTable
+import com.reguerta.domain.enums.WeekDay
 import java.time.DayOfWeek
 
 @Composable
 fun Int.resize(): TextUnit {
-    val widthDevice = LocalConfiguration.current.screenWidthDp
+    val widthDevice = LocalConfiguration.current.screenWidthDp.toFloat()
     Timber.tag("DeviceWidth").d("Current device width: %s", widthDevice)
     return when {
-        widthDevice < 600 -> (this * (widthDevice / 375f)).sp
-        widthDevice < 800 -> (this * 1.5).sp
-        widthDevice < 1000 -> (this * 1.6).sp
+        widthDevice < 600f -> (this * (widthDevice / 375f)).sp
+        widthDevice < 800f -> (this * 1.5).sp
+        widthDevice < 1000f -> (this * 1.6).sp
         else -> (this * 1.9).sp
     }
 }
@@ -127,21 +128,35 @@ fun getTablesToSync(
     }
 }
 
+fun DayOfWeek.toWeekDay(): WeekDay {
+    return when (this) {
+        DayOfWeek.MONDAY -> WeekDay.MON
+        DayOfWeek.TUESDAY -> WeekDay.TUE
+        DayOfWeek.WEDNESDAY -> WeekDay.WED
+        DayOfWeek.THURSDAY -> WeekDay.THU
+        DayOfWeek.FRIDAY -> WeekDay.FRI
+        DayOfWeek.SATURDAY -> WeekDay.SAT
+        DayOfWeek.SUNDAY -> WeekDay.SUN
+    }
+}
+
 fun getActiveCriticalTables(
     isAdmin: Boolean,
     isProducer: Boolean,
-    currentDay: DayOfWeek
+    currentDay: DayOfWeek,
+    deliveryDay: WeekDay
 ): List<CriticalTable> {
     val result = mutableListOf(CriticalTable.PRODUCTS, CriticalTable.CONTAINERS, CriticalTable.MEASURES)
 
     if (isAdmin) result += CriticalTable.USERS
 
-    if (isProducer && currentDay in listOf(DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY)) {
+    val weekDay = currentDay.toWeekDay()
+    if (isProducer && weekDay.ordinal in WeekDay.MON.ordinal..deliveryDay.ordinal) {
         result += CriticalTable.ORDERS
     }
     Timber.tag("SYNC_CriticalTables").d(
-        "isAdmin=%s, isProducer=%s, currentDay=%s → CriticalTables=%s",
-        isAdmin, isProducer, currentDay, result
+        "isAdmin=%s, isProducer=%s, currentDay=%s, deliveryDay=%s → CriticalTables=%s",
+        isAdmin, isProducer, currentDay, deliveryDay, result
     )
     return result
 }

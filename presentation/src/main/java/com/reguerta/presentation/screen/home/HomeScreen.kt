@@ -81,6 +81,7 @@ import java.time.DayOfWeek
 import com.reguerta.domain.repository.ConfigCheckResult
 import androidx.core.net.toUri
 import com.google.firebase.Timestamp
+import com.reguerta.domain.enums.toJavaDayOfWeek
 import com.reguerta.domain.repository.ConfigModel
 import com.reguerta.presentation.sync.ForegroundSyncManager
 import kotlinx.coroutines.flow.collectLatest
@@ -188,7 +189,8 @@ private fun HomeScreen(
                 config = loadedConfig,
                 isAdmin = state.isCurrentUserAdmin,
                 isProducer = state.isCurrentUserProducer,
-                currentDay = state.currentDay
+                currentDay = state.currentDay,
+                deliveryDay = state.deliveryDay
             )
         }
     }
@@ -236,7 +238,7 @@ private fun HomeScreen(
                         .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
                 )
 
-                if (state.isCurrentUserProducer && state.currentDay in DayOfWeek.MONDAY..DayOfWeek.WEDNESDAY) {
+                if (state.isCurrentUserProducer && state.currentDay in DayOfWeek.MONDAY..state.deliveryDay.toJavaDayOfWeek()) {
                     ShowYourOrderButton(
                         onButtonClick = {
                             Timber.i("SYNC_Botón Ver tus pedidos pulsado, navegando a: ${Routes.HOME.ORDER_RECEIVED.route}")
@@ -396,7 +398,7 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         }
         Spacer(modifier = Modifier.weight(1f))
         TextBody(
-            text = "android version 0.2.0.8",
+            text = "android version 0.2.1.1",
             textSize = TEXT_SIZE_MEDIUM,
             textColor = Text,
             modifier = Modifier

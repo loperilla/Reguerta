@@ -1,5 +1,6 @@
 package com.reguerta.presentation.screen.home
 
+import com.reguerta.domain.enums.WeekDay
 import com.reguerta.domain.repository.ConfigCheckResult
 import java.time.DayOfWeek
 
@@ -16,6 +17,7 @@ data class HomeState(
     val isCurrentUserAdmin: Boolean = false,
     val isCurrentUserProducer: Boolean = false,
     val currentDay: DayOfWeek = DayOfWeek.MONDAY,
+    val deliveryDay: WeekDay = WeekDay.WED,
     val configCheckResult: ConfigCheckResult? = null,
     val isLoading: Boolean = false
 )
