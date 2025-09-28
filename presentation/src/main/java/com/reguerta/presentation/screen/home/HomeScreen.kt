@@ -81,6 +81,7 @@ import java.time.DayOfWeek
 import com.reguerta.domain.repository.ConfigCheckResult
 import androidx.core.net.toUri
 import com.google.firebase.Timestamp
+import com.reguerta.domain.enums.nextDay
 import com.reguerta.domain.enums.toJavaDayOfWeek
 import com.reguerta.domain.repository.ConfigModel
 import com.reguerta.presentation.sync.ForegroundSyncManager
@@ -197,6 +198,10 @@ private fun HomeScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
+    // Calcular el día bloqueado: el día siguiente a deliveryDay
+    val blockedDay = state.deliveryDay.nextDay().toJavaDayOfWeek()
+    val isBlockedDay = state.currentDay == blockedDay
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -230,12 +235,19 @@ private fun HomeScreen(
             ) {
                 MakeYourOrderButton(
                     onButtonClick = {
-                        Timber.i("SYNC_Botón Mi pedido pulsado, navegando a: ${Routes.ORDERS.NEW.route}")
-                        navigateTo(Routes.ORDERS.NEW.route)
+                        if (isBlockedDay) {
+                            Timber.i("SYNC_Botón Mi pedido pulsado en día bloqueado: $blockedDay. Navegación bloqueada.")
+                            // Aquí podrías navegar a un aviso, ejemplo:
+                            // navigateTo(Routes.HOME.BLOCKED_ORDER.route)
+                        } else {
+                            Timber.i("SYNC_Botón Mi pedido pulsado, navegando a: ${Routes.ORDERS.NEW.route}")
+                            navigateTo(Routes.ORDERS.NEW.route)
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
+                        .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL),
+                    buttonIsEnabled = !isBlockedDay
                 )
 
                 if (state.isCurrentUserProducer && state.currentDay in DayOfWeek.MONDAY..state.deliveryDay.toJavaDayOfWeek()) {
@@ -257,12 +269,14 @@ private fun HomeScreen(
 @Composable
 private fun MakeYourOrderButton(
     onButtonClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    buttonIsEnabled: Boolean = true
 ) {
     Button(
         onClick = onButtonClick,
         modifier = modifier,
         shape = RoundedCornerShape(32f),
+        enabled = buttonIsEnabled,
         colors = ButtonDefaults.buttonColors(
             containerColor = PrimaryColor.copy(0.2f)
         )
