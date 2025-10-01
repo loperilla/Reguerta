@@ -40,7 +40,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -79,7 +78,6 @@ import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.image.ProductImage
 import com.reguerta.presentation.composables.products.ProductNameUnityContainerInMyOrder
 import com.reguerta.presentation.getQuantitySum
-import com.reguerta.presentation.screen.home.HomeViewModel
 import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_LARGE

@@ -164,26 +164,6 @@ fun PhoneNumberReguertaInput(
 }
 
 @Composable
-fun SecondaryTextReguertaInput(
-    text: String,
-    onTextChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    placeholderText: String = "",
-    imeAction: ImeAction = ImeAction.Default,
-    keyboardType: KeyboardType = KeyboardType.Text,
-) {
-    SecondaryReguertaInput(
-        text = text,
-        uiError = UiError("Este campo no puede estar vacío", text.isNotEmpty()),
-        onTextChange = onTextChange,
-        placeholderText = placeholderText,
-        keyboardType = keyboardType,
-        imeAction = imeAction,
-        modifier = modifier,
-    )
-}
-
-@Composable
 private fun SecondaryReguertaInput(
     text: String,
     onTextChange: (String) -> Unit,
@@ -431,39 +411,6 @@ fun CustomTextField(
         )
     }
 }
-
-@Composable
-fun CustomTextFieldWithLabel(
-    value: String,
-    onValueChange: (String) -> Unit,
-    label: String,
-    modifier: Modifier = Modifier,
-    placeholder: String = "",
-    isError: Boolean = false,
-    keyboardType: KeyboardType = KeyboardType.Text,
-    imeAction: ImeAction = ImeAction.Default
-) {
-    Column(
-        verticalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL),
-        modifier = modifier
-    ) {
-        TextTitle(
-            text = label.uppercase(),
-            textColor = MaterialTheme.colorScheme.onSurface,
-            textSize = TEXT_SIZE_SMALL
-        )
-        CustomTextField(
-            value = value,
-            onValueChange = onValueChange,
-            placeholder = placeholder,
-            isError = isError,
-            keyboardType = keyboardType,
-            imeAction = imeAction,
-            modifier = Modifier.fillMaxWidth()
-        )
-    }
-}
-
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

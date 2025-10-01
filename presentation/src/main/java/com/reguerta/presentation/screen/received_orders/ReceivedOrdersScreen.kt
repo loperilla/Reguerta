@@ -20,7 +20,6 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -44,7 +43,6 @@ import com.reguerta.presentation.composables.image.ProductImage
 import com.reguerta.presentation.composables.products.ProductNameUnityContainer
 import com.reguerta.presentation.composables.products.ProductNameUnityContainerInMyOrder
 import com.reguerta.presentation.getQuantitySum
-import com.reguerta.presentation.screen.home.HomeViewModel
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_LARGE
 import com.reguerta.presentation.ui.PADDING_MEDIUM

@@ -102,7 +102,7 @@ fun InverseReguertaButton(
         border = BorderStroke(2.dp, getBorderColor(btnType)),
         enabled = enabledButton,
         colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
+            containerColor = MaterialTheme.colorScheme.background
         )
     ) {
         TextBody(
