@@ -1,3 +1,4 @@
+import org.gradle.api.artifacts.ComponentSelection
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
@@ -25,9 +26,10 @@ fun isNonStable(version: String): Boolean {
 tasks.withType<DependencyUpdatesTask>().configureEach {
     resolutionStrategy {
         componentSelection {
-            all {
-                if (isNonStable(candidate.version) && !isNonStable(currentVersion)) {
-                    reject("Release candidate")
+            all { selection: ComponentSelection ->
+                val candidateVersion = selection.candidate.version
+                if (isNonStable(candidateVersion)) {
+                    selection.reject("Release candidate")
                 }
             }
         }
