@@ -34,5 +34,3 @@ val mainBackDark = Color(0xFF0F1D0D)
 
 val secondBackLight = Color(0xFFDDE5C0)
 val secondBackDark = Color(0xFF1A2B1B)
-
-val highlightColor = Color(0xFFF57C00)

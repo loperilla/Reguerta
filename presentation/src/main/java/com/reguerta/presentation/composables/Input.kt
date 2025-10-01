@@ -39,7 +39,6 @@ import com.reguerta.presentation.composables.input.PlaceholderTransformation
 import com.reguerta.presentation.composables.input.UiError
 import com.reguerta.presentation.ui.BORDER_SIZE
 import com.reguerta.presentation.ui.CORNER_SIZE_8
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.SIZE_36
