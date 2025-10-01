@@ -1,19 +1,9 @@
 import com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
 
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
-buildscript {
-    dependencies {
-        classpath(libs.kotlin.gradle)
-        classpath(libs.build.gradle)
-        classpath(libs.hilt.gradle)
-        classpath(libs.google.services)
-        classpath(libs.crashlytics.gradle)
-    }
-}
 
 plugins {
     `version-catalog`
-    `java-gradle-plugin`
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.androidLibrary) apply false
     alias(libs.plugins.kotlin.android) apply false
@@ -32,7 +22,7 @@ fun isNonStable(version: String): Boolean {
 }
 
 // Tarea para setear estas versiones estables al actualizar dependencias
-tasks.withType<DependencyUpdatesTask> {
+tasks.withType<DependencyUpdatesTask>().configureEach {
     resolutionStrategy {
         componentSelection {
             all {

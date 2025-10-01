@@ -13,14 +13,14 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.androidJUnit5)
     alias(libs.plugins.compose.compiler)
-    id("dagger.hilt.android.plugin")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.crashlytics)
 }
 
 android {
     namespace = "$GROUP_ID.user"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "${GROUP_ID}.user"
@@ -59,13 +59,6 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "${JavaVersion.VERSION_17}"
-    }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -78,6 +71,14 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
+    }
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {

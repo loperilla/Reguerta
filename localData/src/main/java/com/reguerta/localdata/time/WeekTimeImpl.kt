@@ -25,13 +25,13 @@ class WeekTimeImpl @Inject constructor() : WeekTime {
 
     override fun getCurrentWeek(): Int {
         val today = overrideDate ?: LocalDate.now()
-        val weekFields = WeekFields.of(Locale("es", "ES"))
+        val weekFields = WeekFields.of(Locale.Builder().setLanguage("es").setRegion("ES").build())
         return today.get(weekFields.weekOfWeekBasedYear())
     }
 
     override fun getLastWeek(): Int {
         val lastWeek: LocalDate = (overrideDate ?: LocalDate.now()).minusWeeks(1)
-        val weekFields = WeekFields.of(Locale("es", "ES"))
+        val weekFields = WeekFields.of(Locale.Builder().setLanguage("es").setRegion("ES").build())
         return lastWeek.get(weekFields.weekOfWeekBasedYear())
     }
 
@@ -45,7 +45,7 @@ class WeekTimeImpl @Inject constructor() : WeekTime {
 
     override fun getTwoWeeksAgo(): Int {
         val twoWeeksAgo: LocalDate = (overrideDate ?: LocalDate.now()).minusWeeks(2)
-        val weekFields = WeekFields.of(Locale("es", "ES"))
+        val weekFields = WeekFields.of(Locale.Builder().setLanguage("es").setRegion("ES").build())
         return twoWeeksAgo.get(weekFields.weekOfWeekBasedYear())
     }
 }

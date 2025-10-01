@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kspPlugin)
     alias(libs.plugins.kotlin.android)
-    id("dagger.hilt.android.plugin")
+    alias(libs.plugins.hilt)
 }
 
 android {
@@ -14,7 +14,6 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
-
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -22,12 +21,13 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
