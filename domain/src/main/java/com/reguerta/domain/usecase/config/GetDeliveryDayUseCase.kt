@@ -2,8 +2,9 @@ package com.reguerta.domain.usecase.config
 
 import com.reguerta.domain.enums.WeekDay
 import com.reguerta.domain.enums.parseDeliveryDay
+import javax.inject.Inject
 
-class GetDeliveryDayUseCase(
+class GetDeliveryDayUseCase @Inject constructor(
     private val getConfigUseCase: GetConfigUseCase
 ) {
     suspend operator fun invoke(): WeekDay {

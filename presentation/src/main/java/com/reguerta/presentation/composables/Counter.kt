@@ -15,11 +15,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.reguerta.presentation.ui.CORNER_SIZE_8
 import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.Text
+import androidx.compose.material3.MaterialTheme
 
 /*****
  * Project: Reguerta
@@ -41,7 +40,7 @@ fun ReguertaCounter(
             .padding(horizontal = PADDING_SMALL)
             .wrapContentSize()
             .background(
-                Color.LightGray,
+                MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(CORNER_SIZE_8)
             )
     ) {
@@ -52,7 +51,7 @@ fun ReguertaCounter(
             Icon(
                 imageVector = Icons.Default.Remove,
                 contentDescription = "counter remove",
-                tint = Text
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
         IconButton(
@@ -61,7 +60,7 @@ fun ReguertaCounter(
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "counter add",
-                tint = Text
+                tint = MaterialTheme.colorScheme.onSurface
             )
         }
     }

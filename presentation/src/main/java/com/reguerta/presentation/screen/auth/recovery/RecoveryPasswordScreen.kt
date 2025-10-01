@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,18 +35,15 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.type.isValidEmail
-import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_LARGE
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.SIZE_88
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
-import com.reguerta.presentation.ui.Text
 
 /*****
  * Project: Reguerta
@@ -75,12 +73,12 @@ fun recoveryPasswordScreen(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(SIZE_88)
-                        .background(PrimaryColor.copy(alpha = 0.2F), shape = CircleShape)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = "Info",
-                        tint = PrimaryColor,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(SIZE_48)
                     )
                 }
@@ -90,7 +88,7 @@ fun recoveryPasswordScreen(
                 TextBody(
                     text = "Se ha enviado el correo de restablecimiento de contraseña con éxito. Revisa tu correo.",
                     textSize = TEXT_SIZE_DLG_BODY,
-                    textColor = Text,
+                    textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center
                 )
             },
@@ -98,7 +96,7 @@ fun recoveryPasswordScreen(
                 TextTitle(
                     text = "Recuperar contraseña",
                     textSize = TEXT_SIZE_DLG_TITLE,
-                    textColor = Text,
+                    textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center
                 )
             },
@@ -130,14 +128,13 @@ fun recoveryPasswordScreen(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(SIZE_88)
-                        .background(Orange.copy(alpha = 0.2F), shape = CircleShape)
+                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2f), shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Warning,
                         contentDescription = "Advertencia",
-                        tint = Orange,
-                        modifier = Modifier
-                            .size(SIZE_48)
+                        tint = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.size(SIZE_48)
                     )
                 }
             },
@@ -146,7 +143,7 @@ fun recoveryPasswordScreen(
                 TextBody(
                     text = "Ha ocurrido un error al enviar el correo de restablecimiento de contraseña.",
                     textSize = TEXT_SIZE_DLG_BODY,
-                    textColor = Text,
+                    textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center
                 )
             },
@@ -154,7 +151,7 @@ fun recoveryPasswordScreen(
                 TextTitle(
                     text = "Recuperar contraseña",
                     textSize = TEXT_SIZE_DLG_TITLE,
-                    textColor = Text,
+                    textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center
                 )
             },

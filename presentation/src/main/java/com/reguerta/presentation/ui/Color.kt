@@ -9,13 +9,10 @@ import androidx.compose.ui.graphics.Color
  * All rights reserved 2024
  */
 
-val PrimaryColor = Color(0xFF8eb71d)
-val Text = Color(0xFF2b3809)
-val Background = Color(0xFFf3f8e7)
-val SecondaryBackground = Color(0xFFE8F2C4)
-val Orange = Color(0xFFffa500)
-val DialogBackground = Color(0xFFF3F8E7)
+// color for show low stock
+val LowStock = Color(0xFFEB6200)
 
+// Colors of Reguerta Theme
 val primary6DA539 = Color(0xFF6DA539)
 val onPrimaryWhite = Color(0xFFFFFFFF)
 val primaryContainerLight = Color(0xFFDDE5C0)

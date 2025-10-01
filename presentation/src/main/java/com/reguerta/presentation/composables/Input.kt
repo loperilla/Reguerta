@@ -27,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -42,13 +43,11 @@ import com.reguerta.presentation.ui.CORNER_SIZE_8
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.SIZE_36
 import com.reguerta.presentation.ui.SIZE_40
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
-import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.cabinsketchFontFamily
 
 /*****
@@ -197,23 +196,23 @@ private fun SecondaryReguertaInput(
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
     val textColor = if (text.isEmpty()) {
-        Text.copy(alpha = 0.7f)
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
     } else {
-        Text
+        MaterialTheme.colorScheme.onSurface
     }
     val colors = OutlinedTextFieldDefaults.colors(
         focusedTextColor = textColor,
         unfocusedTextColor = textColor,
-        focusedBorderColor = PrimaryColor,
-        unfocusedBorderColor = PrimaryColor,
-        disabledPlaceholderColor = Text,
-        focusedPlaceholderColor = Text,
-        errorPlaceholderColor = Text,
-        unfocusedPlaceholderColor = Text.copy(alpha = 0.7f),
-        focusedContainerColor = Color.White,
-        unfocusedContainerColor = Color.White,
-        disabledContainerColor = Color.White,
-        errorContainerColor = Color.White,
+        focusedBorderColor = MaterialTheme.colorScheme.primary,
+        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
+        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurface,
+        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface,
+        errorPlaceholderColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+        focusedContainerColor = MaterialTheme.colorScheme.background,
+        unfocusedContainerColor = MaterialTheme.colorScheme.background,
+        disabledContainerColor = MaterialTheme.colorScheme.background,
+        errorContainerColor = MaterialTheme.colorScheme.background,
     )
     Column(
         verticalArrangement = Arrangement.spacedBy(PADDING_SMALL)
@@ -245,9 +244,8 @@ private fun SecondaryReguertaInput(
             TextBody(
                 text = uiError.message,
                 textSize = TEXT_SIZE_SMALL,
-                textColor = Color.Red,
-                modifier = Modifier
-                    .padding(horizontal = PADDING_MEDIUM)
+                textColor = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(horizontal = PADDING_MEDIUM)
             )
         }
     }
@@ -268,23 +266,19 @@ private fun ReguertaInput(
     visualTransformation: VisualTransformation = VisualTransformation.None
 ) {
     val textColor = if (text.isEmpty()) {
-        Text.copy(alpha = 0.7f)
+        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
     } else {
-        Text
+        MaterialTheme.colorScheme.onSurface
     }
     val colors = OutlinedTextFieldDefaults.colors(
         focusedTextColor = textColor,
         unfocusedTextColor = textColor,
-        focusedBorderColor = Text,
-        unfocusedBorderColor = Text.copy(
-            alpha = 0.7f
-        ),
-        disabledPlaceholderColor = Text,
-        focusedPlaceholderColor = Text,
-        errorPlaceholderColor = Text,
-        unfocusedPlaceholderColor = Text.copy(
-            alpha = 0.7f
-        )
+        focusedBorderColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurface,
+        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface,
+        errorPlaceholderColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
     )
     Column(
         verticalArrangement = Arrangement.spacedBy(PADDING_SMALL)
@@ -321,7 +315,7 @@ private fun ReguertaInput(
                     TextBody(
                         text = suffixValue,
                         textSize = TEXT_SIZE_LARGE,
-                        textColor = Text
+                        textColor = MaterialTheme.colorScheme.onSurface
                     )
                 }
             },
@@ -332,7 +326,7 @@ private fun ReguertaInput(
             TextBody(
                 text = uiError.message,
                 textSize = TEXT_SIZE_SMALL,
-                textColor = Color.Red,
+                textColor = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(horizontal = PADDING_MEDIUM)
             )
         }
@@ -358,10 +352,10 @@ fun CustomPhoneNumberInput(
     Box(
         modifier = modifier
             .height(SIZE_36)
-            .background(Color.White, RoundedCornerShape(CORNER_SIZE_8))
+            .background(MaterialTheme.colorScheme.background, RoundedCornerShape(CORNER_SIZE_8))
             .border(
                 BORDER_SIZE,
-                if (isError) Color.Red else PrimaryColor,
+                if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                 RoundedCornerShape(CORNER_SIZE_8)
             )
             .padding(PADDING_SMALL)
@@ -370,7 +364,7 @@ fun CustomPhoneNumberInput(
             TextBody(
                 text = placeholder,
                 textSize = TEXT_SIZE_LARGE,
-                textColor = Text.copy(alpha = 0.5f),
+                textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                 textAlignment = TextAlign.Center,
                 modifier = Modifier.fillMaxSize()
             )
@@ -378,7 +372,7 @@ fun CustomPhoneNumberInput(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            textStyle = textStyle.copy(color = Text),
+            textStyle = textStyle.copy(color = MaterialTheme.colorScheme.onSurface),
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Phone,
                 imeAction = imeAction
@@ -409,10 +403,10 @@ fun CustomTextField(
     Box(
         modifier = modifier
             .height(SIZE_40)
-            .background(Color.White, RoundedCornerShape(CORNER_SIZE_8))
+            .background(MaterialTheme.colorScheme.background, RoundedCornerShape(CORNER_SIZE_8))
             .border(
                 BORDER_SIZE,
-                if (isError) Color.Red else PrimaryColor,
+                if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
                 RoundedCornerShape(CORNER_SIZE_8)
             )
             .padding(PADDING_SMALL)
@@ -421,7 +415,7 @@ fun CustomTextField(
             TextBody(
                 text = placeholder,
                 textSize = TEXT_SIZE_LARGE,
-                textColor = Text.copy(alpha = 0.5f),
+                textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
                 textAlignment = TextAlign.Center,
                 modifier = Modifier.fillMaxSize()
             )
@@ -429,13 +423,12 @@ fun CustomTextField(
         BasicTextField(
             value = value,
             onValueChange = onValueChange,
-            textStyle = textStyle.copy(color = Text),
+            textStyle = textStyle.copy(color = MaterialTheme.colorScheme.onSurface),
             keyboardOptions = KeyboardOptions(
                 keyboardType = keyboardType,
                 imeAction = imeAction
             ),
-            modifier = Modifier
-                .fillMaxSize()
+            modifier = Modifier.fillMaxSize()
         )
     }
 }
@@ -457,7 +450,7 @@ fun CustomTextFieldWithLabel(
     ) {
         TextTitle(
             text = label.uppercase(),
-            textColor = Text,
+            textColor = MaterialTheme.colorScheme.onSurface,
             textSize = TEXT_SIZE_SMALL
         )
         CustomTextField(
@@ -479,51 +472,44 @@ fun ReguertaInputPreview() {
     Screen {
         Column(
             verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
-            modifier = Modifier
-                .padding(PADDING_SMALL)
+            modifier = Modifier.padding(PADDING_SMALL)
         ) {
             ReguertaEmailInput(
                 text = "Manuel Lopera",
                 onTextChange = {},
                 isValidEmail = false,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
 
             ReguertaPasswordInput(
                 text = "",
                 placeholderText = "Contraseña",
                 onTextChange = {},
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
 
             TextReguertaInput(
                 text = "Manuel Lopera",
                 labelText = "Nombre",
                 onTextChange = {},
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
 
             SecondaryReguertaInput(
                 text = "Manuel Lopera",
                 onTextChange = {},
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
 
             PhoneNumberReguertaInput(
                 text = "123456789",
                 onTextChange = {},
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
             PhoneNumberReguertaInput(
                 text = "12345679",
                 onTextChange = {},
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             )
         }
     }

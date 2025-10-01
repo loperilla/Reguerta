@@ -18,7 +18,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
@@ -26,11 +25,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.SIZE_40
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
-import com.reguerta.presentation.ui.Text
+import androidx.compose.material3.MaterialTheme
 
 /*****
  * Project: Reguerta
@@ -69,8 +67,8 @@ fun DropdownSelectable(
             .onSizeChanged {
                 itemHeight = with(density) { it.height.toDp() }
             },
-        contentColor = Color.White,
-        containerColor = PrimaryColor.copy(0.2f),
+        contentColor = MaterialTheme.colorScheme.onPrimary,
+        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
         content = {
             Box(
                 modifier = Modifier
@@ -96,7 +94,7 @@ fun DropdownSelectable(
                 TextTitle(
                     text = currentSelected,
                     textSize = TEXT_SIZE_LARGE,
-                    textColor = Text,
+                    textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -120,7 +118,7 @@ fun DropdownSelectable(
                             TextBody(
                                 text = it.text,
                                 textSize = TEXT_SIZE_MEDIUM,
-                                textColor = Text
+                                textColor = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     )

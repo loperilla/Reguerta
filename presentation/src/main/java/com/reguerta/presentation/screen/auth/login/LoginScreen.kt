@@ -35,7 +35,7 @@ import com.reguerta.presentation.type.isValidPassword
 import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PrimaryColor
+import androidx.compose.material3.MaterialTheme
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 
@@ -138,7 +138,7 @@ private fun LoginScreen(
             )
 
             TextBody(
-                textColor = PrimaryColor,
+                textColor = MaterialTheme.colorScheme.primary,
                 text = "¿Has olvidado tu contraseña?",
                 textSize = TEXT_SIZE_SMALL,
                 fontWeight = FontWeight.Bold,

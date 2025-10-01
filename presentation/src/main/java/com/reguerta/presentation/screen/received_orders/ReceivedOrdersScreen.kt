@@ -14,12 +14,12 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRow
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -45,13 +45,11 @@ import com.reguerta.presentation.composables.products.ProductNameUnityContainer
 import com.reguerta.presentation.composables.products.ProductNameUnityContainerInMyOrder
 import com.reguerta.presentation.getQuantitySum
 import com.reguerta.presentation.screen.home.HomeViewModel
-import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_LARGE
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PADDING_ZERO
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_64
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_EXTRA_SMALL
@@ -60,9 +58,6 @@ import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMADIUM
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
-import com.reguerta.presentation.ui.Text
-import com.reguerta.presentation.ui.errorColor
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /*****
@@ -81,12 +76,6 @@ fun receivedOrdersScreen(
     val homeViewModel = hiltViewModel<HomeViewModel>()
     val isSyncFinished by homeViewModel.isSyncFinished.collectAsState()
 
-    LaunchedEffect(isSyncFinished) {
-        if (isSyncFinished) {
-            delay(700)
-            viewModel.forceReload()
-        }
-    }
 
     if (state.goOut) {
         navigateTo(Routes.HOME.route)
@@ -132,8 +121,7 @@ fun ReceivedOrdersScreen(
         Box(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(it),
-            contentAlignment = Alignment.Center
+                .padding(it)
         ) {
             when {
                 state.isLoading -> {
@@ -141,19 +129,17 @@ fun ReceivedOrdersScreen(
                 }
                 state.ordersByProduct.isEmpty() -> {
                     ReguertaCard(
-                        modifier = Modifier
-                            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_MEDIUM),
-                        containerColor = errorColor.copy(0.15f),
+                        modifier = Modifier.padding(horizontal = PADDING_MEDIUM, vertical = PADDING_MEDIUM),
+                        containerColor = MaterialTheme.colorScheme.error.copy(0.15f),
                         content = {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(PADDING_LARGE),
-                                contentAlignment = Alignment.Center
+                                    .padding(PADDING_LARGE)
                             ) {
                                 TextTitle(
                                     text = "No has recibido ningún pedido esta semana.",
-                                    textColor = errorColor,
+                                    textColor = MaterialTheme.colorScheme.error,
                                     textAlignment = TextAlign.Center
                                 )
                             }
@@ -231,14 +217,14 @@ private fun OrderListByUser(
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(PrimaryColor)
+                .background(MaterialTheme.colorScheme.primary)
                 .padding(PADDING_SMALL),
             contentAlignment = Alignment.Center
         ) {
             TextTitle(
                 text = "Suma total general: %.2f €".format(grandTotal),
                 textSize = TEXT_TOP_BAR,
-                textColor = Text
+                textColor = MaterialTheme.colorScheme.onSurface
             )
         }
     }
@@ -255,7 +241,7 @@ private fun OrderByUser(
         content = {
             TextTitle(
                 text = fullname,
-                textColor = PrimaryColor,
+                textColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .padding(PADDING_SMALL)
                     .fillMaxWidth(),
@@ -274,7 +260,7 @@ private fun OrderByUser(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(PADDING_SMALL),
-                textColor = Orange,
+                textColor = MaterialTheme.colorScheme.error,
                 textSize = TEXT_SIZE_LARGE,
                 textAlignment = TextAlign.End
             )
@@ -311,13 +297,13 @@ private fun ProductOrders(
             TextBody(
                 text = "${orderLine.quantity}",
                 textSize = TEXT_SIZE_MEDIUM,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(PADDING_EXTRA_SMALL),
             )
             TextBody(
                 text = quantitySum,
                 textSize = TEXT_SIZE_EXTRA_SMALL,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(PADDING_EXTRA_SMALL),
             )
         }
@@ -329,7 +315,7 @@ private fun ProductOrders(
             TextBody(
                 text = "%.2f €".format(totalPrice),
                 textSize = TEXT_SIZE_SMADIUM,
-                textColor = Orange
+                textColor = MaterialTheme.colorScheme.error
             )
         }
     }
@@ -405,13 +391,13 @@ fun OrderByProduct(
                     TextTitle(
                         text = "${orderLines.getQuantityByProduct(product)}",
                         textSize = TEXT_TOP_BAR,
-                        textColor = Text,
+                        textColor = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(PADDING_EXTRA_SMALL),
                     )
                     TextBody(
                         text = quantitySum,
                         textSize = TEXT_SIZE_EXTRA_EXTRA_SMALL,
-                        textColor = Text,
+                        textColor = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(PADDING_EXTRA_SMALL),
                     )
                 }
@@ -419,5 +405,3 @@ fun OrderByProduct(
         }
     )
 }
-
-

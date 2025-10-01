@@ -261,6 +261,22 @@ class HomeViewModel @Inject constructor(
                         )
                     }
                 }
+
+                HomeEvent.ShowBlockedDayDialog -> {
+                    _state.update {
+                        it.copy(
+                            showBlockedDayDialog = true
+                        )
+                    }
+                }
+
+                HomeEvent.HideBlockedDayDialog -> {
+                    _state.update {
+                        it.copy(
+                            showBlockedDayDialog = false
+                        )
+                    }
+                }
             }
         }
     }

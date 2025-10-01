@@ -3,6 +3,7 @@ package com.reguerta.presentation.composables
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
@@ -20,8 +21,8 @@ fun ReguertaCircularProgress(
     CircularProgressIndicator(
         modifier = modifier
             .size(64.dp)
-            .border(2.dp, Color.Blue), // Para pruebas
-        color = Color.Green,
+            .border(2.dp, MaterialTheme.colorScheme.onPrimary), // Para pruebas
+        color = MaterialTheme.colorScheme.primary,
         strokeWidth = 8.dp
     )
 }

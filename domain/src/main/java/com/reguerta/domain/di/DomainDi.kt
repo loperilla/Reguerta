@@ -15,7 +15,6 @@ import com.reguerta.domain.usecase.auth.LoginUseCase
 import com.reguerta.domain.usecase.auth.RefreshUserUseCase
 import com.reguerta.domain.usecase.auth.RegisterUseCase
 import com.reguerta.domain.usecase.auth.SendRecoveryPasswordEmailUseCase
-import com.reguerta.domain.usecase.config.GetConfigUseCase
 import com.reguerta.domain.usecase.config.UpdateTableTimestampsUseCase
 import com.reguerta.domain.usecase.containers.GetAllContainersUseCase
 import com.reguerta.domain.usecase.measures.GetAllMeasuresUseCase
@@ -168,11 +167,6 @@ object DomainDi {
         orderLinesServices: OrderLinesService
     ) = NewOrderModel(productsService, ordersService, orderLinesServices)
 
-
-    @Provides
-    fun provideGetConfigUseCase(configRepositoryImpl: ConfigRepositoryImpl): GetConfigUseCase {
-        return GetConfigUseCase(configRepositoryImpl)
-    }
 
     @Provides
     fun provideSyncProductsUseCase(

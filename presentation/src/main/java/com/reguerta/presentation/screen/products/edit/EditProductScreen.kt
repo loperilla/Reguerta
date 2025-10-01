@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -40,7 +41,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
@@ -67,7 +67,6 @@ import com.reguerta.presentation.ui.SIZE_16
 import com.reguerta.presentation.ui.SIZE_96
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.uriToBitmap
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
@@ -306,7 +305,7 @@ fun HeaderAddProductForm(
                 TextBody(
                     text = "Disponible",
                     textSize = TEXT_SIZE_LARGE,
-                    textColor = Text
+                    textColor = MaterialTheme.colorScheme.onSurface
                 )
                 ReguertaCheckBox(
                     isChecked = state.isAvailable,
@@ -412,7 +411,7 @@ private fun UnityAndContainer(
         )
 
         DropdownSelectable(
-            currentSelected = if (state.measureType.isEmpty()) "Selecciona unidad" else state.measureType,
+            currentSelected = state.measureType.ifEmpty { "Selecciona unidad" },
             dropdownItems = measureDropdownItems,
             onItemClick = {
                 onEvent(EditProductEvent.OnMeasuresTypeChanges(it.text))

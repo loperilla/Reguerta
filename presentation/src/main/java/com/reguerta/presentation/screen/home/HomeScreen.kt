@@ -34,6 +34,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
@@ -62,11 +63,9 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.navigationDrawer.NavigationDrawerInfo
-import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.SIZE_88
@@ -75,12 +74,10 @@ import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SPECIAL_BTN
-import com.reguerta.presentation.ui.Text
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import com.reguerta.domain.repository.ConfigCheckResult
 import androidx.core.net.toUri
-import com.google.firebase.Timestamp
 import com.reguerta.domain.enums.nextDay
 import com.reguerta.domain.enums.toJavaDayOfWeek
 import com.reguerta.domain.repository.ConfigModel
@@ -134,8 +131,13 @@ fun homeScreen(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            LoadingAnimation()
-            androidx.compose.material3.Text("Preparando datos por primera vez...", color = PrimaryColor)
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                LoadingAnimation()
+                Spacer(modifier = Modifier.height(PADDING_MEDIUM))
+                androidx.compose.material3.Text("Preparando datos por primera vez...", color = MaterialTheme.colorScheme.primary)
+            }
         }
         return
     }
@@ -198,9 +200,14 @@ private fun HomeScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
-    // Calcular el día bloqueado: el día siguiente a deliveryDay
-    val blockedDay = state.deliveryDay.nextDay().toJavaDayOfWeek()
-    val isBlockedDay = state.currentDay == blockedDay
+    // Calcular el día bloqueado: el día siguiente a deliveryDay, excepto si es sábado o domingo
+    val deliveryDay = state.deliveryDay.toJavaDayOfWeek()
+    val blockedDay = if (deliveryDay == DayOfWeek.SATURDAY || deliveryDay == DayOfWeek.SUNDAY) {
+        null
+    } else {
+        state.deliveryDay.nextDay().toJavaDayOfWeek()
+    }
+    val isBlockedDay = blockedDay != null && state.currentDay == blockedDay
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -236,9 +243,7 @@ private fun HomeScreen(
                 MakeYourOrderButton(
                     onButtonClick = {
                         if (isBlockedDay) {
-                            Timber.i("SYNC_Botón Mi pedido pulsado en día bloqueado: $blockedDay. Navegación bloqueada.")
-                            // Aquí podrías navegar a un aviso, ejemplo:
-                            // navigateTo(Routes.HOME.BLOCKED_ORDER.route)
+                            onEvent(HomeEvent.ShowBlockedDayDialog)
                         } else {
                             Timber.i("SYNC_Botón Mi pedido pulsado, navegando a: ${Routes.ORDERS.NEW.route}")
                             navigateTo(Routes.ORDERS.NEW.route)
@@ -247,7 +252,7 @@ private fun HomeScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL),
-                    buttonIsEnabled = !isBlockedDay
+                    buttonIsEnabled = true
                 )
 
                 if (state.isCurrentUserProducer && state.currentDay in DayOfWeek.MONDAY..state.deliveryDay.toJavaDayOfWeek()) {
@@ -261,6 +266,57 @@ private fun HomeScreen(
                             .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
                     )
                 }
+            }
+            // Blocked day dialog
+            if (state.showBlockedDayDialog) {
+                ReguertaAlertDialog(
+                    icon = {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(SIZE_88)
+                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2F), shape = CircleShape)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = "Info",
+                                tint = MaterialTheme.colorScheme.primary,
+                                modifier = Modifier.size(SIZE_48)
+                            )
+                        }
+                    },
+                    onDismissRequest = { onEvent(HomeEvent.HideBlockedDayDialog) },
+                    text = {
+                        TextBody(
+                            text = "El día posterior al reparto se ha reservado para que los productores hagan cambios. Los pedidos a partir de mañana y hasta el domingo.",
+                            textSize = TEXT_SIZE_DLG_BODY,
+                            textColor = MaterialTheme.colorScheme.onSurface,
+                            textAlignment = TextAlign.Center
+                        )
+                    },
+                    title = {
+                        TextTitle(
+                            text = "¡Atención!",
+                            textSize = TEXT_SIZE_DLG_TITLE,
+                            textColor = MaterialTheme.colorScheme.onSurface,
+                            textAlignment = TextAlign.Center
+                        )
+                    },
+                    confirmButton = {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Spacer(modifier = Modifier.weight(1f))
+                            ReguertaButton(
+                                textButton = "Aceptar",
+                                isSingleButton = true,
+                                onClick = { onEvent(HomeEvent.HideBlockedDayDialog) }
+                            )
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                    }
+                )
             }
         }
     }
@@ -278,13 +334,13 @@ private fun MakeYourOrderButton(
         shape = RoundedCornerShape(32f),
         enabled = buttonIsEnabled,
         colors = ButtonDefaults.buttonColors(
-            containerColor = PrimaryColor.copy(0.2f)
+            containerColor = MaterialTheme.colorScheme.primary.copy(0.2f)
         )
     ) {
         TextBody(
             text = "Mi pedido",
             textSize = TEXT_SIZE_SPECIAL_BTN,
-            textColor = PrimaryColor,
+            textColor = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(PADDING_SMALL)
         )
     }
@@ -301,12 +357,12 @@ private fun ShowYourOrderButton(
         modifier = modifier,
         shape = RoundedCornerShape(32f),
         enabled = buttonIsEnabled,
-        colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor.copy(0.2f))
+        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary.copy(0.2f))
     ) {
         TextBody(
             text = "Ver tus pedidos",
             textSize = TEXT_SIZE_SPECIAL_BTN,
-            textColor = PrimaryColor,
+            textColor = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(PADDING_SMALL)
         )
     }
@@ -320,12 +376,12 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(SIZE_88)
-                    .background(PrimaryColor.copy(alpha = 0.2F), shape = CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2F), shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Info,
                     contentDescription = "Info",
-                    tint = PrimaryColor,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(SIZE_48)
                 )
             }
@@ -335,7 +391,7 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
             TextBody(
                 text = "¿Estás seguro que quieres cerrar la sesión?",
                 textSize = TEXT_SIZE_DLG_BODY,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },
@@ -343,7 +399,7 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
             TextTitle(
                 text = "Cerrar sesión",
                 textSize = TEXT_SIZE_DLG_TITLE,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },
@@ -391,9 +447,9 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
                     Icon(
                         imageVector = info.icon,
                         contentDescription = info.title,
-                        tint = Color.White,
+                        tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
-                            .background(PrimaryColor, CircleShape)
+                            .background(MaterialTheme.colorScheme.primary, CircleShape)
                             .padding(PADDING_EXTRA_SMALL)
                     )
                 },
@@ -414,7 +470,7 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         TextBody(
             text = "android version 0.2.1.1",
             textSize = TEXT_SIZE_MEDIUM,
-            textColor = Text,
+            textColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
                 .padding(PADDING_SMALL)
@@ -430,12 +486,12 @@ private fun showNotAuthorizedDialog() {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(SIZE_88)
-                    .background(Orange.copy(alpha = 0.2F), shape = CircleShape)
+                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2F), shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Warning,
                     contentDescription = "Advertencia",
-                    tint = Orange,
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(SIZE_48)
                 )
             }
@@ -445,7 +501,7 @@ private fun showNotAuthorizedDialog() {
             TextBody(
                 text = "Ponte en contacto con algún miembro de La Regüerta para que te den acceso.",
                 textSize = TEXT_SIZE_DLG_BODY,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },
@@ -453,7 +509,7 @@ private fun showNotAuthorizedDialog() {
             TextTitle(
                 text = "Usuario no autorizado",
                 textSize = TEXT_SIZE_DLG_TITLE,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         }
@@ -547,12 +603,12 @@ private fun ForceUpdateDialog(config: ConfigModel?, context: Context) {
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(SIZE_88)
-                    .background(Orange.copy(alpha = 0.2F), shape = CircleShape)
+                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2F), shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Warning,
                     contentDescription = "Actualización requerida",
-                    tint = Orange,
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(SIZE_48)
                 )
             }
@@ -562,7 +618,7 @@ private fun ForceUpdateDialog(config: ConfigModel?, context: Context) {
             TextBody(
                 text = "Para seguir usando la app necesitas actualizarla a la versión mínima requerida.",
                 textSize = TEXT_SIZE_DLG_BODY,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },
@@ -570,7 +626,7 @@ private fun ForceUpdateDialog(config: ConfigModel?, context: Context) {
             TextTitle(
                 text = "Actualización obligatoria",
                 textSize = TEXT_SIZE_DLG_TITLE,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },
@@ -607,12 +663,12 @@ private fun RecommendUpdateDialog(config: ConfigModel?,
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(SIZE_88)
-                    .background(PrimaryColor.copy(alpha = 0.2F), shape = CircleShape)
+                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2F), shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Info,
                     contentDescription = "Info",
-                    tint = PrimaryColor,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(SIZE_48)
                 )
             }
@@ -622,7 +678,7 @@ private fun RecommendUpdateDialog(config: ConfigModel?,
             TextBody(
                 text = "Hay una nueva versión de la app disponible. Te recomendamos actualizar para disfrutar de las últimas mejoras.",
                 textSize = TEXT_SIZE_DLG_BODY,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },
@@ -630,7 +686,7 @@ private fun RecommendUpdateDialog(config: ConfigModel?,
             TextTitle(
                 text = "Actualización disponible",
                 textSize = TEXT_SIZE_DLG_TITLE,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },

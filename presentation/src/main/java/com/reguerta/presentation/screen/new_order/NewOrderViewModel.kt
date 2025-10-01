@@ -3,6 +3,8 @@ package com.reguerta.presentation.screen.new_order
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.enums.ContainerType
+import com.reguerta.domain.enums.plusDays
+import com.reguerta.domain.enums.toJavaDayOfWeek
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
@@ -16,6 +18,7 @@ import com.reguerta.domain.usecase.products.CheckCommitmentsUseCase
 import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
 import com.reguerta.domain.usecase.products.UpdateProductStockUseCase
 import com.reguerta.domain.usecase.config.UpdateTableTimestampsUseCase
+import com.reguerta.domain.usecase.config.GetDeliveryDayUseCase
 import com.reguerta.domain.usecase.week.GetCurrentWeekDayUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +58,7 @@ class NewOrderViewModel @Inject constructor(
     private val mapOrderLinesWithProductsUseCase: MapOrderLinesWithProductsUseCase,
     private val checkCurrentUserLoggedUseCase: CheckCurrentUserLoggedUseCase,
     private val updateTableTimestampsUseCase: UpdateTableTimestampsUseCase,
+    private val getDeliveryDayUseCase: GetDeliveryDayUseCase,
 ) : ViewModel() {
     private var _state: MutableStateFlow<NewOrderState> = MutableStateFlow(NewOrderState())
     val state: StateFlow<NewOrderState> = _state.asStateFlow()
@@ -74,13 +78,9 @@ class NewOrderViewModel @Inject constructor(
         Timber.i("SYNC_SYNC_INIT - Entrando en determineAndExecuteFlow()")
         _state.update { it.copy(uiState = NewOrderUiMode.LOADING) }
         val today = DayOfWeek.of(getCurrentWeek())
-        val isWeekendBranch = today in listOf(
-            DayOfWeek.THURSDAY,
-            DayOfWeek.FRIDAY,
-            DayOfWeek.SATURDAY,
-            DayOfWeek.SUNDAY
-        )
-        Timber.i("SYNC_FLOW_BRANCH - Día actual: $today, isWeekendBranch: $isWeekendBranch")
+        val deliveryDay = getDeliveryDayUseCase()
+        val isNewOrderBranch = isNewOrderBranch(today, deliveryDay)
+        Timber.i("SYNC_FLOW_BRANCH - Día actual: $today, deliveryDay: $deliveryDay, isNewOrderBranch: $isNewOrderBranch")
 
         _state.update { it.copy(currentDay = today) }
 
@@ -104,11 +104,11 @@ class NewOrderViewModel @Inject constructor(
             )
         }
 
-        if (isWeekendBranch) {
-            Timber.i("SYNC_SYNC_FLOW: Ejecutando flujo de fin de semana (jueves a domingo)")
+        if (isNewOrderBranch) {
+            Timber.i("SYNC_SYNC_FLOW: Ejecutando flujo de NUEVO PEDIDO (current week orders)")
             handleCurrentWeekOrders()
         } else {
-            Timber.i("SYNC_SYNC_FLOW: Ejecutando flujo de entre semana (lunes a miércoles)")
+            Timber.i("SYNC_SYNC_FLOW: Ejecutando flujo de PEDIDO ANTERIOR (last week orders)")
             handleLastWeekOrders()
         }
     }
@@ -421,13 +421,9 @@ class NewOrderViewModel @Inject constructor(
     private fun forceReload() {
         Timber.i("SYNC_SYNC_FORCE_RELOAD - Ejecutando forceReload()")
         viewModelScope.launch(Dispatchers.IO) {
-            val today = java.time.LocalDate.now()
-            val isWeekendBranch = today.dayOfWeek in listOf(
-                DayOfWeek.THURSDAY,
-                DayOfWeek.FRIDAY,
-                DayOfWeek.SATURDAY,
-                DayOfWeek.SUNDAY
-            )
+            val today = java.time.LocalDate.now().dayOfWeek
+            val deliveryDay = getDeliveryDayUseCase()
+            val isNewOrderBranch = isNewOrderBranch(today, deliveryDay)
             val result = withTimeoutOrNull(3_000) {
                 try {
                     val currentUserResult = checkCurrentUserLoggedUseCase()
@@ -470,7 +466,7 @@ class NewOrderViewModel @Inject constructor(
                     }
                     val job3 = async {
                         withTimeoutOrNull(2_000) {
-                            if (isWeekendBranch) {
+                            if (isNewOrderBranch) {
                                 val existOrder =
                                     orderModel.checkIfExistOrderInFirebase().getOrDefault(false)
                                 if (existOrder) {
@@ -542,3 +538,20 @@ class NewOrderViewModel @Inject constructor(
         forceReload()
     }
 }
+    // Helper to determine if we are in the new order branch window
+    private fun isNewOrderBranch(today: DayOfWeek, deliveryDay: com.reguerta.domain.enums.WeekDay): Boolean {
+        // If delivery day is Saturday or Sunday, no blocked day
+        if (deliveryDay.toJavaDayOfWeek() == DayOfWeek.SATURDAY || deliveryDay.toJavaDayOfWeek() == DayOfWeek.SUNDAY) {
+            // No blocked day if delivery is Saturday or Sunday
+            return today.value >= deliveryDay.toJavaDayOfWeek().value
+        }
+        val todayValue = today.value // 1=Monday … 7=Sunday
+        val deliveryValue = deliveryDay.toJavaDayOfWeek().value
+        val deliveryPlusOneValue = (deliveryValue % 7) + 1
+
+        return if (deliveryPlusOneValue <= deliveryValue) {
+            todayValue >= deliveryPlusOneValue || todayValue <= deliveryValue
+        } else {
+            todayValue >= deliveryPlusOneValue
+        }
+    }

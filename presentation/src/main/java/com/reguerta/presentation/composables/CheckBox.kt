@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PrimaryColor
+import androidx.compose.material3.MaterialTheme
 
 /*****
  * Project: Reguerta
@@ -27,8 +27,8 @@ fun ReguertaCheckBox(
     isEnabled: Boolean = true
 ) {
     val cbColors = CheckboxDefaults.colors(
-        checkedColor = PrimaryColor,
-        checkmarkColor = Color.White,
+        checkedColor = MaterialTheme.colorScheme.primary,
+        checkmarkColor = MaterialTheme.colorScheme.onPrimary,
         uncheckedColor = Color.Gray
     )
     Checkbox(

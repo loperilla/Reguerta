@@ -15,15 +15,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.reguerta.presentation.ui.DialogBackground
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.SIZE_88
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
-import com.reguerta.presentation.ui.Text
 
 /*****
  * Project: Reguerta
@@ -40,7 +37,7 @@ fun ReguertaAlertDialog(
     text: @Composable () -> Unit,
     confirmButton: @Composable () -> Unit = {},
     dismissButton: @Composable () -> Unit = {},
-    containerColor: Color = DialogBackground,
+    containerColor: Color = MaterialTheme.colorScheme.background,
     iconContentColor: Color = MaterialTheme.colorScheme.inversePrimary
 ) {
     AlertDialog(
@@ -65,12 +62,12 @@ fun ReguertaAlertDialogPrev() {
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(SIZE_88)
-                        .background(PrimaryColor.copy(alpha = 0.2F), shape = CircleShape)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2F), shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = "Info",
-                        tint = PrimaryColor,
+                        tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(SIZE_48)
                     )
                 }
@@ -82,14 +79,14 @@ fun ReguertaAlertDialogPrev() {
                 TextBody(
                     text = "¿Estás seguro que quieres cerrar la sesión?",
                     textSize = TEXT_SIZE_DLG_BODY,
-                    textColor = Text
+                    textColor = MaterialTheme.colorScheme.onSurface
                 )
             },
             title = {
                 TextTitle(
                     text = "Cerrar session",
                     textSize = TEXT_SIZE_DLG_TITLE,
-                    textColor = Text
+                    textColor = MaterialTheme.colorScheme.onSurface
                 )
             },
             confirmButton = {
@@ -110,7 +107,7 @@ fun ReguertaAlertDialogPrev() {
                     modifier = Modifier.fillMaxWidth()
                 )
             },
-            containerColor = DialogBackground,
+            containerColor = MaterialTheme.colorScheme.background,
             iconContentColor = MaterialTheme.colorScheme.inversePrimary,
         )
     }
@@ -126,14 +123,13 @@ fun ReguertaNoButtonDialogPrev() {
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(SIZE_88)
-                        .background(PrimaryColor.copy(alpha = 0.2F), shape = CircleShape)
+                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2F), shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = "Info",
-                        tint = PrimaryColor,
-                        modifier = Modifier
-                            .size(SIZE_48)
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(SIZE_48)
                     )
                 }
             },
@@ -144,17 +140,17 @@ fun ReguertaNoButtonDialogPrev() {
                 TextBody(
                     text = "¿Estás seguro que quieres cerrar la sesión?",
                     textSize = TEXT_SIZE_SMALL,
-                    textColor = Text
+                    textColor = MaterialTheme.colorScheme.onSurface
                 )
             },
             title = {
                 TextTitle(
                     text = "Cerrar session",
                     textSize = TEXT_SIZE_LARGE,
-                    textColor = Text
+                    textColor = MaterialTheme.colorScheme.onSurface
                 )
             },
-            containerColor = DialogBackground,
+            containerColor = MaterialTheme.colorScheme.background,
             iconContentColor = MaterialTheme.colorScheme.inversePrimary,
         )
     }

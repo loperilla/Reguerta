@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -63,7 +64,6 @@ import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_96
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.uriToBitmap
 import kotlinx.coroutines.launch
 
@@ -301,7 +301,7 @@ private fun HeaderAddProductForm(
                 TextBody(
                     text = "Disponible",
                     textSize = TEXT_SIZE_LARGE,
-                    textColor = Text
+                    textColor = MaterialTheme.colorScheme.onSurface
                 )
                 ReguertaCheckBox(
                     isChecked = state.isAvailable,

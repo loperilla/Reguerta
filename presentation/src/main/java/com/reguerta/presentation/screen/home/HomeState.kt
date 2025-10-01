@@ -19,5 +19,6 @@ data class HomeState(
     val currentDay: DayOfWeek = DayOfWeek.MONDAY,
     val deliveryDay: WeekDay = WeekDay.WED,
     val configCheckResult: ConfigCheckResult? = null,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val showBlockedDayDialog: Boolean = false
 )

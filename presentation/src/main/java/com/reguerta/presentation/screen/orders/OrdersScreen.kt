@@ -7,6 +7,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -17,7 +18,6 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextTitle
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 
 /*****
@@ -56,7 +56,7 @@ fun OrdersScreen(
                     TextTitle(
                         text = "Pedidos",
                         textSize = 26.sp,
-                        textColor = PrimaryColor
+                        textColor = MaterialTheme.colorScheme.primary
                     )
                 },
                 navigationIcon = {

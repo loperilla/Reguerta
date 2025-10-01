@@ -20,6 +20,7 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -43,20 +44,16 @@ import com.reguerta.presentation.composables.StockProductText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.composables.image.ProductImage
-import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.SIZE_88
-import com.reguerta.presentation.ui.SecondaryBackground
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
-import com.reguerta.presentation.ui.Text
 
 /*****
  * Project: Reguerta
@@ -110,7 +107,7 @@ private fun ProductsScreen(
                     .fillMaxWidth()
                     .wrapContentSize(Alignment.BottomCenter)
                     .background(
-                        color = SecondaryBackground,
+                        color = MaterialTheme.colorScheme.surfaceVariant,
                         shape = RoundedCornerShape(topStart = PADDING_MEDIUM, topEnd = PADDING_MEDIUM)
                     )
                     .padding(PADDING_SMALL)
@@ -197,12 +194,12 @@ private fun ProductItem(
                         ReguertaIconButton(
                             iconButton = Icons.Filled.Edit,
                             onClick = { navigateTo(Routes.PRODUCTS.EDIT.createRoute(product.id)) },
-                            contentColor = PrimaryColor
+                            contentColor = MaterialTheme.colorScheme.primary
                         )
                         ReguertaIconButton(
                             iconButton = Icons.Filled.Delete,
                             onClick = { onEvent(ProductsEvent.ShowAreYouSureDialog(product.id)) },
-                            contentColor = Orange
+                            contentColor = MaterialTheme.colorScheme.error
                         )
                     }
                 }
@@ -215,13 +212,13 @@ private fun ProductItem(
                     TextBody(
                         text = product.name,
                         textSize = TEXT_SIZE_LARGE,
-                        textColor = Text,
+                        textColor = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                     )
                     TextBody(
                         text = product.description,
                         textSize = TEXT_SIZE_SMALL,
-                        textColor = Text,
+                        textColor = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                     )
 
@@ -233,7 +230,7 @@ private fun ProductItem(
                         TextBody(
                             text = product.priceFormatted(),
                             textSize = TEXT_SIZE_LARGE,
-                            textColor = Text,
+                            textColor = MaterialTheme.colorScheme.onSurface,
                             modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                         )
                         StockProductText(
@@ -259,14 +256,13 @@ private fun AreYouSureDialog(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(SIZE_88)
-                    .background(Orange.copy(alpha = 0.2F), shape = CircleShape)
+                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2F), shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Warning,
                     contentDescription = "Advertencia",
-                    tint = Orange,
-                    modifier = Modifier
-                        .size(SIZE_48)
+                    tint = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.size(SIZE_48)
                 )
             }
         },
@@ -275,7 +271,7 @@ private fun AreYouSureDialog(
             TextBody(
                 text = "Estás a punto de eliminar un producto.\nEsta acción no se podrá deshacer.",
                 textSize = TEXT_SIZE_DLG_BODY,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },
@@ -283,7 +279,7 @@ private fun AreYouSureDialog(
             TextTitle(
                 text = "Vas a eliminar un producto\n¿Estás seguro?",
                 textSize = TEXT_SIZE_DLG_TITLE,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },

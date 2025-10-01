@@ -24,17 +24,15 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import com.reguerta.presentation.getResizedTextSize
 import com.reguerta.presentation.ui.CORNER_SIZE_8
-import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.TEXT_EXTRA_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
-import com.reguerta.presentation.ui.Text
 import com.reguerta.presentation.ui.cabinsketchFontFamily
+import com.reguerta.presentation.ui.LowStock
 
 /*****
  * Project: Reguerta
@@ -106,9 +104,9 @@ fun StockProductText(
     textSize: TextUnit = TEXT_SIZE_MEDIUM
 ) {
     val colorToDraw: Color = when (stockCount) {
-        0 -> Color.Red
-        in 1..10 -> Orange
-        else -> Text
+        0 -> MaterialTheme.colorScheme.error
+        in 1..10 -> LowStock
+        else -> MaterialTheme.colorScheme.onSurface
     }
     TextBody(
         text = "Stock: $stockCount",
@@ -125,9 +123,9 @@ fun StockOrderText(
     textSize: TextUnit = TEXT_SIZE_MEDIUM
 ) {
     val colorToDraw: Color = when (stockCount) {
-        0 -> Color.Red
-        in 1..10 -> Orange
-        in 11..20 -> Text
+        0 -> MaterialTheme.colorScheme.error
+        in 1..10 -> LowStock
+        in 11..20 -> MaterialTheme.colorScheme.onSurface
         else -> Color.Transparent
     }
     TextBody(
@@ -150,12 +148,12 @@ fun AmountText(
         TextTitle(
             text = "Total: ",
             textSize = TEXT_SIZE_LARGE,
-            textColor = PrimaryColor
+            textColor = MaterialTheme.colorScheme.primary
         )
         TextBody(
             text = String.format("%.2f", amount) + " €",
             textSize = TEXT_TOP_BAR,
-            textColor = Text
+            textColor = MaterialTheme.colorScheme.onSurface
         )
     }
 }

@@ -29,11 +29,10 @@ import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_LARGE
 import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.TEXT_SIZE_SINGLE_BTN
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.Text
+import androidx.compose.material3.MaterialTheme
 
 /*****
  * Project: Reguerta
@@ -117,12 +116,12 @@ private fun FirstScreenTitle(modifier: Modifier) {
         TextTitle(
             "Bienvenido a",
             textSize = 24.sp,
-            textColor = Text,
+            textColor = MaterialTheme.colorScheme.onSurface,
         )
         TextTitle(
             "La RegÜerta",
             textSize = 36.sp,
-            textColor = PrimaryColor,
+            textColor = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(PADDING_SMALL)
         )
     }
@@ -143,12 +142,12 @@ private fun FirstScreenTextBottom(
         TextBody(
             "¿No estás registrado?",
             textSize = TEXT_SIZE_LARGE,
-            textColor = Text,
+            textColor = MaterialTheme.colorScheme.onSurface,
         )
         TextBody(
             "Regístrate",
             textSize = TEXT_SIZE_SINGLE_BTN,
-            textColor = PrimaryColor,
+            textColor = MaterialTheme.colorScheme.primary,
             modifier = Modifier
                 .padding(PADDING_EXTRA_SMALL)
                 .clickable { onClick() }

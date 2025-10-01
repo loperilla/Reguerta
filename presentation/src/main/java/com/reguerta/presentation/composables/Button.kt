@@ -15,6 +15,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,16 +23,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.reguerta.presentation.ui.Background
-import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PrimaryColor
-import com.reguerta.presentation.ui.SecondaryBackground
 import com.reguerta.presentation.ui.TEXT_SIZE_SINGLE_BTN
 import com.reguerta.presentation.ui.TEXT_SIZE_PAIR_BTN
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
-import com.reguerta.presentation.ui.Text
 
 /*****
  * Project: Reguerta
@@ -45,11 +41,13 @@ enum class BtnType {
     INFO, ERROR
 }
 
+@Composable
 fun getContainerColor(btnType: BtnType): Color = when(btnType) {
-    BtnType.INFO -> PrimaryColor
-    BtnType.ERROR -> Orange
+    BtnType.INFO -> MaterialTheme.colorScheme.primary
+    BtnType.ERROR -> MaterialTheme.colorScheme.error
 }
 
+@Composable
 fun getBorderColor(btnType: BtnType): Color = getContainerColor(btnType)
 
 @Composable
@@ -73,16 +71,18 @@ fun ReguertaButton(
         colors = ButtonDefaults.buttonColors(
             containerColor = getContainerColor(btnType),
             disabledContainerColor = Color.Gray.copy(alpha = 0.15f),
-            contentColor = Color.White,
+            contentColor = when (btnType) {
+                BtnType.INFO -> MaterialTheme.colorScheme.onPrimary
+                BtnType.ERROR -> MaterialTheme.colorScheme.onError
+            },
             disabledContentColor = Color.Gray
         )
     ) {
         TextRegular(
             text = textButton,
             textSize = if (isSingleButton) TEXT_SIZE_SINGLE_BTN else TEXT_SIZE_PAIR_BTN,
-            textColor = if (enabledButton) Background else Color.Gray,
-            modifier = Modifier
-                .padding(horizontal = 0.dp, vertical = PADDING_EXTRA_SMALL)
+            textColor = if (enabledButton) MaterialTheme.colorScheme.background else Color.Gray,
+            modifier = Modifier.padding(horizontal = 0.dp, vertical = PADDING_EXTRA_SMALL)
         )
     }
 }
@@ -102,15 +102,17 @@ fun InverseReguertaButton(
         border = BorderStroke(2.dp, getBorderColor(btnType)),
         enabled = enabledButton,
         colors = ButtonDefaults.buttonColors(
-            containerColor = SecondaryBackground
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         )
     ) {
         TextBody(
             text = textButton,
             textSize = if (isSingleButton) TEXT_SIZE_SINGLE_BTN else TEXT_SIZE_PAIR_BTN,
-            textColor = Text,
-            modifier = Modifier
-                .padding(PADDING_EXTRA_SMALL)
+            textColor = when (btnType) {
+                BtnType.INFO -> MaterialTheme.colorScheme.primary
+                BtnType.ERROR -> MaterialTheme.colorScheme.error
+            },
+            modifier = Modifier.padding(PADDING_EXTRA_SMALL)
         )
     }
 }
@@ -132,7 +134,7 @@ fun InverseReguertaButton(
         enabled = enabledButton,
         shape = RoundedCornerShape(cornerSize),
         colors = ButtonDefaults.buttonColors(
-            containerColor = SecondaryBackground
+            containerColor = MaterialTheme.colorScheme.surfaceVariant
         ),
         content = content
     )
@@ -158,7 +160,7 @@ fun ReguertaIconButton(
         Icon(
             iconButton,
             contentDescription = null,
-            tint = Color.White
+            tint = MaterialTheme.colorScheme.onPrimary
         )
     }
 }
@@ -168,8 +170,7 @@ fun ReguertaIconButton(
 fun ReguertaButtonPreview() {
     Screen {
         Column(
-            modifier = Modifier
-                .padding(PADDING_SMALL),
+            modifier = Modifier.padding(PADDING_SMALL),
             verticalArrangement = Arrangement.spacedBy(PADDING_SMALL)
         ) {
             ReguertaButton(
@@ -195,7 +196,7 @@ fun ReguertaButtonPreview() {
                     TextBody(
                         text = "con content",
                         textSize = TEXT_SIZE_SMALL,
-                        textColor = Text
+                        textColor = MaterialTheme.colorScheme.onSurface
                     )
                 },
                 onClick = {},
@@ -210,7 +211,7 @@ fun ReguertaButtonPreview() {
             ReguertaIconButton(
                 iconButton = Icons.Filled.Edit,
                 onClick = {},
-                contentColor = PrimaryColor,
+                contentColor = MaterialTheme.colorScheme.primary,
                 enabledButton = false
             )
         }

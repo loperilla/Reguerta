@@ -10,4 +10,6 @@ sealed class HomeEvent {
     data object GoOut : HomeEvent()
     data object ShowDialog : HomeEvent()
     data object HideDialog : HomeEvent()
+    data object ShowBlockedDayDialog : HomeEvent()
+    data object HideBlockedDayDialog : HomeEvent()
 }

@@ -9,6 +9,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
@@ -18,7 +19,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
-import com.reguerta.presentation.ui.Text
 
 /*****
  * Project: Reguerta
@@ -34,7 +34,7 @@ fun ReguertaTopBar(
     navActionClick: () -> Unit,
     modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
-    topBarTextColor: Color = Text,
+    topBarTextColor: Color = MaterialTheme.colorScheme.onSurface,
     navIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowBack
 ) {
     MediumTopAppBar(

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -32,7 +33,6 @@ import com.reguerta.presentation.ui.PADDING_ZERO
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
-import com.reguerta.presentation.ui.Text
 
 /*****
  * Project: Reguerta
@@ -159,7 +159,7 @@ fun AddUserScreen(
                     TextBody(
                         text = "Consumidor encargado de compras",
                         textSize = TEXT_SIZE_MEDIUM,
-                        textColor = Text
+                        textColor = MaterialTheme.colorScheme.onSurface
                     )
                 }
             }
@@ -178,7 +178,7 @@ fun AddUserScreen(
                 TextBody(
                     text = "Es productor",
                     textSize = TEXT_SIZE_LARGE,
-                    textColor = Text
+                    textColor = MaterialTheme.colorScheme.onSurface
                 )
             }
 
@@ -196,7 +196,7 @@ fun AddUserScreen(
                 TextBody(
                     text = "Es administrador",
                     textSize = TEXT_SIZE_LARGE,
-                    textColor = Text
+                    textColor = MaterialTheme.colorScheme.onSurface
                 )
             }
 

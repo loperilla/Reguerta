@@ -36,10 +36,10 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -49,7 +49,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -81,7 +80,6 @@ import com.reguerta.presentation.composables.image.ProductImage
 import com.reguerta.presentation.composables.products.ProductNameUnityContainerInMyOrder
 import com.reguerta.presentation.getQuantitySum
 import com.reguerta.presentation.screen.home.HomeViewModel
-import com.reguerta.presentation.ui.Orange
 import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
 import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_LARGE
@@ -89,13 +87,11 @@ import com.reguerta.presentation.ui.PADDING_MEDIUM
 import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PADDING_ULTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_ZERO
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
 import com.reguerta.presentation.ui.SIZE_36
 import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.SIZE_88
 import com.reguerta.presentation.ui.SIZE_96
-import com.reguerta.presentation.ui.SecondaryBackground
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
@@ -105,10 +101,6 @@ import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.TEXT_SPECIAL
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
-import com.reguerta.presentation.ui.Text
-import com.reguerta.presentation.ui.errorColor
-import kotlinx.coroutines.delay
-import java.time.DayOfWeek
 import timber.log.Timber
 
 /*****
@@ -131,7 +123,6 @@ fun newOrderScreen(
     LaunchedEffect(reloadOnce) {
         viewModel.forceReloadOnce()
     }
-
 
     if (state.goOut) {
         navigateTo(Routes.HOME.ROOT.route)
@@ -254,7 +245,7 @@ fun NoOrderScreen(
             modifier = Modifier
                 .padding(it)
                 .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_MEDIUM),
-            containerColor = errorColor.copy(0.15f),
+            containerColor = MaterialTheme.colorScheme.error.copy(0.15f),
             content = {
                 Box(
                     modifier = Modifier
@@ -264,7 +255,7 @@ fun NoOrderScreen(
                 ) {
                     TextTitle(
                         text = "No hay ningún pedido registrado.",
-                        textColor = errorColor,
+                        textColor = MaterialTheme.colorScheme.error,
                         textAlignment = TextAlign.Center
                     )
                 }
@@ -296,16 +287,15 @@ fun ExistingOrderScreen(
                     ) {
                         TextBody(
                             text = "¿eliminar?",
-                            textColor = Orange,
-                            modifier = Modifier
-                                .wrapContentWidth(Alignment.End)
+                            textColor = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.wrapContentWidth(Alignment.End)
                         )
                         ReguertaIconButton(
                             onClick = {
                                 onEvent(NewOrderEvent.ShowAreYouSureDeleteOrder)
                             },
                             iconButton = Icons.Filled.Delete,
-                            contentColor = Orange,
+                            contentColor = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(horizontal = PADDING_MEDIUM)
                         )
                     }
@@ -316,14 +306,14 @@ fun ExistingOrderScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(PrimaryColor)
+                    .background( MaterialTheme.colorScheme.primary)
                     .padding(PADDING_SMALL),
                 contentAlignment = Alignment.Center
             ) {
                 TextTitle(
                     text = "Suma total pedido: %.2f €".format(grandTotal),
                     textSize = TEXT_TOP_BAR,
-                    textColor = Text
+                    textColor = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -382,14 +372,14 @@ fun LastOrderScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(PrimaryColor)
+                    .background( MaterialTheme.colorScheme.primary)
                     .padding(PADDING_SMALL),
                 contentAlignment = Alignment.Center
             ) {
                 TextTitle(
                     text = "Suma total pedido: %.2f €".format(grandTotal),
                     textSize = TEXT_TOP_BAR,
-                    textColor = Text
+                    textColor = MaterialTheme.colorScheme.onSurface
                 )
             }
         }
@@ -456,7 +446,7 @@ private fun OrderByCompany(
             TextBody(
                 text = companyName,
                 textSize = TEXT_SIZE_LARGE,
-                textColor = PrimaryColor,
+                textColor =  MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .align(Alignment.Start)
                     .padding(
@@ -489,7 +479,7 @@ private fun OrderByCompany(
                         top = PADDING_EXTRA_SMALL,
                         end = PADDING_MEDIUM
                     ),
-                textColor = Orange,
+                textColor = MaterialTheme.colorScheme.error,
                 textSize = TEXT_SIZE_EXTRA_LARGE,
                 textAlignment = TextAlign.End
             )
@@ -529,13 +519,13 @@ private fun ProductLine(
             TextBody(
                 text = quantity.toString(),
                 textSize = TEXT_SIZE_LARGE,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(top = PADDING_ULTRA_SMALL)
             )
             TextBody(
                 text = quantitySum,
                 textSize = TEXT_SIZE_EXTRA_SMALL,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(vertical = PADDING_ZERO)
             )
         }
@@ -549,7 +539,7 @@ private fun ProductLine(
             TextBody(
                 text = "%.2f €".format(adjustTotal),
                 textSize = TEXT_SIZE_SMALL,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
             )
         }
@@ -576,7 +566,7 @@ fun NewOrderTopBar(
                     Icon(
                         imageVector = Icons.Default.ShoppingBasket,
                         contentDescription = null,
-                        tint = PrimaryColor,
+                        tint =  MaterialTheme.colorScheme.primary,
                         modifier = Modifier
                             .padding(horizontal = PADDING_SMALL)
                             .size(SIZE_36)
@@ -584,7 +574,7 @@ fun NewOrderTopBar(
                     TextBody(
                         "Seguir comprando",
                         textSize = TEXT_SIZE_LARGE,
-                        textColor = PrimaryColor,
+                        textColor =  MaterialTheme.colorScheme.primary,
                         modifier = Modifier.padding(horizontal = PADDING_SMALL)
                     )
                 },
@@ -605,13 +595,13 @@ fun NewOrderTopBar(
                         TextBody(
                             "Ver",
                             textSize = TEXT_SIZE_LARGE,
-                            textColor = PrimaryColor,
+                            textColor =  MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(horizontal = PADDING_SMALL)
                         )
                         Icon(
                             imageVector = Icons.Default.ShoppingCart,
                             contentDescription = null,
-                            tint = PrimaryColor
+                            tint =  MaterialTheme.colorScheme.primary
                         )
                     },
                     enabledButton = state.hasOrderLine
@@ -632,7 +622,7 @@ fun NewOrderBottomBar(
                 .fillMaxWidth()
                 .wrapContentSize(Alignment.BottomCenter)
                 .background(
-                    color = SecondaryBackground,
+                    color = MaterialTheme.colorScheme.surfaceVariant,
                     shape = RoundedCornerShape(topStart = PADDING_MEDIUM, topEnd = PADDING_MEDIUM)
                 )
                 .padding(PADDING_SMALL)
@@ -806,13 +796,13 @@ fun ShoppingCartOrderProductItem(
                     TextBody(
                         text = product.name,
                         textSize = TEXT_SIZE_LARGE,
-                        textColor = Text,
+                        textColor = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                     )
                     TextBody(
                         text = "${product.priceFormatted()} / ${product.getUnitType().singular}",
                         textSize = TEXT_SIZE_LARGE,
-                        textColor = Text,
+                        textColor = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
                     )
                     HorizontalDivider(
@@ -877,19 +867,19 @@ private fun OrderProductItem(
                     TextBody(
                         text = product.name,
                         textSize = TEXT_SIZE_LARGE,
-                        textColor = Text,
+                        textColor = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
                     )
                     TextBody(
                         text = product.description,
                         textSize = TEXT_SIZE_SMALL,
-                        textColor = Text,
+                        textColor = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
                     )
                     TextBody(
                         text = product.containerUnity(),
                         textSize = TEXT_SIZE_MEDIUM,
-                        textColor = Text,
+                        textColor = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
                     )
                 }
@@ -903,7 +893,7 @@ private fun OrderProductItem(
                     TextBody(
                         text = "${product.priceFormatted()} / ${product.getUnitType().singular}",
                         textSize = TEXT_SIZE_LARGE,
-                        textColor = Text,
+                        textColor = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
                     StockOrderText(
@@ -959,7 +949,7 @@ private fun ButtonStartOrder(
         enabled = hasStock,
         shape = RoundedCornerShape(16f),
         colors = ButtonDefaults.buttonColors(
-            containerColor = PrimaryColor,
+            containerColor =  MaterialTheme.colorScheme.primary,
             disabledContainerColor = Color.Gray.copy(alpha = 0.4f)
         ),
         modifier = modifier
@@ -1000,13 +990,13 @@ private fun OrderQuantitySelector(
             TextBody(
                 text = product.getQuantity(),
                 textSize = TEXT_SPECIAL,
-                textColor = Text
+                textColor = MaterialTheme.colorScheme.onSurface
             )
             Spacer(modifier = Modifier.width(PADDING_EXTRA_SMALL))
             TextBody(
                 text = product.getUnit(),
                 textSize = TEXT_SIZE_LARGE,
-                textColor = Text
+                textColor = MaterialTheme.colorScheme.onSurface
             )
         }
         Row {
@@ -1015,14 +1005,14 @@ private fun OrderQuantitySelector(
                 onClick = {
                     onEvent(NewOrderEvent.MinusQuantityProduct(product.id))
                 },
-                contentColor = Orange
+                contentColor = MaterialTheme.colorScheme.error
             )
             ReguertaIconButton(
                 iconButton = Icons.Filled.Add,
                 onClick = {
                     onEvent(NewOrderEvent.PlusQuantityProduct(product.id))
                 },
-                contentColor = PrimaryColor,
+                contentColor =  MaterialTheme.colorScheme.primary,
                 enabledButton = product.stock > 0
                         && product.container != ContainerType.RESIGN.value
                         && product.container != ContainerType.COMMIT_MANGOES.value
@@ -1043,12 +1033,12 @@ fun AreYouSureDeletePopup(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(SIZE_88)
-                    .background(Orange.copy(alpha = 0.2F), shape = CircleShape)
+                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2F), shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Warning,
                     contentDescription = "Advertencia",
-                    tint = Orange,
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(SIZE_48)
                 )
             }
@@ -1072,7 +1062,7 @@ fun AreYouSureDeletePopup(
                         append("Luego podrá realizar su pedido de nuevo.\n")
                     },
                     textSize = TEXT_SIZE_DLG_BODY,
-                    textColor = Text,
+                    textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center
                 )
             }
@@ -1084,7 +1074,7 @@ fun AreYouSureDeletePopup(
                     append("¿Está seguro?")
                 },
                 textSize = TEXT_SIZE_DLG_TITLE,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },
@@ -1137,12 +1127,12 @@ fun ConfirmPopup(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(SIZE_88)
-                    .background(PrimaryColor.copy(alpha = 0.2F), shape = CircleShape)
+                    .background( MaterialTheme.colorScheme.primary.copy(alpha = 0.2F), shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Info,
                     contentDescription = "Info",
-                    tint = PrimaryColor,
+                    tint =  MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(SIZE_48)
                 )
             }
@@ -1152,7 +1142,7 @@ fun ConfirmPopup(
             TextBody(
                 text = body,
                 textSize = TEXT_SIZE_DLG_BODY,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },
@@ -1160,7 +1150,7 @@ fun ConfirmPopup(
             TextTitle(
                 text = title,
                 textSize = TEXT_SIZE_DLG_TITLE,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },
@@ -1189,12 +1179,12 @@ fun WrongPopup(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
                     .size(SIZE_88)
-                    .background(Orange.copy(alpha = 0.2F), shape = CircleShape)
+                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2F), shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Warning,
                     contentDescription = "Advertencia",
-                    tint = Orange,
+                    tint = MaterialTheme.colorScheme.error,
                     modifier = Modifier.size(SIZE_48)
                 )
             }
@@ -1204,7 +1194,7 @@ fun WrongPopup(
             TextBody(
                 text = body,
                 textSize = TEXT_SIZE_DLG_BODY,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },
@@ -1212,7 +1202,7 @@ fun WrongPopup(
             TextTitle(
                 text = title,
                 textSize = TEXT_SIZE_DLG_TITLE,
-                textColor = Text,
+                textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
         },
