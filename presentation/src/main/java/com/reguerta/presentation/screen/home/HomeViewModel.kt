@@ -104,33 +104,6 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun forceSync() {
-        Timber.i("SYNC: forceSync lanzada a las ${System.currentTimeMillis()}")
-        viewModelScope.launch(Dispatchers.IO) {
-            val userResult = checkUserUseCase()
-            userResult.fold(
-                onSuccess = { user ->
-                    // Aquí puedes llamar a la suspend function porque ya estás en una corrutina
-                    val config = getConfigUseCase()
-                    val deliveryDay = getDeliveryDayUseCase()
-                    val currentDay = DayOfWeek.of(getCurrentWeek())
-                    hasSyncedInSession = false // Permite que triggerSyncIfNeeded vuelva a sincronizar
-                    _isSyncFinished.value = false
-                    triggerSyncIfNeeded(
-                        config,
-                        user.isAdmin,
-                        user.isProducer,
-                        currentDay,
-                        deliveryDay
-                    )
-                },
-                onFailure = {
-                    _state.update { it.copy(showNotAuthorizedDialog = true, isLoading = false) }
-                }
-            )
-        }
-    }
-
     private fun triggerBackgroundSync(
         config: ConfigModel,
         isAdmin: Boolean,

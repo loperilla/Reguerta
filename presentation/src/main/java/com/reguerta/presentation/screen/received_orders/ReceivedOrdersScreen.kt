@@ -73,9 +73,6 @@ fun receivedOrdersScreen(
 ) {
     val viewModel = hiltViewModel<ReceivedOrdersViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val homeViewModel = hiltViewModel<HomeViewModel>()
-    val isSyncFinished by homeViewModel.isSyncFinished.collectAsState()
-
 
     if (state.goOut) {
         navigateTo(Routes.HOME.route)

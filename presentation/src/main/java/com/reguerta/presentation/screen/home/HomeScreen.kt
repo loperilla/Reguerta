@@ -49,7 +49,6 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.first
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -251,8 +250,7 @@ private fun HomeScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL),
-                    buttonIsEnabled = true
+                        .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
                 )
 
                 if (state.isCurrentUserProducer && state.currentDay in DayOfWeek.MONDAY..state.deliveryDay.toJavaDayOfWeek()) {

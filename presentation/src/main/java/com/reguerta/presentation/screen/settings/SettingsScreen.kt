@@ -13,14 +13,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextTitle
-import com.reguerta.presentation.ui.PrimaryColor
 import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
 import com.reguerta.presentation.ui.TEXT_SPECIAL
 
 /*****

@@ -116,8 +116,6 @@ fun newOrderScreen(
 ) {
     val viewModel = hiltViewModel<NewOrderViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
-    val homeViewModel = hiltViewModel<HomeViewModel>()
-    val isSyncFinished by homeViewModel.isSyncFinished.collectAsState()
 
     val reloadOnce = remember { true }
     LaunchedEffect(reloadOnce) {
@@ -818,28 +816,6 @@ fun ShoppingCartOrderProductItem(
             }
         }
     )
-}
-
-@Composable
-private fun AvailableProductsScreen(
-    availableProductsList: List<Product>,
-    onEvent: (NewOrderEvent) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(PADDING_SMALL)
-    ) {
-        items(
-            count = availableProductsList.size
-        ) {
-            OrderProductItem(
-                product = availableProductsList[it],
-                onEvent = onEvent
-            )
-        }
-    }
 }
 
 @Composable

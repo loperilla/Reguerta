@@ -3,7 +3,7 @@ package com.reguerta.presentation.screen.new_order
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.enums.ContainerType
-import com.reguerta.domain.enums.plusDays
+import com.reguerta.domain.enums.WeekDay
 import com.reguerta.domain.enums.toJavaDayOfWeek
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct
@@ -467,16 +467,14 @@ class NewOrderViewModel @Inject constructor(
                     val job3 = async {
                         withTimeoutOrNull(2_000) {
                             if (isNewOrderBranch) {
-                                val existOrder =
-                                    orderModel.checkIfExistOrderInFirebase().getOrDefault(false)
+                                val existOrder = orderModel.checkIfExistOrderInFirebase().getOrDefault(false)
                                 if (existOrder) {
                                     handleCurrentWeekOrders()
                                 } else {
                                     loadAvailableProducts(getAvailableProductsUseCase)
                                 }
                             } else {
-                                val existOrder = orderModel.checkIfExistLastWeekOrderInFirebase()
-                                    .getOrDefault(false)
+                                val existOrder = orderModel.checkIfExistLastWeekOrderInFirebase().getOrDefault(false)
                                 if (existOrder) {
                                     handleLastWeekOrders()
                                 } else {
@@ -539,19 +537,12 @@ class NewOrderViewModel @Inject constructor(
     }
 }
     // Helper to determine if we are in the new order branch window
-    private fun isNewOrderBranch(today: DayOfWeek, deliveryDay: com.reguerta.domain.enums.WeekDay): Boolean {
-        // If delivery day is Saturday or Sunday, no blocked day
-        if (deliveryDay.toJavaDayOfWeek() == DayOfWeek.SATURDAY || deliveryDay.toJavaDayOfWeek() == DayOfWeek.SUNDAY) {
-            // No blocked day if delivery is Saturday or Sunday
-            return today.value >= deliveryDay.toJavaDayOfWeek().value
-        }
-        val todayValue = today.value // 1=Monday … 7=Sunday
-        val deliveryValue = deliveryDay.toJavaDayOfWeek().value
-        val deliveryPlusOneValue = (deliveryValue % 7) + 1
-
-        return if (deliveryPlusOneValue <= deliveryValue) {
-            todayValue >= deliveryPlusOneValue || todayValue <= deliveryValue
+    private fun isNewOrderBranch(today: DayOfWeek, deliveryDay: WeekDay): Boolean {
+        val deliveryDow = deliveryDay.toJavaDayOfWeek()
+        val startOfNewOrder = if (deliveryDow == DayOfWeek.SATURDAY || deliveryDow == DayOfWeek.SUNDAY) {
+            DayOfWeek.SUNDAY
         } else {
-            todayValue >= deliveryPlusOneValue
+            deliveryDow.plus(2) // desde delivery+2 hasta domingo
         }
+        return today >= startOfNewOrder
     }
