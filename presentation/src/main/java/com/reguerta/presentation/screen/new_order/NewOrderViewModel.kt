@@ -421,7 +421,7 @@ class NewOrderViewModel @Inject constructor(
     private fun forceReload() {
         Timber.i("SYNC_SYNC_FORCE_RELOAD - Ejecutando forceReload()")
         viewModelScope.launch(Dispatchers.IO) {
-            val today = java.time.LocalDate.now().dayOfWeek
+            val today = DayOfWeek.of(getCurrentWeek())
             val deliveryDay = getDeliveryDayUseCase()
             val isNewOrderBranch = isNewOrderBranch(today, deliveryDay)
             val result = withTimeoutOrNull(3_000) {
@@ -539,10 +539,16 @@ class NewOrderViewModel @Inject constructor(
     // Helper to determine if we are in the new order branch window
     private fun isNewOrderBranch(today: DayOfWeek, deliveryDay: WeekDay): Boolean {
         val deliveryDow = deliveryDay.toJavaDayOfWeek()
-        val startOfNewOrder = if (deliveryDow == DayOfWeek.SATURDAY || deliveryDow == DayOfWeek.SUNDAY) {
-            DayOfWeek.SUNDAY
-        } else {
-            deliveryDow.plus(2) // desde delivery+2 hasta domingo
+        val startOfNewOrder = when (deliveryDow) {
+            DayOfWeek.SUNDAY -> {
+                deliveryDow
+            }
+            DayOfWeek.SATURDAY -> {
+                deliveryDow.plus(1)
+            }
+            else -> {
+                deliveryDow.plus(2) // desde delivery+2 hasta domingo
+            }
         }
         return today >= startOfNewOrder
     }
