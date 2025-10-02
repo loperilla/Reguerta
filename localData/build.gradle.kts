@@ -3,11 +3,13 @@ plugins {
     alias(libs.plugins.kspPlugin)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.androidx.room)
 }
 
 android {
     namespace = "$GROUP_ID.localdata"
     compileSdk = configCompileSdkVersion
+    sourceSets["androidTest"].assets.srcDir("$projectDir/schemas")
 
     defaultConfig {
         minSdk = configMinSdkVersion
@@ -31,6 +33,10 @@ kotlin {
     jvmToolchain(21)
 }
 
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 dependencies {
     //Datastore
     implementation(libs.datastore)
@@ -41,7 +47,11 @@ dependencies {
 
     // Room
     implementation(libs.room.ktx)
-    annotationProcessor(libs.room.compiler)
     ksp(libs.room.compiler)
+
+    // Tests
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.test.ext.junit)
+    androidTestImplementation(libs.test.espresso)
 }
 

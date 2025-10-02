@@ -14,24 +14,31 @@ plugins {
     alias(libs.plugins.version.catalog.update)
 }
 
-// Variable para pillar versiones estables
-fun isNonStable(version: String): Boolean {
-    val stableKeyword = listOf("RELEASE", "FINAL", "GA").any { version.uppercase().contains(it) }
-    val regex = "^[0-9,.v-]+(-r)?$".toRegex()
-    val isStable = stableKeyword || regex.matches(version)
-    return isStable.not()
-}
-
-// Tarea para setear estas versiones estables al actualizar dependencias
-tasks.withType<DependencyUpdatesTask>().configureEach {
-    resolutionStrategy {
-        componentSelection {
-            all { selection: ComponentSelection ->
-                val candidateVersion = selection.candidate.version
-                if (isNonStable(candidateVersion)) {
-                    selection.reject("Release candidate")
-                }
+buildscript {
+    repositories {
+        google()
+        mavenCentral()
+        gradlePluginPortal()
+    }
+    dependencies {
+        classpath(libs.javapoet)
+    }
+    configurations["classpath"].resolutionStrategy { // Si algún plugin cuela otra versión, la forzamos
+        force("com.squareup:javapoet:1.13.0")
+        eachDependency {
+            if (requested.group == "com.squareup" && requested.name == "javapoet") {
+                useVersion("1.13.0")
+                because("Hilt 2.57.x usa ClassName.canonicalName() (>= 1.13.0)")
             }
         }
+    }
+}
+
+// Tarea auxiliar para inspeccionar el classpath de plugins
+tasks.register("printBuildscriptClasspath") {
+    doLast {
+        val artifacts =
+            buildscript.configurations.getByName("classpath").resolvedConfiguration.resolvedArtifacts
+        artifacts.forEach { println("${it.moduleVersion.id.group}:${it.name}:${it.moduleVersion.id.version}") }
     }
 }
