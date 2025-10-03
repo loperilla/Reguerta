@@ -49,9 +49,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.material3.OutlinedTextField
@@ -69,7 +66,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.draw.clipToBounds
-import androidx.compose.ui.draw.alpha
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.heightIn
 import com.reguerta.domain.enums.ContainerType
@@ -108,7 +104,6 @@ import com.reguerta.presentation.ui.PADDING_SMALL
 import com.reguerta.presentation.ui.PADDING_ULTRA_SMALL
 import com.reguerta.presentation.ui.PADDING_ZERO
 import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.SIZE_36
 import com.reguerta.presentation.ui.SIZE_48
 import com.reguerta.presentation.ui.SIZE_88
 import com.reguerta.presentation.ui.SIZE_96
@@ -118,7 +113,6 @@ import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
-import com.reguerta.presentation.ui.TEXT_SIZE_SINGLE_BTN
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.TEXT_SPECIAL
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
@@ -466,7 +460,7 @@ private fun OrderByCompany(
             HorizontalDivider(modifier = Modifier.padding(vertical = PADDING_EXTRA_SMALL))
 
             TextBody(
-                text = "TotalX: ${String.format("%.2f", orderLines.getDblAmount())}",
+                text = "Total: ${String.format("%.2f", orderLines.getDblAmount())}",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(

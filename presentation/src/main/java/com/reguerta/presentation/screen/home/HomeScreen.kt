@@ -199,15 +199,6 @@ private fun HomeScreen(
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
-    // Calcular el día bloqueado: el día siguiente a deliveryDay, excepto si es sábado o domingo
-    val deliveryDay = state.deliveryDay.toJavaDayOfWeek()
-    val blockedDay = if (deliveryDay == DayOfWeek.SATURDAY || deliveryDay == DayOfWeek.SUNDAY) {
-        null
-    } else {
-        state.deliveryDay.nextDay().toJavaDayOfWeek()
-    }
-    val isBlockedDay = blockedDay != null && state.currentDay == blockedDay
-
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
