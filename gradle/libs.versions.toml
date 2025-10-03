@@ -26,6 +26,7 @@ firebase-common-ktx = "21.0.0"
 lifecycle-process = "2.9.4"
 core = "1.17.0"
 javapoet = "1.13.0"
+animation = "1.9.2"
 
 [libraries]
 #Compose
@@ -84,6 +85,7 @@ firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-k
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycle-process" }
 androidx-core = { group = "androidx.core", name = "core", version.ref = "core" }
 javapoet = { group = "com.squareup", name = "javapoet", version.ref = "javapoet" }
+androidx-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animation" }
 
 [bundles]
 compose = [

@@ -32,9 +32,17 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeoutOrNull
 import timber.log.Timber
+import java.text.Normalizer
 import java.time.DayOfWeek
 import javax.inject.Inject
 import kotlin.math.roundToInt
@@ -66,10 +74,25 @@ class NewOrderViewModel @Inject constructor(
     private lateinit var initialCommonProducts: List<CommonProduct>
 
     private var hasForcedReload = false
+    private var fallbackJob: Job? = null
+    private var searchJob: Job? = null
+    private val reloadMutex = Mutex()
 
     init {
         viewModelScope.launch(Dispatchers.IO) {
             determineAndExecuteFlow()
+            startFallbackReloads()
+            viewModelScope.launch {
+                state
+                    .map { it.uiState }
+                    .distinctUntilChanged()
+                    .onEach { ui ->
+                        if (ui != NewOrderUiMode.LOADING) {
+                            fallbackJob?.cancel()
+                        }
+                    }
+                    .launchIn(viewModelScope)
+            }
         }
     }
 
@@ -79,10 +102,11 @@ class NewOrderViewModel @Inject constructor(
         _state.update { it.copy(uiState = NewOrderUiMode.LOADING) }
         val today = DayOfWeek.of(getCurrentWeek())
         val deliveryDay = getDeliveryDayUseCase()
-        val isNewOrderBranch = isNewOrderBranch(today, deliveryDay)
-        Timber.i("SYNC_FLOW_BRANCH - Día actual: $today, deliveryDay: $deliveryDay, isNewOrderBranch: $isNewOrderBranch")
+        val isNewOrder = isNewOrderBranch(today, deliveryDay)
+        Timber.i("SYNC_FLOW_BRANCH - Día actual: $today, deliveryDay: $deliveryDay, isNewOrderBranch: $isNewOrder")
 
-        _state.update { it.copy(currentDay = today) }
+        val fixedFlow = if (isNewOrder) OrderFlow.CURRENT_WEEK else OrderFlow.LAST_WEEK
+        _state.update { it.copy(currentDay = today, flow = fixedFlow) }
 
         val currentUserResult = checkCurrentUserLoggedUseCase()
         val currentUser = currentUserResult.getOrNull()
@@ -104,7 +128,7 @@ class NewOrderViewModel @Inject constructor(
             )
         }
 
-        if (isNewOrderBranch) {
+        if (isNewOrder) {
             Timber.i("SYNC_SYNC_FLOW: Ejecutando flujo de NUEVO PEDIDO (current week orders)")
             handleCurrentWeekOrders()
         } else {
@@ -112,6 +136,36 @@ class NewOrderViewModel @Inject constructor(
             handleLastWeekOrders()
         }
     }
+
+    private fun startFallbackReloads() {
+        fallbackJob?.cancel()
+        fallbackJob = viewModelScope.launch {
+            // 1er chequeo a los 5s
+            delay(5_000)
+            if (state.value.uiState == NewOrderUiMode.LOADING) {
+                // solo si no hay otro reload en curso
+                if (!reloadMutex.isLocked) {
+                    reloadMutex.withLock {
+                        if (state.value.uiState == NewOrderUiMode.LOADING) {
+                            forceReloadOnce()
+                        }
+                    }
+                }
+                // 2º chequeo a los 10s totales
+                delay(5_000)
+                if (state.value.uiState == NewOrderUiMode.LOADING) {
+                    if (!reloadMutex.isLocked) {
+                        reloadMutex.withLock {
+                            if (state.value.uiState == NewOrderUiMode.LOADING) {
+                                forceReloadOnce()
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
 
     // Carga los productos disponibles, reintenta si es necesario
     private suspend fun loadAvailableProducts(getAvailableProductsUseCase: GetAvailableProductsUseCase): Boolean {
@@ -130,11 +184,7 @@ class NewOrderViewModel @Inject constructor(
                     }
                     initialCommonProducts = availableProducts
                     Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
-                    _state.update {
-                        it.copy(
-                            productsGroupedByCompany = availableProducts.groupBy { product -> product.companyName }.toSortedMap()
-                        )
-                    }
+                    applySearchFilter()
                     Timber.i("SYNC_Productos recargados: ${availableProducts.size}")
                     return true
                 }
@@ -172,7 +222,7 @@ class NewOrderViewModel @Inject constructor(
         orderModel.checkIfExistLastWeekOrderInFirebase().fold(
             onSuccess = { existOrder ->
                 if (existOrder) {
-                    observeOrderLinesFromCurrentWeek(isEdit = false)
+                    observeOrderLines(isEdit = false)
                 } else {
                     Timber.e("SYNC_UI_STATE - Cambiando a ERROR. Estado actual: $_state")
                     _state.update {
@@ -205,7 +255,7 @@ class NewOrderViewModel @Inject constructor(
         orderModel.checkIfExistOrderInFirebase().fold(
             onSuccess = { existOrder ->
                 if (existOrder) {
-                    observeOrderLinesFromCurrentWeek(isEdit = true)
+                    observeOrderLines(isEdit = true)
                 } else {
                     Timber.i("SYNC_SYNC_handleCurrentWeekOrders - No hay pedido actual, no se ejecuta loadNewOrderLines() para no sobreescribir productos disponibles.")
                     val success = loadAvailableProducts(getAvailableProductsUseCase)
@@ -250,8 +300,19 @@ class NewOrderViewModel @Inject constructor(
         throwable.printStackTrace()
     }
 
+
+    // Helper to normalize strings for diacritics-insensitive search
+    private fun String.foldSearch(): String {
+        val nfd = Normalizer.normalize(this, Normalizer.Form.NFD)
+        // Remove all combining marks (accents/diacritics) and lowercase
+        return nfd.replace(Regex("\\p{M}+"), "").lowercase()
+    }
+
     // Construye la lista de productos con líneas de pedido
-    private fun buildProductWithOrderList(orderList: List<OrderLineProduct>) {
+    private fun buildProductWithOrderList(
+        orderList: List<OrderLineProduct>,
+        filterQuery: String? = null
+    ) {
         val productList = mutableListOf<Product>()
         for (common in initialCommonProducts) {
             val matchingOrder = orderList.find { it.productId == common.id }
@@ -262,15 +323,33 @@ class NewOrderViewModel @Inject constructor(
             }
         }
         Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
-        val productsWithOrderLine = productList.filterIsInstance<ProductWithOrderLine>()
-        val groupedByCompany = productList.groupBy { it.companyName }.toSortedMap()
+        val filteredList = if (!filterQuery.isNullOrBlank()) {
+            val q = filterQuery.foldSearch()
+            productList.filter { p ->
+                val company = p.companyName.foldSearch()
+                val text = p.toString().foldSearch()
+                company.contains(q) || text.contains(q)
+            }
+        } else productList
+        val productsWithOrderLine = filteredList.filterIsInstance<ProductWithOrderLine>()
+        val groupedByCompany = filteredList.groupBy { it.companyName }.toSortedMap()
         _state.update {
             it.copy(
                 productsGroupedByCompany = groupedByCompany,
                 productsOrderLineList = productsWithOrderLine,
-                hasOrderLine = productsWithOrderLine.isNotEmpty()
+                hasOrderLine = orderList.isNotEmpty()
             )
         }
+    }
+
+    private suspend fun applySearchFilter() {
+        if (!::initialCommonProducts.isInitialized) return
+        val currentOrderLines = orderModel.getOrderLinesList()
+        // reconstruye la lista fusionada + aplica el filtro activo (puede ser cadena vacía)
+        buildProductWithOrderList(
+            orderList = currentOrderLines,
+            filterQuery = state.value.searchQuery
+        )
     }
 
     // Maneja los eventos de la UI relacionados con la creación de pedidos
@@ -278,7 +357,7 @@ class NewOrderViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             when (newEvent) {
                 is NewOrderEvent.GoOut -> {
-                    _state.update { it.copy(goOut = true) }
+                    _state.update { it.copy(goOut = true, showSearch = false, searchQuery = "") }
                 }
 
                 is NewOrderEvent.StartOrder -> {
@@ -328,7 +407,28 @@ class NewOrderViewModel @Inject constructor(
 
                 NewOrderEvent.ShowShoppingCart -> {
                     Timber.i("SYNC_VIEWMODEL_EVENT - Ejecutando ShowShoppingCart, productsOrderLineList.size = ${state.value.productsOrderLineList.size}")
-                    _state.update { it.copy(showShoppingCart = true) }
+                    _state.update { it.copy(showShoppingCart = true, showSearch = false) }
+                }
+
+                is NewOrderEvent.ShowSearch -> {
+                    _state.update { it.copy(showSearch = true) }
+                }
+
+                is NewOrderEvent.HideSearch -> {
+                    _state.update { it.copy(showSearch = false, searchQuery = "") }
+                    searchJob?.cancel()
+                    searchJob = viewModelScope.launch(Dispatchers.IO) {
+                        applySearchFilter()
+                    }
+                }
+
+                is NewOrderEvent.UpdateSearchQuery -> {
+                    _state.update { it.copy(searchQuery = newEvent.query) }
+                    searchJob?.cancel()
+                    searchJob = viewModelScope.launch(Dispatchers.IO) {
+                        delay(300)
+                        applySearchFilter()
+                    }
                 }
 
                 NewOrderEvent.PushOrder -> {
@@ -383,14 +483,14 @@ class NewOrderViewModel @Inject constructor(
                             }
                         )
                     } else {
-                        val errorMessage =
-                            checkResult.exceptionOrNull()?.message ?: "Error desconocido"
+                        val errorMessage = checkResult.exceptionOrNull()?.message ?: "Error desconocido"
                         _state.update {
                             it.copy(
                                 showPopup = PopupType.MISSING_COMMIT,
                                 errorMessage = errorMessage
                             )
                         }
+                        _state.update { it.copy(isOrdering = false) }
                     }
                 }
 
@@ -421,9 +521,14 @@ class NewOrderViewModel @Inject constructor(
     private fun forceReload() {
         Timber.i("SYNC_SYNC_FORCE_RELOAD - Ejecutando forceReload()")
         viewModelScope.launch(Dispatchers.IO) {
-            val today = DayOfWeek.of(getCurrentWeek())
-            val deliveryDay = getDeliveryDayUseCase()
-            val isNewOrderBranch = isNewOrderBranch(today, deliveryDay)
+            val flow = state.value.flow
+            if (flow == null) {
+                Timber.w("SYNC_FLOW - flow es null en reload, calculando una vez")
+                val today = DayOfWeek.of(getCurrentWeek())
+                val deliveryDay = getDeliveryDayUseCase()
+                val isNewOrder = isNewOrderBranch(today, deliveryDay)
+                _state.update { it.copy(flow = if (isNewOrder) OrderFlow.CURRENT_WEEK else OrderFlow.LAST_WEEK) }
+            }
             val result = withTimeoutOrNull(3_000) {
                 try {
                     val currentUserResult = checkCurrentUserLoggedUseCase()
@@ -466,20 +571,26 @@ class NewOrderViewModel @Inject constructor(
                     }
                     val job3 = async {
                         withTimeoutOrNull(2_000) {
-                            if (isNewOrderBranch) {
-                                val existOrder = orderModel.checkIfExistOrderInFirebase().getOrDefault(false)
-                                if (existOrder) {
-                                    handleCurrentWeekOrders()
-                                } else {
-                                    loadAvailableProducts(getAvailableProductsUseCase)
+                            when (state.value.flow) {
+                                OrderFlow.CURRENT_WEEK -> {
+                                    val existOrder = orderModel.checkIfExistOrderInFirebase().getOrDefault(false)
+                                    if (existOrder) {
+                                        handleCurrentWeekOrders()
+                                    } else {
+                                        if (loadAvailableProducts(getAvailableProductsUseCase)) {
+                                            _state.update { it.copy(uiState = NewOrderUiMode.SELECT_PRODUCTS) }
+                                        }
+                                    }
                                 }
-                            } else {
-                                val existOrder = orderModel.checkIfExistLastWeekOrderInFirebase().getOrDefault(false)
-                                if (existOrder) {
-                                    handleLastWeekOrders()
-                                } else {
-                                    loadAvailableProducts(getAvailableProductsUseCase)
+                                OrderFlow.LAST_WEEK -> {
+                                    val existOrder = orderModel.checkIfExistLastWeekOrderInFirebase().getOrDefault(false)
+                                    if (existOrder) {
+                                        observeOrderLines(isEdit = false)
+                                    } else {
+                                        _state.update { it.copy(uiState = NewOrderUiMode.ERROR, errorMessage = "No hay pedido anterior disponible") }
+                                    }
                                 }
+                                null -> { /* ya cubierto arriba */ }
                             }
                         }
                     }
@@ -494,7 +605,7 @@ class NewOrderViewModel @Inject constructor(
         }
     }
 
-    private fun observeOrderLinesFromCurrentWeek(isEdit: Boolean = true) {
+    private fun observeOrderLines(isEdit: Boolean = true) {
         viewModelScope.launch(Dispatchers.IO) {
             orderModel.getOrderLinesFromCurrentWeek().collectLatest { ordersReceived ->
                 Timber.i("SYNC_ORDERLINES_FLOW - Recibidas ${ordersReceived.size} orderlines del Flow")
@@ -543,12 +654,10 @@ class NewOrderViewModel @Inject constructor(
             DayOfWeek.SUNDAY -> {
                 deliveryDow
             }
-            DayOfWeek.SATURDAY -> {
-                deliveryDow.plus(1)
-            }
             else -> {
-                deliveryDow.plus(2) // desde delivery+2 hasta domingo
-            }
+                deliveryDow.plus(1) // desde delivery+2 hasta domingo
+            }   // Aunque el día siguiente al dia de reparto no se hacen pedidos,
+                // aqui no se entra, se controla en home
         }
         return today >= startOfNewOrder
     }

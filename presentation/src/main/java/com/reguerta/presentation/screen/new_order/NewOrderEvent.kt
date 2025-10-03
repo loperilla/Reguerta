@@ -18,4 +18,7 @@ sealed class NewOrderEvent {
     data object ShowAreYouSureDeleteOrder : NewOrderEvent()
     data object HideDialog : NewOrderEvent()
     data object DeleteOrder : NewOrderEvent()
+    data object ShowSearch : NewOrderEvent()
+    data object HideSearch : NewOrderEvent()
+    data class UpdateSearchQuery(val query: String) : NewOrderEvent()
 }

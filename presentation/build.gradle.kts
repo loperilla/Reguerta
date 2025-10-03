@@ -53,6 +53,7 @@ dependencies {
     implementation(libs.splashscreen)
     implementation(libs.timber)
     implementation(libs.firebase.common.ktx)
+    implementation(libs.androidx.animation)
 
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)

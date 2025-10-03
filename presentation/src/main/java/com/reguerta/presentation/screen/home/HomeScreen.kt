@@ -51,7 +51,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.presentation.R
 import com.reguerta.presentation.composables.InverseReguertaButton
@@ -241,12 +241,13 @@ private fun HomeScreen(
             ) {
                 MakeYourOrderButton(
                     onButtonClick = {
+                        navigateTo(Routes.ORDERS.NEW.route) /*
                         if (isBlockedDay) {
                             onEvent(HomeEvent.ShowBlockedDayDialog)
                         } else {
                             Timber.i("SYNC_Botón Mi pedido pulsado, navegando a: ${Routes.ORDERS.NEW.route}")
                             navigateTo(Routes.ORDERS.NEW.route)
-                        }
+                        }*/
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -466,7 +467,7 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         }
         Spacer(modifier = Modifier.weight(1f))
         TextBody(
-            text = "android version 0.2.1.1",
+            text = "android version 0.2.1.3",
             textSize = TEXT_SIZE_MEDIUM,
             textColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier

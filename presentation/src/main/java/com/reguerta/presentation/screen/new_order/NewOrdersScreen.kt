@@ -1,10 +1,19 @@
 package com.reguerta.presentation.screen.new_order
 
 import android.annotation.SuppressLint
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.SizeTransform
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +27,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -39,9 +47,18 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.material3.IconButton
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -49,9 +66,14 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.draw.alpha
+import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.layout.heightIn
 import com.reguerta.domain.enums.ContainerType
+import com.reguerta.domain.enums.Pane
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.interfaces.Product
@@ -96,6 +118,7 @@ import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
+import com.reguerta.presentation.ui.TEXT_SIZE_SINGLE_BTN
 import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
 import com.reguerta.presentation.ui.TEXT_SPECIAL
 import com.reguerta.presentation.ui.TEXT_TOP_BAR
@@ -114,11 +137,6 @@ fun newOrderScreen(
 ) {
     val viewModel = hiltViewModel<NewOrderViewModel>()
     val state by viewModel.state.collectAsStateWithLifecycle()
-
-    val reloadOnce = remember { true }
-    LaunchedEffect(reloadOnce) {
-        viewModel.forceReloadOnce()
-    }
 
     if (state.goOut) {
         navigateTo(Routes.HOME.ROOT.route)
@@ -271,28 +289,20 @@ fun ExistingOrderScreen(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Mi pedido",
-                navActionClick = {
-                    onEvent(NewOrderEvent.GoOut)
-                },
+                navActionClick = { onEvent(NewOrderEvent.GoOut) },
                 actions = {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(PADDING_ZERO),
-                        horizontalAlignment = Alignment.End
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         TextBody(
                             text = "¿eliminar?",
                             textColor = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.wrapContentWidth(Alignment.End)
+                            modifier = Modifier.padding(end = PADDING_SMALL)
                         )
                         ReguertaIconButton(
-                            onClick = {
-                                onEvent(NewOrderEvent.ShowAreYouSureDeleteOrder)
-                            },
+                            onClick = { onEvent(NewOrderEvent.ShowAreYouSureDeleteOrder) },
                             iconButton = Icons.Filled.Delete,
-                            contentColor = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(horizontal = PADDING_MEDIUM)
+                            contentColor = MaterialTheme.colorScheme.error
                         )
                     }
                 }
@@ -349,19 +359,8 @@ fun LastOrderScreen(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Mi último pedido",
-                navActionClick = {
-                    onEvent(NewOrderEvent.GoOut)
-                },
-                actions = {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(PADDING_ZERO),
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        // No actions for last order
-                    }
-                }
+                navActionClick = { onEvent(NewOrderEvent.GoOut) }
+                // sin 'actions'
             )
         },
         bottomBar = {
@@ -467,7 +466,7 @@ private fun OrderByCompany(
             HorizontalDivider(modifier = Modifier.padding(vertical = PADDING_EXTRA_SMALL))
 
             TextBody(
-                text = "Total: ${String.format("%.2f", orderLines.getDblAmount())}",
+                text = "TotalX: ${String.format("%.2f", orderLines.getDblAmount())}",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
@@ -547,64 +546,61 @@ fun NewOrderTopBar(
     state: NewOrderState,
     onEvent: (NewOrderEvent) -> Unit
 ) {
-    if (state.showShoppingCart) {
-        Row(
-            horizontalArrangement = Arrangement.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-        ) {
+    val inCart = state.showShoppingCart
+    val totalStr = String.format("%.2f €", state.productsOrderLineList.getAmount())
+    ReguertaTopBar(
+        topBarText = if (inCart) "Mi carrito - Total: $totalStr" else "Lista de productos",
+        // Evita salidas accidentales: en carrito vuelve a Productos
+        navActionClick = {
+            if (inCart) onEvent(NewOrderEvent.HideShoppingCart)
+            else onEvent(NewOrderEvent.GoOut)
+        },
+        actions = {
+            // Botón único con ancho fijo: no cambia tamaño, toda el área es clicable
             InverseReguertaButton(
                 onClick = {
-                    onEvent(NewOrderEvent.HideShoppingCart)
+                    if (inCart) onEvent(NewOrderEvent.HideShoppingCart)
+                    else onEvent(NewOrderEvent.ShowShoppingCart)
                 },
                 content = {
-                    Icon(
-                        imageVector = Icons.Default.ShoppingBasket,
-                        contentDescription = null,
-                        tint =  MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .padding(horizontal = PADDING_SMALL)
-                            .size(SIZE_36)
-                    )
-                    TextBody(
-                        "Seguir comprando",
-                        textSize = TEXT_SIZE_LARGE,
-                        textColor =  MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.padding(horizontal = PADDING_SMALL)
-                    )
+                    Crossfade(targetState = inCart, label = "TopBarActionContent") { showCart ->
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            if (showCart) {
+                                Icon(
+                                    imageVector = Icons.Default.ShoppingBasket,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                                TextBody(
+                                    "Más",
+                                    textSize = TEXT_SIZE_LARGE,
+                                    textColor = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(horizontal = PADDING_MEDIUM)
+                                )
+                            } else {
+                                TextBody(
+                                    "Ver",
+                                    textSize = TEXT_SIZE_LARGE,
+                                    textColor = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.padding(horizontal = PADDING_MEDIUM)
+                                )
+                                Icon(
+                                    imageVector = Icons.Default.ShoppingCart,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
                 },
-                modifier = Modifier.padding(PADDING_ZERO)
+                enabledButton = if (inCart) true else state.hasOrderLine,
+                modifier = Modifier
+                    // ancho fijo compacto (sin provocar wraps)
+                    .widthIn(min = 148.dp, max = 148.dp)
+                    .heightIn(min = 44.dp)
             )
         }
-    } else {
-        ReguertaTopBar(
-            topBarText = "Lista de productos",
-            navActionClick = { onEvent(NewOrderEvent.GoOut) },
-            actions = {
-                InverseReguertaButton(
-                    onClick = {
-                        Timber.i("SYNC_UI_EVENT - Pulsado botón VER CARRITO")
-                        onEvent(NewOrderEvent.ShowShoppingCart)
-                    },
-                    content = {
-                        TextBody(
-                            "Ver",
-                            textSize = TEXT_SIZE_LARGE,
-                            textColor =  MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(horizontal = PADDING_SMALL)
-                        )
-                        Icon(
-                            imageVector = Icons.Default.ShoppingCart,
-                            contentDescription = null,
-                            tint =  MaterialTheme.colorScheme.primary
-                        )
-                    },
-                    enabledButton = state.hasOrderLine
-                )
-            }
-        )
-    }
+    )
 }
 
 @Composable
@@ -612,36 +608,126 @@ fun NewOrderBottomBar(
     state: NewOrderState,
     onEvent: (NewOrderEvent) -> Unit
 ) {
-    if (state.showShoppingCart) {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentSize(Alignment.BottomCenter)
-                .background(
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(topStart = PADDING_MEDIUM, topEnd = PADDING_MEDIUM)
-                )
-                .padding(PADDING_SMALL)
-        ) {
-            ReguertaButton(
-                "Finalizar compra",
-                onClick = {
-                    onEvent(NewOrderEvent.PushOrder)
-                },
-                enabledButton = state.hasOrderLine && !state.isOrdering,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(
-                        vertical = PADDING_SMALL,
-                        horizontal = PADDING_MEDIUM
-                    )
+    // Altura fija para evitar saltos
+    val barHeight = 72.dp
+    val keyboard = androidx.compose.ui.platform.LocalSoftwareKeyboardController.current
+    val focusRequester = remember { FocusRequester() }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(barHeight)
+            .background(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(topStart = PADDING_MEDIUM, topEnd = PADDING_MEDIUM)
             )
-            if (state.isOrdering) {
-                LoadingAnimation(
-                    modifier = Modifier
-                        .align(Alignment.Center)
-                        .padding(top = PADDING_SMALL)
-                )
+            .padding(horizontal = PADDING_SMALL),
+        contentAlignment = Alignment.Center
+    ) {
+        // Animamos el cambio entre "Finalizar compra" y "Buscar producto"
+        AnimatedContent(
+            targetState = state.showShoppingCart,
+            transitionSpec = {
+                val duration = 450
+                // Products -> Cart entra por la derecha; Cart -> Products entra por la izquierda
+                val dir = if (targetState && !initialState) +1 else -1
+                (slideInHorizontally(animationSpec = tween(duration)) { full -> full * dir } +
+                 fadeIn(animationSpec = tween(duration)))
+                    .togetherWith(
+                        slideOutHorizontally(animationSpec = tween(duration)) { full -> -full * dir } +
+                        fadeOut(animationSpec = tween(duration))
+                    )
+                    .using(SizeTransform(clip = true))
+            },
+            label = "BottomBarSwap"
+        ) { inCart ->
+            if (inCart) {
+                // --- BOTÓN FINALIZAR ---
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    ReguertaButton(
+                        "Finalizar compra",
+                        onClick = { onEvent(NewOrderEvent.PushOrder) },
+                        enabledButton = state.hasOrderLine && !state.isOrdering,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(
+                                vertical = PADDING_EXTRA_SMALL,
+                                horizontal = PADDING_MEDIUM
+                            )
+                    )
+                    val hasPopup = state.showPopup != PopupType.NONE
+                    if (state.isOrdering && !hasPopup) {
+                        LoadingAnimation(
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(top = PADDING_SMALL)
+                        )
+                    }
+                }
+            } else {
+                // --- BUSCADOR (COLAPSADO / EXPANDIDO) ---
+                AnimatedContent(
+                    targetState = state.showSearch,
+                    transitionSpec = {
+                        val duration = 250
+                        (fadeIn(animationSpec = tween(duration)) togetherWith fadeOut(animationSpec = tween(duration)))
+                            .using(SizeTransform(clip = true))
+                    },
+                    label = "BottomSearchTransition"
+                ) { expanded ->
+                    if (!expanded) {
+                        ReguertaButton(
+                            textButton = "Buscar producto",
+                            onClick = { onEvent(NewOrderEvent.ShowSearch) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    vertical = PADDING_EXTRA_SMALL,
+                                    horizontal = PADDING_MEDIUM
+                                )
+                        )
+                    } else {
+                        OutlinedTextField(
+                            value = state.searchQuery,
+                            onValueChange = { onEvent(NewOrderEvent.UpdateSearchQuery(it)) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp)
+                                .focusRequester(focusRequester),
+                            singleLine = true,
+                            leadingIcon = {
+                                Icon(
+                                    imageVector = Icons.Filled.Search,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            },
+                            trailingIcon = {
+                                IconButton(
+                                    onClick = {
+                                        onEvent(NewOrderEvent.HideSearch)
+                                        keyboard?.hide()
+                                    }
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Filled.Close,
+                                        contentDescription = "Cerrar",
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                }
+                            },
+                            placeholder = { Text("Buscar producto") }
+                        )
+                        androidx.compose.runtime.LaunchedEffect(expanded) {
+                            if (expanded) {
+                                focusRequester.requestFocus()
+                                keyboard?.show()
+                            } else {
+                                keyboard?.hide()
+                            }
+                        }
+                    }
+                }
             }
         }
     }
@@ -658,24 +744,53 @@ fun NewOrderScreen(
         Scaffold(
             topBar = { NewOrderTopBar(state, onEvent) },
             bottomBar = { NewOrderBottomBar(state, onEvent) }
-        ) {
+        ) { paddingValues ->
+
+            // 1) Frame único a pantalla completa
             Box(
                 modifier = Modifier
-                    .padding(it)
+                    .padding(paddingValues)
                     .fillMaxSize()
+                    .clipToBounds()
             ) {
-                Column {
-                    AnimatedVisibility(visible = state.showShoppingCart) {
-                        ShoppingCartScreen(
-                            state.productsOrderLineList,
-                            onEvent
-                        )
-                    }
-                    AnimatedVisibility(visible = !state.showShoppingCart) {
-                        GroupedProductsScreen(
-                            groupedProducts = state.productsGroupedByCompany,
-                            onEvent = onEvent
-                        )
+
+                // 2) Pane actual según tu flag del estado
+                val pane = if (state.showShoppingCart) Pane.Cart else Pane.Products
+
+                // 3) Transición horizontal con dirección correcta
+                AnimatedContent(
+                    targetState = pane,
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.TopStart,
+                    transitionSpec = {
+                        // Products -> Cart entra por la derecha; Cart -> Products entra por la izquierda
+                        val dir = if (targetState == Pane.Cart && initialState == Pane.Products) +1 else -1
+                        val durationMs = 450
+
+                        (slideInHorizontally(animationSpec = tween(durationMs)) { full -> full * dir }
+                                + fadeIn(animationSpec = tween(durationMs)))
+                            .togetherWith(slideOutHorizontally(animationSpec = tween(durationMs)) { full -> -full * dir } +
+                                        fadeOut(animationSpec = tween(durationMs))
+                            )
+                            .using(SizeTransform(clip = true))
+                    },
+                    contentKey = { it }, // ayuda a Compose a reciclar correctamente
+                    label = "NewOrderPaneSlide"
+                ) { current ->
+                    // 4) Cada vista ocupa exactamente el mismo marco
+                    Box(Modifier.fillMaxSize()) {
+                        when (current) {
+                            Pane.Products -> GroupedProductsScreen(
+                                groupedProducts = state.productsGroupedByCompany,
+                                onEvent = onEvent,
+                                modifier = Modifier.fillMaxSize()
+                            )
+                            Pane.Cart -> ShoppingCartScreen(
+                                productList = state.productsOrderLineList,
+                                onEvent = onEvent,
+                                showHeader = false
+                            )
+                        }
                     }
                 }
             }
@@ -700,21 +815,64 @@ fun NewOrderScreen(
 @Composable
 fun GroupedProductsScreen(
     groupedProducts: Map<String, List<Product>>,
-    onEvent: (NewOrderEvent) -> Unit) {
-   LazyColumn {
-        groupedProducts.forEach { (companyName, products) ->
-            stickyHeader {
-                HeaderSectionText(
-                    text = companyName
-                )
+    onEvent: (NewOrderEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    if (groupedProducts.isEmpty()) {
+        // Mensaje de "sin resultados" mimetizado con la estética de NoOrderScreen, fijo arriba
+        LazyColumn(
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = PADDING_MEDIUM,
+                end = PADDING_MEDIUM,
+                top = PADDING_MEDIUM,
+                bottom = PADDING_MEDIUM
+            )
+        ) {
+            item {
+                Box(
+                    modifier = Modifier.fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    ReguertaCard(
+                        modifier = Modifier.width(330.dp),
+                        containerColor = MaterialTheme.colorScheme.error.copy(alpha = 0.15f),
+                        content = {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(PADDING_LARGE),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                TextTitle(
+                                    text = "No hay productos que coincidan con la búsqueda.",
+                                    textColor = MaterialTheme.colorScheme.error,
+                                    textAlignment = TextAlign.Center
+                                )
+                            }
+                        }
+                    )
+                }
             }
-            items(
-                count = products.size
-            ) {
-                OrderProductItem(
-                    product = products[it],
-                    onEvent = onEvent
-                )
+        }
+    } else {
+        LazyColumn(
+            modifier = modifier.fillMaxSize()
+        ) {
+            groupedProducts.forEach { (companyName, products) ->
+                stickyHeader {
+                    HeaderSectionText(
+                        text = companyName
+                    )
+                }
+                items(
+                    count = products.size
+                ) {
+                    OrderProductItem(
+                        product = products[it],
+                        onEvent = onEvent
+                    )
+                }
             }
         }
     }
@@ -723,31 +881,36 @@ fun GroupedProductsScreen(
 @Composable
 private fun ShoppingCartScreen(
     productList: List<ProductWithOrderLine>,
-    onEvent: (NewOrderEvent) -> Unit
+    onEvent: (NewOrderEvent) -> Unit,
+    showHeader: Boolean = true
 ) {
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
         Row(
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
                 .padding(horizontal = PADDING_MEDIUM)
         ) {
-            TextTitle(
-                text = "Mi carrito",
-                textSize = TEXT_TOP_BAR
-            )
-            AmountText(
-                amount = productList.getAmount()
-            )
+            if (showHeader) {
+                TextTitle(
+                    text = "Mi carrito",
+                    textSize = TEXT_TOP_BAR
+                )
+                Spacer(Modifier.weight(1f))
+                AmountText(amount = productList.getAmount())
+            }
         }
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(PADDING_SMALL)
+                .padding(horizontal = PADDING_SMALL),
+            contentPadding = PaddingValues(
+                top = PADDING_SMALL,
+                bottom = 72.dp
+            )
         ) {
             items(
                 count = productList.size
