@@ -17,13 +17,20 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
+import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        Timber.i("SYNC_MainActivity: onCreate lanzado")
-        val splashScreen = installSplashScreen()
+        // Force dark theme on pre-Android 10 so pre-12 launch background also appears dark
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
+
+        val splashScreen = installSplashScreen()           // Android 12+
         super.onCreate(savedInstanceState)
+        setTheme(R.style.Theme_Reguerta)
 
         WindowCompat.setDecorFitsSystemWindows(window, false)
         setContent {

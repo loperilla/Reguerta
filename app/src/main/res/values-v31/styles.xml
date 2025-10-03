@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="LaunchTheme" parent="@android:style/Theme.Black.NoTitleBar">
-
-        <item name="android:windowSplashScreenBackground">@color/launcherBackground</item>
-
-        <item name="android:windowSplashScreenIconBackgroundColor">@color/launcherBackground</item>
-
+    <style name="LaunchTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Fondo del splash: se adapta a claro/oscuro y dynamic color -->
+        <item name="android:windowSplashScreenBackground">?attr/colorSurface</item>
+        <!-- Icono animado del splash (usa vector para poder tintar si quieres) -->
         <item name="android:windowSplashScreenAnimatedIcon">@drawable/ic_splash_logo</item>
+        <!-- Círculo de fondo del icono: usa un rol del esquema para buen contraste -->
+        <item name="android:windowSplashScreenIconBackgroundColor">?attr/colorPrimaryContainer</item>
+        <!-- Opcional: branding debajo del icono -->
+        <!-- <item name="android:windowSplashScreenBrandingImage">@drawable/ic_brand</item> -->
     </style>
 </resources>
