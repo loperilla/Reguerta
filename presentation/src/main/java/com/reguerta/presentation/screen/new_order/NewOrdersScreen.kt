@@ -68,6 +68,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.WindowInsets
 import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.enums.Pane
 import com.reguerta.domain.model.CommonProduct
@@ -610,7 +613,11 @@ fun NewOrderBottomBar(
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(barHeight)
+            .heightIn(min = barHeight)
+            // Eleva la bottom bar por encima del teclado cuando aparece
+            .imePadding()
+            // (opcional) añade margen sobre la navigation bar cuando no hay teclado
+            .navigationBarsPadding()
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant,
                 shape = RoundedCornerShape(topStart = PADDING_MEDIUM, topEnd = PADDING_MEDIUM)
@@ -736,6 +743,7 @@ fun NewOrderScreen(
     Timber.i("SYNC_UI_STATE - showShoppingCart = ${state.showShoppingCart}")
     if (state.uiState == NewOrderUiMode.SELECT_PRODUCTS) {
         Scaffold(
+            contentWindowInsets = WindowInsets(0.dp),
             topBar = { NewOrderTopBar(state, onEvent) },
             bottomBar = { NewOrderBottomBar(state, onEvent) }
         ) { paddingValues ->
