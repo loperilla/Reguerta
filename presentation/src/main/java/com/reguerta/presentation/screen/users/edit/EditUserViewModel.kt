@@ -7,6 +7,8 @@ import com.reguerta.domain.usecase.users.EditUserUseCase
 import com.reguerta.domain.usecase.users.GetUserByIdUseCase
 import com.reguerta.presentation.checkAllStringAreNotEmpty
 import com.reguerta.presentation.type.isValidEmail
+import com.reguerta.domain.enums.TypeConsumerUser
+import com.reguerta.domain.enums.TypeProducerUser
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -117,32 +119,60 @@ class EditUserViewModel @AssistedInject constructor(
                 }
 
                 is EditUserEvent.ToggledIsProducer -> _state.update {
-                    it.copy(
-                        isProducer = event.newValue,
-                        available = event.newValue,
-                        typeProducer = when {
-                            event.newValue && it.typeProducer.isEmpty() -> "normal"
-                            !event.newValue -> ""
-                            else -> it.typeProducer
-                        },
-                        typeConsumer = when {
-                            event.newValue && it.typeProducer == "compras" -> "normal"
-                            event.newValue && it.typeProducer == "normal" -> "sin"
-                            !event.newValue && it.typeConsumer == "sin" -> "normal"
-                            else -> it.typeConsumer
+                    val newIsProducer = event.newValue
+
+                    val currentProducerEnum = it.typeProducer.asProducerEnumOrNull()
+                    val currentConsumerEnum = it.typeConsumer.asConsumerEnumOrNull()
+
+                    val newProducerEnum: TypeProducerUser? = when {
+                        newIsProducer && currentProducerEnum == null -> TypeProducerUser.REGULAR
+                        newIsProducer -> currentProducerEnum
+                        else -> null // no es productor ⇒ representamos con string vacío
+                    }
+
+                    val newConsumerEnum: TypeConsumerUser = when {
+                        // Productor NORMAL ⇒ consumidor NONE
+                        newIsProducer && newProducerEnum == TypeProducerUser.REGULAR -> TypeConsumerUser.NONE
+                        // Productor COMPRAS ⇒ conservar paridad; si venía NONE/invalid ⇒ REGULAR
+                        newIsProducer && newProducerEnum == TypeProducerUser.SHOP -> when (currentConsumerEnum) {
+                            null, TypeConsumerUser.NONE -> TypeConsumerUser.REGULAR
+                            else -> currentConsumerEnum
                         }
+                        // Si deja de ser productor ⇒ no tocar (si estaba inválido, normalizamos a REGULAR)
+                        else -> currentConsumerEnum ?: TypeConsumerUser.REGULAR
+                    }
+
+                    it.copy(
+                        isProducer = newIsProducer,
+                        available = newIsProducer,
+                        typeProducer = newProducerEnum?.raw() ?: "",
+                        typeConsumer = newConsumerEnum.raw()
                     )
                 }
 
                 is EditUserEvent.ToggledIsShoppingProducer -> _state.update {
-                    val newTypeProducer = if (event.newValue) "compras" else "normal"
-                    it.copy(
-                        typeProducer = newTypeProducer,
-                        typeConsumer = when {
-                            it.isProducer && newTypeProducer == "compras" -> "normal"
-                            it.isProducer -> "sin"
-                            else -> it.typeConsumer
+                    val newProducerEnum = if (event.newValue) TypeProducerUser.SHOP else TypeProducerUser.REGULAR
+                    val currentConsumerEnum = it.typeConsumer.asConsumerEnumOrNull()
+
+                    val newConsumerEnum: TypeConsumerUser = if (it.isProducer) {
+                        if (newProducerEnum == TypeProducerUser.REGULAR) {
+                            // Productor NORMAL ⇒ consumidor NONE
+                            TypeConsumerUser.NONE
+                        } else {
+                            // Productor COMPRAS ⇒ conservar paridad; si venía NONE/invalid ⇒ REGULAR
+                            when (currentConsumerEnum) {
+                                null, TypeConsumerUser.NONE -> TypeConsumerUser.REGULAR
+                                else -> currentConsumerEnum
+                            }
                         }
+                    } else {
+                        // Si no es productor, no tocar; si inválido, REGULAR
+                        currentConsumerEnum ?: TypeConsumerUser.REGULAR
+                    }
+
+                    it.copy(
+                        typeProducer = newProducerEnum.raw(),
+                        typeConsumer = newConsumerEnum.raw()
                     )
                 }
 
@@ -167,3 +197,12 @@ class EditUserViewModel @AssistedInject constructor(
         }
     }
 }
+
+private fun String.asConsumerEnumOrNull(): TypeConsumerUser? =
+    TypeConsumerUser.values().firstOrNull { it.value == this }
+
+private fun String.asProducerEnumOrNull(): TypeProducerUser? =
+    TypeProducerUser.values().firstOrNull { it.value == this }
+
+private fun TypeConsumerUser.raw(): String = this.value
+private fun TypeProducerUser.raw(): String = this.value
