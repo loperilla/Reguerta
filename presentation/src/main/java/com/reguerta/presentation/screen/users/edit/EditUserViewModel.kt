@@ -199,10 +199,10 @@ class EditUserViewModel @AssistedInject constructor(
 }
 
 private fun String.asConsumerEnumOrNull(): TypeConsumerUser? =
-    TypeConsumerUser.values().firstOrNull { it.value == this }
+    TypeConsumerUser.entries.firstOrNull { it.value == this }
 
 private fun String.asProducerEnumOrNull(): TypeProducerUser? =
-    TypeProducerUser.values().firstOrNull { it.value == this }
+    TypeProducerUser.entries.firstOrNull { it.value == this }
 
 private fun TypeConsumerUser.raw(): String = this.value
 private fun TypeProducerUser.raw(): String = this.value

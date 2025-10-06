@@ -8,17 +8,14 @@ package com.reguerta.presentation.ui
  */
 
 import android.app.Activity
-import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsControllerCompat
+import timber.log.Timber
 import com.reguerta.presentation.ResizedTextSizes
 
 private val LightColorScheme = lightColorScheme(
@@ -87,14 +84,10 @@ fun ReguertaTheme(
     dynamicColor: Boolean = false,  //  <- Por ahora desactivado, cuando esté en ajustes, se activa
     content: @Composable () -> Unit
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
+    // Hard-disable dynamic color for now (we'll re-enable from Settings later)
+    val colorScheme =
+        if (darkTheme) DarkColorScheme else LightColorScheme
+    Timber.i("ReguertaTheme: dynamicColor=FALSE (forced), darkTheme=%s", darkTheme)
 
     val window = (LocalView.current.context as Activity).window
     val insetsController = WindowInsetsControllerCompat(window, window.decorView)
