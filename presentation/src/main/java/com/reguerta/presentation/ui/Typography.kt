@@ -12,6 +12,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import com.reguerta.presentation.R
 
@@ -20,20 +21,33 @@ val cabinsketchFontFamily = FontFamily(
     Font(R.font.cabinsketch_bold, FontWeight.Bold)
 )
 
-// Set of Material typography styles to start with
 val Typography = Typography(
     titleLarge = TextStyle(
         fontFamily = cabinsketchFontFamily,
-        fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
-        lineHeight = 28.sp,
+        fontWeight = FontWeight.Bold,
+        fontSize = TextUnit.Unspecified,
+        lineHeight = TextUnit.Unspecified,
         letterSpacing = 0.sp
     ),
     titleMedium = TextStyle(
         fontFamily = cabinsketchFontFamily,
+        fontWeight = FontWeight.Medium,
+        fontSize = TextUnit.Unspecified,
+        lineHeight = TextUnit.Unspecified,
+        letterSpacing = 0.15.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = cabinsketchFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 20.sp,
-        lineHeight = 28.sp,
+        fontSize = TextUnit.Unspecified,
+        lineHeight = TextUnit.Unspecified,
+        letterSpacing = 0.sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = cabinsketchFontFamily,
+        fontWeight = FontWeight.Thin,
+        fontSize = TextUnit.Unspecified,
+        lineHeight = TextUnit.Unspecified,
         letterSpacing = 0.sp
     )
 )

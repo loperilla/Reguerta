@@ -1,6 +1,8 @@
 package com.reguerta.presentation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
@@ -44,21 +46,76 @@ fun getResizedTextSize(baseSize: Int): TextUnit {
 }
 
 @Composable
-fun ResizedTextSizes() {
-    val extraSmall = getResizedTextSize(TEXT_EXTRA_SMALL)
-    val small = getResizedTextSize(TEXT_SMALL)
-    val medium = getResizedTextSize(TEXT_MEDIUM)
-    val large = getResizedTextSize(TEXT_LARGE)
-    val extraLarge = getResizedTextSize(TEXT_EXTRA_LARGE)
-    val topBar = getResizedTextSize(TEXT_TOP)
-    val special = getResizedTextSize(TEXT_PLUS)
+fun ResizedTextSizes(): TextSizes = rememberTextSizes()
 
-    val pairBtn = getResizedTextSize(TEXT_PAIR_BTN)
-    val singleBtn = getResizedTextSize(TEXT_SINGLE_BTN)
-    val specialBtn = getResizedTextSize(TEXT_SPECIAL_BTN)
+// --- Centralización tipográfica basada en tamaño de dispositivo ---
+data class TextSizes(
+    val extraSmall: TextUnit,
+    val small: TextUnit,
+    val medium: TextUnit,
+    val large: TextUnit,
+    val extraLarge: TextUnit,
+    val topBar: TextUnit,
+    val special: TextUnit,
+    val pairBtn: TextUnit,
+    val singleBtn: TextUnit,
+    val specialBtn: TextUnit,
+    val dlgBody: TextUnit,
+    val dlgTitle: TextUnit
+)
 
-    val dlgBody = getResizedTextSize(TEXT_DLG_BODY)
-    val dlgTitle = getResizedTextSize(TEXT_DLG_TITLE)
+// Fallback por si no se provee explícitamente (usa tamaños base sin escalar)
+val LocalTextSizes = staticCompositionLocalOf {
+    TextSizes(
+        extraSmall = TEXT_EXTRA_SMALL.sp,
+        small = TEXT_SMALL.sp,
+        medium = TEXT_MEDIUM.sp,
+        large = TEXT_LARGE.sp,
+        extraLarge = TEXT_EXTRA_LARGE.sp,
+        topBar = TEXT_TOP.sp,
+        special = TEXT_PLUS.sp,
+        pairBtn = TEXT_PAIR_BTN.sp,
+        singleBtn = TEXT_SINGLE_BTN.sp,
+        specialBtn = TEXT_SPECIAL_BTN.sp,
+        dlgBody = TEXT_DLG_BODY.sp,
+        dlgTitle = TEXT_DLG_TITLE.sp
+    )
+}
+
+/**
+ * Calcula los tamaños redimensionados para el dispositivo actual.
+ * Lee `LocalConfiguration` para volver a componer cuando cambie la anchura.
+ */
+@Composable
+fun rememberTextSizes(): TextSizes {
+    // Tocar configuración para que cambie con la anchura; no necesitamos el valor
+    val currentConfig = LocalConfiguration.current
+    return TextSizes(
+        extraSmall = getResizedTextSize(TEXT_EXTRA_SMALL),
+        small = getResizedTextSize(TEXT_SMALL),
+        medium = getResizedTextSize(TEXT_MEDIUM),
+        large = getResizedTextSize(TEXT_LARGE),
+        extraLarge = getResizedTextSize(TEXT_EXTRA_LARGE),
+        topBar = getResizedTextSize(TEXT_TOP),
+        special = getResizedTextSize(TEXT_PLUS),
+        pairBtn = getResizedTextSize(TEXT_PAIR_BTN),
+        singleBtn = getResizedTextSize(TEXT_SINGLE_BTN),
+        specialBtn = getResizedTextSize(TEXT_SPECIAL_BTN),
+        dlgBody = getResizedTextSize(TEXT_DLG_BODY),
+        dlgTitle = getResizedTextSize(TEXT_DLG_TITLE)
+    )
+}
+
+/**
+ * Proveedor de tamaños tipográficos para toda la jerarquía Compose.
+ * Envuelve tu `NavHost` o `Scaffold` raíz con esto.
+ */
+@Composable
+fun ProvideTextSizes(content: @Composable () -> Unit) {
+    val sizes = rememberTextSizes()
+    CompositionLocalProvider(LocalTextSizes provides sizes) {
+        content()
+    }
 }
 
 fun checkAllStringAreNotEmpty(vararg inputValues: String) = inputValues.all { it.isNotEmpty() }

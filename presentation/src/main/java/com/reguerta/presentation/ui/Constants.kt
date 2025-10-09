@@ -53,14 +53,26 @@ val PADDING_ZERO = 0.dp
 val PADDING_ULTRA_SMALL = 2.dp
 val PADDING_EXTRA_SMALL = 4.dp
 val PADDING_SMALL = 8.dp
+val PADDING_MEDIUM_LOW = 12.dp
 val PADDING_MEDIUM = 16.dp
 val PADDING_LARGE = 24.dp
 val PADDING_EXTRA_LARGE = 48.dp
+val PADDING_ULTRA_LARGE = 64.dp
 
-// Sizes
+// Borders
+var BORDER_THIN = 1.dp
+var BORDER_REGULAR = 2.dp
+var BORDER_PLUS = 2.dp
 var BORDER_SIZE = 2.dp
+
+// Corners
+var CORNER_ROUND_LOW = 8.dp
+var CORNER_ROUND_MED = 16.dp
+var CORNER_ROUND_HIGH = 32.dp
 var CORNER_SIZE_4 = 4.dp
 var CORNER_SIZE_8 = 8.dp
+
+// General Containers
 val SIZE_16 = 16.dp
 val SIZE_36 = 36.dp
 val SIZE_40 = 40.dp

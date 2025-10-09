@@ -1,7 +1,6 @@
 package com.reguerta.presentation.screen.home
 
 import com.reguerta.presentation.composables.LoadingAnimation
-
 import com.reguerta.presentation.screen.config.ConfigViewModel
 import android.content.Context
 import android.content.Intent
@@ -21,7 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Info
@@ -30,8 +28,6 @@ import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -72,15 +68,15 @@ import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
 import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
 import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
 import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
-import com.reguerta.presentation.ui.TEXT_SIZE_SPECIAL_BTN
 import kotlinx.coroutines.launch
-import java.time.DayOfWeek
 import com.reguerta.domain.repository.ConfigCheckResult
 import androidx.core.net.toUri
-import com.reguerta.domain.enums.nextDay
-import com.reguerta.domain.enums.toJavaDayOfWeek
+import com.reguerta.domain.enums.afterDays
+import com.reguerta.domain.enums.isReservedDayFor
 import com.reguerta.domain.repository.ConfigModel
+import com.reguerta.presentation.composables.ReguertaOrderButton
 import com.reguerta.presentation.sync.ForegroundSyncManager
+import com.reguerta.presentation.toWeekDay
 import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
@@ -110,6 +106,21 @@ fun homeScreen(
     val isFirstRun by viewModel.isFirstRun.collectAsStateWithLifecycle()
     val isSyncFinished by viewModel.isSyncFinished.collectAsStateWithLifecycle()
 
+    var showInitialRetry by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
+
+    // Watchdog: si el loader inicial dura demasiado, mostramos "Reintentar"
+    LaunchedEffect(showInitialLoader) {
+        if (showInitialLoader) {
+            kotlinx.coroutines.delay(20_000)
+            if (showInitialLoader) {
+                showInitialRetry = true
+                Timber.w("SYNC_Watchdog: loader inicial excede 20s → mostrar botón Reintentar")
+            }
+        } else {
+            showInitialRetry = false
+        }
+    }
+
     LaunchedEffect(isFirstRun, isSyncFinished) {
         if (isFirstRun && isSyncFinished) {
             viewModel.preloadCriticalDataIfNeeded()
@@ -136,6 +147,29 @@ fun homeScreen(
                 LoadingAnimation()
                 Spacer(modifier = Modifier.height(PADDING_MEDIUM))
                 androidx.compose.material3.Text("Preparando datos por primera vez...", color = MaterialTheme.colorScheme.primary)
+                if (showInitialRetry) {
+                    Spacer(modifier = Modifier.height(PADDING_SMALL))
+                    ReguertaButton(
+                        textButton = "Reintentar",
+                        isSingleButton = true,
+                        onClick = {
+                            Timber.i("SYNC_UI: Reintentar (loader inicial)")
+                            showInitialRetry = false
+                            // Reintentamos: recargar config y disparar sync si la tenemos
+                            configViewModel.loadConfig()
+                            val loaded = config
+                            if (loaded != null) {
+                                viewModel.triggerSyncIfNeeded(
+                                    config = loaded,
+                                    isAdmin = state.isCurrentUserAdmin,
+                                    isProducer = state.isCurrentUserProducer,
+                                    currentDay = state.currentDay,
+                                    deliveryDay = state.deliveryDay
+                                )
+                            }
+                        }
+                    )
+                }
             }
         }
         return
@@ -172,17 +206,47 @@ private fun HomeScreen(
     viewModel: HomeViewModel
 ) {
     Timber.i("SYNC_Montando Composable HomeScreen (privado)")
+    val configViewModel: ConfigViewModel = hiltViewModel()
     // Loader bloqueante (solo si NO está el loader inicial)
     if (state.isLoading) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            LoadingAnimation()
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                LoadingAnimation()
+                Spacer(modifier = Modifier.height(PADDING_SMALL))
+                androidx.compose.material3.Text(
+                    "Cargando datos…",
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier = Modifier.height(PADDING_SMALL))
+                ReguertaButton(
+                    textButton = "Reintentar",
+                    isSingleButton = true,
+                    onClick = {
+                        Timber.i("SYNC_UI: Reintentar (loader secundario)")
+                        // Reintentamos: recargar configuración y forzar sync si es posible
+                        configViewModel.loadConfig()
+                        // Intento “suave”: si hay config cargada, disparamos sync de nuevo
+                        // (si aún no la hay, el init del VM debería completar y apagar el loader)
+                        val cfg = configViewModel.config.value
+                        if (cfg != null) {
+                            viewModel.triggerSyncIfNeeded(
+                                config = cfg,
+                                isAdmin = state.isCurrentUserAdmin,
+                                isProducer = state.isCurrentUserProducer,
+                                currentDay = state.currentDay,
+                                deliveryDay = state.deliveryDay
+                            )
+                        }
+                    }
+                )
+            }
         }
         return
     }
-    val configViewModel: ConfigViewModel = hiltViewModel()
 
     LaunchedEffect(Unit) {
         ForegroundSyncManager.syncRequested.collectLatest {
@@ -232,21 +296,21 @@ private fun HomeScreen(
             ) {
                 MakeYourOrderButton(
                     onButtonClick = {
-                        navigateTo(Routes.ORDERS.NEW.route) /*
-                        if (isBlockedDay) {
+                        if (state.currentDay.toWeekDay().isReservedDayFor(state.deliveryDay)) {
                             onEvent(HomeEvent.ShowBlockedDayDialog)
                         } else {
                             Timber.i("SYNC_Botón Mi pedido pulsado, navegando a: ${Routes.ORDERS.NEW.route}")
                             navigateTo(Routes.ORDERS.NEW.route)
-                        }*/
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
                 )
 
-                if (state.isCurrentUserProducer && state.currentDay in DayOfWeek.MONDAY..state.deliveryDay.toJavaDayOfWeek()) {
-                    ShowYourOrderButton(
+                if (state.isCurrentUserProducer) {
+                    ShowYourOrdersButton(
+                        buttonIsEnabled = !state.deliveryDay.afterDays().contains(state.currentDay.toWeekDay()),
                         onButtonClick = {
                             Timber.i("SYNC_Botón Ver tus pedidos pulsado, navegando a: ${Routes.HOME.ORDER_RECEIVED.route}")
                             navigateTo(Routes.HOME.ORDER_RECEIVED.route)
@@ -318,44 +382,26 @@ private fun MakeYourOrderButton(
     modifier: Modifier = Modifier,
     buttonIsEnabled: Boolean = true
 ) {
-    Button(
+    ReguertaOrderButton(
+        text = "Mi pedido",
         onClick = onButtonClick,
         modifier = modifier,
-        shape = RoundedCornerShape(32f),
-        enabled = buttonIsEnabled,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primary.copy(0.2f)
-        )
-    ) {
-        TextBody(
-            text = "Mi pedido",
-            textSize = TEXT_SIZE_SPECIAL_BTN,
-            textColor = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(PADDING_SMALL)
-        )
-    }
+        enabled = buttonIsEnabled
+    )
 }
 
 @Composable
-private fun ShowYourOrderButton(
+private fun ShowYourOrdersButton(
     onButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
     buttonIsEnabled: Boolean = true
 ) {
-    Button(
+    ReguertaOrderButton(
+        text = "Ver tus pedidos",
         onClick = onButtonClick,
         modifier = modifier,
-        shape = RoundedCornerShape(32f),
-        enabled = buttonIsEnabled,
-        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary.copy(0.2f))
-    ) {
-        TextBody(
-            text = "Ver tus pedidos",
-            textSize = TEXT_SIZE_SPECIAL_BTN,
-            textColor = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(PADDING_SMALL)
-        )
-    }
+        enabled = buttonIsEnabled
+    )
 }
 
 @Composable
@@ -458,7 +504,7 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         }
         Spacer(modifier = Modifier.weight(1f))
         TextBody(
-            text = "android version 0.2.1.3",
+            text = "android version 0.2.1.5",
             textSize = TEXT_SIZE_MEDIUM,
             textColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier

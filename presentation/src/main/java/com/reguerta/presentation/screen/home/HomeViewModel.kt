@@ -32,6 +32,8 @@ import kotlinx.coroutines.flow.stateIn
 import timber.log.Timber
 import java.time.DayOfWeek
 import javax.inject.Inject
+import kotlinx.coroutines.supervisorScope
+import java.util.Locale
 
 /*****
  * Project: Reguerta
@@ -42,7 +44,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val checkUserUseCase: CheckCurrentUserLoggedUseCase,
-    private val getCurrentWeek: GetCurrentWeekDayUseCase,
+    private val getCurrentWeekDay: GetCurrentWeekDayUseCase,
     private val getDeliveryDayUseCase: GetDeliveryDayUseCase,
     private val signOutUseCase: SignOutUseCase,
     private val getConfigUseCase: GetConfigUseCase,
@@ -66,6 +68,8 @@ class HomeViewModel @Inject constructor(
     )
 
     private var hasSyncedInSession = false
+
+    private fun List<String>.toRootLower(): List<String> = this.map { it.lowercase(Locale.ROOT) }
 
     private fun checkAppState(config: ConfigModel): ConfigCheckResult {
         val androidVersion = config.versions["android"]
@@ -92,13 +96,14 @@ class HomeViewModel @Inject constructor(
         currentDay: DayOfWeek,
         deliveryDay: WeekDay
     ) {
+        val skipProducts = !isFirstRun.value // en primer inicio NO saltamos productos
         if (!hasSyncedInSession) {
             hasSyncedInSession = true
-            triggerBackgroundSync(config, isAdmin, isProducer, currentDay, deliveryDay, skipProductSync = true)
+            triggerBackgroundSync(config, isAdmin, isProducer, currentDay, deliveryDay, skipProductSync = skipProducts)
         } else {
             viewModelScope.launch(Dispatchers.IO) {
                 ForegroundSyncManager.checkAndSyncIfNeeded {
-                    triggerBackgroundSync(config, isAdmin, isProducer, currentDay, deliveryDay, skipProductSync = true)
+                    triggerBackgroundSync(config, isAdmin, isProducer, currentDay, deliveryDay, skipProductSync = skipProducts)
                 }
             }
         }
@@ -113,29 +118,38 @@ class HomeViewModel @Inject constructor(
         skipProductSync: Boolean = false
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            val syncMap = mutableMapOf<String, suspend (com.google.firebase.Timestamp) -> Unit>()
+            _isSyncFinished.value = false
+            try {
+                val syncMap = mutableMapOf<String, suspend (com.google.firebase.Timestamp) -> Unit>()
 
-            if (!skipProductSync) {
-                syncMap["products"] = { syncProductsUseCase(it) }
-                syncMap["containers"] = { syncContainersUseCase(it) }
-                syncMap["measures"] = { syncMeasuresUseCase(it) }
-            }
-            syncMap["orders"] = { syncOrdersAndOrderLinesUseCase(it) }
+                if (!skipProductSync) {
+                    syncMap["products"] = { syncProductsUseCase(it) }
+                    syncMap["containers"] = { syncContainersUseCase(it) }
+                    syncMap["measures"] = { syncMeasuresUseCase(it) }
+                }
+                syncMap["orders"] = { syncOrdersAndOrderLinesUseCase(it) }
 
-            SyncOrchestrator.runSyncIfNeeded(
-                getRemoteTimestamps = { config.lastTimestamps },
-                getLocalTimestamps = {
-                    dataStore.getSyncTimestampsFor(
-                        getActiveCriticalTables(isAdmin, isProducer, currentDay, deliveryDay).map { it.name.lowercase() }
+                // Claves críticas activas, normalizadas y filtradas a las acciones disponibles
+                val critical = getActiveCriticalTables(isAdmin, isProducer, currentDay, deliveryDay)
+                    .map { it.name }
+                    .toRootLower()
+                    .filter { it in syncMap.keys }
+
+                supervisorScope {
+                    SyncOrchestrator.runSyncIfNeeded(
+                        getRemoteTimestamps = { config.lastTimestamps },
+                        getLocalTimestamps = { dataStore.getSyncTimestampsFor(critical) },
+                        getCriticalTables = { critical },
+                        syncActions = syncMap
                     )
-                },
-                getCriticalTables = {
-                    getActiveCriticalTables(isAdmin, isProducer, currentDay, deliveryDay).map { it.name.lowercase() }
-                },
-                syncActions = syncMap
-            )
-            Timber.i("SYNC: triggerBackgroundSync - SyncOrchestrator terminó, se pone isSyncFinished = true en ${System.currentTimeMillis()}")
-            _isSyncFinished.value = true
+                }
+
+                Timber.i("SYNC: triggerBackgroundSync - SyncOrchestrator terminó OK @${System.currentTimeMillis()}")
+            } catch (t: Throwable) {
+                Timber.e(t, "SYNC: triggerBackgroundSync falló")
+            } finally {
+                _isSyncFinished.value = true // nunca dejamos el loader inicial enganchado
+            }
         }
     }
 
@@ -171,8 +185,10 @@ class HomeViewModel @Inject constructor(
                         return@launch
                     }
                     // Paso 3: Usuario y configuración correctos, obtener día actual
-                    val currentDay = DayOfWeek.of(getCurrentWeek())
-                    val deliveryDay = getDeliveryDayUseCase()
+                    val currentDay = runCatching { DayOfWeek.of(getCurrentWeekDay()) }
+                        .getOrElse { DayOfWeek.from(java.time.LocalDate.now()) }
+                    val deliveryDay = runCatching { getDeliveryDayUseCase() }
+                        .getOrElse { WeekDay.WED }
                     _state.update {
                         it.copy(
                             isCurrentUserAdmin = user.isAdmin,
@@ -256,7 +272,8 @@ class HomeViewModel @Inject constructor(
 
     fun preloadCriticalDataIfNeeded() {
         viewModelScope.launch(Dispatchers.IO) {
-            preloadCriticalDataUseCase()
+            runCatching { preloadCriticalDataUseCase() }
+                .onFailure { Timber.w(it, "Preload falló (no bloqueante)") }
         }
     }
 }
