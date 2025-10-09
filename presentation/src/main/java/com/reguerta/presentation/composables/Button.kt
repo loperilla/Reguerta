@@ -153,7 +153,7 @@ fun ReguertaOrderButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
-    val shape = RoundedCornerShape(32.dp)
+    val shape = RoundedCornerShape(16.dp)
     val baseContainer = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f) // un poco más sólido que antes
     val disabledContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.60f)
     val disabledContent = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)

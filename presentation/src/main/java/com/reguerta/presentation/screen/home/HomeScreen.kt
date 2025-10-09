@@ -320,6 +320,8 @@ private fun HomeScreen(
                             .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
                     )
                 }
+
+
             }
             // Blocked day dialog
             if (state.showBlockedDayDialog) {
