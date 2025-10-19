@@ -1,9 +1,12 @@
 package com.reguerta.presentation.composables
 
+import com.reguerta.presentation.ui.Dimens
+
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,14 +14,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import com.reguerta.presentation.ui.TEXT_TOP_BAR
 
 /*****
  * Project: Reguerta
@@ -42,7 +43,7 @@ fun ReguertaTopBar(
             if (topBarText.isNotEmpty()) {
                 TextTitle(
                     text = topBarText,
-                    textSize = TEXT_TOP_BAR,
+                    style = Dimens.Components.TopBar.titleStyle,
                     textColor = topBarTextColor
                 )
             }
@@ -51,7 +52,8 @@ fun ReguertaTopBar(
             IconButton(onClick = navActionClick) {
                 Icon(
                     imageVector = navIcon,
-                    contentDescription = "Back"
+                    contentDescription = "Back",
+                    modifier = Modifier.size(Dimens.Components.TopBar.iconSize)
                 )
             }
         },
@@ -85,7 +87,7 @@ fun ReguertaHomeTopBar(
 @Composable
 fun ReguertaTopBarPreview() {
     Screen {
-        Scaffold(
+        ReguertaScaffold(
             topBar = {
                 ReguertaTopBar(
                     topBarText = "Reguerta",
@@ -112,7 +114,7 @@ fun ReguertaTopBarPreview() {
 @Composable
 fun ReguertaHomeTopBarPreview() {
     Screen {
-        Scaffold(
+        ReguertaScaffold(
             topBar = {
                 ReguertaHomeTopBar(
                     navActionClick = {},

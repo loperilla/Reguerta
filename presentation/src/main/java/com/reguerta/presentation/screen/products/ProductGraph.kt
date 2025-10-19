@@ -9,7 +9,7 @@ import androidx.navigation.navArgument
 import com.reguerta.presentation.screen.products.add.addProductScreen
 import com.reguerta.presentation.screen.products.edit.editProductScreen
 import com.reguerta.presentation.screen.products.root.productScreen
-import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.navigation.Routes
 
 /*****
  * Project: Reguerta

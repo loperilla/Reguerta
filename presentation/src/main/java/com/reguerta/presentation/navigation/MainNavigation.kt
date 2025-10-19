@@ -1,4 +1,4 @@
-package com.reguerta.presentation
+package com.reguerta.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
@@ -15,7 +15,6 @@ import com.reguerta.presentation.screen.products.productsGraph
 import com.reguerta.presentation.screen.received_orders.receivedOrdersScreen
 import com.reguerta.presentation.screen.settings.settingsScreen
 import com.reguerta.presentation.screen.users.usersGraph
-import com.reguerta.presentation.ui.Routes
 import timber.log.Timber
 
 /*****

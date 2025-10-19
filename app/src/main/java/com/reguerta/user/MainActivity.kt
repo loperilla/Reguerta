@@ -7,11 +7,11 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.LaunchedEffect
-import com.reguerta.presentation.MainNavigation
-import com.reguerta.presentation.UiState
+import com.reguerta.presentation.navigation.MainNavigation
+import com.reguerta.presentation.state.UiState
 import com.reguerta.presentation.sync.ForegroundSyncManager
 import com.reguerta.presentation.ui.ReguertaTheme
-import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.navigation.Routes
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.view.WindowCompat

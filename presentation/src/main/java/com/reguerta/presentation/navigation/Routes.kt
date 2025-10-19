@@ -1,4 +1,4 @@
-package com.reguerta.presentation.ui
+package com.reguerta.presentation.navigation
 
 /*****
  * Project: Reguerta

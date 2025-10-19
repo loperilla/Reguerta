@@ -20,21 +20,13 @@ import com.reguerta.presentation.ui.ReguertaTheme
  */
 
 @Composable
-fun Screen(content: @Composable () -> Unit) {
+fun Screen(
+    modifier: Modifier = Modifier,
+    content: @Composable () -> Unit
+) {
     ReguertaTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            Scaffold(contentWindowInsets = WindowInsets.systemBars) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(it)
-                        .consumeWindowInsets(it)
-                ) {
-                    content()
-                }
-            }
+        Surface(modifier.fillMaxSize()) {
+            content()
         }
     }
 }

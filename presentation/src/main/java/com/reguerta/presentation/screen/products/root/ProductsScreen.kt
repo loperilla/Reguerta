@@ -21,7 +21,6 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -43,17 +42,11 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.StockProductText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
-import com.reguerta.presentation.composables.image.ProductImage
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.SIZE_48
-import com.reguerta.presentation.ui.SIZE_88
-import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
-import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
+import com.reguerta.presentation.composables.ProductImage
+import com.reguerta.presentation.composables.ReguertaScaffold
+import com.reguerta.presentation.ui.Dimens
+import androidx.compose.foundation.layout.navigationBarsPadding
+import com.reguerta.presentation.navigation.Routes
 
 /*****
  * Project: Reguerta
@@ -94,7 +87,7 @@ private fun ProductsScreen(
             onEvent = onEvent
         )
     }
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Mis productos",
@@ -108,9 +101,10 @@ private fun ProductsScreen(
                     .wrapContentSize(Alignment.BottomCenter)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(topStart = PADDING_MEDIUM, topEnd = PADDING_MEDIUM)
+                        shape = RoundedCornerShape(topStart = Dimens.Spacing.md, topEnd = Dimens.Spacing.md)
                     )
-                    .padding(PADDING_SMALL)
+                    .navigationBarsPadding()
+                    .padding(Dimens.Spacing.sm)
             ) {
                 ReguertaButton(
                     "Añadir nuevo producto",
@@ -118,8 +112,8 @@ private fun ProductsScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            vertical = PADDING_SMALL,
-                            horizontal = PADDING_MEDIUM
+                            vertical = Dimens.Spacing.sm,
+                            horizontal = Dimens.Spacing.md
                         )
                 )
             }
@@ -149,7 +143,7 @@ private fun ProductListScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(PADDING_SMALL)
+            .padding(Dimens.Spacing.sm)
     ) {
         items(
             count = products.size
@@ -172,7 +166,7 @@ private fun ProductItem(
 ) {
     ReguertaCard(
         modifier = modifier
-            .padding(PADDING_SMALL)
+            .padding(Dimens.Spacing.sm)
             .wrapContentSize(),
         content = {
             Column(
@@ -187,8 +181,8 @@ private fun ProductItem(
                 ) {
                     ProductImage(product)
                     Row(
-                        modifier = Modifier.padding(PADDING_SMALL),
-                        horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL),
+                        modifier = Modifier.padding(Dimens.Spacing.sm),
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.xs),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         ReguertaIconButton(
@@ -206,20 +200,20 @@ private fun ProductItem(
 
                 Column(
                     modifier = Modifier
-                        .padding(PADDING_EXTRA_SMALL)
+                        .padding(Dimens.Spacing.xs)
                         .fillMaxWidth()
                 ) {
                     TextBody(
                         text = product.name,
-                        textSize = TEXT_SIZE_LARGE,
+                        textSize = MaterialTheme.typography.bodyLarge.fontSize,
                         textColor = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                        modifier = Modifier.padding(start = Dimens.Spacing.md, top = Dimens.Spacing.xs)
                     )
                     TextBody(
                         text = product.description,
-                        textSize = TEXT_SIZE_SMALL,
+                        textSize = MaterialTheme.typography.bodyMedium.fontSize,
                         textColor = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                        modifier = Modifier.padding(start = Dimens.Spacing.md, top = Dimens.Spacing.xs)
                     )
 
                     Row(
@@ -229,14 +223,14 @@ private fun ProductItem(
                     ) {
                         TextBody(
                             text = product.priceFormatted(),
-                            textSize = TEXT_SIZE_LARGE,
+                            textSize = MaterialTheme.typography.bodyLarge.fontSize,
                             textColor = MaterialTheme.colorScheme.onSurface,
-                            modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                            modifier = Modifier.padding(start = Dimens.Spacing.md, top = Dimens.Spacing.xs)
                         )
                         StockProductText(
                             product.stock,
-                            textSize = TEXT_SIZE_LARGE,
-                            modifier = Modifier.padding(end = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                            textSize = MaterialTheme.typography.bodyLarge.fontSize,
+                            modifier = Modifier.padding(end = Dimens.Spacing.md, top = Dimens.Spacing.xs)
                         )
                     }
                 }
@@ -255,14 +249,14 @@ private fun AreYouSureDialog(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(SIZE_88)
-                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2F), shape = CircleShape)
+                    .size(Dimens.Size.dp88)
+                    .background(MaterialTheme.colorScheme.errorContainer, shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Warning,
                     contentDescription = "Advertencia",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(SIZE_48)
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(Dimens.Size.dp48)
                 )
             }
         },
@@ -270,7 +264,7 @@ private fun AreYouSureDialog(
         text = {
             TextBody(
                 text = "Estás a punto de eliminar un producto.\nEsta acción no se podrá deshacer.",
-                textSize = TEXT_SIZE_DLG_BODY,
+                textSize = MaterialTheme.typography.bodyMedium.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
@@ -278,7 +272,7 @@ private fun AreYouSureDialog(
         title = {
             TextTitle(
                 text = "Vas a eliminar un producto\n¿Estás seguro?",
-                textSize = TEXT_SIZE_DLG_TITLE,
+                textSize = MaterialTheme.typography.titleLarge.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
@@ -287,8 +281,8 @@ private fun AreYouSureDialog(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = PADDING_EXTRA_SMALL, vertical = PADDING_SMALL),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_SMALL)
+                    .padding(horizontal = Dimens.Spacing.xs, vertical = Dimens.Spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm)
             ) {
                 InverseReguertaButton(
                     textButton = "Cancelar",

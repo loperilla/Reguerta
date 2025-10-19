@@ -7,9 +7,8 @@ import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.ui.Dimens
 import androidx.compose.material3.MaterialTheme
 
 /*****
@@ -28,8 +27,8 @@ fun ReguertaCheckBox(
 ) {
     val cbColors = CheckboxDefaults.colors(
         checkedColor = MaterialTheme.colorScheme.primary,
-        checkmarkColor = MaterialTheme.colorScheme.onPrimary,
-        uncheckedColor = Color.Gray
+        uncheckedColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        checkmarkColor = MaterialTheme.colorScheme.onPrimary
     )
     Checkbox(
         checked = isChecked,
@@ -45,7 +44,7 @@ fun ReguertaCheckBox(
 fun CheckboxPreview() {
     Screen {
         Column(
-            verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
+            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm),
             modifier = Modifier.fillMaxSize()
         ) {
             ReguertaCheckBox(

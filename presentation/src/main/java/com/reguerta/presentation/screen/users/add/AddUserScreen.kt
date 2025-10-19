@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.reguerta.presentation.composables.ReguertaScaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -26,13 +26,7 @@ import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.type.isValidEmail
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PADDING_ZERO
-import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
+import com.reguerta.presentation.ui.Dimens
 
 /*****
  * Project: Reguerta
@@ -64,19 +58,19 @@ fun AddUserScreen(
     state: AddUserState,
     onEvent: (AddUserEvent) -> Unit
 ) {
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Autorizar regüertense",
                 navActionClick = { onEvent(AddUserEvent.GoBack) }
             )
         }
-    ) {
+    ) { it ->
         Column(
-            verticalArrangement = Arrangement.spacedBy(PADDING_ZERO),
+            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.zero),//(PADDING_ZERO),
             modifier = Modifier
                 .padding(it)
-                .padding(horizontal = PADDING_MEDIUM)
+                .padding(horizontal = Dimens.Spacing.md)
         ) {
             ReguertaEmailInput(
                 state.email,
@@ -112,15 +106,15 @@ fun AddUserScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = PADDING_SMALL),
+                    .padding(top = Dimens.Spacing.sm),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextTitle(
                     text = "TELÉFONO DEL REGÜERTENSE",
-                    textSize = TEXT_SIZE_EXTRA_SMALL,
+                    textSize = MaterialTheme.typography.titleMedium.fontSize,
                     modifier = Modifier
                         .weight(0.64f)
-                        .padding(start = PADDING_MEDIUM)
+                        .padding(start = Dimens.Spacing.md)
                 )
                 CustomPhoneNumberInput(
                     value = state.phoneNumber,
@@ -147,7 +141,7 @@ fun AddUserScreen(
                 )
                 Row(
                     modifier = Modifier.wrapContentSize(),
-                    horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.xs, Alignment.Start),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     ReguertaCheckBox(
@@ -158,7 +152,7 @@ fun AddUserScreen(
                     )
                     TextBody(
                         text = "Consumidor encargado de compras",
-                        textSize = TEXT_SIZE_MEDIUM,
+                        textSize = MaterialTheme.typography.bodyMedium.fontSize,
                         textColor = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -166,7 +160,7 @@ fun AddUserScreen(
 
             Row(
                 modifier = Modifier.wrapContentSize(),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.xs, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ReguertaCheckBox(
@@ -177,14 +171,14 @@ fun AddUserScreen(
                 )
                 TextBody(
                     text = "Es productor",
-                    textSize = TEXT_SIZE_LARGE,
+                    textSize = MaterialTheme.typography.bodyLarge.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface
                 )
             }
 
             Row(
                 modifier = Modifier.wrapContentSize(),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.xs, Alignment.Start),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ReguertaCheckBox(
@@ -195,7 +189,7 @@ fun AddUserScreen(
                 )
                 TextBody(
                     text = "Es administrador",
-                    textSize = TEXT_SIZE_LARGE,
+                    textSize = MaterialTheme.typography.bodyLarge.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -207,7 +201,7 @@ fun AddUserScreen(
                 enabledButton = state.isButtonEnabled,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PADDING_SMALL)
+                    .padding(Dimens.Spacing.sm)
             )
             Spacer(modifier = Modifier.weight(1f))
         }

@@ -19,21 +19,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
-import com.reguerta.presentation.getResizedTextSize
-import com.reguerta.presentation.ui.CORNER_SIZE_8
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.TEXT_EXTRA_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
-import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
-import com.reguerta.presentation.ui.TEXT_TOP_BAR
-import com.reguerta.presentation.ui.cabinsketchFontFamily
+import com.reguerta.presentation.ui.Dimens
+import com.reguerta.presentation.ui.CabinSketchFontFamily
 import com.reguerta.presentation.ui.LowStock
 
 /*****
@@ -47,16 +40,19 @@ import com.reguerta.presentation.ui.LowStock
 fun TextRegular(
     text: String,
     modifier: Modifier = Modifier,
-    textSize: TextUnit = TEXT_SIZE_SMALL,
-    textColor: Color = Color.Unspecified
+    textSize: TextUnit = MaterialTheme.typography.labelMedium.fontSize,
+    textColor: Color = Color.Unspecified,
+    style: TextStyle? = null
 ) {
     Text(
-        text,
-        modifier,
+        text = text,
+        modifier = modifier,
         color = textColor,
-        fontSize = textSize,
-        fontWeight = FontWeight.Normal,
-        fontFamily = cabinsketchFontFamily
+        style = (style ?: MaterialTheme.typography.labelMedium).copy(
+            fontSize = textSize,
+            fontWeight = FontWeight.Normal,
+            fontFamily = CabinSketchFontFamily
+        )
     )
 }
 
@@ -64,19 +60,22 @@ fun TextRegular(
 fun TextBody(
     text: String,
     modifier: Modifier = Modifier,
-    textSize: TextUnit = TEXT_SIZE_MEDIUM,
+    textSize: TextUnit = MaterialTheme.typography.bodyLarge.fontSize,
     textColor: Color = Color.Unspecified,
     textAlignment: TextAlign? = null,
-    fontWeight: FontWeight = FontWeight.Normal
+    fontWeight: FontWeight = FontWeight.Normal,
+    style: TextStyle? = null
 ) {
     Text(
-        text,
-        modifier,
+        text = text,
+        modifier = modifier,
         color = textColor,
-        fontSize = textSize,
-        fontWeight = fontWeight,
-        fontFamily = cabinsketchFontFamily,
-        textAlign = textAlignment
+        textAlign = textAlignment,
+        style = (style ?: MaterialTheme.typography.bodyLarge).copy(
+            fontSize = textSize,
+            fontWeight = fontWeight,
+            fontFamily = CabinSketchFontFamily
+        )
     )
 }
 
@@ -84,18 +83,21 @@ fun TextBody(
 fun TextBody(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
-    textSize: TextUnit = TEXT_SIZE_MEDIUM,
+    textSize: TextUnit = MaterialTheme.typography.bodyLarge.fontSize,
     textColor: Color = Color.Unspecified,
-    textAlignment: TextAlign? = null
+    textAlignment: TextAlign? = null,
+    style: TextStyle? = null
 ) {
     Text(
-        text,
-        modifier,
+        text = text,
+        modifier = modifier,
         color = textColor,
-        fontSize = textSize,
-        fontWeight = FontWeight.Normal,
-        fontFamily = cabinsketchFontFamily,
-        textAlign = textAlignment
+        textAlign = textAlignment,
+        style = (style ?: MaterialTheme.typography.bodyLarge).copy(
+            fontSize = textSize,
+            fontWeight = FontWeight.Normal,
+            fontFamily = CabinSketchFontFamily
+        )
     )
 }
 
@@ -103,7 +105,7 @@ fun TextBody(
 fun StockProductText(
     stockCount: Int,
     modifier: Modifier = Modifier,
-    textSize: TextUnit = TEXT_SIZE_MEDIUM
+    textSize: TextUnit = MaterialTheme.typography.bodyMedium.fontSize
 ) {
     val colorToDraw: Color = when (stockCount) {
         0 -> MaterialTheme.colorScheme.error
@@ -122,7 +124,7 @@ fun StockProductText(
 fun StockOrderText(
     stockCount: Int,
     modifier: Modifier = Modifier,
-    textSize: TextUnit = TEXT_SIZE_MEDIUM
+    textSize: TextUnit = MaterialTheme.typography.bodyMedium.fontSize
 ) {
     val colorToDraw: Color = when (stockCount) {
         0 -> MaterialTheme.colorScheme.error
@@ -149,12 +151,12 @@ fun AmountText(
     ) {
         TextTitle(
             text = "Total: ",
-            textSize = TEXT_SIZE_LARGE,
+            textSize = MaterialTheme.typography.bodyLarge.fontSize,
             textColor = MaterialTheme.colorScheme.primary
         )
         TextBody(
             text = String.format(Locale.getDefault(), "%.2f €", amount),
-            textSize = TEXT_TOP_BAR,
+            textSize = MaterialTheme.typography.titleLarge.fontSize,
             textColor = MaterialTheme.colorScheme.onSurface
         )
     }
@@ -164,16 +166,17 @@ fun AmountText(
 fun HeaderSectionText(
     text: String,
     modifier: Modifier = Modifier,
-    textSize: TextUnit = getResizedTextSize(TEXT_EXTRA_LARGE),
+    textSize: TextUnit = MaterialTheme.typography.titleLarge.fontSize,
     textColor: Color = MaterialTheme.colorScheme.primary,
     textAlignment: TextAlign = TextAlign.Center,
     fontWeight: FontWeight = FontWeight.Bold,
     backgroundColor: Color = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
-    padding: Dp = PADDING_SMALL
+    padding: Dp = Dimens.Spacing.sm,
+    style: TextStyle? = null
 ) {
     Box(
         modifier = modifier
-            .background(color = backgroundColor, shape = RoundedCornerShape(CORNER_SIZE_8))
+            .background(color = backgroundColor, shape = RoundedCornerShape(Dimens.Radius.md))
             .fillMaxWidth()
             .padding(padding),
         contentAlignment = Alignment.Center
@@ -181,10 +184,12 @@ fun HeaderSectionText(
         Text(
             text = text,
             color = textColor,
-            fontSize = textSize,
-            fontWeight = fontWeight,
-            fontFamily = cabinsketchFontFamily,
-            textAlign = textAlignment
+            textAlign = textAlignment,
+            style = (style ?: MaterialTheme.typography.titleLarge).copy(
+                fontSize = textSize,
+                fontWeight = fontWeight,
+                fontFamily = CabinSketchFontFamily
+            )
         )
     }
 }
@@ -193,18 +198,21 @@ fun HeaderSectionText(
 fun TextTitle(
     text: String,
     modifier: Modifier = Modifier,
-    textSize: TextUnit = TEXT_SIZE_LARGE,
+    textSize: TextUnit = MaterialTheme.typography.titleLarge.fontSize,
     textColor: Color = MaterialTheme.colorScheme.onBackground,
-    textAlignment: TextAlign? = null
+    textAlignment: TextAlign? = null,
+    style: TextStyle? = null
 ) {
     Text(
-        text,
-        modifier,
+        text = text,
+        modifier = modifier,
         color = textColor,
-        fontSize = textSize,
-        fontWeight = FontWeight.Bold,
-        fontFamily = cabinsketchFontFamily,
-        textAlign = textAlignment
+        textAlign = textAlignment,
+        style = (style ?: MaterialTheme.typography.titleLarge).copy(
+            fontSize = textSize,
+            fontWeight = FontWeight.Bold,
+            fontFamily = CabinSketchFontFamily
+        )
     )
 }
 
@@ -212,18 +220,21 @@ fun TextTitle(
 fun TextTitle(
     text: AnnotatedString,
     modifier: Modifier = Modifier,
-    textSize: TextUnit = TEXT_SIZE_LARGE,
+    textSize: TextUnit = MaterialTheme.typography.titleLarge.fontSize,
     textColor: Color = MaterialTheme.colorScheme.onBackground,
-    textAlignment: TextAlign? = null
+    textAlignment: TextAlign? = null,
+    style: TextStyle? = null
 ) {
     Text(
-        text,
-        modifier,
+        text = text,
+        modifier = modifier,
         color = textColor,
-        fontSize = textSize,
-        fontWeight = FontWeight.Bold,
-        fontFamily = cabinsketchFontFamily,
-        textAlign = textAlignment
+        textAlign = textAlignment,
+        style = (style ?: MaterialTheme.typography.titleLarge).copy(
+            fontSize = textSize,
+            fontWeight = FontWeight.Bold,
+            fontFamily = CabinSketchFontFamily
+        )
     )
 }
 
@@ -233,7 +244,7 @@ fun TextTitle(
 fun TextPreviews() {
     Screen {
         Column(
-            verticalArrangement = Arrangement.spacedBy(PADDING_MEDIUM), modifier = Modifier.fillMaxSize()
+            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.md), modifier = Modifier.fillMaxSize()
         ) {
             TextRegular("Manuel Lopera")
             TextBody("Manuel Lopera")

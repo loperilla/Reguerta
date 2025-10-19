@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -15,7 +16,6 @@ import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Tab
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.VerticalDivider
@@ -35,27 +35,17 @@ import com.reguerta.domain.model.getAmount
 import com.reguerta.domain.model.getQuantityByProduct
 import com.reguerta.presentation.composables.LoadingAnimation
 import com.reguerta.presentation.composables.ReguertaCard
+import com.reguerta.presentation.composables.ReguertaScaffold
 import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
-import com.reguerta.presentation.composables.image.ProductImage
-import com.reguerta.presentation.composables.products.ProductNameUnityContainer
-import com.reguerta.presentation.composables.products.ProductNameUnityContainerInMyOrder
+import com.reguerta.presentation.composables.ProductImage
+import com.reguerta.presentation.composables.ProductNameUnityContainer
+import com.reguerta.presentation.composables.ProductNameUnityContainerInMyOrder
 import com.reguerta.presentation.getQuantitySum
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_LARGE
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PADDING_ZERO
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.SIZE_64
-import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_EXTRA_SMALL
-import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
-import com.reguerta.presentation.ui.TEXT_SIZE_SMADIUM
-import com.reguerta.presentation.ui.TEXT_TOP_BAR
+import com.reguerta.presentation.ui.Dimens
+import com.reguerta.presentation.navigation.Routes
 import kotlinx.coroutines.launch
 
 /*****
@@ -103,7 +93,7 @@ fun ReceivedOrdersScreen(
 ) {
     val pagerState = rememberPagerState(pageCount = { tabList.size }, initialPage = 0)
     val coroutineScope = rememberCoroutineScope()
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Pedidos a preparar",
@@ -124,17 +114,17 @@ fun ReceivedOrdersScreen(
                 }
                 state.ordersByProduct.isEmpty() -> {
                     ReguertaCard(
-                        modifier = Modifier.padding(horizontal = PADDING_MEDIUM, vertical = PADDING_MEDIUM),
-                        containerColor = MaterialTheme.colorScheme.error.copy(0.15f),
+                        modifier = Modifier.padding(horizontal = Dimens.Spacing.md, vertical = Dimens.Spacing.md),
+                        containerColor = MaterialTheme.colorScheme.errorContainer,
                         content = {
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(PADDING_LARGE)
+                                    .padding(Dimens.Spacing.lg)
                             ) {
                                 TextTitle(
                                     text = "No has recibido ningún pedido esta semana.",
-                                    textColor = MaterialTheme.colorScheme.error,
+                                    textColor = MaterialTheme.colorScheme.onErrorContainer,
                                     textAlignment = TextAlign.Center
                                 )
                             }
@@ -155,7 +145,7 @@ fun ReceivedOrdersScreen(
                                     text = {
                                         TextTitle(
                                             text = receivedTab.title,
-                                            textSize = TEXT_SIZE_LARGE
+                                            textSize = MaterialTheme.typography.titleMedium.fontSize
                                         )
                                     }
                                 )
@@ -191,13 +181,13 @@ private fun OrderListByUser(
     Column(
         modifier = modifier
             .fillMaxSize()
-            .padding(bottom = PADDING_ZERO)
+            .padding(bottom = Dimens.Spacing.zero)
     ) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .weight(1f)
-                .padding(PADDING_SMALL)
+                .padding(Dimens.Spacing.sm)
         ) {
             orderLines.forEach {
                 item {
@@ -213,12 +203,13 @@ private fun OrderListByUser(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.primary)
-                .padding(PADDING_SMALL),
+                .navigationBarsPadding()
+                .padding(Dimens.Spacing.sm),
             contentAlignment = Alignment.Center
         ) {
             TextTitle(
                 text = "Suma total general: %.2f €".format(grandTotal),
-                textSize = TEXT_TOP_BAR,
+                textSize = MaterialTheme.typography.titleLarge.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface
             )
         }
@@ -232,13 +223,13 @@ private fun OrderByUser(
     state: ReceivedOrdersState
 ) {
     ReguertaCard(
-        modifier = Modifier.padding(PADDING_SMALL),
+        modifier = Modifier.padding(Dimens.Spacing.sm),
         content = {
             TextTitle(
                 text = fullname,
                 textColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
+                    .padding(Dimens.Spacing.sm)
                     .fillMaxWidth(),
                 textAlignment = TextAlign.Center
             )
@@ -254,9 +245,9 @@ private fun OrderByUser(
                 text = "Total: ${orderLines.getAmount()}",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PADDING_SMALL),
+                    .padding(Dimens.Spacing.sm),
                 textColor = MaterialTheme.colorScheme.error,
-                textSize = TEXT_SIZE_LARGE,
+                textSize = MaterialTheme.typography.titleMedium.fontSize,
                 textAlignment = TextAlign.End
             )
         }
@@ -275,7 +266,7 @@ private fun ProductOrders(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(PADDING_EXTRA_SMALL),
+            .padding(Dimens.Spacing.xs),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(
@@ -291,15 +282,15 @@ private fun ProductOrders(
         ) {
             TextBody(
                 text = "${orderLine.quantity}",
-                textSize = TEXT_SIZE_MEDIUM,
+                textSize = MaterialTheme.typography.bodyLarge.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(PADDING_EXTRA_SMALL),
+                modifier = Modifier.padding(Dimens.Spacing.xs),
             )
             TextBody(
                 text = quantitySum,
-                textSize = TEXT_SIZE_EXTRA_SMALL,
+                textSize = MaterialTheme.typography.bodySmall.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(PADDING_EXTRA_SMALL),
+                modifier = Modifier.padding(Dimens.Spacing.xs),
             )
         }
         VerticalDivider()
@@ -309,7 +300,7 @@ private fun ProductOrders(
         ) {
             TextBody(
                 text = "%.2f €".format(totalPrice),
-                textSize = TEXT_SIZE_SMADIUM,
+                textSize = MaterialTheme.typography.bodyMedium.fontSize,
                 textColor = MaterialTheme.colorScheme.error
             )
         }
@@ -323,10 +314,10 @@ fun OrderListByProduct(
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
-        verticalArrangement = Arrangement.spacedBy(PADDING_MEDIUM),
+        verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.md),
         modifier = modifier
             .fillMaxSize()
-            .padding(PADDING_MEDIUM)
+            .padding(Dimens.Spacing.md)
     ) {
         orderLines.forEach {
             item {
@@ -359,15 +350,15 @@ fun OrderByProduct(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .wrapContentHeight()
-                    .padding(PADDING_EXTRA_SMALL)
+                    .padding(Dimens.Spacing.xs)
             ) {
                 ProductImage(
                     product = product,
-                    imageSize = SIZE_64,
+                    imageSize = Dimens.Size.dp64,
                     modifier = Modifier
                         .wrapContentWidth()
                         .weight(0.2f)
-                        .padding(PADDING_ZERO)
+                        .padding(Dimens.Spacing.zero)
                 )
                 VerticalDivider()
                 ProductNameUnityContainer(
@@ -385,15 +376,15 @@ fun OrderByProduct(
                 ) {
                     TextTitle(
                         text = "${orderLines.getQuantityByProduct(product)}",
-                        textSize = TEXT_TOP_BAR,
+                        textSize = MaterialTheme.typography.titleLarge.fontSize,
                         textColor = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(PADDING_EXTRA_SMALL),
+                        modifier = Modifier.padding(Dimens.Spacing.xs),
                     )
                     TextBody(
                         text = quantitySum,
-                        textSize = TEXT_SIZE_EXTRA_EXTRA_SMALL,
+                        textSize = MaterialTheme.typography.bodySmall.fontSize,
                         textColor = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(PADDING_EXTRA_SMALL),
+                        modifier = Modifier.padding(Dimens.Spacing.xs),
                     )
                 }
             }

@@ -45,7 +45,6 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -70,7 +69,6 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
-import androidx.compose.foundation.layout.WindowInsets
 import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.enums.Pane
 import com.reguerta.domain.model.CommonProduct
@@ -96,29 +94,12 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.StockOrderText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
-import com.reguerta.presentation.composables.image.ProductImage
-import com.reguerta.presentation.composables.products.ProductNameUnityContainerInMyOrder
+import com.reguerta.presentation.composables.ProductImage
+import com.reguerta.presentation.composables.ProductNameUnityContainerInMyOrder
 import com.reguerta.presentation.getQuantitySum
-import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_LARGE
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PADDING_ULTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_ZERO
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.SIZE_48
-import com.reguerta.presentation.ui.SIZE_88
-import com.reguerta.presentation.ui.SIZE_96
-import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
-import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
-import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
-import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
-import com.reguerta.presentation.ui.TEXT_SPECIAL
-import com.reguerta.presentation.ui.TEXT_TOP_BAR
+import com.reguerta.presentation.composables.ReguertaScaffold
+import com.reguerta.presentation.ui.Dimens
+import com.reguerta.presentation.navigation.Routes
 import timber.log.Timber
 
 /*****
@@ -232,22 +213,12 @@ fun newOrderScreen(
 fun NoOrderScreen(
     onEvent: (NewOrderEvent) -> Unit
 ) {
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Mi último pedido",
                 navActionClick = {
                     onEvent(NewOrderEvent.GoOut)
-                },
-                actions = {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(PADDING_ZERO),
-                        horizontalAlignment = Alignment.End
-                    ) {
-
-                    }
                 }
             )
         }
@@ -255,18 +226,18 @@ fun NoOrderScreen(
         ReguertaCard(
             modifier = Modifier
                 .padding(it)
-                .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_MEDIUM),
-            containerColor = MaterialTheme.colorScheme.error.copy(0.15f),
+                .padding(horizontal = Dimens.Spacing.md, vertical = Dimens.Spacing.md),
+            containerColor = MaterialTheme.colorScheme.errorContainer,
             content = {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(PADDING_LARGE),
+                        .padding(Dimens.Spacing.lg),
                     contentAlignment = Alignment.Center
                 ) {
                     TextTitle(
                         text = "No hay ningún pedido registrado.",
-                        textColor = MaterialTheme.colorScheme.error,
+                        textColor = MaterialTheme.colorScheme.onErrorContainer,
                         textAlignment = TextAlign.Center
                     )
                 }
@@ -282,7 +253,7 @@ fun ExistingOrderScreen(
 ) {
     val grandTotal = state.orderLinesByCompanyName.values.sumOf { it.getDblAmount() }
 
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Mi pedido",
@@ -294,7 +265,7 @@ fun ExistingOrderScreen(
                         TextBody(
                             text = "¿eliminar?",
                             textColor = MaterialTheme.colorScheme.error,
-                            modifier = Modifier.padding(end = PADDING_SMALL)
+                            modifier = Modifier.padding(end = Dimens.Spacing.sm)
                         )
                         ReguertaIconButton(
                             onClick = { onEvent(NewOrderEvent.ShowAreYouSureDeleteOrder) },
@@ -310,12 +281,12 @@ fun ExistingOrderScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background( MaterialTheme.colorScheme.primary)
-                    .padding(PADDING_SMALL),
+                    .padding(Dimens.Spacing.sm),
                 contentAlignment = Alignment.Center
             ) {
                 TextTitle(
                     text = "Suma total pedido: %.2f €".format(grandTotal),
-                    textSize = TEXT_TOP_BAR,
+                    textSize = MaterialTheme.typography.titleLarge.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -352,7 +323,7 @@ fun LastOrderScreen(
 ) {
     val grandTotal = state.orderLinesByCompanyName.values.sumOf { it.getDblAmount() }
 
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Mi último pedido",
@@ -365,12 +336,12 @@ fun LastOrderScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background( MaterialTheme.colorScheme.primary)
-                    .padding(PADDING_SMALL),
+                    .padding(Dimens.Spacing.sm),
                 contentAlignment = Alignment.Center
             ) {
                 TextTitle(
                     text = "Suma total pedido: %.2f €".format(grandTotal),
-                    textSize = TEXT_TOP_BAR,
+                    textSize = MaterialTheme.typography.titleLarge.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface
                 )
             }
@@ -408,7 +379,7 @@ private fun OrderLinesByCompany(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(PADDING_SMALL)
+            .padding(Dimens.Spacing.sm)
     ) {
         orderLines.forEach {
             item {
@@ -431,24 +402,24 @@ private fun OrderByCompany(
 ) {
     ReguertaCard(
         modifier = Modifier.padding(
-            horizontal = PADDING_SMALL,
-            vertical = PADDING_SMALL
+            horizontal = Dimens.Spacing.sm,
+            vertical = Dimens.Spacing.sm
         ),
         content = {
             TextBody(
                 text = companyName,
-                textSize = TEXT_SIZE_LARGE,
+                textSize = MaterialTheme.typography.titleMedium.fontSize,
                 textColor =  MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .align(Alignment.Start)
                     .padding(
-                        top = PADDING_SMALL,
-                        bottom = PADDING_EXTRA_SMALL,
-                        start = PADDING_MEDIUM
+                        top = Dimens.Spacing.sm,
+                        bottom = Dimens.Spacing.xs,
+                        start = Dimens.Spacing.md
                     ),
             )
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = PADDING_ZERO))
+            HorizontalDivider(modifier = Modifier.padding(vertical = Dimens.Spacing.zero))
 
             orderLines.forEach {
                 ProductLine(
@@ -460,19 +431,19 @@ private fun OrderByCompany(
                 )
             }
 
-            HorizontalDivider(modifier = Modifier.padding(vertical = PADDING_EXTRA_SMALL))
+            HorizontalDivider(modifier = Modifier.padding(vertical = Dimens.Spacing.xs))
 
             TextBody(
                 text = "Total: ${String.format("%.2f", orderLines.getDblAmount())}",
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(
-                        bottom = PADDING_SMALL,
-                        top = PADDING_EXTRA_SMALL,
-                        end = PADDING_MEDIUM
+                        bottom = Dimens.Spacing.sm,
+                        top = Dimens.Spacing.xs,
+                        end = Dimens.Spacing.md
                     ),
                 textColor = MaterialTheme.colorScheme.error,
-                textSize = TEXT_SIZE_EXTRA_LARGE,
+                textSize = MaterialTheme.typography.titleLarge.fontSize,
                 textAlignment = TextAlign.End
             )
         }
@@ -494,8 +465,8 @@ private fun ProductLine(
         modifier = Modifier
             .fillMaxWidth()
             .padding(
-                horizontal = PADDING_SMALL,
-                vertical = PADDING_EXTRA_SMALL
+                horizontal = Dimens.Spacing.sm,
+                vertical = Dimens.Spacing.xs
             ),
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -510,15 +481,15 @@ private fun ProductLine(
         ) {
             TextBody(
                 text = quantity.toString(),
-                textSize = TEXT_SIZE_LARGE,
+                textSize = MaterialTheme.typography.bodyLarge.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(top = PADDING_ULTRA_SMALL)
+                modifier = Modifier.padding(top = Dimens.Spacing.xxs)
             )
             TextBody(
                 text = quantitySum,
-                textSize = TEXT_SIZE_EXTRA_SMALL,
+                textSize = MaterialTheme.typography.bodySmall.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(vertical = PADDING_ZERO)
+                modifier = Modifier.padding(vertical = Dimens.Spacing.zero)
             )
         }
         Column(
@@ -530,9 +501,9 @@ private fun ProductLine(
             } else { quantity * product.price }
             TextBody(
                 text = "%.2f €".format(adjustTotal),
-                textSize = TEXT_SIZE_SMALL,
+                textSize = MaterialTheme.typography.bodyMedium.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
+                modifier = Modifier.padding(bottom = Dimens.Spacing.xxs)
             )
         }
     }
@@ -570,16 +541,16 @@ fun NewOrderTopBar(
                                 )
                                 TextBody(
                                     "Más",
-                                    textSize = TEXT_SIZE_LARGE,
+                                    textSize = MaterialTheme.typography.labelLarge.fontSize,
                                     textColor = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(horizontal = PADDING_MEDIUM)
+                                    modifier = Modifier.padding(horizontal = Dimens.Spacing.md)
                                 )
                             } else {
                                 TextBody(
                                     "Ver",
-                                    textSize = TEXT_SIZE_LARGE,
+                                    textSize = MaterialTheme.typography.labelLarge.fontSize,
                                     textColor = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.padding(horizontal = PADDING_MEDIUM)
+                                    modifier = Modifier.padding(horizontal = Dimens.Spacing.md)
                                 )
                                 Icon(
                                     imageVector = Icons.Default.ShoppingCart,
@@ -620,9 +591,9 @@ fun NewOrderBottomBar(
             .navigationBarsPadding()
             .background(
                 color = MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(topStart = PADDING_MEDIUM, topEnd = PADDING_MEDIUM)
+                shape = RoundedCornerShape(topStart = Dimens.Spacing.md, topEnd = Dimens.Spacing.md)
             )
-            .padding(horizontal = PADDING_SMALL),
+            .padding(horizontal = Dimens.Spacing.sm),
         contentAlignment = Alignment.Center
     ) {
         // Animamos el cambio entre "Finalizar compra" y "Buscar producto"
@@ -652,8 +623,8 @@ fun NewOrderBottomBar(
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(
-                                vertical = PADDING_EXTRA_SMALL,
-                                horizontal = PADDING_MEDIUM
+                                vertical = Dimens.Spacing.xs,
+                                horizontal = Dimens.Spacing.md
                             )
                     )
                     val hasPopup = state.showPopup != PopupType.NONE
@@ -661,7 +632,7 @@ fun NewOrderBottomBar(
                         LoadingAnimation(
                             modifier = Modifier
                                 .align(Alignment.Center)
-                                .padding(top = PADDING_SMALL)
+                                .padding(top = Dimens.Spacing.sm)
                         )
                     }
                 }
@@ -683,8 +654,8 @@ fun NewOrderBottomBar(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(
-                                    vertical = PADDING_EXTRA_SMALL,
-                                    horizontal = PADDING_MEDIUM
+                                    vertical = Dimens.Spacing.xs,
+                                    horizontal = Dimens.Spacing.md
                                 )
                         )
                     } else {
@@ -742,12 +713,10 @@ fun NewOrderScreen(
     // Log el valor de showShoppingCart directamente desde el estado del ViewModel
     Timber.i("SYNC_UI_STATE - showShoppingCart = ${state.showShoppingCart}")
     if (state.uiState == NewOrderUiMode.SELECT_PRODUCTS) {
-        Scaffold(
-            contentWindowInsets = WindowInsets(0.dp),
+        ReguertaScaffold(
             topBar = { NewOrderTopBar(state, onEvent) },
             bottomBar = { NewOrderBottomBar(state, onEvent) }
         ) { paddingValues ->
-
             // 1) Frame único a pantalla completa
             Box(
                 modifier = Modifier
@@ -755,10 +724,8 @@ fun NewOrderScreen(
                     .fillMaxSize()
                     .clipToBounds()
             ) {
-
                 // 2) Pane actual según tu flag del estado
                 val pane = if (state.showShoppingCart) Pane.Cart else Pane.Products
-
                 // 3) Transición horizontal con dirección correcta
                 AnimatedContent(
                     targetState = pane,
@@ -825,10 +792,10 @@ fun GroupedProductsScreen(
         LazyColumn(
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(
-                start = PADDING_MEDIUM,
-                end = PADDING_MEDIUM,
-                top = PADDING_MEDIUM,
-                bottom = PADDING_MEDIUM
+                start = Dimens.Spacing.md,
+                end = Dimens.Spacing.md,
+                top = Dimens.Spacing.md,
+                bottom = Dimens.Spacing.md
             )
         ) {
             item {
@@ -843,7 +810,7 @@ fun GroupedProductsScreen(
                             Box(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(PADDING_LARGE),
+                                    .padding(Dimens.Spacing.lg),
                                 contentAlignment = Alignment.Center
                             ) {
                                 TextTitle(
@@ -894,12 +861,12 @@ private fun ShoppingCartScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(horizontal = PADDING_MEDIUM)
+                .padding(horizontal = Dimens.Spacing.md)
         ) {
             if (showHeader) {
                 TextTitle(
                     text = "Mi carrito",
-                    textSize = TEXT_TOP_BAR
+                    textSize = MaterialTheme.typography.headlineSmall.fontSize
                 )
                 Spacer(Modifier.weight(1f))
                 AmountText(amount = productList.getAmount())
@@ -908,9 +875,9 @@ private fun ShoppingCartScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(horizontal = PADDING_SMALL),
+                .padding(horizontal = Dimens.Spacing.sm),
             contentPadding = PaddingValues(
-                top = PADDING_SMALL,
+                top = Dimens.Spacing.sm,
                 bottom = 72.dp
             )
         ) {
@@ -933,7 +900,7 @@ fun ShoppingCartOrderProductItem(
 ) {
     ReguertaCard(
         modifier = Modifier
-            .padding(PADDING_SMALL)
+            .padding(Dimens.Spacing.sm)
             .wrapContentSize(),
         content = {
             Row(
@@ -942,32 +909,32 @@ fun ShoppingCartOrderProductItem(
                 modifier = Modifier
                     .fillMaxWidth()
                     .wrapContentHeight()
-                    .padding(PADDING_SMALL)
+                    .padding(Dimens.Spacing.sm)
             ) {
                 ProductImage(
                     product,
-                    imageSize = SIZE_96
+                    imageSize = Dimens.Size.dp96
                 )
                 Column(
                     verticalArrangement = Arrangement.Top,
                     modifier = Modifier
-                        .padding(PADDING_SMALL)
+                        .padding(Dimens.Spacing.sm)
                         .fillMaxHeight()
                 ) {
                     TextBody(
                         text = product.name,
-                        textSize = TEXT_SIZE_LARGE,
+                        textSize = MaterialTheme.typography.bodyLarge.fontSize,
                         textColor = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                        modifier = Modifier.padding(start = Dimens.Spacing.md, top = Dimens.Spacing.xs)
                     )
                     TextBody(
                         text = "${product.priceFormatted()} / ${product.getUnitType().singular}",
-                        textSize = TEXT_SIZE_LARGE,
+                        textSize = MaterialTheme.typography.bodyLarge.fontSize,
                         textColor = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_EXTRA_SMALL)
+                        modifier = Modifier.padding(start = Dimens.Spacing.md, top = Dimens.Spacing.xs)
                     )
                     HorizontalDivider(
-                        modifier = Modifier.padding(start = PADDING_SMALL, end = PADDING_SMALL, top = PADDING_MEDIUM, bottom = PADDING_SMALL),
+                        modifier = Modifier.padding(start = Dimens.Spacing.sm, end = Dimens.Spacing.sm, top = Dimens.Spacing.md, bottom = Dimens.Spacing.sm),
                         color = Color.LightGray,
                         thickness = 1.dp
                     )
@@ -988,7 +955,7 @@ private fun OrderProductItem(
 ) {
     ReguertaCard(
         modifier = Modifier
-            .padding(PADDING_SMALL)
+            .padding(Dimens.Spacing.sm)
             .wrapContentSize(),
         content = {
             Column(
@@ -1000,38 +967,38 @@ private fun OrderProductItem(
                 )
                 Column(
                     modifier = Modifier
-                        .padding(horizontal = PADDING_SMALL)
+                        .padding(horizontal = Dimens.Spacing.sm)
                         .align(Alignment.Start)
                 ) {
                     TextBody(
                         text = product.name,
-                        textSize = TEXT_SIZE_LARGE,
+                        textSize = MaterialTheme.typography.bodyLarge.fontSize,
                         textColor = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
+                        modifier = Modifier.padding(bottom = Dimens.Spacing.xxs)
                     )
                     TextBody(
                         text = product.description,
-                        textSize = TEXT_SIZE_SMALL,
+                        textSize = MaterialTheme.typography.bodyMedium.fontSize,
                         textColor = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
+                        modifier = Modifier.padding(bottom = Dimens.Spacing.xxs)
                     )
                     TextBody(
                         text = product.containerUnity(),
-                        textSize = TEXT_SIZE_MEDIUM,
+                        textSize = MaterialTheme.typography.bodyMedium.fontSize,
                         textColor = MaterialTheme.colorScheme.onSurface,
-                        modifier = Modifier.padding(bottom = PADDING_ULTRA_SMALL)
+                        modifier = Modifier.padding(bottom = Dimens.Spacing.xxs)
                     )
                 }
                 Row(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = PADDING_SMALL)
-                        .padding(bottom = PADDING_SMALL)
+                        .padding(horizontal = Dimens.Spacing.sm)
+                        .padding(bottom = Dimens.Spacing.sm)
                 ) {
                     TextBody(
                         text = "${product.priceFormatted()} / ${product.getUnitType().singular}",
-                        textSize = TEXT_SIZE_LARGE,
+                        textSize = MaterialTheme.typography.bodyLarge.fontSize,
                         textColor = MaterialTheme.colorScheme.onSurface,
                         modifier = Modifier.align(Alignment.CenterVertically)
                     )
@@ -1054,11 +1021,11 @@ private fun HeaderItemProduct(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .padding(PADDING_SMALL),
+            .padding(Dimens.Spacing.sm),
         verticalAlignment = Alignment.CenterVertically
     ) {
         ProductImage(product)
-        Spacer(Modifier.width(PADDING_EXTRA_LARGE))
+        Spacer(Modifier.width(Dimens.Spacing.xl))
         if (product is CommonProduct) {
             ButtonStartOrder(
                 product.id,
@@ -1093,14 +1060,14 @@ private fun ButtonStartOrder(
         ),
         modifier = modifier
             .fillMaxWidth()
-            .padding(PADDING_SMALL)
+            .padding(Dimens.Spacing.sm)
     ) {
         TextBody(
             "Añadir",
-            textSize = TEXT_SIZE_LARGE,
+            textSize = MaterialTheme.typography.labelLarge.fontSize,
             textColor = Color.White,
             modifier = Modifier
-                .padding(horizontal = PADDING_EXTRA_SMALL)
+                .padding(horizontal = Dimens.Spacing.xs)
         )
         Icon(
             imageVector = Icons.Filled.AddShoppingCart,
@@ -1118,7 +1085,7 @@ private fun OrderQuantitySelector(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = PADDING_SMALL),
+            .padding(horizontal = Dimens.Spacing.sm),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -1128,13 +1095,13 @@ private fun OrderQuantitySelector(
         ) {
             TextBody(
                 text = product.getQuantity(),
-                textSize = TEXT_SPECIAL,
+                textSize = MaterialTheme.typography.headlineSmall.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface
             )
-            Spacer(modifier = Modifier.width(PADDING_EXTRA_SMALL))
+            Spacer(modifier = Modifier.width(Dimens.Spacing.xs))
             TextBody(
                 text = product.getUnit(),
-                textSize = TEXT_SIZE_LARGE,
+                textSize = MaterialTheme.typography.bodyLarge.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface
             )
         }
@@ -1171,14 +1138,14 @@ fun AreYouSureDeletePopup(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(SIZE_88)
-                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2F), shape = CircleShape)
+                    .size(Dimens.Size.dp88)
+                    .background(MaterialTheme.colorScheme.errorContainer, shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Warning,
                     contentDescription = "Advertencia",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(SIZE_48)
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(Dimens.Size.dp48)
                 )
             }
         },
@@ -1188,7 +1155,7 @@ fun AreYouSureDeletePopup(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp),
+                        .height(Dimens.Size.dp96),
                     contentAlignment = Alignment.Center
                 ) {
                     LoadingAnimation(modifier = Modifier.size(80.dp))
@@ -1200,7 +1167,7 @@ fun AreYouSureDeletePopup(
                         append("Se restaurarán los stocks. \n")
                         append("Luego podrá realizar su pedido de nuevo.\n")
                     },
-                    textSize = TEXT_SIZE_DLG_BODY,
+                    textSize = MaterialTheme.typography.bodyMedium.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center
                 )
@@ -1212,7 +1179,7 @@ fun AreYouSureDeletePopup(
                     append("Vas a eliminar un pedido\n")
                     append("¿Está seguro?")
                 },
-                textSize = TEXT_SIZE_DLG_TITLE,
+                textSize = MaterialTheme.typography.titleLarge.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
@@ -1224,8 +1191,8 @@ fun AreYouSureDeletePopup(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = PADDING_EXTRA_SMALL, vertical = PADDING_SMALL),
-                    horizontalArrangement = Arrangement.spacedBy(PADDING_SMALL)
+                        .padding(horizontal = Dimens.Spacing.xs, vertical = Dimens.Spacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm)
                 ) {
                     InverseReguertaButton(
                         textButton = "Volver",
@@ -1265,14 +1232,14 @@ fun ConfirmPopup(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(SIZE_88)
-                    .background( MaterialTheme.colorScheme.primary.copy(alpha = 0.2F), shape = CircleShape)
+                    .size(Dimens.Size.dp88)
+                    .background(MaterialTheme.colorScheme.primaryContainer, shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Info,
                     contentDescription = "Info",
-                    tint =  MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(SIZE_48)
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    modifier = Modifier.size(Dimens.Size.dp48)
                 )
             }
         },
@@ -1280,7 +1247,7 @@ fun ConfirmPopup(
         text = {
             TextBody(
                 text = body,
-                textSize = TEXT_SIZE_DLG_BODY,
+                textSize = MaterialTheme.typography.bodyMedium.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
@@ -1288,7 +1255,7 @@ fun ConfirmPopup(
         title = {
             TextTitle(
                 text = title,
-                textSize = TEXT_SIZE_DLG_TITLE,
+                textSize = MaterialTheme.typography.titleLarge.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
@@ -1317,14 +1284,14 @@ fun WrongPopup(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(SIZE_88)
-                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2F), shape = CircleShape)
+                    .size(Dimens.Size.dp88)
+                    .background(MaterialTheme.colorScheme.errorContainer, shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Warning,
                     contentDescription = "Advertencia",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(SIZE_48)
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(Dimens.Size.dp48)
                 )
             }
         },
@@ -1332,7 +1299,7 @@ fun WrongPopup(
         text = {
             TextBody(
                 text = body,
-                textSize = TEXT_SIZE_DLG_BODY,
+                textSize = MaterialTheme.typography.bodyMedium.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
@@ -1340,7 +1307,7 @@ fun WrongPopup(
         title = {
             TextTitle(
                 text = title,
-                textSize = TEXT_SIZE_DLG_TITLE,
+                textSize = MaterialTheme.typography.titleLarge.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )

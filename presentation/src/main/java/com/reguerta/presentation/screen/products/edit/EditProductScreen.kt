@@ -24,7 +24,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,13 +59,8 @@ import com.reguerta.presentation.composables.StockProductText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
 import com.reguerta.presentation.getStoragePermissionBySdk
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.SIZE_16
-import com.reguerta.presentation.ui.SIZE_96
-import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.composables.ReguertaScaffold
+import com.reguerta.presentation.ui.Dimens
 import com.reguerta.presentation.uriToBitmap
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
@@ -113,7 +107,7 @@ fun EditProductScreen(
             scrollState.scrollBy(keyboardHeight.toFloat())
         }
     }
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Editando producto",
@@ -142,8 +136,8 @@ fun EditProductScreen(
                 placeholderText = "Pulsa para escribir",
                 imeAction = ImeAction.Next,
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .padding(horizontal = PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.sm)
+                    .padding(horizontal = Dimens.Spacing.md)
                     .fillMaxWidth()
             )
 
@@ -156,8 +150,8 @@ fun EditProductScreen(
                 labelText = "DESCRIPCIÓN DEL PRODUCTO",
                 placeholderText = "Pulsa para escribir",
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .padding(horizontal = PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.sm)
+                    .padding(horizontal = Dimens.Spacing.md)
                     .fillMaxWidth()
             )
 
@@ -179,8 +173,8 @@ fun EditProductScreen(
                 keyboardType = KeyboardType.Number,
                 suffixValue = "€",
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .padding(horizontal = PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.sm)
+                    .padding(horizontal = Dimens.Spacing.md)
                     .fillMaxWidth()
             )
 
@@ -189,7 +183,7 @@ fun EditProductScreen(
                 enabledButton = state.isButtonEnabled,
                 onClick = { onEvent(EditProductEvent.SaveProduct) },
                 modifier = Modifier
-                    .padding(PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.md)
                     .fillMaxWidth()
             )
         }
@@ -241,7 +235,7 @@ fun HeaderAddProductForm(
 
     Row(
         modifier = modifier
-            .padding(PADDING_SMALL)
+            .padding(Dimens.Spacing.sm)
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
@@ -260,9 +254,9 @@ fun HeaderAddProductForm(
             painter = painter,
             contentDescription = "Edit",
             modifier = Modifier
-                .padding(PADDING_SMALL)
-                .size(SIZE_96)
-                .clip(RoundedCornerShape(SIZE_16))
+                .padding(Dimens.Spacing.sm)
+                .size(Dimens.Size.dp96)
+                .clip(RoundedCornerShape(Dimens.Size.dp16))
                 .clickable {
                     if (checkStoragePermission(context)) {
                         launcher.launch(
@@ -293,18 +287,18 @@ fun HeaderAddProductForm(
 
         Column(
             modifier = Modifier
-                .padding(PADDING_SMALL)
+                .padding(Dimens.Spacing.sm)
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.End),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.xs, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextBody(
                     text = "Disponible",
-                    textSize = TEXT_SIZE_LARGE,
+                    textSize = MaterialTheme.typography.bodyLarge.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface
                 )
                 ReguertaCheckBox(
@@ -321,7 +315,7 @@ fun HeaderAddProductForm(
             ) {
                 StockProductText(
                     stockCount = state.stock,
-                    textSize = TEXT_SIZE_EXTRA_LARGE
+                    textSize = MaterialTheme.typography.titleLarge.fontSize
                 )
 
                 ReguertaCounter(
@@ -361,8 +355,8 @@ private fun UnityAndContainer(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(top = PADDING_MEDIUM)
-            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_EXTRA_SMALL),
+            .padding(top = Dimens.Spacing.md)
+            .padding(horizontal = Dimens.Spacing.md, vertical = Dimens.Spacing.xs),
     ) {
         CustomTextField(
             value = state.containerValue,
@@ -373,7 +367,7 @@ private fun UnityAndContainer(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Next,
             modifier = Modifier
-                .padding(horizontal = PADDING_SMALL)
+                .padding(horizontal = Dimens.Spacing.sm)
                 .fillMaxWidth(0.25f)
         )
 
@@ -384,7 +378,7 @@ private fun UnityAndContainer(
                 onEvent(EditProductEvent.OnContainerTypeChanges(it.text))
             },
             modifier = Modifier
-                .padding(horizontal = PADDING_EXTRA_SMALL)
+                .padding(horizontal = Dimens.Spacing.xs)
                 .fillMaxWidth()
         )
     }
@@ -395,7 +389,7 @@ private fun UnityAndContainer(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_EXTRA_SMALL),
+            .padding(horizontal = Dimens.Spacing.md, vertical = Dimens.Spacing.xs),
     ) {
         CustomTextField(
             value = state.measureValue,
@@ -406,7 +400,7 @@ private fun UnityAndContainer(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Next,
             modifier = Modifier
-                .padding(horizontal = PADDING_SMALL)
+                .padding(horizontal = Dimens.Spacing.sm)
                 .fillMaxWidth(0.25f)
         )
 
@@ -417,7 +411,7 @@ private fun UnityAndContainer(
                 onEvent(EditProductEvent.OnMeasuresTypeChanges(it.text))
             },
             modifier = Modifier
-                .padding(horizontal = PADDING_EXTRA_SMALL)
+                .padding(horizontal = Dimens.Spacing.xs)
                 .fillMaxWidth()
         )
     }

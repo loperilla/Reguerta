@@ -23,7 +23,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -58,12 +57,9 @@ import com.reguerta.presentation.composables.StockProductText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
 import com.reguerta.presentation.getStoragePermissionBySdk
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.SIZE_96
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.composables.ReguertaScaffold
+import com.reguerta.presentation.ui.Dimens
+import com.reguerta.presentation.navigation.Routes
 import com.reguerta.presentation.uriToBitmap
 import kotlinx.coroutines.launch
 
@@ -105,7 +101,7 @@ private fun AddProductScreen(
             scrollState.scrollBy(keyboardHeight.toFloat())
         }
     }
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Añadir Producto",
@@ -134,8 +130,8 @@ private fun AddProductScreen(
                 placeholderText = "Pulsa para escribir",
                 imeAction = ImeAction.Next,
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .padding(horizontal = PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.sm)
+                    .padding(horizontal = Dimens.Spacing.md)
                     .fillMaxWidth()
             )
 
@@ -148,8 +144,8 @@ private fun AddProductScreen(
                 labelText = "DESCRIPCIÓN DEL PRODUCTO",
                 placeholderText = "Pulsa para escribir",
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .padding(horizontal = PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.sm)
+                    .padding(horizontal = Dimens.Spacing.md)
                     .fillMaxWidth()
             )
 
@@ -171,8 +167,8 @@ private fun AddProductScreen(
                 keyboardType = KeyboardType.Number,
                 suffixValue = "€",
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .padding(horizontal = PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.sm)
+                    .padding(horizontal = Dimens.Spacing.md)
                     .fillMaxWidth()
             )
 
@@ -181,7 +177,7 @@ private fun AddProductScreen(
                 enabledButton = state.isButtonEnabled,
                 onClick = { onEvent(AddProductEvent.AddProduct) },
                 modifier = Modifier
-                    .padding(PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.md)
                     .fillMaxWidth()
             )
         }
@@ -224,7 +220,7 @@ private fun HeaderAddProductForm(
     }
     Row(
         modifier = modifier
-            .padding(PADDING_SMALL)
+            .padding(Dimens.Spacing.sm)
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
@@ -239,8 +235,8 @@ private fun HeaderAddProductForm(
                 painter = painter,
                 contentDescription = "Edit",
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .size(SIZE_96)
+                    .padding(Dimens.Spacing.sm)
+                    .size(Dimens.Size.dp96)
                     .clickable {
                         if (checkStoragePermission(context)) {
                             launcher.launch(
@@ -270,8 +266,8 @@ private fun HeaderAddProductForm(
                 painter = painterResource(R.mipmap.product_no_available),
                 contentDescription = "Edit",
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .size(SIZE_96)
+                    .padding(Dimens.Spacing.sm)
+                    .size(Dimens.Size.dp96)
                     .clickable {
                         if (checkStoragePermission(context)) {
                             launcher.launch(
@@ -289,18 +285,18 @@ private fun HeaderAddProductForm(
         }
         Column(
             modifier = Modifier
-                .padding(PADDING_SMALL)
+                .padding(Dimens.Spacing.sm)
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.End),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.xs, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextBody(
                     text = "Disponible",
-                    textSize = TEXT_SIZE_LARGE,
+                    textSize = MaterialTheme.typography.bodyLarge.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface
                 )
                 ReguertaCheckBox(
@@ -312,12 +308,12 @@ private fun HeaderAddProductForm(
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_MEDIUM, Alignment.End),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.md, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 StockProductText(
                     stockCount = state.stock,
-                    textSize = TEXT_SIZE_LARGE
+                    textSize = MaterialTheme.typography.bodyLarge.fontSize
                 )
 
                 ReguertaCounter(
@@ -357,8 +353,8 @@ private fun UnityAndContainer(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(top = PADDING_MEDIUM)
-            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_EXTRA_SMALL),
+            .padding(top = Dimens.Spacing.md)
+            .padding(horizontal = Dimens.Spacing.md, vertical = Dimens.Spacing.xs),
     ) {
         CustomTextField(
             value = state.containerValue,
@@ -369,7 +365,7 @@ private fun UnityAndContainer(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Next,
             modifier = Modifier
-                .padding(horizontal = PADDING_SMALL)
+                .padding(horizontal = Dimens.Spacing.sm)
                 .fillMaxWidth(0.25f)
         )
 
@@ -380,7 +376,7 @@ private fun UnityAndContainer(
                 onEvent(AddProductEvent.OnContainerTypeChanges(it.text))
             },
             modifier = Modifier
-                .padding(horizontal = PADDING_EXTRA_SMALL)
+                .padding(horizontal = Dimens.Spacing.xs)
                 .fillMaxWidth()
         )
     }
@@ -391,7 +387,7 @@ private fun UnityAndContainer(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_EXTRA_SMALL),
+            .padding(horizontal = Dimens.Spacing.md, vertical = Dimens.Spacing.xs),
     ) {
         CustomTextField(
             value = state.measureValue,
@@ -402,7 +398,7 @@ private fun UnityAndContainer(
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Next,
             modifier = Modifier
-                .padding(horizontal = PADDING_SMALL)
+                .padding(horizontal = Dimens.Spacing.sm)
                 .fillMaxWidth(0.25f)
         )
 
@@ -413,7 +409,7 @@ private fun UnityAndContainer(
                 onEvent(AddProductEvent.OnMeasuresTypeChanges(it.text))
             },
             modifier = Modifier
-                .padding(horizontal = PADDING_EXTRA_SMALL)
+                .padding(horizontal = Dimens.Spacing.xs)
                 .fillMaxWidth()
         )
     }

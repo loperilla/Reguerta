@@ -9,16 +9,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.reguerta.presentation.composables.ReguertaScaffold
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextTitle
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.TEXT_SPECIAL
+import com.reguerta.presentation.navigation.Routes
 
 /*****
  * Project: Reguerta
@@ -49,13 +48,13 @@ fun SettingsScreen(
     state: SettingsState,
     onEvent: (SettingsEvent) -> Unit
 ) {
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             MediumTopAppBar(
                 title = {
                     TextTitle(
                         text = "Configuración",
-                        textSize = TEXT_SPECIAL,
+                        textSize = MaterialTheme.typography.headlineSmall.fontSize,
                         textColor = MaterialTheme.colorScheme.primary
                     )
                 },

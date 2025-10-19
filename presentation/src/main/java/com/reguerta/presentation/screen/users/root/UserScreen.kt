@@ -20,7 +20,8 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import com.reguerta.presentation.composables.ReguertaScaffold
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,16 +43,8 @@ import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.SIZE_48
-import com.reguerta.presentation.ui.SIZE_88
-import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
-import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
+import com.reguerta.presentation.navigation.Routes
+import com.reguerta.presentation.ui.Dimens
 
 /*****
  * Project: Reguerta
@@ -98,7 +91,7 @@ fun UserScreen(
     AnimatedVisibility(state.showAreYouSure) {
         AreYouSureDeleteDialog(onEvent)
     }
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Regüertenses autorizados",
@@ -112,9 +105,10 @@ fun UserScreen(
                     .wrapContentSize(Alignment.BottomCenter)
                     .background(
                         color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(topStart = PADDING_MEDIUM, topEnd = PADDING_MEDIUM)
+                        shape = RoundedCornerShape(topStart = Dimens.Spacing.md, topEnd = Dimens.Spacing.md)
                     )
-                    .padding(PADDING_SMALL)
+                    .navigationBarsPadding()
+                    .padding(Dimens.Spacing.sm)
             ) {
                 ReguertaButton(
                     "Autorizar nuevo usuario",
@@ -122,8 +116,8 @@ fun UserScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(
-                            vertical = PADDING_SMALL,
-                            horizontal = PADDING_MEDIUM
+                            vertical = Dimens.Spacing.sm,
+                            horizontal = Dimens.Spacing.md
                         )
                 )
             }
@@ -153,7 +147,7 @@ private fun UserListScreen(
     LazyColumn(
         modifier = modifier
             .fillMaxSize()
-            .padding(PADDING_SMALL)
+            .padding(Dimens.Spacing.sm)
     ) {
         items(
             count = userList.size
@@ -175,45 +169,45 @@ fun UserItem(
 ) {
     ReguertaCard(
         modifier = Modifier
-            .padding(PADDING_SMALL)
+            .padding(Dimens.Spacing.sm)
             .fillMaxWidth(),
         content = {
             TextBody(
                 text = user.fullName,
-                textSize = TEXT_SIZE_LARGE,
+                textSize = MaterialTheme.typography.bodyLarge.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
+                modifier = Modifier.padding(start = Dimens.Spacing.md, top = Dimens.Spacing.sm)
             )
 
             TextBody(
                 text = user.email,
-                textSize = TEXT_SIZE_LARGE,
+                textSize = MaterialTheme.typography.bodyLarge.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
-                modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
+                modifier = Modifier.padding(start = Dimens.Spacing.md, top = Dimens.Spacing.sm)
             )
 
             if (user.isProducer) {
                 TextBody(
                     text = "Es productor. ${user.companyName}",
-                    textSize = TEXT_SIZE_MEDIUM,
+                    textSize = MaterialTheme.typography.bodyMedium.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
+                    modifier = Modifier.padding(start = Dimens.Spacing.md, top = Dimens.Spacing.sm)
                 )
             }
             if (user.isAdmin) {
                 TextBody(
                     text = "Es administrador",
-                    textSize = TEXT_SIZE_MEDIUM,
+                    textSize = MaterialTheme.typography.bodyMedium.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(start = PADDING_MEDIUM, top = PADDING_SMALL)
+                    modifier = Modifier.padding(start = Dimens.Spacing.md, top = Dimens.Spacing.sm)
                 )
             }
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PADDING_SMALL),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.End),
+                    .padding(Dimens.Spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.xs, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ReguertaIconButton(
@@ -244,14 +238,14 @@ private fun AreYouSureDeleteDialog(
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(SIZE_88)
-                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2F), shape = CircleShape)
+                    .size(Dimens.Size.dp88)
+                    .background(MaterialTheme.colorScheme.errorContainer, shape = CircleShape)
             ) {
                 Icon(
                     imageVector = Icons.Default.Warning,
                     contentDescription = "Advertencia",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(SIZE_48)
+                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                    modifier = Modifier.size(Dimens.Size.dp48)
                 )
             }
         },
@@ -259,7 +253,7 @@ private fun AreYouSureDeleteDialog(
         text = {
             TextBody(
                 text = "Este usuario no podrá entrar en la app.\nEsta acción no se podrá deshacer.",
-                textSize = TEXT_SIZE_DLG_BODY,
+                textSize = MaterialTheme.typography.bodyMedium.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
@@ -267,10 +261,10 @@ private fun AreYouSureDeleteDialog(
         title = {
             TextTitle(
                 text = buildAnnotatedString {
-                    append("Vas a eiminar regüertense\n")
+                    append("Vas a eliminar regüertense\n")
                     append("¿Estás seguro?")
                 },
-                textSize = TEXT_SIZE_DLG_TITLE,
+                textSize = MaterialTheme.typography.titleLarge.fontSize,
                 textColor = MaterialTheme.colorScheme.onSurface,
                 textAlignment = TextAlign.Center
             )
@@ -279,8 +273,8 @@ private fun AreYouSureDeleteDialog(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = PADDING_EXTRA_SMALL, vertical = PADDING_SMALL),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_SMALL)
+                    .padding(horizontal = Dimens.Spacing.xs, vertical = Dimens.Spacing.sm),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm)
             ) {
                 InverseReguertaButton(
                     textButton = "Cancelar",

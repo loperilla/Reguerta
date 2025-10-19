@@ -1,4 +1,4 @@
-package com.reguerta.presentation.composables.products
+package com.reguerta.presentation.composables
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
@@ -9,13 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import com.reguerta.domain.model.interfaces.Product
 import com.reguerta.domain.model.mapper.containerUnity
-import com.reguerta.presentation.composables.TextBody
-import com.reguerta.presentation.composables.TextTitle
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_ULTRA_SMALL
-import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
-import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
-import com.reguerta.presentation.ui.TEXT_SIZE_SMADIUM
+import com.reguerta.presentation.ui.Dimens
 
 /*****
  * Project: Reguerta
@@ -35,16 +29,16 @@ fun ProductNameUnityContainer(
     ) {
         TextTitle(
             text = product.name,
-            textSize = TEXT_SIZE_MEDIUM,
+            textSize = MaterialTheme.typography.titleMedium.fontSize,
             textColor = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(PADDING_EXTRA_SMALL),
+            modifier = Modifier.padding(Dimens.Spacing.xs),
             textAlignment = TextAlign.Center
         )
         TextBody(
             text = product.containerUnity(),
-            textSize = TEXT_SIZE_EXTRA_SMALL,
+            textSize = MaterialTheme.typography.bodySmall.fontSize,
             textColor = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(PADDING_EXTRA_SMALL),
+            modifier = Modifier.padding(Dimens.Spacing.xs),
             textAlignment = TextAlign.Center
         )
     }
@@ -57,20 +51,20 @@ fun ProductNameUnityContainerInMyOrder(
 ) {
     Column(
         horizontalAlignment = Alignment.Start,
-        modifier = modifier.padding(start = PADDING_EXTRA_SMALL)
+        modifier = modifier.padding(start = Dimens.Spacing.xs)
     ) {
         TextBody(
             text = product.name,
-            textSize = TEXT_SIZE_SMADIUM,
+            textSize = MaterialTheme.typography.bodyMedium.fontSize,
             textColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(
-                top = PADDING_EXTRA_SMALL)
+                top = Dimens.Spacing.xs)
         )
         TextBody(
             text = product.containerUnity(),
-            textSize = TEXT_SIZE_EXTRA_SMALL,
+            textSize = MaterialTheme.typography.bodySmall.fontSize,
             textColor = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(vertical = PADDING_ULTRA_SMALL),
+            modifier = Modifier.padding(vertical = Dimens.Spacing.xxs),
             textAlignment = TextAlign.Start
         )
     }

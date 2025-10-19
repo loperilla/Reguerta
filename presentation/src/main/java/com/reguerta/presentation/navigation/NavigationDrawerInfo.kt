@@ -1,4 +1,4 @@
-package com.reguerta.presentation.composables.navigationDrawer
+package com.reguerta.presentation.navigation
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

@@ -1,4 +1,4 @@
-package com.reguerta.presentation
+package com.reguerta.presentation.state
 
 /*****
  * Project: Reguerta

@@ -7,8 +7,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -32,12 +32,10 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
-import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.composables.ReguertaScaffold
+import com.reguerta.presentation.ui.Dimens
 import androidx.compose.material3.MaterialTheme
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
+import com.reguerta.presentation.navigation.Routes
 
 /*****
  * Project: Reguerta
@@ -91,7 +89,7 @@ private fun LoginScreen(
             }
         }
     }
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Introduce tus credenciales",
@@ -104,11 +102,12 @@ private fun LoginScreen(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
+            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm),
             modifier = Modifier
                 .padding(it)
-                .padding(PADDING_MEDIUM)
+                .padding(Dimens.Spacing.md)
                 .fillMaxSize()
+                .imePadding()
         ) {
             ReguertaEmailInput(
                 text = state.emailInput,
@@ -120,7 +119,7 @@ private fun LoginScreen(
                 isValidEmail = state.emailInput.isValidEmail,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PADDING_SMALL)
+                    .padding(Dimens.Spacing.sm)
             )
             ReguertaPasswordInput(
                 text = state.passwordInput,
@@ -134,22 +133,22 @@ private fun LoginScreen(
                 isValidPassword = state.passwordInput.isValidPassword,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PADDING_SMALL)
+                    .padding(Dimens.Spacing.sm)
             )
 
             TextBody(
                 textColor = MaterialTheme.colorScheme.primary,
                 text = "¿Has olvidado tu contraseña?",
-                textSize = TEXT_SIZE_SMALL,
+                textSize = MaterialTheme.typography.labelMedium.fontSize,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier
                     .align(Alignment.End)
-                    .padding(PADDING_SMALL)
+                    .padding(Dimens.Spacing.sm)
                     .clickable {
                         navigateTo(Routes.AUTH.RECOVERY_PASSWORD.route)
                     }
             )
-            Spacer(modifier = Modifier.height(PADDING_EXTRA_LARGE))
+            Spacer(modifier = Modifier.height(Dimens.Spacing.xl))
             ReguertaButton(
                 textButton = "Iniciar sesión",
                 enabledButton = state.enabledButton,
@@ -159,7 +158,7 @@ private fun LoginScreen(
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PADDING_SMALL)
+                    .padding(Dimens.Spacing.sm)
             )
         }
     }

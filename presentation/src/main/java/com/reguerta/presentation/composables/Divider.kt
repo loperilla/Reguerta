@@ -1,12 +1,10 @@
-package com.reguerta.presentation.composables.products
+package com.reguerta.presentation.composables
 
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.DividerDefaults
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 
@@ -22,11 +20,19 @@ fun ReguertaDivider(
     modifier: Modifier = Modifier,
     thickness: Dp = DividerDefaults.Thickness,
     color: Color = DividerDefaults.color,
-) = Canvas(modifier.wrapContentHeight().width(thickness)) {
-    drawLine(
-        color = color,
-        strokeWidth = thickness.toPx(),
-        start = Offset(thickness.toPx() / 2, 0f),
-        end = Offset(thickness.toPx() / 2, size.height),
-    )
+    vertical: Boolean = true
+) {
+    if (vertical) {
+        VerticalDivider(
+            modifier = modifier,
+            thickness = thickness,
+            color = color
+        )
+    } else {
+        HorizontalDivider(
+            modifier = modifier,
+            thickness = thickness,
+            color = color
+        )
+    }
 }

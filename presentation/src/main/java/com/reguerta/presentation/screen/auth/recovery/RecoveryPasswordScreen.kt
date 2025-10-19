@@ -10,13 +10,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -30,20 +30,14 @@ import com.reguerta.presentation.composables.BtnType
 import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaEmailInput
+import com.reguerta.presentation.composables.ReguertaScaffold
 import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.type.isValidEmail
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_LARGE
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.SIZE_48
-import com.reguerta.presentation.ui.SIZE_88
-import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
-import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
+import com.reguerta.presentation.ui.Dimens
+import com.reguerta.presentation.navigation.Routes
 
 /*****
  * Project: Reguerta
@@ -72,14 +66,14 @@ fun recoveryPasswordScreen(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(SIZE_88)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), shape = CircleShape)
+                        .size(Dimens.Size.dp88)
+                        .background(MaterialTheme.colorScheme.primaryContainer, shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Info,
                         contentDescription = "Info",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(SIZE_48)
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                        modifier = Modifier.size(Dimens.Size.dp48)
                     )
                 }
             },
@@ -87,7 +81,7 @@ fun recoveryPasswordScreen(
             text = {
                 TextBody(
                     text = "Se ha enviado el correo de restablecimiento de contraseña con éxito. Revisa tu correo.",
-                    textSize = TEXT_SIZE_DLG_BODY,
+                    textSize = MaterialTheme.typography.bodyMedium.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center
                 )
@@ -95,7 +89,7 @@ fun recoveryPasswordScreen(
             title = {
                 TextTitle(
                     text = "Recuperar contraseña",
-                    textSize = TEXT_SIZE_DLG_TITLE,
+                    textSize = MaterialTheme.typography.titleLarge.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center
                 )
@@ -104,8 +98,8 @@ fun recoveryPasswordScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = PADDING_EXTRA_SMALL, vertical = PADDING_SMALL),
-                    horizontalArrangement = Arrangement.spacedBy(PADDING_SMALL)
+                        .padding(horizontal = Dimens.Spacing.xs, vertical = Dimens.Spacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm)
                 ) {
                     ReguertaButton(
                         textButton = "Aceptar",
@@ -127,14 +121,14 @@ fun recoveryPasswordScreen(
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(SIZE_88)
-                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2f), shape = CircleShape)
+                        .size(Dimens.Size.dp88)
+                        .background(MaterialTheme.colorScheme.errorContainer, shape = CircleShape)
                 ) {
                     Icon(
                         imageVector = Icons.Default.Warning,
                         contentDescription = "Advertencia",
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(SIZE_48)
+                        tint = MaterialTheme.colorScheme.onErrorContainer,
+                        modifier = Modifier.size(Dimens.Size.dp48)
                     )
                 }
             },
@@ -142,7 +136,7 @@ fun recoveryPasswordScreen(
             text = {
                 TextBody(
                     text = "Ha ocurrido un error al enviar el correo de restablecimiento de contraseña.",
-                    textSize = TEXT_SIZE_DLG_BODY,
+                    textSize = MaterialTheme.typography.bodyMedium.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center
                 )
@@ -150,7 +144,7 @@ fun recoveryPasswordScreen(
             title = {
                 TextTitle(
                     text = "Recuperar contraseña",
-                    textSize = TEXT_SIZE_DLG_TITLE,
+                    textSize = MaterialTheme.typography.titleLarge.fontSize,
                     textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center
                 )
@@ -159,8 +153,8 @@ fun recoveryPasswordScreen(
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = PADDING_EXTRA_SMALL, vertical = PADDING_SMALL),
-                    horizontalArrangement = Arrangement.spacedBy(PADDING_SMALL)
+                        .padding(horizontal = Dimens.Spacing.xs, vertical = Dimens.Spacing.sm),
+                    horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm)
                 ) {
                     ReguertaButton(
                         textButton = "Aceptar",
@@ -178,7 +172,7 @@ fun recoveryPasswordScreen(
     }
 
     Screen {
-        Scaffold(
+        ReguertaScaffold(
             topBar = {
                 ReguertaTopBar(
                     topBarText = "Introduce el email de registro",
@@ -190,11 +184,12 @@ fun recoveryPasswordScreen(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
+                verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm),
                 modifier = Modifier
                     .padding(it)
-                    .padding(PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.md)
                     .fillMaxSize()
+                    .imePadding()
             ) {
                 ReguertaEmailInput(
                     text = state.email,
@@ -206,14 +201,14 @@ fun recoveryPasswordScreen(
                     isValidEmail = state.email.isValidEmail,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(PADDING_SMALL)
+                        .padding(Dimens.Spacing.sm)
                 )
                 Spacer(
-                    modifier = Modifier.padding(PADDING_LARGE)
+                    modifier = Modifier.size(Dimens.Spacing.lg)
                 )
 
                 ReguertaButton(
-                    textButton = "Recuperar contraseña",
+                    textButton = "Recuperar contraseña",
                     enabledButton = state.email.isValidEmail,
                     onClick = {
                         viewModel.onEvent(RecoveryEvent.SendEmail)
@@ -221,7 +216,7 @@ fun recoveryPasswordScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(PADDING_SMALL)
+                        .padding(Dimens.Spacing.sm)
                 )
             }
         }

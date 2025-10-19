@@ -27,11 +27,9 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.reguerta.presentation.LocalTextSizes
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_LARGE
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PADDING_ZERO
+import androidx.compose.foundation.layout.heightIn
+import com.reguerta.presentation.ui.Dimens
+import com.reguerta.domain.enums.UiType
 
 /*****
  * Project: Reguerta
@@ -40,19 +38,7 @@ import com.reguerta.presentation.ui.PADDING_ZERO
  * All rights reserved 2024
  */
 
-// A ver donde coloco este enum y las funciones auxiliares o las dejo aquí
-enum class BtnType {
-    INFO, ERROR
-}
-
-@Composable
-fun getContainerColor(btnType: BtnType): Color = when(btnType) {
-    BtnType.INFO -> MaterialTheme.colorScheme.primary
-    BtnType.ERROR -> MaterialTheme.colorScheme.error
-}
-
-@Composable
-fun getBorderColor(btnType: BtnType): Color = getContainerColor(btnType)
+typealias BtnType = UiType
 
 @Composable
 fun ReguertaButton(
@@ -63,31 +49,26 @@ fun ReguertaButton(
     isSingleButton: Boolean = true,
     btnType: BtnType = BtnType.INFO
 ) {
+    val shape = RoundedCornerShape(Dimens.Components.Button.cornerRadius)
     val finalModifier = if (isSingleButton) {
         modifier.fillMaxWidth()
     } else {
         modifier
     }
-    val sizes = LocalTextSizes.current
     Button(
         onClick = onClick,
-        modifier = finalModifier,
+        modifier = finalModifier.heightIn(min = Dimens.Components.Button.minHeight),
         enabled = enabledButton,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = getContainerColor(btnType),
-            disabledContainerColor = Color.Gray.copy(alpha = 0.15f),
-            contentColor = when (btnType) {
-                BtnType.INFO -> MaterialTheme.colorScheme.onPrimary
-                BtnType.ERROR -> MaterialTheme.colorScheme.onError
-            },
-            disabledContentColor = Color.Gray
-        )
+        colors = Dimens.Components.Button.colors(btnType),
+        shape = shape,
     ) {
         TextRegular(
             text = textButton,
-            textSize = if (isSingleButton) sizes.singleBtn else sizes.pairBtn,
-            textColor = if (enabledButton) MaterialTheme.colorScheme.background else Color.Gray,
-            modifier = Modifier.padding(horizontal = PADDING_ZERO, vertical = PADDING_EXTRA_SMALL)
+            style = if (isSingleButton) Dimens.Components.Button.labelStyle else Dimens.Components.Button.secondaryLabelStyle,
+            modifier = Modifier.padding(
+                horizontal = Dimens.Components.Button.horizontalPadding,
+                vertical = Dimens.Components.Button.verticalPadding
+            )
         )
     }
 }
@@ -101,24 +82,23 @@ fun InverseReguertaButton(
     isSingleButton: Boolean = true,
     btnType: BtnType = BtnType.INFO
 ) {
-    val sizes = LocalTextSizes.current
+    val shape = RoundedCornerShape(Dimens.Components.Button.cornerRadius)
+    val finalModifier = if (isSingleButton) modifier.fillMaxWidth() else modifier
     Button(
         onClick = onClick,
-        modifier = modifier,
-        border = BorderStroke(2.dp, getBorderColor(btnType)),
+        modifier = finalModifier.heightIn(min = Dimens.Components.Button.minHeight),
+        border = BorderStroke(Dimens.Border.thin, Dimens.Components.Button.borderColor(btnType)),
         enabled = enabledButton,
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.background
-        )
+        colors = Dimens.Components.Button.inverseColors(btnType),
+        shape = shape
     ) {
         TextBody(
             text = textButton,
-            textSize = if (isSingleButton) sizes.singleBtn else sizes.pairBtn,
-            textColor = when (btnType) {
-                BtnType.INFO -> MaterialTheme.colorScheme.primary
-                BtnType.ERROR -> MaterialTheme.colorScheme.error
-            },
-            modifier = Modifier.padding(PADDING_EXTRA_SMALL)
+            style = if (isSingleButton) Dimens.Components.Button.labelStyle else Dimens.Components.Button.secondaryLabelStyle,
+            modifier = Modifier.padding(
+                horizontal = Dimens.Components.Button.horizontalPadding,
+                vertical = Dimens.Components.Button.verticalPadding
+            )
         )
     }
 }
@@ -133,15 +113,14 @@ fun InverseReguertaButton(
     cornerSize: Float = 16f,
     btnType: BtnType = BtnType.INFO
 ) {
+    val shape = RoundedCornerShape(Dimens.Components.Button.cornerRadius)
     Button(
         onClick = onClick,
-        modifier = modifier,
-        border = BorderStroke(borderSize, getBorderColor(btnType)),
+        modifier = modifier.heightIn(min = Dimens.Components.Button.minHeight),
+        border = BorderStroke(Dimens.Border.thin, Dimens.Components.Button.borderColor(btnType)),
         enabled = enabledButton,
-        shape = RoundedCornerShape(cornerSize.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.surfaceVariant
-        ),
+        shape = shape,
+        colors = Dimens.Components.Button.inverseColors(btnType),
         content = content
     )
 }
@@ -187,12 +166,12 @@ fun ReguertaOrderButton(
     ) {
         TextBody(
             text = text,
-            textSize = LocalTextSizes.current.special,
+            textSize = MaterialTheme.typography.labelLarge.fontSize,
             textColor = if (enabled) MaterialTheme.colorScheme.primary else disabledContent,
-            modifier = Modifier.padding(PADDING_SMALL)
+            modifier = Modifier.padding(Dimens.Spacing.sm)
         )
         if (!enabled) {
-            Spacer(modifier = Modifier.width(PADDING_LARGE))
+            Spacer(modifier = Modifier.width(Dimens.Spacing.lg))
             Icon(
                 imageVector = Icons.Filled.Lock,
                 contentDescription = null,
@@ -232,8 +211,8 @@ fun ReguertaIconButton(
 fun ReguertaButtonPreview() {
     Screen {
         Column(
-            modifier = Modifier.padding(PADDING_SMALL),
-            verticalArrangement = Arrangement.spacedBy(PADDING_SMALL)
+            modifier = Modifier.padding(Dimens.Spacing.sm),
+            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm)
         ) {
             ReguertaButton(
                 textButton = "Button",
@@ -257,7 +236,7 @@ fun ReguertaButtonPreview() {
                 content = {
                     TextBody(
                         text = "con content",
-                        textSize = LocalTextSizes.current.small,
+                        textSize = MaterialTheme.typography.labelMedium.fontSize,
                         textColor = MaterialTheme.colorScheme.onSurface
                     )
                 },

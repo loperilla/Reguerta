@@ -35,7 +35,6 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -57,19 +56,13 @@ import com.reguerta.presentation.composables.ReguertaHomeTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
-import com.reguerta.presentation.composables.navigationDrawer.NavigationDrawerInfo
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.SIZE_48
-import com.reguerta.presentation.ui.SIZE_88
-import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
-import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
+import com.reguerta.presentation.navigation.NavigationDrawerInfo
+import com.reguerta.presentation.composables.ReguertaScaffold
+import com.reguerta.presentation.ui.Dimens
+import com.reguerta.presentation.navigation.Routes
 import kotlinx.coroutines.launch
 import com.reguerta.domain.repository.ConfigCheckResult
+import com.reguerta.domain.enums.UiType
 import androidx.core.net.toUri
 import com.reguerta.domain.enums.afterDays
 import com.reguerta.domain.enums.isReservedDayFor
@@ -145,10 +138,10 @@ fun homeScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 LoadingAnimation()
-                Spacer(modifier = Modifier.height(PADDING_MEDIUM))
+                Spacer(modifier = Modifier.height(Dimens.Spacing.md))
                 androidx.compose.material3.Text("Preparando datos por primera vez...", color = MaterialTheme.colorScheme.primary)
                 if (showInitialRetry) {
-                    Spacer(modifier = Modifier.height(PADDING_SMALL))
+                    Spacer(modifier = Modifier.height(Dimens.Spacing.sm))
                     ReguertaButton(
                         textButton = "Reintentar",
                         isSingleButton = true,
@@ -215,13 +208,13 @@ private fun HomeScreen(
         ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 LoadingAnimation()
-                Spacer(modifier = Modifier.height(PADDING_SMALL))
+                Spacer(modifier = Modifier.height(Dimens.Spacing.sm))
                 androidx.compose.material3.Text(
                     "Cargando datos…",
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(PADDING_SMALL))
+                Spacer(modifier = Modifier.height(Dimens.Spacing.sm))
                 ReguertaButton(
                     textButton = "Reintentar",
                     isSingleButton = true,
@@ -269,7 +262,7 @@ private fun HomeScreen(
             DrawerContent(state, onEvent, navigateTo)
         }
     ) {
-        Scaffold(
+        ReguertaScaffold(
             topBar = {
                 ReguertaHomeTopBar(
                     navActionClick = {
@@ -305,7 +298,7 @@ private fun HomeScreen(
                     },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
+                        .padding(horizontal = Dimens.Spacing.md, vertical = Dimens.Spacing.sm)
                 )
 
                 if (state.isCurrentUserProducer) {
@@ -317,7 +310,7 @@ private fun HomeScreen(
                         },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_SMALL)
+                            .padding(horizontal = Dimens.Spacing.md, vertical = Dimens.Spacing.sm)
                     )
                 }
 
@@ -326,52 +319,14 @@ private fun HomeScreen(
             // Blocked day dialog
             if (state.showBlockedDayDialog) {
                 ReguertaAlertDialog(
-                    icon = {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .size(SIZE_88)
-                                .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2F), shape = CircleShape)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = "Info",
-                                tint = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(SIZE_48)
-                            )
-                        }
-                    },
                     onDismissRequest = { onEvent(HomeEvent.HideBlockedDayDialog) },
-                    text = {
-                        TextBody(
-                            text = "El día posterior al reparto se ha reservado para que los productores hagan cambios. Los pedidos a partir de mañana y hasta el domingo.",
-                            textSize = TEXT_SIZE_DLG_BODY,
-                            textColor = MaterialTheme.colorScheme.onSurface,
-                            textAlignment = TextAlign.Center
-                        )
-                    },
-                    title = {
-                        TextTitle(
-                            text = "¡Atención!",
-                            textSize = TEXT_SIZE_DLG_TITLE,
-                            textColor = MaterialTheme.colorScheme.onSurface,
-                            textAlignment = TextAlign.Center
-                        )
-                    },
-                    confirmButton = {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Spacer(modifier = Modifier.weight(1f))
-                            ReguertaButton(
-                                textButton = "Aceptar",
-                                isSingleButton = true,
-                                onClick = { onEvent(HomeEvent.HideBlockedDayDialog) }
-                            )
-                            Spacer(modifier = Modifier.weight(1f))
-                        }
-                    }
+                    icon = Icons.Default.Info,
+                    titleText = "¡Atención!",
+                    bodyText = "El día posterior al reparto se ha reservado para que los productores hagan cambios. Los pedidos a partir de mañana y hasta el domingo.",
+                    confirmText = "Aceptar",
+                    onConfirm = { onEvent(HomeEvent.HideBlockedDayDialog) },
+                    containerColor = MaterialTheme.colorScheme.background,
+                    type = UiType.INFO
                 )
             }
         }
@@ -409,71 +364,29 @@ private fun ShowYourOrdersButton(
 @Composable
 private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
     ReguertaAlertDialog(
-        icon = {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(SIZE_88)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2F), shape = CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Info",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(SIZE_48)
-                )
-            }
-        },
         onDismissRequest = { onEvent(HomeEvent.HideDialog) },
-        text = {
-            TextBody(
-                text = "¿Estás seguro que quieres cerrar la sesión?",
-                textSize = TEXT_SIZE_DLG_BODY,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        title = {
-            TextTitle(
-                text = "Cerrar sesión",
-                textSize = TEXT_SIZE_DLG_TITLE,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        confirmButton = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                InverseReguertaButton(
-                    textButton = "Volver",
-                    isSingleButton = false,
-                    onClick = { onEvent(HomeEvent.HideDialog) },
-                    modifier = Modifier.weight(0.48f)
-                )
-                Spacer(modifier = Modifier.width(PADDING_EXTRA_SMALL))
-                ReguertaButton(
-                    textButton = "Confirmar",
-                    isSingleButton = false,
-                    onClick = { onEvent(HomeEvent.GoOut) },
-                    modifier = Modifier.weight(0.52f)
-                )
-            }
-        }
+        icon = Icons.Default.Info,
+        titleText = "Cerrar sesión",
+        bodyText = "¿Estás seguro que quieres cerrar la sesión?",
+        confirmText = "Confirmar",
+        onConfirm = { onEvent(HomeEvent.GoOut) },
+        dismissText = "Volver",
+        onDismissButton = { onEvent(HomeEvent.HideDialog) },
+        containerColor = MaterialTheme.colorScheme.background,
+        type = UiType.INFO
     )
 }
 
 @Composable
 fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (String) -> Unit) {
     ModalDrawerSheet {
-        Spacer(modifier = Modifier.height(PADDING_MEDIUM))
+        Spacer(modifier = Modifier.height(Dimens.Spacing.md))
         Image(
             painter = painterResource(id = R.mipmap.firstscreenn),
             contentDescription = null,
             modifier = Modifier.align(Alignment.CenterHorizontally)
         )
-        Spacer(modifier = Modifier.height(PADDING_SMALL))
+        Spacer(modifier = Modifier.height(Dimens.Spacing.sm))
         prepareNavigationDrawerList(
             state.isCurrentUserAdmin,
             state.isCurrentUserProducer,
@@ -488,13 +401,13 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier
                             .background(MaterialTheme.colorScheme.primary, CircleShape)
-                            .padding(PADDING_EXTRA_SMALL)
+                            .padding(Dimens.Spacing.xs)
                     )
                 },
                 label = {
                     TextBody(
                         text = info.title,
-                        textSize = TEXT_SIZE_LARGE,
+                        textSize = MaterialTheme.typography.bodyLarge.fontSize,
                     )
                 },
                 selected = false,
@@ -506,12 +419,12 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         }
         Spacer(modifier = Modifier.weight(1f))
         TextBody(
-            text = "android version 0.2.1.5",
-            textSize = TEXT_SIZE_MEDIUM,
+            text = "android version 0.2.1.7",
+            textSize = MaterialTheme.typography.bodyMedium.fontSize,
             textColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier
                 .align(Alignment.CenterHorizontally)
-                .padding(PADDING_SMALL)
+                .padding(Dimens.Spacing.sm)
         )
     }
 }
@@ -519,38 +432,12 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
 @Composable
 private fun showNotAuthorizedDialog() {
     ReguertaAlertDialog(
-        icon = {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(SIZE_88)
-                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2F), shape = CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = "Advertencia",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(SIZE_48)
-                )
-            }
-        },
         onDismissRequest = { },
-        text = {
-            TextBody(
-                text = "Ponte en contacto con algún miembro de La Regüerta para que te den acceso.",
-                textSize = TEXT_SIZE_DLG_BODY,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        title = {
-            TextTitle(
-                text = "Usuario no autorizado",
-                textSize = TEXT_SIZE_DLG_TITLE,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        }
+        icon = Icons.Default.Warning,
+        titleText = "Usuario no autorizado",
+        bodyText = "Ponte en contacto con algún miembro de La Regüerta para que te den acceso.",
+        containerColor = MaterialTheme.colorScheme.background,
+        type = UiType.ERROR
     )
 }
 
@@ -636,123 +523,45 @@ private fun prepareNavigationDrawerList(
 @Composable
 private fun ForceUpdateDialog(config: ConfigModel?, context: Context) {
     ReguertaAlertDialog(
-        icon = {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(SIZE_88)
-                    .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2F), shape = CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = "Actualización requerida",
-                    tint = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.size(SIZE_48)
-                )
+        onDismissRequest = { /* No permitir cerrar explícitamente */ },
+        icon = Icons.Default.Warning,
+        titleText = "Actualización obligatoria",
+        bodyText = "Para seguir usando la app necesitas actualizarla a la versión mínima requerida.",
+        confirmText = "Actualizar",
+        onConfirm = {
+            val storeUrl = config?.versions?.get("android")?.storeUrl.orEmpty()
+            if (storeUrl.isNotEmpty()) {
+                val intent = Intent(Intent.ACTION_VIEW, storeUrl.toUri())
+                context.startActivity(intent)
             }
         },
-        onDismissRequest = { /* No permitir cerrar */ },
-        text = {
-            TextBody(
-                text = "Para seguir usando la app necesitas actualizarla a la versión mínima requerida.",
-                textSize = TEXT_SIZE_DLG_BODY,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        title = {
-            TextTitle(
-                text = "Actualización obligatoria",
-                textSize = TEXT_SIZE_DLG_TITLE,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        confirmButton = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Spacer(modifier = Modifier.weight(1f))
-                ReguertaButton(
-                    textButton = "Actualizar",
-                    isSingleButton = true,
-                    onClick = {
-                        val storeUrl = config?.versions?.get("android")?.storeUrl.orEmpty()
-                        if (storeUrl.isNotEmpty()) {
-                            val intent = Intent(Intent.ACTION_VIEW, storeUrl.toUri())
-                            context.startActivity(intent)
-                        }
-                    }
-                )
-                Spacer(modifier = Modifier.weight(1f))
-            }
-        }
+        containerColor = MaterialTheme.colorScheme.background,
+        type = UiType.ERROR
     )
 }
 
 @Composable
-private fun RecommendUpdateDialog(config: ConfigModel?,
-                                  context: Context,
-                                  onEvent: (HomeEvent) -> Unit) {
+private fun RecommendUpdateDialog(
+    config: ConfigModel?,
+    context: Context,
+    onEvent: (HomeEvent) -> Unit
+) {
     ReguertaAlertDialog(
-        icon = {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(SIZE_88)
-                    .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2F), shape = CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Info",
-                    tint = MaterialTheme.colorScheme.primary,
-                    modifier = Modifier.size(SIZE_48)
-                )
-            }
-        },
         onDismissRequest = { /* Cerrable si lo deseas */ },
-        text = {
-            TextBody(
-                text = "Hay una nueva versión de la app disponible. Te recomendamos actualizar para disfrutar de las últimas mejoras.",
-                textSize = TEXT_SIZE_DLG_BODY,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        title = {
-            TextTitle(
-                text = "Actualización disponible",
-                textSize = TEXT_SIZE_DLG_TITLE,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        confirmButton = {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                InverseReguertaButton(
-                    textButton = "Cerrar",
-                    isSingleButton = false,
-                    onClick = { onEvent(HomeEvent.HideDialog) },
-                    modifier = Modifier.weight(0.48f)
-                )
-                Spacer(modifier = Modifier.width(PADDING_EXTRA_SMALL))
-                ReguertaButton(
-                    textButton = "Actualizar",
-                    isSingleButton = false,
-                    onClick = {
-                        val storeUrl = config?.versions?.get("android")?.storeUrl.orEmpty()
-                        if (storeUrl.isNotEmpty()) {
-                            val intent = Intent(Intent.ACTION_VIEW, storeUrl.toUri())
-                            context.startActivity(intent)
-                        }
-                    },
-                    modifier = Modifier.weight(0.52f)
-                )
+        icon = Icons.Default.Info,
+        titleText = "Actualización disponible",
+        bodyText = "Hay una nueva versión de la app disponible. Te recomendamos actualizar para disfrutar de las últimas mejoras.",
+        confirmText = "Actualizar",
+        onConfirm = {
+            val storeUrl = config?.versions?.get("android")?.storeUrl.orEmpty()
+            if (storeUrl.isNotEmpty()) {
+                val intent = Intent(Intent.ACTION_VIEW, storeUrl.toUri())
+                context.startActivity(intent)
             }
-        }
+        },
+        dismissText = "Cerrar",
+        onDismissButton = { onEvent(HomeEvent.HideDialog) },
+        containerColor = MaterialTheme.colorScheme.background,
+        type = UiType.INFO
     )
 }

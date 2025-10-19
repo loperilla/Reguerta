@@ -18,20 +18,14 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.tooling.preview.PreviewScreenSizes
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.reguerta.presentation.R
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
-import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_LARGE
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.TEXT_SIZE_SINGLE_BTN
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.ui.Dimens
+import com.reguerta.presentation.composables.ReguertaScaffold
+import com.reguerta.presentation.navigation.Routes
 import androidx.compose.material3.MaterialTheme
 
 /*****
@@ -46,61 +40,65 @@ fun firstScreen(
     navigateTo: (String) -> Unit
 ) {
     Screen {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(
-                modifier = Modifier.height(PADDING_EXTRA_LARGE)
-            )
-
-            FirstScreenTitle(
+        ReguertaScaffold {
+            Column(
                 modifier = Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-            )
+                    .fillMaxSize()
+                    .padding(it),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Spacer(
+                    modifier = Modifier.height(Dimens.Spacing.xl)
+                )
 
-            Spacer(
-                modifier = Modifier.weight(0.5f)
-            )
+                FirstScreenTitle(
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                )
 
-            Image(
-                painter = painterResource(id = R.mipmap.firstscreenn),
-                contentDescription = null,
-                modifier = Modifier
-                    .weight(1.5f)
-                    .fillMaxWidth()
-                    .align(Alignment.CenterHorizontally)
-            )
+                Spacer(
+                    modifier = Modifier.weight(0.5f)
+                )
 
-            Spacer(
-                modifier = Modifier.weight(0.5f)
-            )
+                Image(
+                    painter = painterResource(id = R.mipmap.firstscreenn),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .weight(1.5f)
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
+                )
 
-            ReguertaButton(
-                textButton = "Entrar a la app",
-                onClick = { navigateTo(Routes.AUTH.LOGIN.route) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 32.dp)
-            )
+                Spacer(
+                    modifier = Modifier.weight(0.5f)
+                )
 
-            Spacer(
-                modifier = Modifier.weight(1f)
-            )
+                ReguertaButton(
+                    textButton = "Entrar a la app",
+                    onClick = { navigateTo(Routes.AUTH.LOGIN.route) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = Dimens.Spacing.xl)
+                )
 
-            FirstScreenTextBottom(
-                onClick = {
-                    navigateTo(Routes.AUTH.REGISTER.route)
-                },
-                modifier = Modifier
-                    .wrapContentHeight()
-                    .fillMaxWidth()
-            )
+                Spacer(
+                    modifier = Modifier.weight(1f)
+                )
 
-            Spacer(
-                modifier = Modifier.height(PADDING_LARGE)
-            )
+                FirstScreenTextBottom(
+                    onClick = {
+                        navigateTo(Routes.AUTH.REGISTER.route)
+                    },
+                    modifier = Modifier
+                        .wrapContentHeight()
+                        .fillMaxWidth()
+                )
+
+                Spacer(
+                    modifier = Modifier.height(Dimens.Spacing.lg)
+                )
+            }
         }
     }
 }
@@ -115,14 +113,14 @@ private fun FirstScreenTitle(modifier: Modifier) {
     ) {
         TextTitle(
             "Bienvenido a",
-            textSize = 24.sp,
+            textSize = MaterialTheme.typography.headlineSmall.fontSize,
             textColor = MaterialTheme.colorScheme.onSurface,
         )
         TextTitle(
             "La RegÜerta",
-            textSize = 36.sp,
+            textSize = MaterialTheme.typography.displaySmall.fontSize,
             textColor = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.padding(PADDING_SMALL)
+            modifier = Modifier.padding(Dimens.Spacing.sm)
         )
     }
 }
@@ -141,15 +139,15 @@ private fun FirstScreenTextBottom(
     ) {
         TextBody(
             "¿No estás registrado?",
-            textSize = TEXT_SIZE_LARGE,
+            textSize = MaterialTheme.typography.bodyLarge.fontSize,
             textColor = MaterialTheme.colorScheme.onSurface,
         )
         TextBody(
             "Regístrate",
-            textSize = TEXT_SIZE_SINGLE_BTN,
+            textSize = MaterialTheme.typography.labelLarge.fontSize,
             textColor = MaterialTheme.colorScheme.primary,
             modifier = Modifier
-                .padding(PADDING_EXTRA_SMALL)
+                .padding(Dimens.Spacing.xs)
                 .clickable { onClick() }
         )
     }

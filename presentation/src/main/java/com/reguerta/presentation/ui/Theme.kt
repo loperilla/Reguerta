@@ -16,7 +16,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowInsetsControllerCompat
 import timber.log.Timber
-import com.reguerta.presentation.ResizedTextSizes
 
 private val LightColorScheme = lightColorScheme(
     primary = primary6DA539,
@@ -96,10 +95,8 @@ fun ReguertaTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = ReguertaTypography,
         content = {
-            ResizedTextSizes()
-            //ResizedDimensions()
             content()
         }
     )
