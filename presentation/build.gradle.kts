@@ -14,7 +14,6 @@ android {
         minSdk = configMinSdkVersion
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("Boolean", "IS_DEBUG", "true")
         val versionNameProp = VERSION_NAME
         buildConfigField("String", "VERSION_NAME", "\"$versionNameProp\"")
         buildConfigField("String", "DISPLAY_VERSION", "\"$versionNameProp\"")

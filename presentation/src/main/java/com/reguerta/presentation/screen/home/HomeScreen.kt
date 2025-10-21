@@ -12,11 +12,13 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
@@ -34,9 +36,13 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.Text
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.first
@@ -91,9 +97,9 @@ fun homeScreen(
 
     // --- Loader primer arranque y recarga productos tras sync global ---
     // State para el loader inicial
-    var showInitialLoader by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(true) }
-    val isFirstRun by viewModel.isFirstRun.collectAsStateWithLifecycle()
-    val isSyncFinished by viewModel.isSyncFinished.collectAsStateWithLifecycle()
+    val isFirstRun by viewModel.isFirstRun.collectAsStateWithLifecycle(initialValue = true)
+    val isSyncFinished by viewModel.isSyncFinished.collectAsStateWithLifecycle(initialValue = false)
+    val showInitialLoader = isFirstRun && !isSyncFinished
 
     var showInitialRetry by androidx.compose.runtime.remember { androidx.compose.runtime.mutableStateOf(false) }
 
@@ -101,41 +107,39 @@ fun homeScreen(
     LaunchedEffect(showInitialLoader) {
         if (showInitialLoader) {
             kotlinx.coroutines.delay(20_000)
-            if (showInitialLoader) {
-                showInitialRetry = true
-                Timber.w("SYNC_Watchdog: loader inicial excede 20s → mostrar botón Reintentar")
-            }
+            showInitialRetry = true
+            Timber.w("SYNC_Watchdog: loader inicial excede 20s → mostrar botón Reintentar")
         } else {
             showInitialRetry = false
         }
     }
 
-    LaunchedEffect(isFirstRun, isSyncFinished) {
-        if (isFirstRun && isSyncFinished) {
-            viewModel.preloadCriticalDataIfNeeded()
-            kotlinx.coroutines.delay(2000)
-            showInitialLoader = false
-            Timber.i("SYNC_Loader inicial terminado, mostrando Home con botones activos")
-            // viewModel.forceSync() // Eliminado: No recargamos explícitamente tras el loader inicial
-            viewModel.setFirstRunFalse()
-        }
-        if (!isFirstRun) showInitialLoader = false
-    }
+    // (LaunchedEffect for isFirstRun, isSyncFinished removed)
     // --- Fin loader primer arranque ---
 
     // Loader bloqueante inicial: solo si showInitialLoader es true
     if (showInitialLoader) {
-        Timber.i("SYNC_Mostrando loader inicial (primer arranque o esperando datos críticos)")
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
+        val statusMessages = listOf(
+            "Preparando datos…",
+            "Sincronizando…",
+            "Poniendo todo a punto…"
+        )
+        var statusIndex by remember(showInitialLoader) { mutableIntStateOf(0) }
+        LaunchedEffect(true) {
+            while (true) {
+                kotlinx.coroutines.delay(1_200)
+                statusIndex = (statusIndex + 1) % statusMessages.size
+            }
+        }
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 LoadingAnimation()
                 Spacer(modifier = Modifier.height(Dimens.Spacing.md))
-                androidx.compose.material3.Text("Preparando datos por primera vez...", color = MaterialTheme.colorScheme.primary)
+                Text(
+                    statusMessages[statusIndex],
+                    color = MaterialTheme.colorScheme.primary,
+                    textAlign = TextAlign.Center
+                )
                 if (showInitialRetry) {
                     Spacer(modifier = Modifier.height(Dimens.Spacing.sm))
                     ReguertaButton(
@@ -196,8 +200,20 @@ private fun HomeScreen(
 ) {
     Timber.i("SYNC_Montando Composable HomeScreen (privado)")
     val configViewModel: ConfigViewModel = hiltViewModel()
+    val canOpenOrders by viewModel.canOpenOrders.collectAsStateWithLifecycle(initialValue = false)
+    val isCheckingOrders by viewModel.isCheckingOrders.collectAsStateWithLifecycle(initialValue = false)
+    // --- Passive syncing and label logic ---
+    val isFirstRun by viewModel.isFirstRun.collectAsStateWithLifecycle(initialValue = true)
+    val isSyncFinished by viewModel.isSyncFinished.collectAsStateWithLifecycle(initialValue = false)
+    val showInitialLoader = isFirstRun && !isSyncFinished
+    val isPassiveSyncing = !showInitialLoader && !isSyncFinished && !isCheckingOrders
+    val orderButtonLabel = when {
+        isCheckingOrders -> "Comprobando…"
+        isPassiveSyncing -> "Preparando…"
+        else -> "Mi pedido"
+    }
     // Loader bloqueante (solo si NO está el loader inicial)
-    if (state.isLoading) {
+    if (showInitialLoader && state.isLoading) {
         Box(
             modifier = Modifier.fillMaxSize(),
             contentAlignment = Alignment.Center
@@ -249,6 +265,12 @@ private fun HomeScreen(
             )
         }
     }
+    LaunchedEffect(Unit) {
+        viewModel.openOrders.collectLatest {
+            Timber.i("SYNC_UI: navegación a nuevo pedido por evento del ViewModel")
+            navigateTo(Routes.ORDERS.NEW.route)
+        }
+    }
     val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
@@ -284,12 +306,15 @@ private fun HomeScreen(
                     .fillMaxSize()
             ) {
                 MakeYourOrderButton(
+                    buttonIsEnabled = canOpenOrders && !isCheckingOrders,
+                    isLoading = isCheckingOrders,
+                    buttonText = orderButtonLabel,
                     onButtonClick = {
                         if (state.currentDay.toWeekDay().isReservedDayFor(state.deliveryDay)) {
                             onEvent(HomeEvent.ShowBlockedDayDialog)
                         } else {
-                            Timber.i("SYNC_Botón Mi pedido pulsado, navegando a: ${Routes.ORDERS.NEW.route}")
-                            navigateTo(Routes.ORDERS.NEW.route)
+                            Timber.i("SYNC_Botón Mi pedido pulsado, solicitando re-verificación de frescura")
+                            viewModel.recheckAndSyncBeforeOpenOrders()
                         }
                     },
                     modifier = Modifier
@@ -333,14 +358,38 @@ private fun HomeScreen(
 private fun MakeYourOrderButton(
     onButtonClick: () -> Unit,
     modifier: Modifier = Modifier,
-    buttonIsEnabled: Boolean = true
+    buttonIsEnabled: Boolean = true,
+    isLoading: Boolean = false,
+    buttonText: String = "Mi pedido"
 ) {
-    ReguertaOrderButton(
-        text = "Mi pedido",
-        onClick = onButtonClick,
-        modifier = modifier,
-        enabled = buttonIsEnabled
-    )
+    Column(modifier = modifier) {
+        ReguertaOrderButton(
+            text = buttonText,
+            onClick = onButtonClick,
+            modifier = Modifier.fillMaxWidth(),
+            enabled = buttonIsEnabled && !isLoading
+        )
+        AnimatedVisibility(visible = isLoading) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = Dimens.Spacing.xs)
+            ) {
+                CircularProgressIndicator(
+                    strokeWidth = Dimens.Spacing.xs,
+                    modifier = Modifier
+                        .height(Dimens.Spacing.md)
+                        .width(Dimens.Spacing.md)
+                )
+                Spacer(modifier = Modifier.width(Dimens.Spacing.xs))
+                TextBody(
+                    text = buttonText,
+                    textSize = MaterialTheme.typography.bodySmall.fontSize,
+                )
+            }
+        }
+    }
 }
 
 @Composable
