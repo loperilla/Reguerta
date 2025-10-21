@@ -15,13 +15,24 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
         buildConfigField("Boolean", "IS_DEBUG", "true")
-        buildConfigField("String", "VERSION_NAME", "\"$VERSION_NAME\"")
+        val versionNameProp = VERSION_NAME
+        buildConfigField("String", "VERSION_NAME", "\"$versionNameProp\"")
+        buildConfigField("String", "DISPLAY_VERSION", "\"$versionNameProp\"")
+        buildConfigField("String", "DEBUG_LOGIN_DATE", "\"\"")
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            val versionNameProp = VERSION_NAME
+            buildConfigField("String", "DISPLAY_VERSION", "\"$versionNameProp\"")
+        }
+        debug {
+            val versionNameProp = VERSION_NAME
+            buildConfigField("String", "DISPLAY_VERSION", "\"$versionNameProp (Debug)\"")
+            val debugLoginDate: String = providers.gradleProperty("DEBUG_LOGIN_DATE").orElse("").get()
+            buildConfigField("String", "DEBUG_LOGIN_DATE", "\"$debugLoginDate\"")
         }
     }
     compileOptions {

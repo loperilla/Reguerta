@@ -10,6 +10,7 @@ import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import com.reguerta.domain.repository.ConfigRepositoryImpl
 import com.reguerta.domain.model.mapper.MeasureMapper
 import com.reguerta.domain.model.NewOrderModel
+import com.reguerta.domain.time.ClockProvider
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.auth.LoginUseCase
 import com.reguerta.domain.usecase.auth.RefreshUserUseCase
@@ -38,7 +39,7 @@ import com.reguerta.domain.usecase.users.GetUserByIdUseCase
 import com.reguerta.domain.usecase.users.SignOutUseCase
 import com.reguerta.domain.usecase.users.ToggleAdminUseCase
 import com.reguerta.domain.usecase.users.ToggleProducerUseCase
-import com.reguerta.domain.usecase.week.GetCurrentWeekDayUseCase
+import com.reguerta.domain.usecase.week.GetCurrentDayOfWeekUseCase
 import com.reguerta.localdata.time.WeekTime
 import dagger.Module
 import dagger.Provides
@@ -46,6 +47,9 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import com.reguerta.domain.usecase.products.SyncProductsUseCase
 import com.reguerta.localdata.datastore.ReguertaDataStore
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
 
 /*****
  * Project: Reguerta
@@ -82,9 +86,6 @@ object DomainDi {
 
     @Provides
     fun providesLoginUseCase(authService: AuthService) = LoginUseCase(authService)
-
-    @Provides
-    fun providesGetCurrentDayUseCase(authService: AuthService) = GetCurrentWeekDayUseCase(authService)
 
     @Provides
     fun providesRegisterUseCase(authService: AuthService) = RegisterUseCase(authService)
@@ -184,4 +185,11 @@ object DomainDi {
         usersService: UsersCollectionService
     ): com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase =
         com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase(usersService)
+
+    @Provides
+    fun provideClockProvider(): ClockProvider = object : ClockProvider {
+        override fun today(): LocalDate = LocalDate.now(ZoneId.systemDefault())
+        override fun now(): ZonedDateTime = ZonedDateTime.now(ZoneId.systemDefault())
+    }
+
 }

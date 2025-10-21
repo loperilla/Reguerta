@@ -2,6 +2,7 @@ package com.reguerta.presentation.screen.home
 
 import com.reguerta.presentation.composables.LoadingAnimation
 import com.reguerta.presentation.screen.config.ConfigViewModel
+import com.reguerta.presentation.BuildConfig
 import android.content.Context
 import android.content.Intent
 import androidx.compose.ui.platform.LocalContext
@@ -61,10 +62,10 @@ import com.reguerta.domain.enums.UiType
 import androidx.core.net.toUri
 import com.reguerta.domain.enums.afterDays
 import com.reguerta.domain.enums.isReservedDayFor
+import com.reguerta.domain.enums.toWeekDay
 import com.reguerta.domain.repository.ConfigModel
 import com.reguerta.presentation.composables.ReguertaOrderButton
 import com.reguerta.presentation.sync.ForegroundSyncManager
-import com.reguerta.presentation.toWeekDay
 import kotlinx.coroutines.flow.collectLatest
 import timber.log.Timber
 
@@ -254,7 +255,7 @@ private fun HomeScreen(
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
-            DrawerContent(state, onEvent, navigateTo)
+            DrawerContent(state, onEvent, navigateTo, versionLabel = BuildConfig.DISPLAY_VERSION)
         }
     ) {
         ReguertaScaffold(
@@ -373,7 +374,12 @@ private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
 }
 
 @Composable
-fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (String) -> Unit) {
+fun DrawerContent(
+    state: HomeState,
+    onEvent: (HomeEvent) -> Unit,
+    navigateTo: (String) -> Unit,
+    versionLabel: String
+) {
     ModalDrawerSheet {
         Spacer(modifier = Modifier.height(Dimens.Spacing.md))
         Image(
@@ -414,7 +420,7 @@ fun DrawerContent(state: HomeState, onEvent: (HomeEvent) -> Unit, navigateTo: (S
         }
         Spacer(modifier = Modifier.weight(1f))
         TextBody(
-            text = "android version 0.2.1.7",
+            text = versionLabel,
             textSize = MaterialTheme.typography.bodyMedium.fontSize,
             textColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier

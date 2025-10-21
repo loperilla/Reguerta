@@ -3,6 +3,7 @@ package com.reguerta.presentation.screen.auth.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.usecase.auth.LoginUseCase
+import com.reguerta.domain.time.ClockProvider
 import com.reguerta.presentation.BuildConfig
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
@@ -24,7 +25,8 @@ import java.time.LocalDate
  */
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
+    private val clock: ClockProvider
 ) : ViewModel() {
     private var _state: MutableStateFlow<LoginState> = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state.asStateFlow()
@@ -100,14 +102,13 @@ class LoginViewModel @Inject constructor(
 
     private fun checkEnabledButton(): Boolean {
         return with(_state.value) {
-            emailInput.isValidEmail &&
-                    passwordInput.isValidPassword
+            emailInput.isValidEmail && passwordInput.isValidPassword
         }
     }
 
     fun autoLoginIfDebug() {
         if (BuildConfig.DEBUG) {
-            val testDate = LocalDate.of(2025, 10, 13)
+            val testDate = clock.today()
             viewModelScope.launch {
                 val email = "ophiura@yahoo.es"
                 val password = "Reguerta161274"

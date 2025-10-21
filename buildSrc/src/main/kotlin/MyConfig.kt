@@ -13,3 +13,5 @@ const val configTargetSdkVersion = 36
 const val configMinSdkVersion = 26
 
 const val hiltRunnerPackage = "$GROUP_ID.testutils.HiltRunner"
+
+const val DEBUG_LOGIN_DATE = ""

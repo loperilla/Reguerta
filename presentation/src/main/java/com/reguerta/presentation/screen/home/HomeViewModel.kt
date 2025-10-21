@@ -8,7 +8,7 @@ import com.reguerta.domain.enums.WeekDay
 import com.reguerta.domain.repository.ConfigModel
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.users.SignOutUseCase
-import com.reguerta.domain.usecase.week.GetCurrentWeekDayUseCase
+import com.reguerta.domain.usecase.week.GetCurrentDayOfWeekUseCase
 import com.reguerta.domain.usecase.config.GetDeliveryDayUseCase
 import com.reguerta.domain.usecase.config.GetConfigUseCase
 import com.reguerta.domain.usecase.products.SyncProductsUseCase
@@ -44,7 +44,7 @@ import java.util.Locale
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val checkUserUseCase: CheckCurrentUserLoggedUseCase,
-    private val getCurrentWeekDay: GetCurrentWeekDayUseCase,
+    private val getCurrentDayOfWeekUseCase: GetCurrentDayOfWeekUseCase,
     private val getDeliveryDayUseCase: GetDeliveryDayUseCase,
     private val signOutUseCase: SignOutUseCase,
     private val getConfigUseCase: GetConfigUseCase,
@@ -74,10 +74,14 @@ class HomeViewModel @Inject constructor(
     private fun checkAppState(config: ConfigModel): ConfigCheckResult {
         val androidVersion = config.versions["android"]
         val installed = BuildConfig.VERSION_NAME
+        val min = androidVersion?.min ?: ""
+        val current = androidVersion?.current ?: ""
+        val force = androidVersion?.forceUpdate ?: false
+
         return when {
-            androidVersion?.forceUpdate == true -> ConfigCheckResult.ForceUpdate
-            isVersionGreater(androidVersion?.min ?: "", installed) -> ConfigCheckResult.ForceUpdate
-            isVersionGreater(androidVersion?.current ?: "", installed) -> ConfigCheckResult.RecommendUpdate
+            force -> ConfigCheckResult.ForceUpdate
+            isVersionGreater(min, installed) -> ConfigCheckResult.ForceUpdate
+            isVersionGreater(current, installed) -> ConfigCheckResult.RecommendUpdate
             else -> ConfigCheckResult.Ok
         }
     }
@@ -185,7 +189,7 @@ class HomeViewModel @Inject constructor(
                         return@launch
                     }
                     // Paso 3: Usuario y configuración correctos, obtener día actual
-                    val currentDay = runCatching { DayOfWeek.of(getCurrentWeekDay()) }
+                    val currentDay = runCatching { getCurrentDayOfWeekUseCase() }
                         .getOrElse { DayOfWeek.from(java.time.LocalDate.now()) }
                     val deliveryDay = runCatching { getDeliveryDayUseCase() }
                         .getOrElse { WeekDay.WED }

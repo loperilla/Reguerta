@@ -22,6 +22,20 @@ fun WeekDay.plusDays(days: Int): WeekDay = {
     WeekDay.all[(this.ordinal + shift) % size]
 }()
 
+fun DayOfWeek.toWeekDay(): WeekDay =
+    when (this) {
+        DayOfWeek.MONDAY    -> WeekDay.MON
+        DayOfWeek.TUESDAY   -> WeekDay.TUE
+        DayOfWeek.WEDNESDAY -> WeekDay.WED
+        DayOfWeek.THURSDAY  -> WeekDay.THU
+        DayOfWeek.FRIDAY    -> WeekDay.FRI
+        DayOfWeek.SATURDAY  -> WeekDay.SAT
+        DayOfWeek.SUNDAY    -> WeekDay.SUN
+    }
+
+fun Int.toIsoWeekDay(): WeekDay =
+    DayOfWeek.of(this).toWeekDay()
+
 fun WeekDay.toJavaDayOfWeek(): DayOfWeek =
     when (this) {
         com.reguerta.domain.enums.WeekDay.MON -> DayOfWeek.MONDAY

@@ -82,7 +82,7 @@ class AuthServiceImpl(
         }
     }
 
-    override suspend fun getCurrentWeek() = weekTime.getCurrentWeekDay()
+    override suspend fun getCurrentDayOfWeek() = weekTime.getCurrentDayOfWeek()
 
     override suspend fun sendRecoveryPasswordEmail(email: String): DataResult<Unit, DataError.Firebase> {
         return try {

@@ -8,6 +8,8 @@ import timber.log.Timber
 import com.google.firebase.Timestamp
 import com.reguerta.domain.enums.CriticalTable
 import com.reguerta.domain.enums.WeekDay
+import com.reguerta.domain.enums.afterDays
+import com.reguerta.domain.enums.toWeekDay
 import java.time.DayOfWeek
 
 // NOTE: Legacy text sizing (ResizedTextSizes/ProvideTextSizes) removed.
@@ -81,17 +83,6 @@ fun getTablesToSync(
     }
 }
 
-fun DayOfWeek.toWeekDay(): WeekDay {
-    return when (this) {
-        DayOfWeek.MONDAY -> WeekDay.MON
-        DayOfWeek.TUESDAY -> WeekDay.TUE
-        DayOfWeek.WEDNESDAY -> WeekDay.WED
-        DayOfWeek.THURSDAY -> WeekDay.THU
-        DayOfWeek.FRIDAY -> WeekDay.FRI
-        DayOfWeek.SATURDAY -> WeekDay.SAT
-        DayOfWeek.SUNDAY -> WeekDay.SUN
-    }
-}
 
 fun getActiveCriticalTables(
     isAdmin: Boolean,
@@ -100,11 +91,10 @@ fun getActiveCriticalTables(
     deliveryDay: WeekDay
 ): List<CriticalTable> {
     val result = mutableListOf(CriticalTable.PRODUCTS, CriticalTable.CONTAINERS, CriticalTable.MEASURES)
-
     if (isAdmin) result += CriticalTable.USERS
 
-    val weekDay = currentDay.toWeekDay()
-    if (isProducer && weekDay.ordinal in WeekDay.MON.ordinal..deliveryDay.ordinal) {
+    val todayWD = currentDay.toWeekDay()
+    if (!deliveryDay.afterDays().contains(todayWD)) {
         result += CriticalTable.ORDERS
     }
     Timber.tag("SYNC_CriticalTables").d(

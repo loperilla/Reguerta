@@ -4,7 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.enums.WeekDay
+import com.reguerta.domain.enums.afterDays
 import com.reguerta.domain.enums.toJavaDayOfWeek
+import com.reguerta.domain.enums.toWeekDay
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct
 import com.reguerta.domain.model.ProductWithOrderLine
@@ -19,7 +21,7 @@ import com.reguerta.domain.usecase.products.GetAvailableProductsUseCase
 import com.reguerta.domain.usecase.products.UpdateProductStockUseCase
 import com.reguerta.domain.usecase.config.UpdateTableTimestampsUseCase
 import com.reguerta.domain.usecase.config.GetDeliveryDayUseCase
-import com.reguerta.domain.usecase.week.GetCurrentWeekDayUseCase
+import com.reguerta.domain.usecase.week.GetCurrentDayOfWeekUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -56,11 +58,11 @@ import kotlin.math.roundToInt
 
 @HiltViewModel
 class NewOrderViewModel @Inject constructor(
+    private val orderModel: NewOrderModel,
     private val getAvailableProductsUseCase: GetAvailableProductsUseCase,
-    private val getCurrentWeek: GetCurrentWeekDayUseCase,
+    private val getCurrentDayOfWeekUseCase: GetCurrentDayOfWeekUseCase,
     private val getAllMeasuresUseCase: GetAllMeasuresUseCase,
     private val getAllContainersUseCase: GetAllContainersUseCase,
-    private val orderModel: NewOrderModel,
     private val updateProductStockUseCase: UpdateProductStockUseCase,
     private val checkCommitmentsUseCase: CheckCommitmentsUseCase,
     private val mapOrderLinesWithProductsUseCase: MapOrderLinesWithProductsUseCase,
@@ -100,7 +102,7 @@ class NewOrderViewModel @Inject constructor(
     private suspend fun determineAndExecuteFlow() {
         Timber.i("SYNC_SYNC_INIT - Entrando en determineAndExecuteFlow()")
         _state.update { it.copy(uiState = NewOrderUiMode.LOADING) }
-        val today = DayOfWeek.of(getCurrentWeek())
+        val today = getCurrentDayOfWeekUseCase()
         val deliveryDay = getDeliveryDayUseCase()
         val isNewOrder = isNewOrderBranch(today, deliveryDay)
         Timber.i("SYNC_FLOW_BRANCH - Día actual: $today, deliveryDay: $deliveryDay, isNewOrderBranch: $isNewOrder")
@@ -524,7 +526,7 @@ class NewOrderViewModel @Inject constructor(
             val flow = state.value.flow
             if (flow == null) {
                 Timber.w("SYNC_FLOW - flow es null en reload, calculando una vez")
-                val today = DayOfWeek.of(getCurrentWeek())
+                val today = getCurrentDayOfWeekUseCase()
                 val deliveryDay = getDeliveryDayUseCase()
                 val isNewOrder = isNewOrderBranch(today, deliveryDay)
                 _state.update { it.copy(flow = if (isNewOrder) OrderFlow.CURRENT_WEEK else OrderFlow.LAST_WEEK) }
@@ -535,7 +537,7 @@ class NewOrderViewModel @Inject constructor(
                     val currentUser = currentUserResult.getOrNull() ?: return@withTimeoutOrNull
                     _state.update {
                         it.copy(
-                            currentDay = DayOfWeek.of(getCurrentWeek()),
+                            currentDay = getCurrentDayOfWeekUseCase(),
                             kgMangoes = currentUser.tropical1.roundToInt(),
                             kgAvocados = currentUser.tropical2.roundToInt()
                         )
@@ -649,15 +651,5 @@ class NewOrderViewModel @Inject constructor(
 }
     // Helper to determine if we are in the new order branch window
     private fun isNewOrderBranch(today: DayOfWeek, deliveryDay: WeekDay): Boolean {
-        val deliveryDow = deliveryDay.toJavaDayOfWeek()
-        val startOfNewOrder = when (deliveryDow) {
-            DayOfWeek.SUNDAY -> {
-                deliveryDow
-            }
-            else -> {
-                deliveryDow.plus(1) // desde delivery+2 hasta domingo
-            }   // Aunque el día siguiente al dia de reparto no se hacen pedidos,
-                // aqui no se entra, se controla en home
-        }
-        return today >= startOfNewOrder
+        return deliveryDay.afterDays().contains(today.toWeekDay())
     }

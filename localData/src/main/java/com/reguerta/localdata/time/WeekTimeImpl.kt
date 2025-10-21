@@ -1,5 +1,6 @@
 package com.reguerta.localdata.time
 
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.WeekFields
 import java.util.Locale
@@ -35,8 +36,8 @@ class WeekTimeImpl @Inject constructor() : WeekTime {
         return lastWeek.get(weekFields.weekOfWeekBasedYear())
     }
 
-    override fun getCurrentWeekDay(): Int {
-        return (overrideDate ?: LocalDate.now()).dayOfWeek.value
+    override fun getCurrentDayOfWeek(): DayOfWeek {
+        return (overrideDate ?: LocalDate.now()).dayOfWeek
     }
 
     override fun isEvenCurrentWeek(): Boolean {
