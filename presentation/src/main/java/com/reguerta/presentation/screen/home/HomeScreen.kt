@@ -221,7 +221,7 @@ private fun HomeScreen(
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 LoadingAnimation()
                 Spacer(modifier = Modifier.height(Dimens.Spacing.sm))
-                androidx.compose.material3.Text(
+                Text(
                     "Cargando datos…",
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center

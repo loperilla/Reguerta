@@ -39,7 +39,6 @@ import com.reguerta.domain.usecase.users.GetUserByIdUseCase
 import com.reguerta.domain.usecase.users.SignOutUseCase
 import com.reguerta.domain.usecase.users.ToggleAdminUseCase
 import com.reguerta.domain.usecase.users.ToggleProducerUseCase
-import com.reguerta.domain.usecase.week.GetCurrentDayOfWeekUseCase
 import com.reguerta.domain.usecase.users.SyncUsersUseCase
 import com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase
 import com.reguerta.localdata.time.WeekTime
