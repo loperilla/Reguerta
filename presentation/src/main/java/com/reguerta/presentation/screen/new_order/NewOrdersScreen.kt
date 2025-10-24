@@ -69,6 +69,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.enums.Pane
 import com.reguerta.domain.model.CommonProduct
@@ -209,6 +210,7 @@ fun newOrderScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NoOrderScreen(
     onEvent: (NewOrderEvent) -> Unit
@@ -246,6 +248,7 @@ fun NoOrderScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ExistingOrderScreen(
     state: NewOrderState,
@@ -316,6 +319,7 @@ fun ExistingOrderScreen(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LastOrderScreen(
     state: NewOrderState,
@@ -509,6 +513,7 @@ private fun ProductLine(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewOrderTopBar(
     state: NewOrderState,
@@ -705,6 +710,7 @@ fun NewOrderBottomBar(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun NewOrderScreen(
     state: NewOrderState,

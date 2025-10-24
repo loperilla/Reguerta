@@ -19,6 +19,8 @@ import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
+import com.reguerta.presentation.getWidthDeviceDp
+import androidx.core.content.edit
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -79,8 +81,6 @@ class MainActivity : ComponentActivity() {
                     UiState.Success -> Routes.HOME.route
                     else -> Routes.AUTH.route // Incluye Loading y Error
                 }
-
-                Timber.i("SYNC_MainActivity: Lanzando MainNavigation con startDestination: $startDestination (splashState=$splashState)")
 
                 MainNavigation(
                     startDestination = startDestination

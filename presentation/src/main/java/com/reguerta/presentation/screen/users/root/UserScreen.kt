@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -22,6 +23,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import com.reguerta.presentation.composables.ReguertaScaffold
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Surface
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -38,12 +45,14 @@ import com.reguerta.presentation.composables.InverseReguertaButton
 import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCard
+import com.reguerta.presentation.composables.ReguertaFullButton
 import com.reguerta.presentation.composables.ReguertaIconButton
 import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.navigation.Routes
+import com.reguerta.presentation.screen.users.add.AddUserEvent
 import com.reguerta.presentation.ui.Dimens
 
 /*****
@@ -82,6 +91,7 @@ fun usersScreen(
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserScreen(
     state: UserScreenState,
@@ -99,27 +109,26 @@ fun UserScreen(
             )
         },
         bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.BottomCenter)
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(topStart = Dimens.Spacing.md, topEnd = Dimens.Spacing.md)
-                    )
-                    .navigationBarsPadding()
-                    .padding(Dimens.Spacing.sm)
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(topStart = Dimens.Radius.lg, topEnd = Dimens.Radius.lg)
             ) {
-                ReguertaButton(
-                    "Autorizar nuevo usuario",
-                    onClick = { navigateTo(Routes.USERS.ADD.route) },
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(
-                            vertical = Dimens.Spacing.sm,
-                            horizontal = Dimens.Spacing.md
+                        .navigationBarsPadding()
+                        .padding(horizontal = Dimens.Spacing.sm, vertical = Dimens.Spacing.sm)
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ReguertaFullButton(
+                            "Autorizar regüertense",
+                            onClick = { navigateTo(Routes.USERS.ADD.route) }
                         )
-                )
+                    }
+                }
             }
         }
     ) {

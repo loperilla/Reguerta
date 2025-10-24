@@ -9,6 +9,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,11 +20,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,6 +47,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import androidx.compose.ui.unit.dp
 import com.reguerta.presentation.R
 import com.reguerta.presentation.checkRationalPermission
 import com.reguerta.presentation.checkStoragePermission
@@ -49,6 +55,7 @@ import com.reguerta.presentation.composables.CustomTextField
 import com.reguerta.presentation.composables.DropDownItem
 import com.reguerta.presentation.composables.DropdownSelectable
 import com.reguerta.presentation.composables.ReguertaButton
+import com.reguerta.presentation.composables.ReguertaFullButton
 import com.reguerta.presentation.composables.ReguertaCheckBox
 import com.reguerta.presentation.composables.ReguertaCounter
 import com.reguerta.presentation.composables.ReguertaTopBar
@@ -88,6 +95,7 @@ fun addProductScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddProductScreen(
     state: AddProductState,
@@ -114,6 +122,7 @@ private fun AddProductScreen(
                 .padding(it)
                 .fillMaxSize()
                 .imePadding()
+                .navigationBarsPadding()
                 .verticalScroll(scrollState)
         ) {
             HeaderAddProductForm(
@@ -172,14 +181,18 @@ private fun AddProductScreen(
                     .fillMaxWidth()
             )
 
-            ReguertaButton(
-                textButton = "Añadir producto",
-                enabledButton = state.isButtonEnabled,
-                onClick = { onEvent(AddProductEvent.AddProduct) },
-                modifier = Modifier
-                    .padding(Dimens.Spacing.md)
-                    .fillMaxWidth()
-            )
+            Spacer(modifier = Modifier.height(Dimens.Spacing.xl))
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                ReguertaFullButton(
+                    textButton = "Añadir producto",
+                    enabled = state.isButtonEnabled,
+                    onClick = { onEvent(AddProductEvent.AddProduct) }
+                )
+            }
+            Spacer(modifier = Modifier.height(Dimens.Spacing.lg))
         }
     }
 }
@@ -291,12 +304,12 @@ private fun HeaderAddProductForm(
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.xs, Alignment.End),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextBody(
                     text = "Disponible",
-                    textSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    style = MaterialTheme.typography.titleMedium,
                     textColor = MaterialTheme.colorScheme.onSurface
                 )
                 ReguertaCheckBox(
@@ -306,14 +319,15 @@ private fun HeaderAddProductForm(
                     }
                 )
             }
+            Spacer(modifier = Modifier.height(Dimens.Spacing.md))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.md, Alignment.End),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.lg, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 StockProductText(
                     stockCount = state.stock,
-                    textSize = MaterialTheme.typography.bodyLarge.fontSize
+                    style = MaterialTheme.typography.titleMedium
                 )
 
                 ReguertaCounter(
@@ -364,6 +378,7 @@ private fun UnityAndContainer(
             placeholder = "0",
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Next,
+            minHeight = Dimens.Size.dp32,
             modifier = Modifier
                 .padding(horizontal = Dimens.Spacing.sm)
                 .fillMaxWidth(0.25f)
@@ -372,6 +387,7 @@ private fun UnityAndContainer(
         DropdownSelectable(
             currentSelected = state.containerType.ifEmpty { "Selecciona envase" },
             dropdownItems = containerDropdownItems,
+            cornerRadius = Dimens.Radius.sm,
             onItemClick = {
                 onEvent(AddProductEvent.OnContainerTypeChanges(it.text))
             },
@@ -397,6 +413,7 @@ private fun UnityAndContainer(
             placeholder = "0",
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Next,
+            minHeight = Dimens.Size.dp32,
             modifier = Modifier
                 .padding(horizontal = Dimens.Spacing.sm)
                 .fillMaxWidth(0.25f)
@@ -405,6 +422,7 @@ private fun UnityAndContainer(
         DropdownSelectable(
             currentSelected = state.measureType.ifEmpty { "Selecciona unidad" },
             dropdownItems = measureDropdownItems,
+            cornerRadius = Dimens.Radius.sm,
             onItemClick = {
                 onEvent(AddProductEvent.OnMeasuresTypeChanges(it.text))
             },
@@ -416,13 +434,3 @@ private fun UnityAndContainer(
 }
 
 
-@Preview
-@Composable
-fun AddProductScreenPreview() {
-    Screen {
-        AddProductScreen(
-            state = AddProductState(),
-            onEvent = {}
-        )
-    }
-}

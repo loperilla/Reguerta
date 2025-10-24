@@ -1,14 +1,16 @@
 package com.reguerta.presentation.composables
 
+
+import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
@@ -18,17 +20,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.focusable
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import com.reguerta.presentation.ui.Dimens
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.foundation.layout.width
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.unit.times
+import androidx.compose.ui.Alignment
 
 /*****
  * Project: Reguerta
@@ -46,16 +49,11 @@ fun DropdownSelectable(
     currentSelected: String,
     dropdownItems: List<DropDownItem>,
     modifier: Modifier = Modifier,
+    cornerRadius: Dp = Dimens.Radius.sm,
     onItemClick: (DropDownItem) -> Unit
 ) {
     var isContextMenuVisible by rememberSaveable {
         mutableStateOf(false)
-    }
-    var pressOffset by remember {
-        mutableStateOf(DpOffset.Zero)
-    }
-    var itemHeight by remember {
-        mutableStateOf(0.dp)
     }
     var anchorWidth by remember {
         mutableStateOf(0.dp)
@@ -64,70 +62,55 @@ fun DropdownSelectable(
         MutableInteractionSource()
     }
     val density = LocalDensity.current
-    val configuration = LocalConfiguration.current
-    val screenHeight = configuration.screenHeightDp.dp
 
     ReguertaCard(
         modifier = modifier
             .onSizeChanged {
-                with(density) {
-                    itemHeight = it.height.toDp()
-                    anchorWidth = it.width.toDp()
-                }
+                with(density) { anchorWidth = it.width.toDp() }
             },
         contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
         containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        cornerRadius = cornerRadius,
         content = {
             Box(
                 modifier = Modifier
-                    .heightIn(Dimens.Size.dp36)
+                    .heightIn(min = Dimens.Components.Dropdown.anchorHeight)
                     .fillMaxWidth()
+                    .semantics { role = Role.Button }
+                    .focusable(true)
                     .indication(interactionSource, LocalIndication.current)
-                    .pointerInput(Unit) {
-                        detectTapGestures(
-                            onTap = {
-                                isContextMenuVisible = true
-                                with(density) { pressOffset = DpOffset(it.x.toDp(), it.y.toDp()) }
-                            },
-                            onPress = {
-                                val press = PressInteraction.Press(it)
-                                interactionSource.emit(press)
-                                tryAwaitRelease()
-                                interactionSource.emit(PressInteraction.Release(press))
-                            }
-                        )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = LocalIndication.current
+                    ) {
+                        isContextMenuVisible = true
                     }
-                    .padding(Dimens.Spacing.sm)
+                    .padding(
+                        horizontal = Dimens.Components.Dropdown.contentPaddingHorizontal,
+                        vertical = Dimens.Components.Dropdown.contentPaddingVertical
+                    ),
+                contentAlignment = Alignment.Center
             ) {
                 TextBody(
                     text = currentSelected,
-                    textSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    style = MaterialTheme.typography.bodyLarge,
                     textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
-            val estimatedMenuHeight = (dropdownItems.size * 40.dp).coerceAtMost(320.dp)
-            val availableBelow = screenHeight - pressOffset.y
-            val openUp = estimatedMenuHeight > availableBelow && pressOffset.y > availableBelow
-            val desiredY = if (openUp) {
-                // open upwards
-                pressOffset.y - estimatedMenuHeight
-            } else {
-                // default: open downwards (aligning top near the pressed point minus anchor height)
-                pressOffset.y - itemHeight
-            }
-            val clampedY = desiredY.coerceIn(0.dp, (screenHeight - estimatedMenuHeight).coerceAtLeast(0.dp))
             DropdownMenu(
-                modifier = Modifier.width(anchorWidth),
+                modifier = Modifier
+                    .width(anchorWidth)
+                    .heightIn(max = Dimens.Components.Dropdown.menuMaxHeight),
                 expanded = isContextMenuVisible,
                 onDismissRequest = {
                     isContextMenuVisible = false
-                },
-                offset = DpOffset(0.dp, clampedY)
+                }
             ) {
                 dropdownItems.forEach {
                     DropdownMenuItem(
+                        modifier = Modifier.height(Dimens.Components.Dropdown.itemHeight),
                         onClick = {
                             onItemClick(it)
                             isContextMenuVisible = false
@@ -135,7 +118,7 @@ fun DropdownSelectable(
                         text = {
                             TextBody(
                                 text = it.text,
-                                textSize = MaterialTheme.typography.bodyLarge.fontSize,
+                                style = MaterialTheme.typography.bodyLarge,
                                 textColor = MaterialTheme.colorScheme.onSurface
                             )
                         }

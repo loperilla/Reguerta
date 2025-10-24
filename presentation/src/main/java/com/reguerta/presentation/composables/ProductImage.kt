@@ -27,7 +27,7 @@ import com.reguerta.presentation.ui.Dimens
 fun ProductImage(
     product: Product,
     modifier: Modifier = Modifier,
-    imageSize: Dp = Dimens.Size.dp72
+    imageSize: Dp = Dimens.Components.Image.productThumb
 ) {
     if (product.imageUrl.isEmpty()) {
         Image(
@@ -36,15 +36,15 @@ fun ProductImage(
             modifier = modifier
                 .padding(Dimens.Spacing.sm)
                 .size(imageSize)
-                .clip(RoundedCornerShape(Dimens.Radius.md))
+                .clip(RoundedCornerShape(Dimens.Components.Image.cornerRadius))
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(Dimens.Radius.md)
+                    shape = RoundedCornerShape(Dimens.Components.Image.cornerRadius)
                 )
                 .border(
-                    width = Dimens.Border.regular,
+                    width = Dimens.Components.Image.borderThickness,
                     color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = RoundedCornerShape(Dimens.Radius.md)
+                    shape = RoundedCornerShape(Dimens.Components.Image.cornerRadius)
                 ),
             contentScale = ContentScale.Crop
         )
@@ -55,15 +55,15 @@ fun ProductImage(
             modifier = modifier
                 .padding(Dimens.Spacing.sm)
                 .size(imageSize)
-                .clip(RoundedCornerShape(Dimens.Radius.md))
+                .clip(RoundedCornerShape(Dimens.Components.Image.cornerRadius))
                 .background(
                     color = MaterialTheme.colorScheme.surfaceVariant,
-                    shape = RoundedCornerShape(Dimens.Radius.md)
+                    shape = RoundedCornerShape(Dimens.Components.Image.cornerRadius)
                 )
                 .border(
-                    width = Dimens.Border.regular,
+                    width = Dimens.Components.Image.borderThickness,
                     color = MaterialTheme.colorScheme.outlineVariant,
-                    shape = RoundedCornerShape(Dimens.Radius.md)
+                    shape = RoundedCornerShape(Dimens.Components.Image.cornerRadius)
                 )
         )
     }

@@ -16,8 +16,8 @@ import com.reguerta.presentation.ui.Dimens
 @Composable
 fun LoadingAnimation(
     modifier: Modifier = Modifier,
-    size: Dp = Dimens.Size.dp64,
-    speed: Float = 5f,
+    size: Dp = Dimens.Components.Lottie.Loading.size,
+    speed: Float = Dimens.Components.Lottie.Loading.speed,
     iterations: Int = LottieConstants.IterateForever
 ) {
     val composition by rememberLottieComposition(LottieCompositionSpec.RawRes(R.raw.loading_animation))

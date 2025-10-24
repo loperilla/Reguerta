@@ -1,6 +1,8 @@
 package com.reguerta.data.firebase.firestore.users
 
+import android.util.Log
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.Query
 import com.reguerta.data.firebase.firestore.NAME
 import com.reguerta.data.firebase.firestore.USER_EMAIL
@@ -30,17 +32,30 @@ class UserCollectionImpl @Inject constructor(
     private val collection: CollectionReference,
     private val dataStore: ReguertaDataStore
 ) : UsersCollectionService {
+    companion object {
+        private const val TAG = "UserCollectionImpl"
+    }
     override suspend fun getUserList(): Flow<Result<List<UserModel>>> = callbackFlow {
+        Log.i(TAG, "USERS_LIST_INIT - Subscribiendo a colección de usuarios (orderBy=NAME)")
         val subscription = collection
             .orderBy(NAME, Query.Direction.ASCENDING)
-            .addSnapshotListener { snapshot, error ->
+            .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, error ->
                 if (error != null) {
+                    Log.e(TAG, "USERS_LIST_ERROR - Firestore listener devolvió error", error)
                     error.printStackTrace()
                     trySend(Result.failure(error))
                     close(error)
                     return@addSnapshotListener
                 }
                 snapshot?.let { query ->
+                    if (query.metadata.isFromCache && query.size() <= 1) {
+                        Log.w(TAG, "USERS_LIST_SKIP_CACHE - Ignorando snapshot de cache sospechoso (size<=1); esperando servidor…")
+                        return@addSnapshotListener
+                    }
+                    if (!query.metadata.isFromCache) {
+                        Log.i(TAG, "USERS_LIST_SERVER - snapshot de servidor recibido, docs=${query.size()}")
+                    }
+                    Log.d(TAG, "USERS_LIST_SNAPSHOT - docs=${query.size()}, fromCache=${query.metadata.isFromCache}, pendingWrites=${query.metadata.hasPendingWrites()}")
                     val userList = mutableListOf<UserModel>()
                     query.documents.forEach { document ->
                         val user = document.toObject(UserModel::class.java)
@@ -49,10 +64,17 @@ class UserCollectionImpl @Inject constructor(
                             userList.add(model)
                         }
                     }
+                    val producers = userList.count { it.isProducer }
+                    val admins = userList.count { it.isAdmin }
+                    Log.i(TAG, "USERS_LIST_EMIT - count=${userList.size}, producers=$producers, admins=$admins, sampleIds=${userList.take(10).map { it.id }}")
+                    if (userList.size <= 1) {
+                        Log.w(TAG, "USERS_LIST_WARN - tamaño de lista sospechoso (${userList.size}). Revisa reglas de seguridad, entorno (dev/prod) o filtros en la query.")
+                    }
                     trySend(Result.success(userList))
                 }
             }
         awaitClose {
+            Log.i(TAG, "USERS_LIST_CLOSE - Listener desuscrito")
             subscription.remove()
         }
     }

@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
+import com.reguerta.presentation.ui.Dimens
 
 /*****
  * Project: Reguerta
@@ -18,8 +19,8 @@ import androidx.compose.ui.unit.Dp
 @Composable
 fun ReguertaDivider(
     modifier: Modifier = Modifier,
-    thickness: Dp = DividerDefaults.Thickness,
-    color: Color = DividerDefaults.color,
+    thickness: Dp = Dimens.Components.Divider.thickness,
+    color: Color = Dimens.Components.Divider.color,
     vertical: Boolean = true
 ) {
     if (vertical) {
@@ -35,4 +36,30 @@ fun ReguertaDivider(
             color = color
         )
     }
+}
+
+@Composable
+fun ReguertaHorizontalDivider(
+    modifier: Modifier = Modifier,
+    thickness: Dp = Dimens.Components.Divider.thickness,
+    color: Color = Dimens.Components.Divider.color,
+) {
+    HorizontalDivider(
+        modifier = modifier,
+        thickness = thickness,
+        color = color
+    )
+}
+
+@Composable
+fun ReguertaVerticalDivider(
+    modifier: Modifier = Modifier,
+    thickness: Dp = Dimens.Components.Divider.thickness,
+    color: Color = Dimens.Components.Divider.color,
+) {
+    VerticalDivider(
+        modifier = modifier,
+        thickness = thickness,
+        color = color
+    )
 }

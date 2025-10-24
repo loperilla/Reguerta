@@ -29,14 +29,14 @@ fun ProductNameUnityContainer(
     ) {
         TextTitle(
             text = product.name,
-            textSize = MaterialTheme.typography.titleMedium.fontSize,
+            style = MaterialTheme.typography.titleMedium,
             textColor = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(Dimens.Spacing.xs),
             textAlignment = TextAlign.Center
         )
         TextBody(
             text = product.containerUnity(),
-            textSize = MaterialTheme.typography.bodySmall.fontSize,
+            style = MaterialTheme.typography.bodySmall,
             textColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(Dimens.Spacing.xs),
             textAlignment = TextAlign.Center
@@ -55,14 +55,13 @@ fun ProductNameUnityContainerInMyOrder(
     ) {
         TextBody(
             text = product.name,
-            textSize = MaterialTheme.typography.bodyMedium.fontSize,
+            style = MaterialTheme.typography.bodyMedium,
             textColor = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(
-                top = Dimens.Spacing.xs)
+            modifier = Modifier.padding(top = Dimens.Spacing.xs)
         )
         TextBody(
             text = product.containerUnity(),
-            textSize = MaterialTheme.typography.bodySmall.fontSize,
+            style = MaterialTheme.typography.bodySmall,
             textColor = MaterialTheme.colorScheme.onSurface,
             modifier = Modifier.padding(vertical = Dimens.Spacing.xxs),
             textAlignment = TextAlign.Start

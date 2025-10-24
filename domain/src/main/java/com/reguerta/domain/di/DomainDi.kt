@@ -45,7 +45,7 @@ import com.reguerta.localdata.time.WeekTime
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.components.SingletonComponent
 import com.reguerta.domain.usecase.products.SyncProductsUseCase
 import com.reguerta.domain.usecase.containers.SyncContainersUseCase
 import com.reguerta.domain.usecase.measures.SyncMeasuresUseCase
@@ -54,6 +54,7 @@ import com.reguerta.localdata.datastore.ReguertaDataStore
 import java.time.LocalDate
 import java.time.ZoneId
 import java.time.ZonedDateTime
+import javax.inject.Named
 
 /*****
  * Project: Reguerta
@@ -63,7 +64,7 @@ import java.time.ZonedDateTime
  */
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 object DomainDi {
 
     @Provides
@@ -226,7 +227,8 @@ object DomainDi {
     )
 
     @Provides
-    fun provideClockProvider(): ClockProvider = object : ClockProvider {
+    @Named("systemClock")
+    fun provideSystemClockProvider(): ClockProvider = object : ClockProvider {
         override fun today(): LocalDate = LocalDate.now(ZoneId.systemDefault())
         override fun now(): ZonedDateTime = ZonedDateTime.now(ZoneId.systemDefault())
     }

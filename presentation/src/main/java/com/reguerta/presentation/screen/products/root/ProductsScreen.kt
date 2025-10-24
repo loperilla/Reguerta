@@ -46,6 +46,9 @@ import com.reguerta.presentation.composables.ProductImage
 import com.reguerta.presentation.composables.ReguertaScaffold
 import com.reguerta.presentation.ui.Dimens
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Surface
+import com.reguerta.presentation.composables.ReguertaFullButton
 import com.reguerta.presentation.navigation.Routes
 
 /*****
@@ -74,6 +77,7 @@ fun productScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ProductsScreen(
     state: ProductsState,
@@ -95,27 +99,26 @@ private fun ProductsScreen(
             )
         },
         bottomBar = {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .wrapContentSize(Alignment.BottomCenter)
-                    .background(
-                        color = MaterialTheme.colorScheme.surfaceVariant,
-                        shape = RoundedCornerShape(topStart = Dimens.Spacing.md, topEnd = Dimens.Spacing.md)
-                    )
-                    .navigationBarsPadding()
-                    .padding(Dimens.Spacing.sm)
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(topStart = Dimens.Radius.lg, topEnd = Dimens.Radius.lg)
             ) {
-                ReguertaButton(
-                    "Añadir nuevo producto",
-                    onClick = { navigateTo(Routes.PRODUCTS.ADD.route) },
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(
-                            vertical = Dimens.Spacing.sm,
-                            horizontal = Dimens.Spacing.md
+                        .navigationBarsPadding()
+                        .padding(horizontal = Dimens.Spacing.sm, vertical = Dimens.Spacing.sm)
+                ) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        ReguertaFullButton(
+                            "Añadir producto",
+                            onClick = { navigateTo(Routes.PRODUCTS.ADD.route) }
                         )
-                )
+                    }
+                }
             }
         }
     ) {
@@ -306,33 +309,4 @@ private fun AreYouSureDialog(
         },
         dismissButton = { /* No se usa  */ }
     )
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ProductItemPreview() {
-    Screen {
-        ProductsScreen(
-            state = ProductsState(
-                isLoading = false,
-                commonProducts = listOf(
-                    CommonProduct(
-                        name = "Product 1",
-                        description = "Description 1",
-                        container = "Container 1",
-                        price = 1.0f,
-                        available = true,
-                        companyName = "Company 1",
-                        imageUrl = "",
-                        stock = 1,
-                        quantityContainer = 1,
-                        quantityWeight = 1,
-                        unity = "Unity 1"
-                    )
-                )
-            ),
-            onEvent = {},
-            navigateTo = {}
-        )
-    }
 }

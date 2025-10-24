@@ -22,7 +22,8 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.reguerta.presentation.composables.ReguertaButton
+import com.reguerta.presentation.composables.ReguertaFullButton
+import com.reguerta.presentation.composables.ButtonLayout
 import com.reguerta.presentation.composables.ReguertaEmailInput
 import com.reguerta.presentation.composables.ReguertaPasswordInput
 import com.reguerta.presentation.composables.ReguertaTopBar
@@ -31,6 +32,7 @@ import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
 import com.reguerta.presentation.ui.Dimens
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import com.reguerta.presentation.navigation.Routes
 
 /*****
@@ -60,6 +62,7 @@ fun registerScreen(navigateTo: (String) -> Unit) {
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RegisterScreen(
     state: RegisterState,
@@ -141,29 +144,15 @@ private fun RegisterScreen(
                     .padding(Dimens.Spacing.sm)
             )
             Spacer(modifier = Modifier.height(Dimens.Spacing.lg))
-            ReguertaButton(
+            ReguertaFullButton(
                 textButton = "Registrarse",
-                enabledButton = state.enabledButton,
+                enabled = state.enabledButton,
                 onClick = {
                     newEvent(RegisterEvent.OnRegisterClick)
                     keyboardController?.hide()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(Dimens.Spacing.lg)
+                }
             )
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-private fun RegisterScreenPreview() {
-    Screen {
-        RegisterScreen(
-            state = RegisterState(),
-            newEvent = {},
-            navigateTo = {}
-        )
-    }
-}

@@ -1,5 +1,6 @@
 package com.reguerta.presentation.composables
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -26,8 +27,11 @@ fun ReguertaCard(
     containerColor: Color = MaterialTheme.colorScheme.surfaceVariant,
     contentColor: Color = MaterialTheme.colorScheme.onSurface,
     cornerRadius: Dp = Dimens.Radius.md,
-    elevation: Dp = 0.dp
+    elevation: Dp = 0.dp,
+    border: BorderStroke? = null,
+    kind: Dimens.Components.Card.Kind = Dimens.Components.Card.Kind.Filled
 ) {
+    val finalElevation = if (elevation == 0.dp) Dimens.Components.Card.elevation(kind) else elevation
     val colors = CardDefaults.cardColors(
         containerColor = containerColor,
         contentColor = contentColor
@@ -35,8 +39,9 @@ fun ReguertaCard(
     Card(
         modifier = modifier,
         colors = colors,
-        elevation = CardDefaults.cardElevation(defaultElevation = elevation),
+        elevation = CardDefaults.cardElevation(defaultElevation = finalElevation),
         shape = RoundedCornerShape(cornerRadius),
+        border = border ?: Dimens.Components.Card.border(kind),
         content = content
     )
 }

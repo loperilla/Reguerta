@@ -4,6 +4,7 @@ import com.reguerta.localdata.datastore.ReguertaDataStore
 import com.reguerta.domain.repository.ConfigCheckResult
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.Timestamp
 import com.reguerta.domain.enums.WeekDay
 import com.reguerta.domain.repository.ConfigModel
 import com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase
@@ -112,22 +113,15 @@ class HomeViewModel @Inject constructor(
     /** Verifica si todas las tablas críticas requeridas para el rol/día están sincronizadas respecto a los lastTimestamps remotos (>=). */
     private suspend fun areCriticalTablesFresh(
         config: ConfigModel,
-        isAdmin: Boolean,
         isProducer: Boolean,
         currentDay: DayOfWeek,
         deliveryDay: WeekDay
     ): Boolean {
-        val required = getActiveCriticalTables(isAdmin, isProducer, currentDay, deliveryDay)
-            .map { it.name.lowercase(Locale.ROOT) }
-        Timber.tag("SYNC_FRESH").d(
-            "role admin=%s producer=%s day=%s delivery=%s",
-            isAdmin, isProducer, currentDay, deliveryDay
-        )
+        val required = getActiveCriticalTables(isProducer, currentDay, deliveryDay).map { it.name.lowercase(Locale.ROOT) }
         Timber.tag("SYNC_FRESH").d("required keys=%s", required)
-
         if (required.isEmpty()) return true
 
-        val remote: Map<String, com.google.firebase.Timestamp> = config.lastTimestamps
+        val remote: Map<String, Timestamp> = config.lastTimestamps
         Timber.tag("SYNC_FRESH").d("remote keys=%s", remote.keys)
         val local: Map<String, Long> = dataStore.getSyncTimestampsFor(required)
         Timber.tag("SYNC_FRESH").d("local keys=%s", local.keys)
@@ -154,18 +148,17 @@ class HomeViewModel @Inject constructor(
 
     fun triggerSyncIfNeeded(
         config: ConfigModel,
-        isAdmin: Boolean,
         isProducer: Boolean,
         currentDay: DayOfWeek,
         deliveryDay: WeekDay
     ) {
         if (!hasSyncedInSession) {
             hasSyncedInSession = true
-            triggerBackgroundSync(config, isAdmin, isProducer, currentDay, deliveryDay)
+            triggerBackgroundSync(config, isProducer, currentDay, deliveryDay)
         } else {
             viewModelScope.launch(Dispatchers.IO) {
                 ForegroundSyncManager.checkAndSyncIfNeeded {
-                    triggerBackgroundSync(config, isAdmin, isProducer, currentDay, deliveryDay)
+                    triggerBackgroundSync(config, isProducer, currentDay, deliveryDay)
                 }
             }
         }
@@ -173,21 +166,14 @@ class HomeViewModel @Inject constructor(
 
     private fun triggerBackgroundSync(
         config: ConfigModel,
-        isAdmin: Boolean,
         isProducer: Boolean,
         currentDay: DayOfWeek,
         deliveryDay: WeekDay
     ) {
         viewModelScope.launch(Dispatchers.IO) {
-            Timber.tag("SYNC_BG").d(
-                "triggerBackgroundSync admin=%s producer=%s day=%s delivery=%s",
-                isAdmin, isProducer, currentDay, deliveryDay
-            )
-
-            // Pre‑check: si TODO ya está fresco, no disparamos sync ni tocamos el botón
+            // Pre‑check: si todas ya están frescas, no disparamos sync ni tocamos el botón
             val alreadyFresh = areCriticalTablesFresh(
                 config = config,
-                isAdmin = isAdmin,
                 isProducer = isProducer,
                 currentDay = currentDay,
                 deliveryDay = deliveryDay
@@ -204,7 +190,7 @@ class HomeViewModel @Inject constructor(
             _canOpenOrders.value = false
             _isSyncFinished.value = false
             try {
-                val syncMap = mutableMapOf<String, suspend (com.google.firebase.Timestamp) -> Unit>()
+                val syncMap = mutableMapOf<String, suspend (Timestamp) -> Unit>()
                 syncMap["products"] = { syncProductsUseCase(it) }
                 syncMap["containers"] = { syncContainersUseCase(it) }
                 syncMap["measures"] = { syncMeasuresUseCase(it) }
@@ -213,7 +199,7 @@ class HomeViewModel @Inject constructor(
                 Timber.tag("SYNC_BG").d("syncMap keys=%s", syncMap.keys)
 
                 // Claves críticas activas, normalizadas y filtradas a las acciones disponibles
-                val critical = getActiveCriticalTables(isAdmin, isProducer, currentDay, deliveryDay)
+                val critical = getActiveCriticalTables(isProducer, currentDay, deliveryDay)
                     .map { it.name }
                     .toRootLower()
                     .filter { it in syncMap.keys }
@@ -231,7 +217,6 @@ class HomeViewModel @Inject constructor(
                 // Re-evaluar si ya podemos abrir Mi Pedido con seguridad
                 _canOpenOrders.value = areCriticalTablesFresh(
                     config = config,
-                    isAdmin = isAdmin,
                     isProducer = isProducer,
                     currentDay = currentDay,
                     deliveryDay = deliveryDay
@@ -304,7 +289,6 @@ class HomeViewModel @Inject constructor(
                         // ejecutamos un preload inicial que trae todas las tablas críticas y sella timestamps.
                         val needsPreload = !areCriticalTablesFresh(
                             config = cfg,
-                            isAdmin = user.isAdmin,
                             isProducer = user.isProducer,
                             currentDay = currentDay,
                             deliveryDay = deliveryDay
@@ -316,7 +300,7 @@ class HomeViewModel @Inject constructor(
                                 .onFailure { Timber.w(it, "Preload falló (no bloqueante)") }
                         }
 
-                        // Si ya estaba todo fresco y no hemos necesitado preload, marcamos el primer arranque como completado
+                        // Si ya estaban todas frescas y no hemos necesitado preload, marcamos el primer arranque como completado
                         if (!needsPreload) {
                             _isSyncFinished.value = true
                             _canOpenOrders.value = true
@@ -325,7 +309,6 @@ class HomeViewModel @Inject constructor(
                         // Lanzar sincronización tras (posible) preload
                         triggerSyncIfNeeded(
                             cfg,
-                            user.isAdmin,
                             user.isProducer,
                             currentDay,
                             deliveryDay
@@ -404,7 +387,6 @@ class HomeViewModel @Inject constructor(
             val s = state.value
             val fresh = areCriticalTablesFresh(
                 config = cfg,
-                isAdmin = s.isCurrentUserAdmin,
                 isProducer = s.isCurrentUserProducer,
                 currentDay = s.currentDay,
                 deliveryDay = s.deliveryDay
@@ -416,7 +398,6 @@ class HomeViewModel @Inject constructor(
                 ForegroundSyncManager.checkAndSyncIfNeeded {
                     triggerBackgroundSync(
                         config = cfg,
-                        isAdmin = s.isCurrentUserAdmin,
                         isProducer = s.isCurrentUserProducer,
                         currentDay = s.currentDay,
                         deliveryDay = s.deliveryDay

@@ -108,7 +108,11 @@ class LoginViewModel @Inject constructor(
 
     fun autoLoginIfDebug() {
         if (BuildConfig.DEBUG) {
-            val testDate = clock.today()
+            Timber.tag("LOGIN_DBG").d("BuildConfig.DEBUG=%s, DEBUG_LOGIN_DATE='%s'", BuildConfig.DEBUG, BuildConfig.DEBUG_LOGIN_DATE)
+            val testDate = BuildConfig.DEBUG_LOGIN_DATE
+                .takeIf { it.isNotBlank() }?.let { LocalDate.parse(it) }
+                ?: clock.today()
+            Timber.tag("LOGIN_DBG").d("autoLogin testDate=%s (clock.today=%s)", testDate, clock.today())
             viewModelScope.launch {
                 val email = "ophiura@yahoo.es"
                 val password = "Reguerta161274"

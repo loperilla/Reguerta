@@ -38,6 +38,7 @@ import androidx.compose.material3.NavigationDrawerItemDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.material3.Text
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -154,7 +155,6 @@ fun homeScreen(
                             if (loaded != null) {
                                 viewModel.triggerSyncIfNeeded(
                                     config = loaded,
-                                    isAdmin = state.isCurrentUserAdmin,
                                     isProducer = state.isCurrentUserProducer,
                                     currentDay = state.currentDay,
                                     deliveryDay = state.deliveryDay
@@ -191,6 +191,7 @@ fun homeScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HomeScreen(
     state: HomeState,
@@ -240,7 +241,6 @@ private fun HomeScreen(
                         if (cfg != null) {
                             viewModel.triggerSyncIfNeeded(
                                 config = cfg,
-                                isAdmin = state.isCurrentUserAdmin,
                                 isProducer = state.isCurrentUserProducer,
                                 currentDay = state.currentDay,
                                 deliveryDay = state.deliveryDay
@@ -258,7 +258,6 @@ private fun HomeScreen(
             val loadedConfig = requireNotNull(configViewModel.config.first { it != null })
             viewModel.triggerSyncIfNeeded(
                 config = loadedConfig,
-                isAdmin = state.isCurrentUserAdmin,
                 isProducer = state.isCurrentUserProducer,
                 currentDay = state.currentDay,
                 deliveryDay = state.deliveryDay
@@ -385,7 +384,7 @@ private fun MakeYourOrderButton(
                 Spacer(modifier = Modifier.width(Dimens.Spacing.xs))
                 TextBody(
                     text = buttonText,
-                    textSize = MaterialTheme.typography.bodySmall.fontSize,
+                    style = MaterialTheme.typography.titleMedium,
                 )
             }
         }

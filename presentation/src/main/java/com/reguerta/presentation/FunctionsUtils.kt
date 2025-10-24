@@ -1,20 +1,24 @@
 package com.reguerta.presentation
 
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import android.content.Context
+import android.content.Context.MODE_PRIVATE
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.sp
 import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.model.Container
 import com.reguerta.domain.model.Measure
 import com.reguerta.domain.model.OrderLineReceived
 import timber.log.Timber
-import com.google.firebase.Timestamp
 import com.reguerta.domain.enums.CriticalTable
 import com.reguerta.domain.enums.WeekDay
 import com.reguerta.domain.enums.afterDays
 import com.reguerta.domain.enums.toWeekDay
 import java.time.DayOfWeek
-
-// NOTE: Legacy text sizing (ResizedTextSizes/ProvideTextSizes) removed.
-// Use MaterialTheme.typography (ReguertaTypography) for text roles
-// and Dimens for spacing. See docs/design-system.
 
 fun checkAllStringAreNotEmpty(vararg inputValues: String) = inputValues.all { it.isNotEmpty() }
 
@@ -71,35 +75,39 @@ fun isVersionGreater(version1: String, version2: String): Boolean {
     return false
 }
 
-fun getTablesToSync(
-    remoteTimestamps: Map<String, Timestamp>,
-    localTimestamps: Map<String, Timestamp>
-): List<String> {
-    return remoteTimestamps.filter { (key, remoteValue) ->
-        val localValue = localTimestamps[key]
-        localValue == null || remoteValue.toDate().after(localValue.toDate())
-    }.map { it.key }.also {
-    Timber.tag("SyncCheck").d("Tables to sync: $it")
-    }
-}
-
-
 fun getActiveCriticalTables(
-    isAdmin: Boolean,
     isProducer: Boolean,
     currentDay: DayOfWeek,
     deliveryDay: WeekDay
 ): List<CriticalTable> {
-    val result = mutableListOf(CriticalTable.PRODUCTS, CriticalTable.CONTAINERS, CriticalTable.MEASURES)
-    if (isAdmin) result += CriticalTable.USERS
-
+    val result = mutableListOf(CriticalTable.USERS, CriticalTable.PRODUCTS, CriticalTable.CONTAINERS, CriticalTable.MEASURES)
     val todayWD = currentDay.toWeekDay()
     if (!deliveryDay.afterDays().contains(todayWD)) {
         result += CriticalTable.ORDERS
     }
     Timber.tag("SYNC_CriticalTables").d(
-        "isAdmin=%s, isProducer=%s, currentDay=%s, deliveryDay=%s → CriticalTables=%s",
-        isAdmin, isProducer, currentDay, deliveryDay, result
+        "isProducer=%s, currentDay=%s, deliveryDay=%s → CriticalTables=%s",
+        isProducer, currentDay, deliveryDay, result
     )
     return result
 }
+
+
+@Composable
+fun getWidthDevice(): Dp {
+    val widthDp = LocalConfiguration.current.screenWidthDp
+    Timber.tag("UI_ScreenWidth").d("screenWidthDp=%d", widthDp)
+    return widthDp.dp
+}
+
+@Composable
+fun getWidthDeviceDp(): Int {
+    val widthDp = LocalConfiguration.current.screenWidthDp
+    Timber.tag("UI_ScreenWidth").d("screenWidthDp=%d", widthDp)
+    return widthDp
+}
+
+@Composable
+fun ratio(): Float = getWidthDeviceDp().toFloat() / 400.toFloat()
+@Composable
+fun Int.resize(): Dp = (this * ratio()).dp

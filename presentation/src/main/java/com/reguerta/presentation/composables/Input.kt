@@ -22,6 +22,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,8 +41,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.reguerta.presentation.state.hasError
 import com.reguerta.presentation.state.UiError
-import com.reguerta.presentation.ui.CabinSketchFontFamily
+import androidx.compose.foundation.layout.heightIn
 import com.reguerta.presentation.ui.Dimens
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.Dp
 
 /*****
  * Project: Reguerta
@@ -100,7 +104,11 @@ fun ReguertaPasswordInput(
             IconButton(
                 onClick = { isPasswordVisible = !isPasswordVisible }
             ) {
-                Icon(imageVector = endIcon, contentDescription = "show or hide password")
+                Icon(
+                    imageVector = endIcon,
+                    contentDescription = "show or hide password",
+                    modifier = Modifier.size(Dimens.Components.Input.trailingIconSize)
+                )
             }
         },
         visualTransformation = if (isPasswordVisible) {
@@ -137,101 +145,6 @@ fun TextReguertaInput(
 }
 
 @Composable
-fun PhoneNumberReguertaInput(
-    text: String,
-    onTextChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    placeholderText: String = "",
-    imeAction: ImeAction = ImeAction.Default,
-    keyboardType: KeyboardType = KeyboardType.Phone,
-) {
-    SecondaryReguertaInput(
-        text = text,
-        uiError = UiError("Este teléfono no es válido", text.length == 9),
-        onTextChange = onTextChange,
-        placeholderText = placeholderText,
-        keyboardType = keyboardType,
-        imeAction = imeAction,
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun SecondaryReguertaInput(
-    text: String,
-    onTextChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    uiError: UiError = UiError(),
-    placeholderText: String = "",
-    keyboardType: KeyboardType = KeyboardType.Text,
-    imeAction: ImeAction = ImeAction.Default,
-    visualTransformation: VisualTransformation = VisualTransformation.None
-) {
-    val textColor = if (text.isEmpty()) {
-        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
-    val colors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = textColor,
-        unfocusedTextColor = textColor,
-        focusedBorderColor = MaterialTheme.colorScheme.primary,
-        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurface,
-        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface,
-        errorPlaceholderColor = MaterialTheme.colorScheme.onSurface,
-        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-        focusedContainerColor = MaterialTheme.colorScheme.background,
-        unfocusedContainerColor = MaterialTheme.colorScheme.background,
-        disabledContainerColor = MaterialTheme.colorScheme.background,
-        errorContainerColor = MaterialTheme.colorScheme.background,
-    )
-    var touched by rememberSaveable { mutableStateOf(false) }
-    val showError = text.isNotEmpty() && uiError.hasError && touched
-    Column(
-        verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm)
-    ) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = onTextChange,
-            colors = colors,
-            isError = showError,
-            singleLine = true,
-            textStyle = TextStyle(
-                fontFamily = CabinSketchFontFamily,
-                fontWeight = FontWeight.Bold,
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize
-            ),
-            placeholder = {
-                if (text.isEmpty() && placeholderText.isNotEmpty()) {
-                    TextBody(
-                        text = placeholderText,
-                        textSize = MaterialTheme.typography.bodyLarge.fontSize,
-                        textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
-                    )
-                }
-            },
-            visualTransformation = visualTransformation,
-            keyboardOptions = KeyboardOptions(
-                keyboardType = keyboardType,
-                imeAction = imeAction
-            ),
-            supportingText = {
-                if (showError) {
-                    TextBody(
-                        text = uiError.message,
-                        textSize = MaterialTheme.typography.bodySmall.fontSize,
-                        textColor = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(horizontal = Dimens.Spacing.md)
-                    )
-                }
-            },
-            modifier = modifier.onFocusChanged { if (!it.isFocused) touched = true }
-        )
-    }
-}
-
-@Composable
 private fun ReguertaInput(
     text: String,
     labelText: String,
@@ -250,12 +163,20 @@ private fun ReguertaInput(
     } else {
         MaterialTheme.colorScheme.onSurface
     }
-    val colors = OutlinedTextFieldDefaults.colors(
+    val colors = TextFieldDefaults.colors(
         focusedTextColor = textColor,
         unfocusedTextColor = textColor,
-        focusedBorderColor = MaterialTheme.colorScheme.onSurface,
-        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurface,
+        disabledTextColor = textColor.copy(alpha = 0.38f),
+        errorTextColor = MaterialTheme.colorScheme.error,
+        focusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+        unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+        disabledIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+        errorIndicatorColor = MaterialTheme.colorScheme.error,
+        focusedContainerColor = MaterialTheme.colorScheme.background,
+        unfocusedContainerColor = MaterialTheme.colorScheme.background,
+        disabledContainerColor = MaterialTheme.colorScheme.background,
+        errorContainerColor = MaterialTheme.colorScheme.background,
+        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
         focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface,
         errorPlaceholderColor = MaterialTheme.colorScheme.onSurface,
         unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
@@ -272,22 +193,19 @@ private fun ReguertaInput(
             isError = showError,
             singleLine = true,
             trailingIcon = trailingIcon,
+            shape = RoundedCornerShape(Dimens.Components.Input.cornerRadius),
             label = {
-                TextTitle(
+                TextBody(
                     text = labelText,
-                    textSize = MaterialTheme.typography.labelMedium.fontSize
+                    style = Dimens.Components.Input.labelStyle
                 )
             },
-            textStyle = TextStyle(
-                fontFamily = CabinSketchFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = MaterialTheme.typography.bodyLarge.fontSize
-            ),
+            textStyle = Dimens.Components.Input.textStyle,
             placeholder = {
                 if (text.isEmpty() && placeholderText.isNotEmpty()) {
                     TextBody(
                         text = placeholderText,
-                        textSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        style = Dimens.Components.Input.textStyle,
                         textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
                     )
                 }
@@ -301,7 +219,7 @@ private fun ReguertaInput(
                 if (suffixValue.isNotEmpty()) {
                     TextBody(
                         text = suffixValue,
-                        textSize = MaterialTheme.typography.bodyLarge.fontSize,
+                        style = Dimens.Components.Input.textStyle,
                         textColor = MaterialTheme.colorScheme.onSurface
                     )
                 }
@@ -310,13 +228,13 @@ private fun ReguertaInput(
                 if (showError) {
                     TextBody(
                         text = uiError.message,
-                        textSize = MaterialTheme.typography.bodySmall.fontSize,
+                        style = Dimens.Components.Input.supportingStyle,
                         textColor = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.padding(horizontal = Dimens.Spacing.md)
+                        modifier = Modifier.padding(horizontal = Dimens.Spacing.xs)
                     )
                 }
             },
-            modifier = modifier.onFocusChanged { if (!it.isFocused) touched = true }
+            modifier = modifier.heightIn(min = Dimens.Components.Input.minHeight).onFocusChanged { if (!it.isFocused) touched = true }
         )
     }
 }
@@ -331,10 +249,8 @@ fun CustomPhoneNumberInput(
     imeAction: ImeAction = ImeAction.Default,
     supportingText: String = ""
 ) {
-    val textStyle = TextStyle(
-        fontFamily = CabinSketchFontFamily,
+    val textStyle = Dimens.Components.Input.textStyle.copy(
         fontWeight = FontWeight.Bold,
-        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
         textAlign = TextAlign.Center
     )
 
@@ -345,12 +261,12 @@ fun CustomPhoneNumberInput(
     ) {
         Box(
             modifier = modifier
-                .height(Dimens.Size.dp36)
-                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(Dimens.Radius.md))
+                .heightIn(min = Dimens.Size.dp32)
+                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(Dimens.Components.Input.cornerRadius))
                 .border(
-                    Dimens.Border.regular,
+                    Dimens.Border.thin,
                     if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                    RoundedCornerShape(Dimens.Radius.md)
+                    RoundedCornerShape(Dimens.Components.Input.cornerRadius)
                 )
                 .padding(Dimens.Spacing.sm)
                 .onFocusChanged { if (!it.isFocused) touched = true }
@@ -358,27 +274,33 @@ fun CustomPhoneNumberInput(
             if (value.isEmpty()) {
                 TextBody(
                     text = placeholder,
-                    textSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    style = Dimens.Components.Input.textStyle.copy(textAlign = TextAlign.Center),
                     textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    textAlignment = TextAlign.Center,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Center)
                 )
             }
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
-                textStyle = textStyle.copy(color = MaterialTheme.colorScheme.onSurface),
+                textStyle = textStyle.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center
+                ),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = KeyboardType.Phone,
                     imeAction = imeAction
                 ),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                maxLines = 1
             )
         }
         if (showSupporting) {
             TextBody(
                 text = supportingText,
-                textSize = MaterialTheme.typography.bodySmall.fontSize,
+                style = Dimens.Components.Input.supportingStyle,
                 textColor = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(horizontal = Dimens.Spacing.md)
             )
@@ -395,12 +317,11 @@ fun CustomTextField(
     isError: Boolean = false,
     keyboardType: KeyboardType = KeyboardType.Text,
     imeAction: ImeAction = ImeAction.Default,
-    supportingText: String = ""
+    supportingText: String = "",
+    minHeight: Dp = Dimens.Components.Input.minHeight
 ) {
-    val textStyle = TextStyle(
-        fontFamily = CabinSketchFontFamily,
+    val textStyle = Dimens.Components.Input.textStyle.copy(
         fontWeight = FontWeight.Bold,
-        fontSize = MaterialTheme.typography.bodyLarge.fontSize,
         textAlign = TextAlign.Center
     )
 
@@ -411,12 +332,12 @@ fun CustomTextField(
     ) {
         Box(
             modifier = modifier
-                .height(Dimens.Size.dp36)
-                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(Dimens.Radius.md))
+                .heightIn(min = minHeight)
+                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(Dimens.Components.Input.cornerRadius))
                 .border(
-                    Dimens.Border.regular,
+                    Dimens.Border.thin,
                     if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                    RoundedCornerShape(Dimens.Radius.md)
+                    RoundedCornerShape(Dimens.Components.Input.cornerRadius)
                 )
                 .padding(Dimens.Spacing.sm)
                 .onFocusChanged { if (!it.isFocused) touched = true }
@@ -424,78 +345,35 @@ fun CustomTextField(
             if (value.isEmpty()) {
                 TextBody(
                     text = placeholder,
-                    textSize = MaterialTheme.typography.bodyLarge.fontSize,
+                    style = Dimens.Components.Input.textStyle.copy(textAlign = TextAlign.Center),
                     textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                    textAlignment = TextAlign.Center,
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Center)
                 )
             }
             BasicTextField(
                 value = value,
                 onValueChange = onValueChange,
-                textStyle = textStyle.copy(color = MaterialTheme.colorScheme.onSurface),
+                textStyle = textStyle.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center
+                ),
                 keyboardOptions = KeyboardOptions(
                     keyboardType = keyboardType,
                     imeAction = imeAction
                 ),
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                maxLines = 1
             )
         }
         if (showSupporting) {
             TextBody(
                 text = supportingText,
-                textSize = MaterialTheme.typography.bodySmall.fontSize,
+                style = Dimens.Components.Input.supportingStyle,
                 textColor = MaterialTheme.colorScheme.error,
                 modifier = Modifier.padding(horizontal = Dimens.Spacing.md)
-            )
-        }
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ReguertaInputPreview() {
-    Screen {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm),
-            modifier = Modifier.padding(Dimens.Spacing.sm)
-        ) {
-            ReguertaEmailInput(
-                text = "Manuel Lopera",
-                onTextChange = {},
-                isValidEmail = false,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            ReguertaPasswordInput(
-                text = "",
-                placeholderText = "Contraseña",
-                onTextChange = {},
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            TextReguertaInput(
-                text = "Manuel Lopera",
-                labelText = "Nombre",
-                onTextChange = {},
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            SecondaryReguertaInput(
-                text = "Manuel Lopera",
-                onTextChange = {},
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            PhoneNumberReguertaInput(
-                text = "123456789",
-                onTextChange = {},
-                modifier = Modifier.fillMaxWidth()
-            )
-            PhoneNumberReguertaInput(
-                text = "12345679",
-                onTextChange = {},
-                modifier = Modifier.fillMaxWidth()
             )
         }
     }

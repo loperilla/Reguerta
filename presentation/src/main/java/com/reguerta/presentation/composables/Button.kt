@@ -40,6 +40,24 @@ import com.reguerta.domain.enums.UiType
 
 typealias BtnType = UiType
 
+enum class ButtonLayout { Fixed, Fill }
+
+@Composable
+private fun Modifier.applyButtonWidth(
+    twoButtons: Boolean,
+    isDialog: Boolean,
+    layout: ButtonLayout
+): Modifier = when (layout) {
+    ButtonLayout.Fill -> this.fillMaxWidth()
+    ButtonLayout.Fixed -> this.width(
+        when {
+            twoButtons && isDialog -> Dimens.Components.Button.fixedTwoButtonsDialogWidth
+            twoButtons -> Dimens.Components.Button.fixedTwoButtonsWidth
+            else -> Dimens.Components.Button.fixedSingleWidth
+        }
+    )
+}
+
 @Composable
 fun ReguertaButton(
     textButton: String,
@@ -49,7 +67,7 @@ fun ReguertaButton(
     isSingleButton: Boolean = true,
     btnType: BtnType = BtnType.INFO
 ) {
-    val shape = RoundedCornerShape(Dimens.Components.Button.cornerRadius)
+    val shape = RoundedCornerShape(Dimens.Radius.md)
     val finalModifier = if (isSingleButton) {
         modifier.fillMaxWidth()
     } else {
@@ -65,6 +83,7 @@ fun ReguertaButton(
         TextRegular(
             text = textButton,
             style = if (isSingleButton) Dimens.Components.Button.labelStyle else Dimens.Components.Button.secondaryLabelStyle,
+            textColor = Color.Unspecified,
             modifier = Modifier.padding(
                 horizontal = Dimens.Components.Button.horizontalPadding,
                 vertical = Dimens.Components.Button.verticalPadding
@@ -82,7 +101,7 @@ fun InverseReguertaButton(
     isSingleButton: Boolean = true,
     btnType: BtnType = BtnType.INFO
 ) {
-    val shape = RoundedCornerShape(Dimens.Components.Button.cornerRadius)
+    val shape = RoundedCornerShape(Dimens.Radius.md)
     val finalModifier = if (isSingleButton) modifier.fillMaxWidth() else modifier
     Button(
         onClick = onClick,
@@ -95,6 +114,7 @@ fun InverseReguertaButton(
         TextBody(
             text = textButton,
             style = if (isSingleButton) Dimens.Components.Button.labelStyle else Dimens.Components.Button.secondaryLabelStyle,
+            textColor = Color.Unspecified,
             modifier = Modifier.padding(
                 horizontal = Dimens.Components.Button.horizontalPadding,
                 vertical = Dimens.Components.Button.verticalPadding
@@ -103,17 +123,19 @@ fun InverseReguertaButton(
     }
 }
 
+@Deprecated("'borderSize' y 'cornerSize' no se usan; el estilo lo gobiernan los tokens Dimens.Border/Dimens.Corner y Dimens.Components.Button.")
+@Suppress("UNUSED_PARAMETER")
 @Composable
 fun InverseReguertaButton(
     content: @Composable RowScope.() -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     enabledButton: Boolean = true,
-    borderSize: Dp = 2.dp,
-    cornerSize: Float = 16f,
+    borderSize: Dp = 2.dp, // deprecated
+    cornerSize: Float = 16f, // deprecated
     btnType: BtnType = BtnType.INFO
 ) {
-    val shape = RoundedCornerShape(Dimens.Components.Button.cornerRadius)
+    val shape = RoundedCornerShape(Dimens.Radius.md)
     Button(
         onClick = onClick,
         modifier = modifier.heightIn(min = Dimens.Components.Button.minHeight),
@@ -132,8 +154,8 @@ fun ReguertaOrderButton(
     modifier: Modifier = Modifier,
     enabled: Boolean = true
 ) {
-    val shape = RoundedCornerShape(16.dp)
-    val baseContainer = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f) // un poco más sólido que antes
+    val shape = RoundedCornerShape(Dimens.Radius.md)
+    val baseContainer = MaterialTheme.colorScheme.primary.copy(alpha = 0.25f)
     val disabledContainer = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.60f)
     val disabledContent = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.3f)
 
@@ -147,12 +169,12 @@ fun ReguertaOrderButton(
     val decoratedModifier =
         if (!enabled) {
             modifier.border(
-                BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.20f)),
+                BorderStroke(Dimens.Border.thin, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.20f)),
                 shape = shape
             )
         } else {
             modifier.border(
-                BorderStroke(1.dp, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.14f)),
+                BorderStroke(Dimens.Border.thin, MaterialTheme.colorScheme.onSurface.copy(alpha = 0.14f)),
                 shape = shape
             )
         }
@@ -166,7 +188,7 @@ fun ReguertaOrderButton(
     ) {
         TextBody(
             text = text,
-            textSize = MaterialTheme.typography.labelLarge.fontSize,
+            style = MaterialTheme.typography.titleMedium,
             textColor = if (enabled) MaterialTheme.colorScheme.primary else disabledContent,
             modifier = Modifier.padding(Dimens.Spacing.sm)
         )
@@ -206,6 +228,84 @@ fun ReguertaIconButton(
     }
 }
 
+@Composable
+fun ReguertaFullButton(
+    textButton: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    btnType: BtnType = BtnType.INFO,
+    twoButtons: Boolean = false,
+    isDialog: Boolean = false,
+    layout: ButtonLayout = ButtonLayout.Fixed,
+) {
+    val shape = RoundedCornerShape(Dimens.Radius.lg)
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        shape = shape,
+        colors = Dimens.Components.Button.colors(btnType),
+        modifier = modifier
+            .heightIn(min = Dimens.Components.Button.defaultHeight)
+            .applyButtonWidth(twoButtons = twoButtons, isDialog = isDialog, layout = layout)
+    ) {
+        TextRegular(
+            text = textButton,
+            style = Dimens.Components.Button.labelStyle,
+            textColor = Color.Unspecified,
+            modifier = Modifier.padding(
+                horizontal = Dimens.Components.Button.horizontalPadding,
+                vertical = Dimens.Components.Button.verticalPadding
+            )
+        )
+    }
+}
+
+@Composable
+fun ReguertaFlatButton(
+    textButton: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    enabled: Boolean = true,
+    btnType: BtnType = BtnType.INFO,
+    twoButtons: Boolean = false,
+    isDialog: Boolean = false,
+    layout: ButtonLayout = ButtonLayout.Fixed,
+) {
+    val shape = RoundedCornerShape(Dimens.Radius.md)
+    val isError = btnType == BtnType.ERROR
+
+    val colors = ButtonDefaults.buttonColors(
+        containerColor = if (isError) Color.Transparent else Dimens.Components.Button.flatContainerColor,
+        contentColor = if (!enabled) Dimens.Components.Button.disabledContentColor
+                       else if (isError) MaterialTheme.colorScheme.error
+                       else Dimens.Components.Button.flatContentColor,
+        disabledContainerColor = Dimens.Components.Button.disabledContainerColor,
+        disabledContentColor = Dimens.Components.Button.disabledContentColor
+    )
+
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        shape = shape,
+        colors = colors,
+        border = BorderStroke(Dimens.Border.thin, Dimens.Components.Button.borderColor(btnType)),
+        modifier = modifier
+            .heightIn(min = Dimens.Components.Button.defaultHeight)
+            .applyButtonWidth(twoButtons = twoButtons, isDialog = isDialog, layout = layout)
+    ) {
+        TextBody(
+            text = textButton,
+            style = Dimens.Components.Button.labelStyle,
+            textColor = Color.Unspecified,
+            modifier = Modifier.padding(
+                horizontal = Dimens.Components.Button.horizontalPadding,
+                vertical = Dimens.Components.Button.verticalPadding
+            )
+        )
+    }
+}
+
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun ReguertaButtonPreview() {
@@ -236,8 +336,8 @@ fun ReguertaButtonPreview() {
                 content = {
                     TextBody(
                         text = "con content",
-                        textSize = MaterialTheme.typography.labelMedium.fontSize,
-                        textColor = MaterialTheme.colorScheme.onSurface
+                        style = Dimens.Components.Button.secondaryLabelStyle,
+                        textColor = Color.Unspecified
                     )
                 },
                 onClick = {},

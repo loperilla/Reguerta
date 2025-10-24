@@ -29,9 +29,9 @@ fun ImageUrl(
     modifier: Modifier = Modifier,
     contentDescription: String? = null,
     contentScale: ContentScale = ContentScale.Crop,
-    cornerSize: Dp = Dimens.Radius.md,
+    cornerSize: Dp = Dimens.Components.Image.cornerRadius,
     clip: Boolean = true,
-    crossfadeMillis: Int = 250
+    crossfadeMillis: Int = Dimens.Components.Image.crossfadeMillis
 ) {
     AsyncImage(
         model = ImageRequest

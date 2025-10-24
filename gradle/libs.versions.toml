@@ -27,6 +27,7 @@ lifecycle-process = "2.9.4"
 core = "1.17.0"
 javapoet = "1.13.0"
 animation = "1.9.3"
+compose-material-core = "1.5.3"
 
 [libraries]
 #Compose
@@ -86,6 +87,7 @@ androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-p
 androidx-core = { group = "androidx.core", name = "core", version.ref = "core" }
 javapoet = { group = "com.squareup", name = "javapoet", version.ref = "javapoet" }
 androidx-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animation" }
+androidx-compose-material-core = { group = "androidx.wear.compose", name = "compose-material-core", version.ref = "compose-material-core" }
 
 [bundles]
 compose = [

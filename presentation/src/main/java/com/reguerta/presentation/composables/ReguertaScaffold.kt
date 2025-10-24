@@ -5,7 +5,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.Modifier
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 
 /**
  * ReguertaScaffold
@@ -17,6 +20,7 @@ import androidx.compose.ui.Modifier
  * Recomendación: envolver la pantalla con `Screen { ... }` para tema/surface,
  * y dentro utilizar `ReguertaScaffold { innerPadding -> ... }`.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReguertaScaffold(
     modifier: Modifier = Modifier,
@@ -25,10 +29,11 @@ fun ReguertaScaffold(
     snackbarHost: @Composable () -> Unit = {},
     floatingActionButton: @Composable () -> Unit = {},
     contentWindowInsets: WindowInsets = WindowInsets.systemBars,
+    scrollBehavior: TopAppBarScrollBehavior? = null,
     content: @Composable (PaddingValues) -> Unit
 ) {
     Scaffold(
-        modifier = modifier,
+        modifier = if (scrollBehavior != null) modifier.nestedScroll(scrollBehavior.nestedScrollConnection) else modifier,
         topBar = topBar,
         bottomBar = bottomBar,
         snackbarHost = snackbarHost,

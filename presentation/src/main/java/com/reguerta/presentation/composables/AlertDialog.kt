@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.AlertDialog
@@ -18,6 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
+import androidx.compose.ui.graphics.Color.Companion.Unspecified
 import com.reguerta.presentation.ui.Dimens
 import com.reguerta.domain.enums.UiType
 
@@ -26,12 +30,6 @@ import com.reguerta.domain.enums.UiType
  * From: com.reguerta.presentation.composables
  * Created By Manuel Lopera on 9/3/24 at 10:25
  * All rights reserved 2024
- */
-
-/**
- * ReguertaAlertDialog (tokenizada)
- * Variante de alto nivel que aplica los tamaños/estilos definidos en Dimens.Components.Dialog.
- * Usa esta función para no repetir tamaños en cada llamada.
  */
 @Composable
 fun ReguertaAlertDialog(
@@ -43,143 +41,124 @@ fun ReguertaAlertDialog(
     onConfirm: (() -> Unit)? = null,
     dismissText: String? = null,
     onDismissButton: (() -> Unit)? = null,
-    containerColor: Color = AlertDialogDefaults.containerColor,
-    iconContainerColor: Color? = null,
-    iconInnerColor: Color? = null,
-    iconContentColor: Color? = null,
     type: UiType = UiType.INFO,
+    containerColor: Color = MaterialTheme.colorScheme.background
 ) {
-    val colorSet = Dimens.Components.Dialog.colorsFor(type)
-    val badgeContainer = iconContainerColor ?: colorSet.badgeContainer
-    val badgeInner = iconInnerColor ?: colorSet.badgeInner
-    val iconTint = iconContentColor ?: colorSet.icon
-
     AlertDialog(
         onDismissRequest = onDismissRequest,
+        modifier = Modifier.fillMaxWidth(Dimens.Components.Dialog.widthRatio),
+
         icon = {
             if (icon != null) {
+                val accent = when (type) {
+                    UiType.INFO -> MaterialTheme.colorScheme.primary
+                    UiType.ERROR -> MaterialTheme.colorScheme.error
+                    UiType.WARNING -> MaterialTheme.colorScheme.error // ajusta si tienes color específico para warning
+                }
+                val outer = accent.copy(alpha = 0.2f)
+                val outerSize = Dimens.Components.Dialog.badgeSize
+
                 Box(
-                    contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(Dimens.Components.Dialog.badgeSize)
-                        .background(badgeContainer, shape = CircleShape)
+                        .size(outerSize)
+                        .background(outer, CircleShape),
+                    contentAlignment = Alignment.Center
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(Dimens.Components.Dialog.badgeSize * Dimens.Components.Dialog.innerBadgeFraction)
-                            .background(badgeInner, shape = CircleShape)
-                    )
                     Icon(
                         imageVector = icon,
                         contentDescription = null,
-                        tint = iconTint,
+                        tint = accent,
                         modifier = Modifier.size(Dimens.Components.Dialog.iconSize)
                     )
                 }
             }
         },
+
+        // Título 22sp bold centrado (token)
         title = {
             if (!titleText.isNullOrBlank()) {
                 TextTitle(
                     text = titleText,
                     style = Dimens.Components.Dialog.titleStyle,
-                    textColor = MaterialTheme.colorScheme.onSurface
+                    textColor = Color.Unspecified // hereda del dialog
                 )
             }
         },
+
+        // Cuerpo 16sp centrado con lineHeight (token)
         text = {
             if (!bodyText.isNullOrBlank()) {
                 TextBody(
                     text = bodyText,
                     style = Dimens.Components.Dialog.bodyStyle,
-                    textColor = MaterialTheme.colorScheme.onSurface
+                    textColor = Color.Unspecified
                 )
             }
         },
+
+        // Botón principal: Full + fill width, colores por UiType
         confirmButton = {
             if (!confirmText.isNullOrBlank() && onConfirm != null) {
-                ReguertaButton(
+                ReguertaFullButton(
                     textButton = confirmText,
                     onClick = onConfirm,
+                    btnType = type,
+                    layout = ButtonLayout.Fill,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = Dimens.Components.Dialog.verticalPadding)
                 )
             }
         },
+
+        // Botón secundario (opcional): Flat + fill width, colores por UiType
         dismissButton = {
             if (!dismissText.isNullOrBlank() && onDismissButton != null) {
-                InverseReguertaButton(
+                ReguertaFlatButton(
                     textButton = dismissText,
                     onClick = onDismissButton,
+                    btnType = type,
+                    layout = ButtonLayout.Fill,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = Dimens.Components.Dialog.verticalPadding)
                 )
             }
         },
+
+        // Look iOS-friendly pero Material3
         containerColor = containerColor,
-        iconContentColor = iconTint,
+        shape = RoundedCornerShape(Dimens.Radius.lg),
+        tonalElevation = 0.dp,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
     )
 }
 
+/**
+ * Overload slot-based para casos avanzados.
+ * Aplica forma/tonal/contenerdor por defecto, pero deja a los slots el contenido.
+ */
 @Composable
 fun ReguertaAlertDialog(
     onDismissRequest: () -> Unit,
-    icon: @Composable () -> Unit,
-    title: @Composable () -> Unit,
-    text: @Composable () -> Unit,
-    confirmButton: @Composable () -> Unit = {},
-    dismissButton: @Composable () -> Unit = {},
-    containerColor: Color = AlertDialogDefaults.containerColor,
-    iconContentColor: Color = AlertDialogDefaults.iconContentColor
+    icon: @Composable (() -> Unit)?,
+    title: @Composable (() -> Unit)?,
+    text: @Composable (() -> Unit)?,
+    confirmButton: @Composable (() -> Unit)? = null,
+    dismissButton: @Composable (() -> Unit)? = null,
+    containerColor: Color = MaterialTheme.colorScheme.background
 ) {
     AlertDialog(
-        icon = icon,
         onDismissRequest = onDismissRequest,
+        modifier = Modifier.fillMaxWidth(Dimens.Components.Dialog.widthRatio),
+        icon = icon,
         title = title,
         text = text,
-        confirmButton = confirmButton,
+        confirmButton = (confirmButton ?: {}),
         dismissButton = dismissButton,
         containerColor = containerColor,
-        iconContentColor = iconContentColor
+        shape = RoundedCornerShape(Dimens.Radius.lg),
+        tonalElevation = 0.dp,
+        properties = DialogProperties(usePlatformDefaultWidth = false)
     )
-}
-
-@Preview
-@Composable
-fun ReguertaAlertDialogPrev() {
-    Screen {
-        ReguertaAlertDialog(
-            onDismissRequest = { },
-            icon = Icons.Default.Info,
-            titleText = "Cerrar sesión",
-            bodyText = "¿Estás seguro que quieres cerrar la sesión?",
-            confirmText = "Cerrar sesión",
-            onConfirm = { },
-            dismissText = "Volver",
-            onDismissButton = { },
-            containerColor = MaterialTheme.colorScheme.background,
-            type = com.reguerta.domain.enums.UiType.INFO
-        )
-    }
-}
-
-@Preview
-@Composable
-fun ReguertaNoButtonDialogPrev() {
-    Screen {
-        ReguertaAlertDialog(
-            onDismissRequest = { },
-            icon = Icons.Default.Info,
-            titleText = "Cerrar sesión",
-            bodyText = "¿Estás seguro que quieres cerrar la sesión?",
-            confirmText = null,
-            onConfirm = null,
-            dismissText = null,
-            onDismissButton = null,
-            containerColor = MaterialTheme.colorScheme.background,
-            type = com.reguerta.domain.enums.UiType.INFO
-        )
-    }
 }

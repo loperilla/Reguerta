@@ -19,15 +19,12 @@ import timber.log.Timber
 @HiltAndroidApp
 class ReguertaApp : Application(), DefaultLifecycleObserver {
     override fun onCreate() {
-        Timber.i("SYNC_ReguertaApp: onCreate lanzado")
         super<Application>.onCreate()
         FirebaseApp.initializeApp(this)
 
         val environment = if (BuildConfig.DEBUG) FirestoreEnvironment.DEVELOP else FirestoreEnvironment.PRODUCTION
         FirestoreManager.setEnvironment(environment)
         FirestoreManager.configureFirestore()
-
-        Timber.i("SYNC_ReguertaApp: Firebase y entorno inicializados (${environment.path})")
 
         if (BuildConfig.DEBUG) {
             Timber.plant(

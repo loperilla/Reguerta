@@ -26,12 +26,13 @@ android {
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
             val versionNameProp = VERSION_NAME
             buildConfigField("String", "DISPLAY_VERSION", "\"$versionNameProp\"")
+            buildConfigField("String", "DEBUG_LOGIN_DATE", "\"\"")
         }
         debug {
             val versionNameProp = VERSION_NAME
             buildConfigField("String", "DISPLAY_VERSION", "\"$versionNameProp (Debug)\"")
-            val debugLoginDate: String = providers.gradleProperty("DEBUG_LOGIN_DATE").orElse("").get()
-            buildConfigField("String", "DEBUG_LOGIN_DATE", "\"$debugLoginDate\"")
+            val debugLoginDateProp = DEBUG_LOGIN_DATE
+            buildConfigField("String", "DEBUG_LOGIN_DATE", "\"$debugLoginDateProp\"")
         }
     }
     compileOptions {
@@ -64,6 +65,7 @@ dependencies {
     implementation(libs.timber)
     implementation(libs.firebase.common.ktx)
     implementation(libs.androidx.animation)
+    implementation(libs.androidx.compose.material.core)
 
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)

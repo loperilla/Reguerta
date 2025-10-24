@@ -169,53 +169,37 @@ class NewOrderViewModel @Inject constructor(
     }
 
 
-    // Carga los productos disponibles, reintenta si es necesario
+    // Carga los productos disponibles, sin reintentos ni transición a ERROR
     private suspend fun loadAvailableProducts(getAvailableProductsUseCase: GetAvailableProductsUseCase): Boolean {
         Timber.i("SYNC_SYNC_FORCE_RELOAD - Ejecutando loadAvailableProducts()")
-        var intentos = 0
-        val maxIntentos = 10
-        val delayMillis = 300L
-        while (intentos < maxIntentos) {
-            try {
-                Timber.i("SYNC_LOAD_PRODUCTS - Intento $intentos: Llamando a getAvailableProductsUseCase()")
-                val availableProducts = getAvailableProductsUseCase().first()
-                Timber.i("SYNC_LOAD_PRODUCTS - Productos obtenidos (${availableProducts.size}): $availableProducts")
-                if (availableProducts.isNotEmpty()) {
-                    if (::initialCommonProducts.isInitialized && initialCommonProducts == availableProducts) {
-                        return true
-                    }
-                    initialCommonProducts = availableProducts
-                    Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
-                    applySearchFilter()
-                    Timber.i("SYNC_Productos recargados: ${availableProducts.size}")
-                    return true
-                }
-            } catch (e: Exception) {
-                Timber.e(e, "SYNC_ERROR_LOAD_PRODUCTS - ${e.message}")
-                Timber.e(e, "SYNC_Error al cargar productos disponibles: ${e.message}")
-                handleError(e)
-                Timber.e("SYNC_UI_STATE - Cambiando a ERROR. Estado actual: $_state")
-                _state.update {
-                    it.copy(
-                        uiState = NewOrderUiMode.ERROR,
-                        errorMessage = e.message ?: "No se pudieron cargar productos disponibles"
-                    )
-                }
-                return false
+        return try {
+            Timber.i("SYNC_LOAD_PRODUCTS - Intento 0: Llamando a getAvailableProductsUseCase()")
+            val availableProducts = getAvailableProductsUseCase().first()
+            Timber.i("SYNC_LOAD_PRODUCTS - Productos obtenidos (${availableProducts.size}): $availableProducts")
+
+            // Inicializar siempre, aunque la lista sea vacía
+            if (::initialCommonProducts.isInitialized && initialCommonProducts == availableProducts) {
+                Timber.i("SYNC_INIT_COMMON_PRODUCTS - Lista idéntica a la previa; sin cambios")
+            } else {
+                initialCommonProducts = availableProducts
+                Timber.i("SYNC_INIT_COMMON_PRODUCTS - Productos inicializados (${initialCommonProducts.size}): $initialCommonProducts")
             }
-            intentos++
-            delay(delayMillis)
+
+            // Reconstruir listas y filtros (deja la UI lista para SELECT_PRODUCTS)
+            applySearchFilter()
+            Timber.i("SYNC_Productos recargados: ${availableProducts.size}")
+            true
+        } catch (e: Exception) {
+            Timber.e(e, "SYNC_ERROR_LOAD_PRODUCTS - ${e.message}")
+            // Degradación amable: mostramos pantalla de selección con lista vacía
+            if (!::initialCommonProducts.isInitialized) {
+                initialCommonProducts = emptyList()
+                Timber.w("SYNC_INIT_COMMON_PRODUCTS - Inicializamos lista vacía por error en carga")
+            }
+            applySearchFilter()
+            Timber.w("SYNC_RECOVERY - Mostrando pantalla de selección con lista vacía por error al cargar productos")
+            true
         }
-        Timber.e("SYNC_LOAD_PRODUCTS - No se pudieron obtener productos tras $maxIntentos intentos")
-        handleError(IllegalStateException("No se pudieron obtener productos tras $maxIntentos intentos"))
-        Timber.e("SYNC_UI_STATE - Cambiando a ERROR. Estado actual: $_state")
-        _state.update {
-            it.copy(
-                uiState = NewOrderUiMode.ERROR,
-                errorMessage = "No se pudieron obtener productos tras $maxIntentos intentos"
-            )
-        }
-        return false
     }
 
     // Maneja el flujo de pedidos de la semana pasada
@@ -226,14 +210,13 @@ class NewOrderViewModel @Inject constructor(
                 if (existOrder) {
                     observeOrderLines(isEdit = false)
                 } else {
-                    Timber.e("SYNC_UI_STATE - Cambiando a ERROR. Estado actual: $_state")
-                    _state.update {
-                        it.copy(
-                            uiState = NewOrderUiMode.ERROR,
-                            errorMessage = "No hay pedido anterior disponible"
-                        )
+                    Timber.w("SYNC_FLOW_LAST_WEEK - No hay pedido anterior. Fallback a SELECT_PRODUCTS")
+                    val success = loadAvailableProducts(getAvailableProductsUseCase)
+                    if (success) {
+                        _state.update { it.copy(uiState = NewOrderUiMode.SELECT_PRODUCTS) }
+                    } else {
+                        _state.update { it.copy(uiState = NewOrderUiMode.SELECT_PRODUCTS) } // garantizamos navegación
                     }
-                    Timber.i("SYNC_SYNC_FLOW_TYPE - No hay pedido anterior, se mostrará pantalla vacía (LastOrderScreen sin datos)")
                 }
             },
             onFailure = {
@@ -523,13 +506,14 @@ class NewOrderViewModel @Inject constructor(
     private fun forceReload() {
         Timber.i("SYNC_SYNC_FORCE_RELOAD - Ejecutando forceReload()")
         viewModelScope.launch(Dispatchers.IO) {
-            val flow = state.value.flow
-            if (flow == null) {
-                Timber.w("SYNC_FLOW - flow es null en reload, calculando una vez")
-                val today = getCurrentDayOfWeekUseCase()
-                val deliveryDay = getDeliveryDayUseCase()
-                val isNewOrder = isNewOrderBranch(today, deliveryDay)
-                _state.update { it.copy(flow = if (isNewOrder) OrderFlow.CURRENT_WEEK else OrderFlow.LAST_WEEK) }
+            val today = getCurrentDayOfWeekUseCase()
+            val deliveryDay = getDeliveryDayUseCase()
+            val isNewOrder = isNewOrderBranch(today, deliveryDay)
+            _state.update {
+                it.copy(
+                    currentDay = today,
+                    flow = if (isNewOrder) OrderFlow.CURRENT_WEEK else OrderFlow.LAST_WEEK
+                )
             }
             val result = withTimeoutOrNull(3_000) {
                 try {
@@ -589,7 +573,9 @@ class NewOrderViewModel @Inject constructor(
                                     if (existOrder) {
                                         observeOrderLines(isEdit = false)
                                     } else {
-                                        _state.update { it.copy(uiState = NewOrderUiMode.ERROR, errorMessage = "No hay pedido anterior disponible") }
+                                        Timber.w("SYNC_FORCE_RELOAD - LAST_WEEK sin pedido. Fallback a SELECT_PRODUCTS")
+                                        val success = loadAvailableProducts(getAvailableProductsUseCase)
+                                        _state.update { it.copy(uiState = NewOrderUiMode.SELECT_PRODUCTS) }
                                     }
                                 }
                                 null -> { /* ya cubierto arriba */ }
