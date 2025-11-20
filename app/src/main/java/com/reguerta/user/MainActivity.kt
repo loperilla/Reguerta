@@ -19,8 +19,6 @@ import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import android.os.Build
 import androidx.appcompat.app.AppCompatDelegate
-import com.reguerta.presentation.getWidthDeviceDp
-import androidx.core.content.edit
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
