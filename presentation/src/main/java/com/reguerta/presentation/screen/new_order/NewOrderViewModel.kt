@@ -5,7 +5,6 @@ import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.enums.WeekDay
 import com.reguerta.domain.enums.afterDays
-import com.reguerta.domain.enums.toJavaDayOfWeek
 import com.reguerta.domain.enums.toWeekDay
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.OrderLineProduct

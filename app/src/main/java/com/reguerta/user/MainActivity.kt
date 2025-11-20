@@ -88,4 +88,10 @@ class MainActivity : ComponentActivity() {
             }
         }
     }
+
+    override fun onStart() {
+        super.onStart()
+        Timber.tag("FOREGROUND").i("MainActivity.onStart → requestSyncFromAppLifecycle")
+        ForegroundSyncManager.requestSyncFromAppLifecycle()
+    }
 }

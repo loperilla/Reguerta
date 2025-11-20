@@ -1,7 +1,6 @@
 package com.reguerta.presentation.composables
 
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.DividerDefaults
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier

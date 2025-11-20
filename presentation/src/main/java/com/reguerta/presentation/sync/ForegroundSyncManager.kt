@@ -17,17 +17,21 @@ object ForegroundSyncManager {
     }
 
     suspend fun checkAndSyncIfNeeded(syncAction: suspend () -> Unit) {
+        Timber.tag("FOREGROUND").i("checkAndSyncIfNeeded() invoked")
         val now = System.currentTimeMillis()
-        if (now - lastCheckTimeMillis > MIN_INTERVAL_MILLIS && !isSyncing) {
+        val elapsed = now - lastCheckTimeMillis
+        if (elapsed > MIN_INTERVAL_MILLIS && !isSyncing) {
             isSyncing = true
             lastCheckTimeMillis = now
-            Timber.tag("SYNC_ForegroundSync").d("Ha pasado suficiente tiempo, iniciando comprobación de datos...")
+            Timber.tag("FOREGROUND").i("proceeding to foreground sync callback (elapsed=%dms, min=%dms)", elapsed, MIN_INTERVAL_MILLIS)
+            Timber.tag("SYNC_ForegroundSync").d("Ha pasado suficiente tiempo, iniciando comprobación de datos…")
             try {
                 syncAction()
             } finally {
                 isSyncing = false
             }
         } else {
+            Timber.tag("FOREGROUND").d("check skipped: throttled or syncing (elapsed=%dms, min=%dms, isSyncing=%s)", elapsed, MIN_INTERVAL_MILLIS, isSyncing)
             Timber.tag("SYNC_ForegroundSync").d("Sync no necesario todavía o ya en curso.")
         }
     }

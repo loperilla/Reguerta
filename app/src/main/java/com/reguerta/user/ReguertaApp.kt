@@ -2,6 +2,7 @@ package com.reguerta.user
 
 import android.app.Application
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.firebase.FirebaseApp
 import com.reguerta.data.firebase.firestore.FirestoreEnvironment
@@ -45,5 +46,12 @@ class ReguertaApp : Application(), DefaultLifecycleObserver {
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
         Timber.i("SYNC_ReguertaApp: Observer de ciclo de vida añadido")
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        Timber.tag("APP_LIFECYCLE").i("Process onStart → app to FOREGROUND")
+    }
+    override fun onStop(owner: LifecycleOwner) {
+        Timber.tag("APP_LIFECYCLE").i("Process onStop → app to BACKGROUND")
     }
 }

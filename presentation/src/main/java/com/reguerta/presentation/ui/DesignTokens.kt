@@ -244,10 +244,11 @@ object Dimens {
             /** Tint de los iconos de acción. */
             val actionIconTint @Composable get() = MaterialTheme.colorScheme.onSurfaceVariant
 
-            /** Colores de la TopAppBar (Medium por defecto) centralizados. */
+            /** Colores de la TopAppBar centralizados. */
             @Composable
-            fun colors(): TopAppBarColors = TopAppBarDefaults.mediumTopAppBarColors(
+            fun colors(): TopAppBarColors = TopAppBarDefaults.topAppBarColors(
                 containerColor = containerColor,
+                scrolledContainerColor = containerColor,
                 navigationIconContentColor = navIconTint,
                 titleContentColor = titleColor,
                 actionIconContentColor = actionIconTint,

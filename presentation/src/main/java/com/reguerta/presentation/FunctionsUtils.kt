@@ -4,11 +4,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import android.content.Context
-import android.content.Context.MODE_PRIVATE
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.sp
 import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.model.Container
 import com.reguerta.domain.model.Measure

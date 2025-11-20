@@ -153,13 +153,35 @@ class HomeViewModel @Inject constructor(
         deliveryDay: WeekDay
     ) {
         if (!hasSyncedInSession) {
+            Timber.tag("SYNC_BG").i("first session sync → triggerBackgroundSync")
             hasSyncedInSession = true
             triggerBackgroundSync(config, isProducer, currentDay, deliveryDay)
         } else {
+            Timber.tag("SYNC_BG").i("foreground path → ForegroundSyncManager.checkAndSyncIfNeeded")
             viewModelScope.launch(Dispatchers.IO) {
                 ForegroundSyncManager.checkAndSyncIfNeeded {
                     triggerBackgroundSync(config, isProducer, currentDay, deliveryDay)
                 }
+            }
+        }
+    }
+
+    /** Llamar al volver a primer plano (ON_START) de la pantalla raíz. */
+    fun onAppForegrounded() {
+        val cfg = cachedConfig ?: run {
+            Timber.tag("FOREGROUND").d("onAppForegrounded(): cachedConfig=null, skip")
+            return
+        }
+        val s = state.value
+        Timber.tag("FOREGROUND").i("HomeVM.onAppForegrounded() → checkAndSyncIfNeeded")
+        viewModelScope.launch(Dispatchers.IO) {
+            ForegroundSyncManager.checkAndSyncIfNeeded {
+                triggerBackgroundSync(
+                    config = cfg,
+                    isProducer = s.isCurrentUserProducer,
+                    currentDay = s.currentDay,
+                    deliveryDay = s.deliveryDay
+                )
             }
         }
     }
@@ -171,6 +193,15 @@ class HomeViewModel @Inject constructor(
         deliveryDay: WeekDay
     ) {
         viewModelScope.launch(Dispatchers.IO) {
+            // Pre‑sync snapshot (antes incluso de la verificación de frescura)
+            val criticalPre = getActiveCriticalTables(isProducer, currentDay, deliveryDay)
+                .map { it.name }
+                .toRootLower()
+            val localPre = dataStore.getSyncTimestampsFor(criticalPre)
+            Timber.tag("SYNC_BG").d("critical(pre)=%s", criticalPre)
+            Timber.tag("SYNC_BG").d("localTs(pre)=%s", localPre)
+            Timber.tag("SYNC_BG").d("remoteTs(keys)=%s", config.lastTimestamps.keys)
+
             // Pre‑check: si todas ya están frescas, no disparamos sync ni tocamos el botón
             val alreadyFresh = areCriticalTablesFresh(
                 config = config,
@@ -214,6 +245,8 @@ class HomeViewModel @Inject constructor(
                         syncActions = syncMap
                     )
                 }
+                val localPost = dataStore.getSyncTimestampsFor(critical)
+                Timber.tag("SYNC_BG").d("localTs(post)=%s", localPost)
                 // Re-evaluar si ya podemos abrir Mi Pedido con seguridad
                 _canOpenOrders.value = areCriticalTablesFresh(
                     config = config,
