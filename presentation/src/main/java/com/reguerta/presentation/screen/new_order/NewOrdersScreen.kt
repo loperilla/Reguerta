@@ -69,9 +69,11 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.reguerta.domain.enums.ContainerType
 import com.reguerta.domain.enums.Pane
+import com.reguerta.domain.enums.UiType
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.ProductWithOrderLine
 import com.reguerta.domain.model.interfaces.Product
@@ -1148,7 +1150,7 @@ fun AreYouSureDeletePopup(
                     .background(MaterialTheme.colorScheme.errorContainer, shape = CircleShape)
             ) {
                 Icon(
-                    imageVector = Icons.Default.Warning,
+                    imageVector = Icons.Filled.Error,
                     contentDescription = "Advertencia",
                     tint = MaterialTheme.colorScheme.onErrorContainer,
                     modifier = Modifier.size(Dimens.Size.dp48)
@@ -1234,47 +1236,13 @@ fun ConfirmPopup(
     onEvent: (NewOrderEvent) -> Unit
 ) {
     ReguertaAlertDialog(
-        icon = {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(Dimens.Size.dp88)
-                    .background(MaterialTheme.colorScheme.primaryContainer, shape = CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Info,
-                    contentDescription = "Info",
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    modifier = Modifier.size(Dimens.Size.dp48)
-                )
-            }
-        },
         onDismissRequest = { onEvent(NewOrderEvent.HideDialog) },
-        text = {
-            TextBody(
-                text = body,
-                textSize = MaterialTheme.typography.bodyMedium.fontSize,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        title = {
-            TextTitle(
-                text = title,
-                textSize = MaterialTheme.typography.titleLarge.fontSize,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        confirmButton = {
-            ReguertaButton(
-                textButton = "Aceptar",
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    confirmButton()
-                }
-            )
-        }
+        icon = Icons.Filled.Info,
+        titleText = title.text,
+        bodyText = body.text,
+        confirmText = "Aceptar",
+        onConfirm = { confirmButton() },
+        type = UiType.ERROR
     )
 }
 
@@ -1286,48 +1254,12 @@ fun WrongPopup(
     onEvent: (NewOrderEvent) -> Unit
 ) {
     ReguertaAlertDialog(
-        icon = {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(Dimens.Size.dp88)
-                    .background(MaterialTheme.colorScheme.errorContainer, shape = CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = "Advertencia",
-                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.size(Dimens.Size.dp48)
-                )
-            }
-        },
         onDismissRequest = { onEvent(NewOrderEvent.HideDialog) },
-        text = {
-            TextBody(
-                text = body,
-                textSize = MaterialTheme.typography.bodyMedium.fontSize,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        title = {
-            TextTitle(
-                text = title,
-                textSize = MaterialTheme.typography.titleLarge.fontSize,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        confirmButton = {
-            ReguertaButton(
-                textButton = "Aceptar",
-                isSingleButton = false,
-                btnType = BtnType.ERROR,
-                modifier = Modifier.fillMaxWidth(),
-                onClick = {
-                    confirmButton()
-                }
-            )
-        }
+        icon = Icons.Filled.Error,
+        titleText = title.text,
+        bodyText = body.text,
+        confirmText = "Aceptar",
+        onConfirm = { confirmButton() },
+        type = UiType.ERROR
     )
 }

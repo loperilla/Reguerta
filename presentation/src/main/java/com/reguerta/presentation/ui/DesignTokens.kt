@@ -82,7 +82,7 @@ object Dimens {
          */
         object Dialog {
             /** Tamaño del icono/badge del diálogo. */
-            val iconSize @Composable get() = Size.dp44
+            val iconSize @Composable get() = Size.dp48
             /** Tamaño del contenedor/círculo del icono en diálogos. */
             val badgeSize @Composable get() = Size.dp88
             /** Padding horizontal interno del contenido. */

@@ -18,7 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -29,27 +29,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.reguerta.domain.enums.UiType
 import com.reguerta.domain.model.CommonProduct
 import com.reguerta.domain.model.mapper.priceFormatted
-import com.reguerta.presentation.composables.BtnType
-import com.reguerta.presentation.composables.InverseReguertaButton
+import com.reguerta.presentation.composables.ProductImage
 import com.reguerta.presentation.composables.ReguertaAlertDialog
-import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCard
+import com.reguerta.presentation.composables.ReguertaFullButton
 import com.reguerta.presentation.composables.ReguertaIconButton
+import com.reguerta.presentation.composables.ReguertaScaffold
 import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.StockProductText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextTitle
-import com.reguerta.presentation.composables.ProductImage
-import com.reguerta.presentation.composables.ReguertaScaffold
+import com.reguerta.presentation.navigation.Routes
 import com.reguerta.presentation.ui.Dimens
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
-import com.reguerta.presentation.composables.ReguertaFullButton
-import com.reguerta.presentation.navigation.Routes
 
 /*****
  * Project: Reguerta
@@ -248,65 +246,14 @@ private fun AreYouSureDialog(
     onEvent: (ProductsEvent) -> Unit
 ) {
     ReguertaAlertDialog(
-        icon = {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(Dimens.Size.dp88)
-                    .background(MaterialTheme.colorScheme.errorContainer, shape = CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = "Advertencia",
-                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.size(Dimens.Size.dp48)
-                )
-            }
-        },
         onDismissRequest = { onEvent(ProductsEvent.HideAreYouSureDialog) },
-        text = {
-            TextBody(
-                text = "Estás a punto de eliminar un producto.\nEsta acción no se podrá deshacer.",
-                textSize = MaterialTheme.typography.bodyMedium.fontSize,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        title = {
-            TextTitle(
-                text = "Vas a eliminar un producto\n¿Estás seguro?",
-                textSize = MaterialTheme.typography.titleLarge.fontSize,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        confirmButton = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dimens.Spacing.xs, vertical = Dimens.Spacing.sm),
-                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm)
-            ) {
-                InverseReguertaButton(
-                    textButton = "Cancelar",
-                    isSingleButton = false,
-                    btnType = BtnType.ERROR,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        onEvent(ProductsEvent.HideAreYouSureDialog)
-                    }
-                )
-                ReguertaButton(
-                    textButton = "Aceptar",
-                    isSingleButton = false,
-                    btnType = BtnType.ERROR,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        onEvent(ProductsEvent.ConfirmDeleteProduct)
-                    }
-                )
-            }
-        },
-        dismissButton = { /* No se usa  */ }
+        icon = Icons.Filled.Error,
+        titleText = "Vas a eliminar un producto\n¿Estás seguro?",
+        bodyText = "Estás a punto de eliminar un producto.\nEsta acción no se podrá deshacer.",
+        confirmText = "Aceptar",
+        onConfirm = { onEvent(ProductsEvent.ConfirmDeleteProduct) },
+        dismissText = "Cancelar",
+        onDismissButton = { onEvent(ProductsEvent.HideAreYouSureDialog) },
+        type = UiType.ERROR
     )
 }

@@ -5,6 +5,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -18,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
@@ -44,6 +49,9 @@ fun ReguertaAlertDialog(
     type: UiType = UiType.INFO,
     containerColor: Color = MaterialTheme.colorScheme.background
 ) {
+    val hasConfirm = !confirmText.isNullOrBlank() && onConfirm != null
+    val hasDismiss = !dismissText.isNullOrBlank() && onDismissButton != null
+
     AlertDialog(
         onDismissRequest = onDismissRequest,
         modifier = Modifier.fillMaxWidth(Dimens.Components.Dialog.widthRatio),
@@ -53,7 +61,7 @@ fun ReguertaAlertDialog(
                 val accent = when (type) {
                     UiType.INFO -> MaterialTheme.colorScheme.primary
                     UiType.ERROR -> MaterialTheme.colorScheme.error
-                    UiType.WARNING -> MaterialTheme.colorScheme.error // ajusta si tienes color específico para warning
+                    UiType.WARNING -> MaterialTheme.colorScheme.error
                 }
                 val outer = accent.copy(alpha = 0.2f)
                 val outerSize = Dimens.Components.Dialog.badgeSize
@@ -80,7 +88,8 @@ fun ReguertaAlertDialog(
                 TextTitle(
                     text = titleText,
                     style = Dimens.Components.Dialog.titleStyle,
-                    textColor = Color.Unspecified // hereda del dialog
+                    textColor = Color.Unspecified,
+                    textAlignment = TextAlign.Center
                 )
             }
         },
@@ -91,29 +100,55 @@ fun ReguertaAlertDialog(
                 TextBody(
                     text = bodyText,
                     style = Dimens.Components.Dialog.bodyStyle,
-                    textColor = Color.Unspecified
+                    textColor = Color.Unspecified,
+                    textAlignment = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         },
 
         // Botón principal: Full + fill width, colores por UiType
         confirmButton = {
-            if (!confirmText.isNullOrBlank() && onConfirm != null) {
-                ReguertaFullButton(
-                    textButton = confirmText,
-                    onClick = onConfirm,
-                    btnType = type,
-                    layout = ButtonLayout.Fill,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = Dimens.Components.Dialog.verticalPadding)
-                )
+            when {
+                hasConfirm && hasDismiss -> {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm),
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        ReguertaFlatButton(
+                            textButton = dismissText,
+                            onClick = onDismissButton,
+                            btnType = type,
+                            layout = ButtonLayout.Fill,
+                            modifier = Modifier.weight(1f)
+                        )
+                        ReguertaFullButton(
+                            textButton = confirmText,
+                            onClick = onConfirm,
+                            btnType = type,
+                            layout = ButtonLayout.Fill,
+                            modifier = Modifier.weight(1f)
+                        )
+                    }
+                }
+                hasConfirm -> {
+                    ReguertaFullButton(
+                        textButton = confirmText,
+                        onClick = onConfirm,
+                        btnType = type,
+                        layout = ButtonLayout.Fill,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = Dimens.Components.Dialog.verticalPadding)
+                    )
+                }
+                else -> { /* no-op to satisfy M3 requirement */ }
             }
         },
 
         // Botón secundario (opcional): Flat + fill width, colores por UiType
         dismissButton = {
-            if (!dismissText.isNullOrBlank() && onDismissButton != null) {
+            if (hasDismiss && !hasConfirm) {
                 ReguertaFlatButton(
                     textButton = dismissText,
                     onClick = onDismissButton,

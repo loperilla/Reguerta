@@ -272,7 +272,7 @@ fun ReguertaFlatButton(
     isDialog: Boolean = false,
     layout: ButtonLayout = ButtonLayout.Fixed,
 ) {
-    val shape = RoundedCornerShape(Dimens.Radius.md)
+    val shape = RoundedCornerShape(Dimens.Radius.lg)
     val isError = btnType == BtnType.ERROR
 
     val colors = ButtonDefaults.buttonColors(

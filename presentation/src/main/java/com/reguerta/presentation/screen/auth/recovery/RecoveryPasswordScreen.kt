@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -69,7 +70,7 @@ fun recoveryPasswordScreen(
     if (state.showFailureDialog) {
         ReguertaAlertDialog(
             onDismissRequest = {},
-            icon = Icons.Default.Warning,
+            icon = Icons.Filled.Error,
             titleText = "Recuperar contraseña",
             bodyText = "Ha ocurrido un error al enviar el correo de restablecimiento de contraseña.",
             confirmText = "Aceptar",

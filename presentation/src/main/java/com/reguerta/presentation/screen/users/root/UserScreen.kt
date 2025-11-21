@@ -23,12 +23,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import com.reguerta.presentation.composables.ReguertaScaffold
 import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Dangerous
+import androidx.compose.material.icons.filled.Details
+import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Surface
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -40,10 +40,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.domain.model.User
-import com.reguerta.presentation.composables.BtnType
-import com.reguerta.presentation.composables.InverseReguertaButton
-import com.reguerta.presentation.composables.ReguertaAlertDialog
-import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCard
 import com.reguerta.presentation.composables.ReguertaFullButton
 import com.reguerta.presentation.composables.ReguertaIconButton
@@ -54,6 +50,8 @@ import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.navigation.Routes
 import com.reguerta.presentation.screen.users.add.AddUserEvent
 import com.reguerta.presentation.ui.Dimens
+import com.reguerta.domain.enums.UiType
+import com.reguerta.presentation.composables.ReguertaAlertDialog
 
 /*****
  * Project: Reguerta
@@ -243,101 +241,14 @@ private fun AreYouSureDeleteDialog(
     onEvent: (UserScreenEvent) -> Unit
 ) {
     ReguertaAlertDialog(
-        icon = {
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .size(Dimens.Size.dp88)
-                    .background(MaterialTheme.colorScheme.errorContainer, shape = CircleShape)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Warning,
-                    contentDescription = "Advertencia",
-                    tint = MaterialTheme.colorScheme.onErrorContainer,
-                    modifier = Modifier.size(Dimens.Size.dp48)
-                )
-            }
-        },
         onDismissRequest = { onEvent(UserScreenEvent.HideAreYouSureDialog) },
-        text = {
-            TextBody(
-                text = "Este usuario no podrá entrar en la app.\nEsta acción no se podrá deshacer.",
-                textSize = MaterialTheme.typography.bodyMedium.fontSize,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        title = {
-            TextTitle(
-                text = buildAnnotatedString {
-                    append("Vas a eliminar regüertense\n")
-                    append("¿Estás seguro?")
-                },
-                textSize = MaterialTheme.typography.titleLarge.fontSize,
-                textColor = MaterialTheme.colorScheme.onSurface,
-                textAlignment = TextAlign.Center
-            )
-        },
-        confirmButton = {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = Dimens.Spacing.xs, vertical = Dimens.Spacing.sm),
-                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm)
-            ) {
-                InverseReguertaButton(
-                    textButton = "Cancelar",
-                    isSingleButton = false,
-                    btnType = BtnType.ERROR,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        onEvent(UserScreenEvent.HideAreYouSureDialog)
-                    }
-                )
-                ReguertaButton(
-                    textButton = "Aceptar",
-                    isSingleButton = false,
-                    btnType = BtnType.ERROR,
-                    modifier = Modifier.weight(1f),
-                    onClick = {
-                        onEvent(UserScreenEvent.ConfirmDelete)
-                    }
-                )
-            }
-        },
+        icon = Icons.Filled.Warning,
+        titleText = "Vas a eliminar regüertense\n¿Estás seguro?",
+        bodyText = "Este usuario no podrá entrar en la app.\nEsta acción no se podrá deshacer.",
+        confirmText = "Aceptar",
+        onConfirm = { onEvent(UserScreenEvent.ConfirmDelete) },
+        dismissText = "Cancelar",
+        onDismissButton = { onEvent(UserScreenEvent.HideAreYouSureDialog) },
+        type = UiType.ERROR
     )
-}
-
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun UserScreenPreview() {
-    Screen {
-        UserScreen(
-            state = UserScreenState(
-                isLoading = false,
-                showAreYouSure = false,
-                userList = listOf(
-                    User(
-                        id = "1",
-                        name = "Manuel",
-                        surname = "Lopera",
-                        email = "pLd6u@example.com",
-                        companyName = "Reguerta",
-                        isAdmin = true,
-                        isProducer = true,
-                        phone = "123456789",
-                        numResignations = 0,
-                        typeConsumer = "normal",
-                        typeProducer = "",
-                        available = true,
-                        tropical1 = 0.0,
-                        tropical2 = 0.0
-                    )
-                )
-            ),
-            onEvent = {},
-            navigateTo = {}
-        )
-    }
 }

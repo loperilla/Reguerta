@@ -22,12 +22,15 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.sharp.Info
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -409,7 +412,7 @@ private fun ShowYourOrdersButton(
 private fun LogoutDialog(onEvent: (HomeEvent) -> Unit) {
     ReguertaAlertDialog(
         onDismissRequest = { onEvent(HomeEvent.HideDialog) },
-        icon = Icons.Default.Info,
+        icon = Icons.Filled.Info,
         titleText = "Cerrar sesión",
         bodyText = "¿Estás seguro que quieres cerrar la sesión?",
         confirmText = "Confirmar",
@@ -482,7 +485,7 @@ fun DrawerContent(
 private fun showNotAuthorizedDialog() {
     ReguertaAlertDialog(
         onDismissRequest = { },
-        icon = Icons.Default.Warning,
+        icon = Icons.Filled.Error,
         titleText = "Usuario no autorizado",
         bodyText = "Ponte en contacto con algún miembro de La Regüerta para que te den acceso.",
         containerColor = MaterialTheme.colorScheme.background,
@@ -573,7 +576,7 @@ private fun prepareNavigationDrawerList(
 private fun ForceUpdateDialog(config: ConfigModel?, context: Context) {
     ReguertaAlertDialog(
         onDismissRequest = { /* No permitir cerrar explícitamente */ },
-        icon = Icons.Default.Warning,
+        icon = Icons.Filled.Error,
         titleText = "Actualización obligatoria",
         bodyText = "Para seguir usando la app necesitas actualizarla a la versión mínima requerida.",
         confirmText = "Actualizar",
