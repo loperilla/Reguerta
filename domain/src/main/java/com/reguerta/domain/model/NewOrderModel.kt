@@ -29,14 +29,22 @@ class NewOrderModel @Inject constructor(
 
     suspend fun checkIfExistOrderInFirebase(): Result<Boolean> {
         return when (val result = orderService.getOrderByUserId()) {
-            is DataResult.Error -> Result.failure(Exception("Order not found in firebase"))
             is DataResult.Success -> {
+                // Tenemos un order en Firebase para este usuario/semana
                 order = result.data.toDto()
+                // Delegamos en orderLinesService para saber si tiene líneas
                 checkIfHasFirebaseOrderLines(order.id)
+            }
+
+            is DataResult.Error -> {
+                // Desde el punto de vista de la lógica de dominio, esto
+                // para ti significa "no hay pedido actual" → false.
+                // Si en el futuro quisieras distinguir error real de "no encontrado",
+                // aquí es donde habría que afinar usando info extra del DataResult.Error.
+                Result.success(false)
             }
         }
     }
-
     suspend fun checkIfExistLastWeekOrderInFirebase(): Result<Boolean> {
         return when (val result = orderService.getLastOrderByUserId()) {
             is DataResult.Error -> Result.failure(Exception("Order not found in firebase"))
