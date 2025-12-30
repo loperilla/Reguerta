@@ -1,6 +1,8 @@
 package com.reguerta.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -9,12 +11,15 @@ import androidx.navigation.compose.rememberNavController
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.screen.auth.authGraph
 import com.reguerta.presentation.screen.home.homeScreen
+import com.reguerta.presentation.screen.home.HomeViewModel
 import com.reguerta.presentation.screen.new_order.newOrderGraph
 import com.reguerta.presentation.screen.orders.ordersScreen
 import com.reguerta.presentation.screen.products.productsGraph
 import com.reguerta.presentation.screen.received_orders.receivedOrdersScreen
 import com.reguerta.presentation.screen.settings.settingsScreen
 import com.reguerta.presentation.screen.users.usersGraph
+import com.reguerta.presentation.sync.ForegroundSyncManager
+import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 
 /*****
@@ -29,6 +34,28 @@ fun MainNavigation(
     navController: NavHostController = rememberNavController(),
     startDestination: String
 ) {
+    val isAuthStartDestination = startDestination == Routes.AUTH.route ||
+        startDestination == Routes.AUTH.FIRST_SCREEN.route ||
+        startDestination == Routes.AUTH.RECOVERY_PASSWORD.route ||
+        startDestination == Routes.AUTH.LOGIN.route ||
+        startDestination == Routes.AUTH.REGISTER.route
+
+    // Collector global: la señal de foreground se emite desde ReguertaApp (ProcessLifecycleOwner).
+    // Aquí la recogemos a nivel root para que funcione aunque Android restaure el backstack en otra pantalla.
+    if (!isAuthStartDestination) {
+        val homeViewModel: HomeViewModel = hiltViewModel()
+        LaunchedEffect(homeViewModel) {
+            Timber.tag("SYNC_ForegroundSync").d(
+                "MainNavigation: collector activo (startDestination=%s)",
+                startDestination
+            )
+            ForegroundSyncManager.syncRequested.collect {
+                Timber.tag("SYNC_ForegroundSync").d("MainNavigation: señal recibida → HomeVM.onAppForegrounded()")
+                homeViewModel.onAppForegrounded()
+            }
+        }
+    }
+
     Screen {
         NavHost(
             navController,

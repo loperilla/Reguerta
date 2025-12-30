@@ -7,6 +7,7 @@ import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.firebase.FirebaseApp
 import com.reguerta.data.firebase.firestore.FirestoreEnvironment
 import com.reguerta.data.firebase.firestore.FirestoreManager
+import com.reguerta.presentation.sync.ForegroundSyncManager
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
@@ -50,6 +51,7 @@ class ReguertaApp : Application(), DefaultLifecycleObserver {
 
     override fun onStart(owner: LifecycleOwner) {
         Timber.tag("APP_LIFECYCLE").i("Process onStart → app to FOREGROUND")
+        ForegroundSyncManager.requestSyncFromAppLifecycle()
     }
     override fun onStop(owner: LifecycleOwner) {
         Timber.tag("APP_LIFECYCLE").i("Process onStop → app to BACKGROUND")

@@ -8,6 +8,10 @@ import androidx.compose.ui.graphics.vector.ImageVector
  * Created By Manuel Lopera on 3/2/24 at 12:37
  * All rights reserved 2024
  */
+
+@Deprecated(
+    message = "Modelo antiguo del drawer. Migrar a NavDrawerItem (route + roles) y resolver navegación fuera del modelo."
+)
 data class NavigationDrawerInfo(
     val title: String,
     val icon: ImageVector,

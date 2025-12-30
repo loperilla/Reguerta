@@ -38,6 +38,7 @@ import timber.log.Timber
 import java.time.DayOfWeek
 import javax.inject.Inject
 import kotlinx.coroutines.supervisorScope
+import kotlinx.coroutines.withContext
 import java.util.Locale
 
 /*****
@@ -85,6 +86,22 @@ class HomeViewModel @Inject constructor(
     private var hasSyncedInSession = false
 
     private var cachedConfig: ConfigModel? = null
+
+    /**
+     * Intenta obtener una config fresca desde Firestore. Si falla, vuelve a la cachedConfig.
+     * Importante para el caso de apps que quedan días en segundo plano con el proceso vivo.
+     */
+    private suspend fun getLatestConfigOrCached(): ConfigModel? {
+        val fresh = runCatching { getConfigUseCase() }
+            .onFailure { Timber.tag("FOREGROUND").w(it, "getConfigUseCase() falló; usando cachedConfig si existe") }
+            .getOrNull()
+
+        if (fresh != null) {
+            cachedConfig = fresh
+            return fresh
+        }
+        return cachedConfig
+    }
 
     private fun List<String>.toRootLower(): List<String> = this.map { it.lowercase(Locale.ROOT) }
 
@@ -155,7 +172,9 @@ class HomeViewModel @Inject constructor(
         if (!hasSyncedInSession) {
             Timber.tag("SYNC_BG").i("first session sync → triggerBackgroundSync")
             hasSyncedInSession = true
-            triggerBackgroundSync(config, isProducer, currentDay, deliveryDay)
+            viewModelScope.launch(Dispatchers.IO) {
+                triggerBackgroundSync(config, isProducer, currentDay, deliveryDay)
+            }
         } else {
             Timber.tag("SYNC_BG").i("foreground path → ForegroundSyncManager.checkAndSyncIfNeeded")
             viewModelScope.launch(Dispatchers.IO) {
@@ -168,14 +187,15 @@ class HomeViewModel @Inject constructor(
 
     /** Llamar al volver a primer plano (ON_START) de la pantalla raíz. */
     fun onAppForegrounded() {
-        val cfg = cachedConfig ?: run {
-            Timber.tag("FOREGROUND").d("onAppForegrounded(): cachedConfig=null, skip")
-            return
-        }
-        val s = state.value
-        Timber.tag("FOREGROUND").i("HomeVM.onAppForegrounded() → checkAndSyncIfNeeded")
+        Timber.tag("FOREGROUND").i("HomeVM.onAppForegrounded()")
         viewModelScope.launch(Dispatchers.IO) {
             ForegroundSyncManager.checkAndSyncIfNeeded {
+                val cfg = getLatestConfigOrCached() ?: run {
+                    Timber.tag("FOREGROUND").w("onAppForegrounded(): config=null (fresh+cached), skip")
+                    return@checkAndSyncIfNeeded
+                }
+                val s = state.value
+                Timber.tag("FOREGROUND").i("foreground sync with fresh config → triggerBackgroundSync")
                 triggerBackgroundSync(
                     config = cfg,
                     isProducer = s.isCurrentUserProducer,
@@ -186,83 +206,81 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun triggerBackgroundSync(
+    private suspend fun triggerBackgroundSync(
         config: ConfigModel,
         isProducer: Boolean,
         currentDay: DayOfWeek,
         deliveryDay: WeekDay
     ) {
-        viewModelScope.launch(Dispatchers.IO) {
-            // Pre‑sync snapshot (antes incluso de la verificación de frescura)
-            val criticalPre = getActiveCriticalTables(isProducer, currentDay, deliveryDay)
+        // Pre‑sync snapshot (antes incluso de la verificación de frescura)
+        val criticalPre = getActiveCriticalTables(isProducer, currentDay, deliveryDay)
+            .map { it.name }
+            .toRootLower()
+        val localPre = dataStore.getSyncTimestampsFor(criticalPre)
+        Timber.tag("SYNC_BG").d("critical(pre)=%s", criticalPre)
+        Timber.tag("SYNC_BG").d("localTs(pre)=%s", localPre)
+        Timber.tag("SYNC_BG").d("remoteTs(keys)=%s", config.lastTimestamps.keys)
+
+        // Pre‑check: si todas ya están frescas, no disparamos sync ni tocamos el botón
+        val alreadyFresh = areCriticalTablesFresh(
+            config = config,
+            isProducer = isProducer,
+            currentDay = currentDay,
+            deliveryDay = deliveryDay
+        )
+        if (alreadyFresh) {
+            Timber.tag("SYNC_BG").d("Skip sync: data already fresh → keeping 'Mi pedido' enabled")
+            _canOpenOrders.value = true
+            _isSyncFinished.value = true
+            _isCheckingOrders.value = false
+            return
+        }
+
+        // Solo aquí, si NO está fresco, deshabilitamos temporalmente el botón y marcamos sync en curso
+        _canOpenOrders.value = false
+        _isSyncFinished.value = false
+        try {
+            val syncMap = mutableMapOf<String, suspend (Timestamp) -> Unit>()
+            syncMap["products"] = { syncProductsUseCase(it) }
+            syncMap["containers"] = { syncContainersUseCase(it) }
+            syncMap["measures"] = { syncMeasuresUseCase(it) }
+            syncMap["orders"] = { syncOrdersAndOrderLinesUseCase(it) }
+            syncMap["users"] = { syncUsersUseCase(it) }
+            Timber.tag("SYNC_BG").d("syncMap keys=%s", syncMap.keys)
+
+            // Claves críticas activas, normalizadas y filtradas a las acciones disponibles
+            val critical = getActiveCriticalTables(isProducer, currentDay, deliveryDay)
                 .map { it.name }
                 .toRootLower()
-            val localPre = dataStore.getSyncTimestampsFor(criticalPre)
-            Timber.tag("SYNC_BG").d("critical(pre)=%s", criticalPre)
-            Timber.tag("SYNC_BG").d("localTs(pre)=%s", localPre)
-            Timber.tag("SYNC_BG").d("remoteTs(keys)=%s", config.lastTimestamps.keys)
+                .filter { it in syncMap.keys }
+            Timber.tag("SYNC_BG").d("critical required to sync=%s", critical)
+            Timber.tag("SYNC_BG").d("remote timestamp keys=%s", config.lastTimestamps.keys)
 
-            // Pre‑check: si todas ya están frescas, no disparamos sync ni tocamos el botón
-            val alreadyFresh = areCriticalTablesFresh(
+            supervisorScope {
+                SyncOrchestrator.runSyncIfNeeded(
+                    getRemoteTimestamps = { config.lastTimestamps },
+                    getLocalTimestamps = { dataStore.getSyncTimestampsFor(critical) },
+                    getCriticalTables = { critical },
+                    syncActions = syncMap
+                )
+            }
+            val localPost = dataStore.getSyncTimestampsFor(critical)
+            Timber.tag("SYNC_BG").d("localTs(post)=%s", localPost)
+            // Re-evaluar si ya podemos abrir Mi Pedido con seguridad
+            _canOpenOrders.value = areCriticalTablesFresh(
                 config = config,
                 isProducer = isProducer,
                 currentDay = currentDay,
                 deliveryDay = deliveryDay
             )
-            if (alreadyFresh) {
-                Timber.tag("SYNC_BG").d("Skip sync: data already fresh → keeping 'Mi pedido' enabled")
-                _canOpenOrders.value = true
-                _isSyncFinished.value = true
-                _isCheckingOrders.value = false
-                return@launch
-            }
-
-            // Solo aquí, si NO está fresco, deshabilitamos temporalmente el botón y marcamos sync en curso
+            Timber.tag("SYNC_BG").i("canOpenOrders computed=%s", _canOpenOrders.value)
+            Timber.i("SYNC: triggerBackgroundSync - SyncOrchestrator terminó OK @${System.currentTimeMillis()}")
+        } catch (t: Throwable) {
             _canOpenOrders.value = false
-            _isSyncFinished.value = false
-            try {
-                val syncMap = mutableMapOf<String, suspend (Timestamp) -> Unit>()
-                syncMap["products"] = { syncProductsUseCase(it) }
-                syncMap["containers"] = { syncContainersUseCase(it) }
-                syncMap["measures"] = { syncMeasuresUseCase(it) }
-                syncMap["orders"] = { syncOrdersAndOrderLinesUseCase(it) }
-                syncMap["users"] = { syncUsersUseCase(it) }
-                Timber.tag("SYNC_BG").d("syncMap keys=%s", syncMap.keys)
-
-                // Claves críticas activas, normalizadas y filtradas a las acciones disponibles
-                val critical = getActiveCriticalTables(isProducer, currentDay, deliveryDay)
-                    .map { it.name }
-                    .toRootLower()
-                    .filter { it in syncMap.keys }
-                Timber.tag("SYNC_BG").d("critical required to sync=%s", critical)
-                Timber.tag("SYNC_BG").d("remote timestamp keys=%s", config.lastTimestamps.keys)
-
-                supervisorScope {
-                    SyncOrchestrator.runSyncIfNeeded(
-                        getRemoteTimestamps = { config.lastTimestamps },
-                        getLocalTimestamps = { dataStore.getSyncTimestampsFor(critical) },
-                        getCriticalTables = { critical },
-                        syncActions = syncMap
-                    )
-                }
-                val localPost = dataStore.getSyncTimestampsFor(critical)
-                Timber.tag("SYNC_BG").d("localTs(post)=%s", localPost)
-                // Re-evaluar si ya podemos abrir Mi Pedido con seguridad
-                _canOpenOrders.value = areCriticalTablesFresh(
-                    config = config,
-                    isProducer = isProducer,
-                    currentDay = currentDay,
-                    deliveryDay = deliveryDay
-                )
-                Timber.tag("SYNC_BG").i("canOpenOrders computed=%s", _canOpenOrders.value)
-                Timber.i("SYNC: triggerBackgroundSync - SyncOrchestrator terminó OK @${System.currentTimeMillis()}")
-            } catch (t: Throwable) {
-                _canOpenOrders.value = false
-                Timber.e(t, "SYNC: triggerBackgroundSync falló")
-            } finally {
-                _isSyncFinished.value = true // nunca dejamos el loader inicial enganchado
-                _isCheckingOrders.value = false
-            }
+            Timber.e(t, "SYNC: triggerBackgroundSync falló")
+        } finally {
+            _isSyncFinished.value = true // nunca dejamos el loader inicial enganchado
+            _isCheckingOrders.value = false
         }
     }
 
@@ -416,7 +434,11 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             _isCheckingOrders.value = true
             Timber.tag("SYNC_ONCLICK").d("recheck start with cachedConfig=%s", (cachedConfig != null))
-            val cfg = cachedConfig ?: return@launch
+            val cfg = getLatestConfigOrCached() ?: run {
+                _isCheckingOrders.value = false
+                Timber.tag("SYNC_ONCLICK").w("recheck: config=null (fresh+cached), abort")
+                return@launch
+            }
             val s = state.value
             val fresh = areCriticalTablesFresh(
                 config = cfg,
