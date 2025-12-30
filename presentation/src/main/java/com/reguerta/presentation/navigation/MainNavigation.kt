@@ -19,7 +19,6 @@ import com.reguerta.presentation.screen.received_orders.receivedOrdersScreen
 import com.reguerta.presentation.screen.settings.settingsScreen
 import com.reguerta.presentation.screen.users.usersGraph
 import com.reguerta.presentation.sync.ForegroundSyncManager
-import kotlinx.coroutines.flow.collect
 import timber.log.Timber
 
 /*****
