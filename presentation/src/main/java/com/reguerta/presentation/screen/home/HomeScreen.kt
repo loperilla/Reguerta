@@ -24,13 +24,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.outlined.AccountCircle
 import androidx.compose.material.icons.outlined.Home
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Inventory2
 import androidx.compose.material.icons.outlined.Menu
-import androidx.compose.material.icons.sharp.Info
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -74,6 +71,7 @@ import com.reguerta.domain.enums.afterDays
 import com.reguerta.domain.enums.isReservedDayFor
 import com.reguerta.domain.enums.toWeekDay
 import com.reguerta.domain.repository.ConfigModel
+import com.reguerta.presentation.composables.ReguertaFullButton
 import com.reguerta.presentation.composables.ReguertaOrderButton
 import com.reguerta.presentation.sync.ForegroundSyncManager
 import kotlinx.coroutines.flow.collectLatest
@@ -135,7 +133,11 @@ fun homeScreen(
                 statusIndex = (statusIndex + 1) % statusMessages.size
             }
         }
-        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Box(Modifier
+            .fillMaxSize()
+            .padding(Dimens.Spacing.xxl),
+            contentAlignment = Alignment.Center
+        ) {
             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                 LoadingAnimation()
                 Spacer(modifier = Modifier.height(Dimens.Spacing.md))
@@ -145,10 +147,10 @@ fun homeScreen(
                     textAlign = TextAlign.Center
                 )
                 if (showInitialRetry) {
-                    Spacer(modifier = Modifier.height(Dimens.Spacing.sm))
-                    ReguertaButton(
+                    Spacer(modifier = Modifier.height(Dimens.Spacing.xl))
+                    ReguertaFullButton(
                         textButton = "Reintentar",
-                        isSingleButton = true,
+                        enabled = true,
                         onClick = {
                             Timber.i("SYNC_UI: Reintentar (loader inicial)")
                             showInitialRetry = false
@@ -230,10 +232,10 @@ private fun HomeScreen(
                     color = MaterialTheme.colorScheme.primary,
                     textAlign = TextAlign.Center
                 )
-                Spacer(modifier = Modifier.height(Dimens.Spacing.sm))
-                ReguertaButton(
+                Spacer(modifier = Modifier.height(Dimens.Spacing.xl))
+                ReguertaFullButton(
                     textButton = "Reintentar",
-                    isSingleButton = true,
+                    enabled = true,
                     onClick = {
                         Timber.i("SYNC_UI: Reintentar (loader secundario)")
                         // Reintentamos: recargar configuración y forzar sync si es posible

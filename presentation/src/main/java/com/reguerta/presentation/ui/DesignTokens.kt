@@ -133,7 +133,7 @@ object Dimens {
             /** Altura mínima táctil del botón. */
             val minHeight @Composable get() = Size.dp36
             /** Padding horizontal interno del botón. */
-            val horizontalPadding @Composable get() = Spacing.md
+            val horizontalPadding @Composable get() = Spacing.sm
             /** Padding vertical interno del botón. */
             val verticalPadding @Composable get() = Spacing.xs
             /** Radio por defecto del botón. */
