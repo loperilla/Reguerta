@@ -77,8 +77,6 @@ object Dimens {
 
         /**
          * Diálogos (AlertDialog, popups de confirmación).
-         * - Si quieres cambiar el tamaño del icono o los paddings de todos los diálogos,
-         *   modifica estos valores y se propagará a toda la app.
          */
         object Dialog {
             /** Tamaño del icono/badge del diálogo. */
@@ -98,8 +96,6 @@ object Dimens {
             val titleStyle @Composable get() = MaterialTheme.typography.titleLarge
             /** Estilo para el cuerpo del diálogo. */
             val bodyStyle @Composable get() = MaterialTheme.typography.bodyLarge.copy(textAlign = TextAlign.Center)
-            /** Estilo para el texto de los botones del diálogo. */
-            val buttonTextStyle @Composable get() = MaterialTheme.typography.labelLarge
 
             @Stable
             data class DialogColorSet(
