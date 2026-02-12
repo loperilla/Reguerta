@@ -10,7 +10,6 @@ val keystoreProperties = Properties().apply {
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kspPlugin)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.androidJUnit5)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.hilt)
@@ -63,9 +62,6 @@ android {
         compose = true
         buildConfig = true
     }
-    composeCompiler {
-        reportsDestination = layout.buildDirectory.dir("compose_compiler")
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -75,6 +71,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
+}
+
+composeCompiler {
+    reportsDestination = layout.buildDirectory.dir("compose_compiler")
 }
 
 kotlin {
@@ -96,7 +96,6 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
-    implementation(libs.androidx.multidex)
     implementation(libs.firebase.abt)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.core)
