@@ -1,5 +1,6 @@
 package com.reguerta.data.firebase.firestore.users
 
+import com.reguerta.data.firebase.firestore.devicesnapshot.DeviceSnapshotModel
 import kotlinx.coroutines.flow.Flow
 
 /*****
@@ -16,6 +17,7 @@ interface UsersCollectionService {
     suspend fun toggleAdmin(id: String, newValue: Boolean)
     suspend fun toggleProducer(id: String, newValue: Boolean)
     suspend fun updateUser(id: String, user: UserModel)
+    suspend fun upsertDeviceSnapshot(userId: String, snapshot: DeviceSnapshotModel)
     suspend fun deleteUser(id: String)
     suspend fun addUser(user: UserModel): Result<Unit>
 }

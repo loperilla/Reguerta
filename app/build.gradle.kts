@@ -85,6 +85,7 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":presentation"))
     implementation(project(":localData"))
+    implementation(project(":domain"))
     // Compose
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.activity)

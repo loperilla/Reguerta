@@ -19,6 +19,7 @@ const val ORDERS = "orders"
 const val ORDERS_COLLECTION = "ordersCollection"
 const val ORDER_LINES = "orderLines"
 const val ORDERS_LINES_COLLECTION = "ordersLinesCollection"
+const val DEVICES = "devices"
 const val NEWS = "news"
 const val NEWS_COLLECTION = "newsCollection"
 const val PRODUCT_IMAGE_STORAGE_PATH = PRODUCTS

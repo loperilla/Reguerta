@@ -3,6 +3,11 @@ package com.reguerta.presentation.screen.auth.register
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.usecase.auth.RegisterUseCase
+import com.reguerta.domain.usecase.app.GetOrCreateDeviceIdUseCase
+import com.reguerta.domain.usecase.users.UpdateUserDeviceSnapshotUseCase
+import com.reguerta.localdata.datastore.ReguertaDataStore
+import com.reguerta.localdata.datastore.UID_KEY
+import com.reguerta.presentation.device.DeviceSnapshotFactory
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +27,10 @@ import javax.inject.Inject
  */
 @HiltViewModel
 class RegisterViewModel @Inject constructor(
-    private val registerUseCase: RegisterUseCase
+    private val registerUseCase: RegisterUseCase,
+    private val dataStore: ReguertaDataStore,
+    private val getOrCreateDeviceIdUseCase: GetOrCreateDeviceIdUseCase,
+    private val updateUserDeviceSnapshotUseCase: UpdateUserDeviceSnapshotUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<RegisterState> = MutableStateFlow(RegisterState())
     val state: StateFlow<RegisterState> = _state.asStateFlow()
@@ -83,6 +91,9 @@ class RegisterViewModel @Inject constructor(
                             goOut = true
                         )
                     }
+                    viewModelScope.launch(Dispatchers.IO) {
+                        reportDeviceSnapshot()
+                    }
                 },
                 onFailure = { result ->
                     _state.update {
@@ -101,6 +112,18 @@ class RegisterViewModel @Inject constructor(
                     && passwordInput.isValidPassword
                     && repeatPasswordInput.isValidPassword
                     && passwordInput == repeatPasswordInput
+        }
+    }
+
+    private suspend fun reportDeviceSnapshot() {
+        val userId = dataStore.getStringByKey(UID_KEY)
+        if (userId.isBlank()) {
+            return
+        }
+        val deviceId = getOrCreateDeviceIdUseCase()
+        val snapshot = DeviceSnapshotFactory.create(deviceId)
+        runCatching {
+            updateUserDeviceSnapshotUseCase(userId, snapshot)
         }
     }
 }

@@ -4,10 +4,16 @@ import android.util.Log
 import com.google.firebase.firestore.CollectionReference
 import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
+import com.reguerta.data.firebase.firestore.DEVICES
+import com.reguerta.data.firebase.firestore.LAST_DEVICE_ID
 import com.reguerta.data.firebase.firestore.NAME
 import com.reguerta.data.firebase.firestore.USER_EMAIL
 import com.reguerta.data.firebase.firestore.USER_IS_ADMIN
 import com.reguerta.data.firebase.firestore.USER_IS_PRODUCER
+import com.reguerta.data.firebase.firestore.devicesnapshot.DeviceSnapshotModel
+import com.reguerta.data.firebase.firestore.devicesnapshot.toMap
 import com.reguerta.localdata.datastore.COMPANY_NAME_KEY
 import com.reguerta.localdata.datastore.IS_ADMIN_KEY
 import com.reguerta.localdata.datastore.IS_PRODUCER_KEY
@@ -134,6 +140,29 @@ class UserCollectionImpl @Inject constructor(
         collection
             .document(id)
             .set(user.toMapWithoutId())
+            .await()
+    }
+
+    override suspend fun upsertDeviceSnapshot(userId: String, snapshot: DeviceSnapshotModel) {
+        val deviceId = snapshot.deviceId.orEmpty()
+        if (deviceId.isBlank()) {
+            Log.w(TAG, "DEVICE_SNAPSHOT_SKIP - deviceId vacío para userId=$userId")
+            return
+        }
+        val deviceRef = collection.document(userId)
+            .collection(DEVICES)
+            .document(deviceId)
+
+        val existingSnapshot = deviceRef.get().await()
+        val data = snapshot.toMap().toMutableMap().apply {
+            this["lastSeenAt"] = FieldValue.serverTimestamp()
+            if (!existingSnapshot.exists()) {
+                this["firstSeenAt"] = FieldValue.serverTimestamp()
+            }
+        }
+        deviceRef.set(data, SetOptions.merge()).await()
+        collection.document(userId)
+            .set(mapOf(LAST_DEVICE_ID to deviceId), SetOptions.merge())
             .await()
     }
 

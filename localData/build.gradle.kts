@@ -38,7 +38,7 @@ room {
 
 dependencies {
     //Datastore
-    implementation(libs.datastore)
+    api(libs.datastore)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -53,4 +53,3 @@ dependencies {
     androidTestImplementation(libs.test.ext.junit)
     androidTestImplementation(libs.test.espresso)
 }
-

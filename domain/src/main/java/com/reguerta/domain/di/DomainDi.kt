@@ -40,7 +40,9 @@ import com.reguerta.domain.usecase.users.SignOutUseCase
 import com.reguerta.domain.usecase.users.ToggleAdminUseCase
 import com.reguerta.domain.usecase.users.ToggleProducerUseCase
 import com.reguerta.domain.usecase.users.SyncUsersUseCase
+import com.reguerta.domain.usecase.users.UpdateUserDeviceSnapshotUseCase
 import com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase
+import com.reguerta.domain.usecase.app.GetOrCreateDeviceIdUseCase
 import com.reguerta.localdata.time.WeekTime
 import dagger.Module
 import dagger.Provides
@@ -88,6 +90,14 @@ object DomainDi {
 
     @Provides
     fun providesAdminProducerUseCase(userService: UsersCollectionService) = ToggleAdminUseCase(userService)
+
+    @Provides
+    fun providesUpdateUserDeviceSnapshotUseCase(userService: UsersCollectionService) =
+        UpdateUserDeviceSnapshotUseCase(userService)
+
+    @Provides
+    fun providesGetOrCreateDeviceIdUseCase(dataStore: ReguertaDataStore) =
+        GetOrCreateDeviceIdUseCase(dataStore)
 
     @Provides
     fun providesLoginUseCase(authService: AuthService) = LoginUseCase(authService)

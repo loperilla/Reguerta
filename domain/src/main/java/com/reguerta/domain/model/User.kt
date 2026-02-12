@@ -23,7 +23,8 @@ data class User(
     val typeProducer: String,
     val available: Boolean,
     val tropical1: Double,
-    val tropical2: Double
+    val tropical2: Double,
+    val lastDeviceId: String? = null
 ) {
     val fullName: String get() = "$name $surname"
 }
@@ -42,6 +43,6 @@ fun UserModel.toDomain() = User(
     typeProducer = typeProducer ?: "",
     available = available ?: true,
     tropical1 = tropical1 ?: 0.0,
-    tropical2 = tropical2 ?: 0.0
+    tropical2 = tropical2 ?: 0.0,
+    lastDeviceId = lastDeviceId
 )
-
