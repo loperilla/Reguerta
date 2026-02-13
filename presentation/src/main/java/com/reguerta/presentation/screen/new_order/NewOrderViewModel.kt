@@ -172,8 +172,13 @@ class NewOrderViewModel @Inject constructor(
     private suspend fun loadAvailableProducts(getAvailableProductsUseCase: GetAvailableProductsUseCase): Boolean {
         Timber.i("SYNC_SYNC_FORCE_RELOAD - Ejecutando loadAvailableProducts()")
         return try {
-            Timber.i("SYNC_LOAD_PRODUCTS - Intento 0: Llamando a getAvailableProductsUseCase()")
-            val availableProducts = getAvailableProductsUseCase().first()
+            Timber.i("SYNC_LOAD_PRODUCTS - Intento 0: Cargando desde servidor para evitar cache obsoleta")
+            val availableProducts = runCatching {
+                getAvailableProductsUseCase(forceFromServer = true).first()
+            }.getOrElse { serverError ->
+                Timber.w(serverError, "SYNC_LOAD_PRODUCTS - Fallo servidor; fallback a cache/listener")
+                getAvailableProductsUseCase().first()
+            }
             Timber.i("SYNC_LOAD_PRODUCTS - Productos obtenidos (${availableProducts.size}): $availableProducts")
 
             // Inicializar siempre, aunque la lista sea vacía

@@ -2,6 +2,7 @@ package com.reguerta.data.firebase.firestore.users
 
 import android.util.Log
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.FieldValue
@@ -82,6 +83,27 @@ class UserCollectionImpl @Inject constructor(
         awaitClose {
             Log.i(TAG, "USERS_LIST_CLOSE - Listener desuscrito")
             subscription.remove()
+        }
+    }
+
+    override suspend fun getUserListFromServer(): Result<List<UserModel>> {
+        return try {
+            val snapshot = collection
+                .orderBy(NAME, Query.Direction.ASCENDING)
+                .get(Source.SERVER)
+                .await()
+
+            val userList = snapshot.documents.mapNotNull { document ->
+                document.toObject(UserModel::class.java)?.apply {
+                    id = document.id
+                }
+            }
+
+            Log.i(TAG, "USERS_LIST_SERVER_FETCH - count=${userList.size}")
+            Result.success(userList)
+        } catch (ex: Exception) {
+            Log.e(TAG, "USERS_LIST_SERVER_FETCH_ERROR", ex)
+            Result.failure(ex)
         }
     }
 

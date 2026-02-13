@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface UsersCollectionService {
     suspend fun getUserList(): Flow<Result<List<UserModel>>>
+    suspend fun getUserListFromServer(): Result<List<UserModel>>
     suspend fun getUser(id: String): Result<UserModel>
     suspend fun saveLoggedUserInfo(email: String)
     suspend fun toggleAdmin(id: String, newValue: Boolean)

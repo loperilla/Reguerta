@@ -56,8 +56,13 @@ class GetAvailableProductsUseCase @Inject constructor(
     suspend operator fun invoke(forceFromServer: Boolean = false): Flow<List<CommonProduct>> {
         val currentUserResult = authService.checkCurrentLoggedUser()
         val currentUser = currentUserResult.getOrNull() ?: return flowOf(emptyList())
+        val usersFlow = if (forceFromServer) {
+            flowOf(usersService.getUserListFromServer())
+        } else {
+            usersService.getUserList()
+        }
 
-        return usersService.getUserList().flatMapLatest { usersResult ->
+        return usersFlow.flatMapLatest { usersResult ->
 
             val availableProducers = usersResult.fold(
                 onSuccess = { userModelList ->
@@ -78,7 +83,8 @@ class GetAvailableProductsUseCase @Inject constructor(
                         if (user.isProducer) {
                             val typeProducer = user.typeProducer?.toTypeProd() ?: TypeProducerUser.REGULAR
                             val hasCommitment = typeProducer.hasCommitmentThisWeek(isEvenWeek)
-                            user.available ?: true && hasCommitment
+                            val producerAvailable = user.available ?: user.isAvailable ?: true
+                            producerAvailable && hasCommitment
                         } else {
                             false
                         }

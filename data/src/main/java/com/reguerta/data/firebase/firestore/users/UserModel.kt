@@ -19,6 +19,8 @@ data class UserModel(
     var numResignations: Int? = null,
     val typeConsumer: String? = null,
     val typeProducer: String? = null,
+    // Compatibilidad con documentos legacy donde el campo se llamaba "isAvailable".
+    @field:JvmField var isAvailable: Boolean? = null,
     @field:JvmField var available: Boolean? = true,
     val tropical1: Double? = null,
     val tropical2: Double? = null,
