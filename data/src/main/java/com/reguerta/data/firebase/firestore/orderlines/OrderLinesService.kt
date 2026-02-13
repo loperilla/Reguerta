@@ -14,7 +14,7 @@ interface OrderLinesService {
     suspend fun addOrderLineInDatabase(orderId: String, productId: String, productCompany: String)
     suspend fun updateQuantity(orderId: String, productId: String, quantity: Int)
     suspend fun deleteOrderLine(orderId: String, productId: String)
-    suspend fun deleteFirebaseOrderLine(orderId: String)
+    suspend fun deleteFirebaseOrderLine(orderId: String): Result<Unit>
     suspend fun addOrderLineInFirebase(listToPush: List<OrderLineDTO>): Result<Unit>
     suspend fun getOrdersByCompanyAndWeek(): Flow<Result<List<OrderLineModel>>>
     suspend fun getOrdersByOrderId(orderId: String): Flow<Result<List<OrderLineModel>>>

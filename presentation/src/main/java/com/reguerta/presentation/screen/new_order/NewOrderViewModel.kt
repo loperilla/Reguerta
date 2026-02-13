@@ -489,10 +489,23 @@ class NewOrderViewModel @Inject constructor(
                             )
                         }
                     }
-                    orderModel.deleteOrder()
-                    updateTableTimestampsUseCase("orders")
-                    _state.update { it.copy(isDeletingOrder = false) }
-                    _state.update { it.copy(goOut = true) }
+                    orderModel.deleteOrder().fold(
+                        onSuccess = {
+                            updateTableTimestampsUseCase("orders")
+                            _state.update { it.copy(isDeletingOrder = false) }
+                            _state.update { it.copy(goOut = true) }
+                        },
+                        onFailure = { throwable ->
+                            Timber.e(throwable, "SYNC_DELETE_ORDER - Error al borrar pedido")
+                            _state.update {
+                                it.copy(
+                                    isDeletingOrder = false,
+                                    showPopup = PopupType.NONE,
+                                    errorMessage = throwable.message ?: "No se pudo borrar el pedido"
+                                )
+                            }
+                        }
+                    )
                 }
 
                 NewOrderEvent.HideDialog -> _state.update { it.copy(showPopup = PopupType.NONE) }
@@ -558,14 +571,26 @@ class NewOrderViewModel @Inject constructor(
                         withTimeoutOrNull(2_000) {
                             when (state.value.flow) {
                                 OrderFlow.CURRENT_WEEK -> {
-                                    val existOrder = orderModel.checkIfExistOrderInFirebase().getOrDefault(false)
-                                    if (existOrder) {
-                                        handleCurrentWeekOrders()
-                                    } else {
-                                        if (loadAvailableProducts(getAvailableProductsUseCase)) {
-                                            _state.update { it.copy(uiState = NewOrderUiMode.SELECT_PRODUCTS) }
+                                    orderModel.checkIfExistOrderInFirebase().fold(
+                                        onSuccess = { existOrder ->
+                                            if (existOrder) {
+                                                handleCurrentWeekOrders()
+                                            } else {
+                                                if (loadAvailableProducts(getAvailableProductsUseCase)) {
+                                                    _state.update { it.copy(uiState = NewOrderUiMode.SELECT_PRODUCTS) }
+                                                }
+                                            }
+                                        },
+                                        onFailure = { throwable ->
+                                            Timber.e(throwable, "SYNC_FORCE_RELOAD - fallo comprobando pedido actual")
+                                            _state.update {
+                                                it.copy(
+                                                    uiState = NewOrderUiMode.ERROR,
+                                                    errorMessage = throwable.message ?: "No se pudo comprobar el pedido actual"
+                                                )
+                                            }
                                         }
-                                    }
+                                    )
                                 }
                                 OrderFlow.LAST_WEEK -> {
                                     val existOrder = orderModel.checkIfExistLastWeekOrderInFirebase().getOrDefault(false)

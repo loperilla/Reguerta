@@ -10,6 +10,7 @@ import com.reguerta.domain.model.mapper.toOrderLineDto
 import com.reguerta.domain.model.mapper.toReceived
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
@@ -25,32 +26,33 @@ class NewOrderModel @Inject constructor(
     private val orderService: OrdersService,
     private val orderLinesService: OrderLinesService
 ) {
-    lateinit var order: Order
+    private var order: Order? = null
 
     suspend fun checkIfExistOrderInFirebase(): Result<Boolean> {
         return when (val result = orderService.getOrderByUserId()) {
             is DataResult.Success -> {
-                // Tenemos un order en Firebase para este usuario/semana
-                order = result.data.toDto()
-                // Delegamos en orderLinesService para saber si tiene líneas
-                checkIfHasFirebaseOrderLines(order.id)
+                val currentOrder = result.data.toDto()
+                order = currentOrder
+                checkIfHasFirebaseOrderLines(currentOrder.id)
             }
 
             is DataResult.Error -> {
-                // Desde el punto de vista de la lógica de dominio, esto
-                // para ti significa "no hay pedido actual" → false.
-                // Si en el futuro quisieras distinguir error real de "no encontrado",
-                // aquí es donde habría que afinar usando info extra del DataResult.Error.
-                Result.success(false)
+                order = null
+                Result.failure(IllegalStateException("No se pudo obtener el pedido actual en Firebase"))
             }
         }
     }
+
     suspend fun checkIfExistLastWeekOrderInFirebase(): Result<Boolean> {
         return when (val result = orderService.getLastOrderByUserId()) {
-            is DataResult.Error -> Result.failure(Exception("Order not found in firebase"))
+            is DataResult.Error -> {
+                order = null
+                Result.failure(Exception("Order not found in firebase"))
+            }
             is DataResult.Success -> {
-                order = result.data.toDto()
-                checkIfHasFirebaseOrderLines(order.id)
+                val lastWeekOrder = result.data.toDto()
+                order = lastWeekOrder
+                checkIfHasFirebaseOrderLines(lastWeekOrder.id)
             }
         }
     }
@@ -58,24 +60,35 @@ class NewOrderModel @Inject constructor(
     private suspend fun checkIfHasFirebaseOrderLines(orderId: String): Result<Boolean> =
         orderLinesService.checkIfExistOrderInFirebase(orderId)
 
-    suspend fun getOrderLines(): Flow<List<OrderLineProduct>> =
-        orderLinesService.getOrderLines(order.id).map {
+    suspend fun getOrderLines(): Flow<List<OrderLineProduct>> {
+        val currentOrder = order ?: return flowOf(emptyList())
+        return orderLinesService.getOrderLines(currentOrder.id).map {
             it.map { orderLineDTO -> orderLineDTO.toOrderLine() }
         }
+    }
 
     suspend fun deleteOrderLineLocal(productId: String) =
-        orderLinesService.deleteOrderLine(order.id, productId)
+        order?.let { currentOrder ->
+            orderLinesService.deleteOrderLine(currentOrder.id, productId)
+        }
 
     suspend fun updateProductStock(productId: String, newQuantity: Int) =
-        orderLinesService.updateQuantity(order.id, productId, newQuantity)
+        order?.let { currentOrder ->
+            orderLinesService.updateQuantity(currentOrder.id, productId, newQuantity)
+        }
 
     suspend fun addLocalOrderLine(productId: String, productCompany: String) {
-        orderLinesService.addOrderLineInDatabase(order.id, productId, productCompany)
+        order?.let { currentOrder ->
+            orderLinesService.addOrderLineInDatabase(currentOrder.id, productId, productCompany)
+        }
     }
 
     suspend fun pushOrderLinesToFirebase(listToPush: List<ProductWithOrderLine>): Result<Unit> {
+        val currentOrder = order ?: return Result.failure(
+            IllegalStateException("No hay pedido activo para subir líneas")
+        )
         val dtoList = listToPush.map {
-            it.toOrderLineDto()
+            it.toOrderLineDto().copy(orderId = currentOrder.id)
         }
         return orderLinesService.addOrderLineInFirebase(dtoList).fold(
             onSuccess = {
@@ -87,27 +100,42 @@ class NewOrderModel @Inject constructor(
         )
     }
 
-    suspend fun getOrderLinesFromCurrentWeek(): Flow<List<OrderLineReceived>> =
-        orderLinesService.getOrdersByOrderId(order.id).map { result ->
+    suspend fun getOrderLinesFromCurrentWeek(): Flow<List<OrderLineReceived>> {
+        val currentOrder = order ?: return flowOf(emptyList())
+        return orderLinesService.getOrdersByOrderId(currentOrder.id).map { result ->
             val listReturn = mutableListOf<OrderLineReceived>()
             result.onSuccess { orderLines ->
                 orderLines.forEach { model ->
                     val product =
                         productService.getProductById(model.productId.orEmpty()).getOrThrow()
                             .toDomain()
-                    listReturn.add(model.toReceived(product, order))
+                    listReturn.add(model.toReceived(product, currentOrder))
                 }
             }
             listReturn
         }
-
-    suspend fun deleteOrder() {
-        orderLinesService.deleteFirebaseOrderLine(order.id)
-        orderService.deleteOrder(order.id)
     }
 
-    suspend fun getOrderLinesList(): List<OrderLineProduct> {
-        return getOrderLines().first()
+    suspend fun deleteOrder(): Result<Unit> {
+        val currentOrder = order ?: return Result.failure(
+            IllegalStateException("No hay pedido activo para borrar")
+        )
+
+        return orderLinesService.deleteFirebaseOrderLine(currentOrder.id).fold(
+            onSuccess = {
+                when (orderService.deleteOrder(currentOrder.id)) {
+                    is DataResult.Success -> {
+                        order = null
+                        Result.success(Unit)
+                    }
+                    is DataResult.Error -> Result.failure(
+                        IllegalStateException("No se pudo borrar el pedido en Firebase")
+                    )
+                }
+            },
+            onFailure = { Result.failure(it) }
+        )
     }
 
+    suspend fun getOrderLinesList(): List<OrderLineProduct> = getOrderLines().first()
 }
