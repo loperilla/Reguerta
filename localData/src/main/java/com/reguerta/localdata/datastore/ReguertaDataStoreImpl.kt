@@ -42,7 +42,13 @@ class ReguertaDataStoreImpl @Inject constructor(private val context: Context) : 
 
     override suspend fun clearUserDataStore(): Unit = withContext(Dispatchers.IO) {
         context.userPreferences.edit { preferences ->
+            // Keep device identity stable across logouts to avoid creating a new
+            // device document for the same physical phone after each new login.
+            val preservedDeviceId = preferences[DEVICE_ID_KEY]
             preferences.clear()
+            if (!preservedDeviceId.isNullOrBlank()) {
+                preferences[DEVICE_ID_KEY] = preservedDeviceId
+            }
         }
     }
 
