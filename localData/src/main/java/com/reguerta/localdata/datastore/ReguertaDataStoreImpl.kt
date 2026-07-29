@@ -60,7 +60,6 @@ class ReguertaDataStoreImpl @Inject constructor(private val context: Context) : 
         context.userPreferences.edit { preferences ->
             preferences[longPreferencesKey("sync_ts_$tableKey")] = timestamp
         }
-        Unit
     }
 
     override suspend fun getSyncTimestamp(tableKey: String): Long = withContext(Dispatchers.IO) {
@@ -73,7 +72,6 @@ class ReguertaDataStoreImpl @Inject constructor(private val context: Context) : 
                 preferences[longPreferencesKey("sync_ts_$key")] = value
             }
         }
-        Unit
     }
 
     override suspend fun getAllSyncTimestamps(): Map<String, Long> = withContext(Dispatchers.IO) {

@@ -19,7 +19,7 @@ plugins {
 
 android {
     namespace = "$GROUP_ID.user"
-    compileSdk = 36
+    compileSdk = configCompileSdkVersion
 
     defaultConfig {
         applicationId = "${GROUP_ID}.user"
@@ -100,7 +100,6 @@ dependencies {
     implementation(libs.firebase.abt)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.core)
-    testImplementation(project(":testUtils"))
     ksp(libs.hilt.compiler)
 
     //Firebase
@@ -108,10 +107,8 @@ dependencies {
     implementation(libs.bundles.firebase)
 
     //Test
-    testImplementation(libs.junit)
     testImplementation(libs.bundles.jupiter)
     testRuntimeOnly(libs.jupiter.engine)
-    testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -121,11 +118,9 @@ dependencies {
     androidTestImplementation(project(":testUtils"))
     // Hilt Testing
     androidTestImplementation(libs.hilt.android.testing)
-    kspTest(libs.hilt.compiler)
 
     androidTestImplementation(libs.test.ext.junit)
     androidTestImplementation(libs.test.espresso)
-    androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test)
     androidTestImplementation(libs.navigation.testing)
     debugImplementation(libs.compose.ui.tooling)

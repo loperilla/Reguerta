@@ -49,6 +49,7 @@ import androidx.compose.runtime.setValue
 import kotlinx.coroutines.flow.first
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -58,7 +59,9 @@ import com.reguerta.presentation.composables.ReguertaAlertDialog
 import com.reguerta.presentation.composables.ReguertaHomeTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
-import com.reguerta.presentation.navigation.NavigationDrawerInfo
+import com.reguerta.presentation.navigation.NavDrawerItem
+import com.reguerta.presentation.navigation.UserRole
+import com.reguerta.presentation.navigation.isVisibleFor
 import com.reguerta.presentation.composables.ReguertaScaffold
 import com.reguerta.presentation.ui.Dimens
 import com.reguerta.presentation.navigation.Routes
@@ -442,34 +445,19 @@ fun DrawerContent(
         Spacer(modifier = Modifier.height(Dimens.Spacing.sm))
         prepareNavigationDrawerList(
             state.isCurrentUserAdmin,
-            state.isCurrentUserProducer,
-            onEvent,
-            navigateTo
-        ).forEach { info ->
-            NavigationDrawerItem(
-                icon = {
-                    Icon(
-                        imageVector = info.icon,
-                        contentDescription = info.title,
-                        tint = MaterialTheme.colorScheme.onPrimary,
-                        modifier = Modifier
-                            .background(MaterialTheme.colorScheme.primary, CircleShape)
-                            .padding(Dimens.Spacing.xs)
-                    )
-                },
-                label = {
-                    TextBody(
-                        text = info.title,
-                        textSize = MaterialTheme.typography.bodyLarge.fontSize,
-                    )
-                },
-                selected = false,
-                onClick = {
-                    info.onClick()
-                },
-                modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+            state.isCurrentUserProducer
+        ).forEach { destination ->
+            DrawerMenuItem(
+                title = destination.title,
+                icon = destination.icon,
+                onClick = { navigateTo(destination.route) }
             )
         }
+        DrawerMenuItem(
+            title = "Cerrar sesión",
+            icon = Icons.AutoMirrored.Filled.Logout,
+            onClick = { onEvent(HomeEvent.ShowDialog) }
+        )
         Spacer(modifier = Modifier.weight(1f))
         TextBody(
             text = versionLabel,
@@ -480,6 +468,35 @@ fun DrawerContent(
                 .padding(Dimens.Spacing.sm)
         )
     }
+}
+
+@Composable
+private fun DrawerMenuItem(
+    title: String,
+    icon: ImageVector,
+    onClick: () -> Unit
+) {
+    NavigationDrawerItem(
+        icon = {
+            Icon(
+                imageVector = icon,
+                contentDescription = title,
+                tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+                    .padding(Dimens.Spacing.xs)
+            )
+        },
+        label = {
+            TextBody(
+                text = title,
+                textSize = MaterialTheme.typography.bodyLarge.fontSize,
+            )
+        },
+        selected = false,
+        onClick = onClick,
+        modifier = Modifier.padding(NavigationDrawerItemDefaults.ItemPadding)
+    )
 }
 
 @Composable
@@ -496,80 +513,34 @@ private fun showNotAuthorizedDialog() {
 
 private fun prepareNavigationDrawerList(
     isCurrentUserAdmin: Boolean,
-    isCurrentUserProducer: Boolean,
-    onEvent: (HomeEvent) -> Unit,
-    navigateTo: (String) -> Unit
-): List<NavigationDrawerInfo> {
-    // Producer = home, pedidos, pedidos recibidos, productos, ajustes, cerrarsesion
-    // Admin = home, pedidos, usuarios, noticias, ajustes, cerrarsesion
+    isCurrentUserProducer: Boolean
+): List<NavDrawerItem> {
+    val currentRoles = buildSet {
+        add(UserRole.User)
+        if (isCurrentUserAdmin) add(UserRole.Admin)
+        if (isCurrentUserProducer) add(UserRole.Producer)
+    }
     val fullList = listOf(
-        NavigationDrawerInfo(
+        NavDrawerItem(
             title = "Home",
             icon = Icons.Outlined.Home,
-            onClick = {
-                navigateTo(Routes.HOME.ROOT.route)
-            },
-            showInBothCase = true
+            route = Routes.HOME.ROOT.route
         ),
-//        NavigationDrawerInfo(
-//            title = "Pedidos",
-//            icon = Icons.AutoMirrored.Filled.Toc,
-//            onClick = {
-//                navigateTo(Routes.HOME.ORDERS.route)
-//            },
-//            showInBothCase = true
-//        ),
-//        NavigationDrawerInfo(
-//            title = "Pedidos recibidos",
-//            icon = Icons.Outlined.Inventory,
-//            onClick = {
-//                navigateTo(Routes.HOME.ORDER_RECEIVED.route)
-//            },
-//            showIfUserIsProducer = true
-//        ),
-        NavigationDrawerInfo(
+        NavDrawerItem(
             title = "Productos",
             icon = Icons.Outlined.Inventory2,
-            onClick = {
-                navigateTo(Routes.PRODUCTS.route)
-            },
-            showIfUserIsProducer = true
+            route = Routes.PRODUCTS.route,
+            visibleFor = setOf(UserRole.Producer)
         ),
-        NavigationDrawerInfo(
+        NavDrawerItem(
             title = "Usuarios",
             icon = Icons.Outlined.AccountCircle,
-            onClick = {
-                navigateTo(Routes.USERS.route)
-            },
-            showIfUserIsAdmin = true
-        ),
-//        NavigationDrawerInfo(
-//            title = "Noticias",
-//            icon = Icons.Outlined.Newspaper,
-//            onClick = {
-//
-//            },
-//            showIfUserIsAdmin = true
-//        ),
-//        NavigationDrawerInfo(
-//            title = "Ajustes",
-//            icon = Icons.Outlined.Settings,
-//            onClick = {
-//                navigateTo(Routes.HOME.SETTINGS.route)
-//            },
-//            showInBothCase = true
-//        ),
-        NavigationDrawerInfo(
-            title = "Cerrar sesión",
-            icon = Icons.AutoMirrored.Filled.Logout,
-            onClick = {
-                onEvent(HomeEvent.ShowDialog)
-            },
-            showInBothCase = true
+            route = Routes.USERS.route,
+            visibleFor = setOf(UserRole.Admin)
         )
     )
-    return fullList.filter {
-        it.showInBothCase || it.showIfUserIsAdmin && isCurrentUserAdmin || it.showIfUserIsProducer && isCurrentUserProducer
+    return fullList.filter { item ->
+        currentRoles.any { role -> item.isVisibleFor(role) }
     }
 }
 

@@ -8,8 +8,6 @@ plugins {
 android {
     namespace = "$GROUP_ID.localdata"
     compileSdk = configCompileSdkVersion
-    sourceSets["androidTest"].assets.srcDir("$projectDir/schemas")
-
     defaultConfig {
         minSdk = configMinSdkVersion
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -25,6 +23,12 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
+    }
+}
+
+extensions.configure<com.android.build.api.dsl.LibraryExtension>("android") {
+    sourceSets.named("androidTest") {
+        assets.directories += "$projectDir/schemas"
     }
 }
 

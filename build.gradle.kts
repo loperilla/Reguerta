@@ -5,7 +5,6 @@ plugins {
     `version-catalog`
     alias(libs.plugins.androidApplication) apply false
     alias(libs.plugins.androidLibrary) apply false
-    alias(libs.plugins.kotlin.android) apply false
     alias(libs.plugins.kspPlugin) apply false
     alias(libs.plugins.compose.compiler) apply false
     alias(libs.plugins.ben.manes.versions)
@@ -24,9 +23,9 @@ buildscript {
     configurations["classpath"].resolutionStrategy { // Si algún plugin cuela otra versión, la forzamos
         force("com.squareup:javapoet:1.13.0")
         eachDependency {
-            if (requested.group == "com.squareup" && requested.name == "javapoet") {
+            if ((requested.group == "com.squareup") && (requested.name == "javapoet")) {
                 useVersion("1.13.0")
-                because("Hilt 2.57.x usa ClassName.canonicalName() (>= 1.13.0)")
+                because("Hilt necesita ClassName.canonicalName() (JavaPoet >= 1.13.0)")
             }
         }
     }
@@ -34,6 +33,8 @@ buildscript {
 
 // Tarea auxiliar para inspeccionar el classpath de plugins
 tasks.register("printBuildscriptClasspath") {
+    group = "help"
+    description = "Muestra el classpath de plugins resuelto por el buildscript."
     doLast {
         val artifacts =
             buildscript.configurations.getByName("classpath").resolvedConfiguration.resolvedArtifacts
