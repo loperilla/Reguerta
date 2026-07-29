@@ -1,7 +1,6 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kspPlugin)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.androidJUnit5)
     alias(libs.plugins.compose.compiler)
 }
@@ -25,19 +24,21 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = JavaVersion.VERSION_17.toString()
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     buildFeatures {
         compose = true
         buildConfig = true
     }
-    composeCompiler {
-        reportsDestination = layout.buildDirectory.dir("compose_compiler")
-    }
+}
+
+composeCompiler {
+    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
@@ -65,7 +66,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.bundles.jupiter)
     testRuntimeOnly(libs.jupiter.engine)
-    testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)

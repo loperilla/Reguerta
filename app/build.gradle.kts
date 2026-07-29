@@ -10,17 +10,16 @@ val keystoreProperties = Properties().apply {
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kspPlugin)
-    alias(libs.plugins.kotlin.android)
     alias(libs.plugins.androidJUnit5)
     alias(libs.plugins.compose.compiler)
-    id("dagger.hilt.android.plugin")
-    id("com.google.gms.google-services")
-    id("com.google.firebase.crashlytics")
+    alias(libs.plugins.hilt)
+    alias(libs.plugins.google.services)
+    alias(libs.plugins.crashlytics)
 }
 
 android {
     namespace = "$GROUP_ID.user"
-    compileSdk = 35
+    compileSdk = configCompileSdkVersion
 
     defaultConfig {
         applicationId = "${GROUP_ID}.user"
@@ -60,24 +59,26 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-    kotlinOptions {
-        jvmTarget = "${JavaVersion.VERSION_17}"
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
     buildFeatures {
         compose = true
         buildConfig = true
-    }
-    composeCompiler {
-        reportsDestination = layout.buildDirectory.dir("compose_compiler")
     }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+}
+
+composeCompiler {
+    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
@@ -95,11 +96,9 @@ dependencies {
 
     // Hilt
     implementation(libs.hilt.android)
-    implementation(libs.androidx.multidex)
     implementation(libs.firebase.abt)
     implementation(libs.androidx.lifecycle.process)
     implementation(libs.androidx.core)
-    testImplementation(project(":testUtils"))
     ksp(libs.hilt.compiler)
 
     //Firebase
@@ -110,7 +109,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.bundles.jupiter)
     testRuntimeOnly(libs.jupiter.engine)
-    testImplementation(libs.junit)
     testImplementation(libs.mockk)
     testImplementation(libs.turbine)
     testImplementation(libs.kotlinx.coroutines.test)
@@ -120,11 +118,9 @@ dependencies {
     androidTestImplementation(project(":testUtils"))
     // Hilt Testing
     androidTestImplementation(libs.hilt.android.testing)
-    kspTest(libs.hilt.compiler)
 
     androidTestImplementation(libs.test.ext.junit)
     androidTestImplementation(libs.test.espresso)
-    androidTestImplementation(platform(libs.compose.bom))
     androidTestImplementation(libs.compose.ui.test)
     androidTestImplementation(libs.navigation.testing)
     debugImplementation(libs.compose.ui.tooling)

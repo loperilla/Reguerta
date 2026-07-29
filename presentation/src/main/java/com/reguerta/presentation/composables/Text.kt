@@ -1,7 +1,5 @@
 package com.reguerta.presentation.composables
 
-import java.util.Locale
-
 import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -18,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -153,7 +152,7 @@ fun AmountText(
             textColor = MaterialTheme.colorScheme.primary
         )
         TextBody(
-            text = String.format(Locale.getDefault(), "%.2f €", amount),
+            text = String.format(LocalLocale.current.platformLocale, "%.2f €", amount),
             textSize = TEXT_TOP_BAR,
             textColor = MaterialTheme.colorScheme.onSurface
         )

@@ -6,10 +6,10 @@
  */
 
 const val GROUP_ID = "com.reguerta"
-const val VERSION_NAME = "0.2.1.1"
-const val VERSION_CODE = 22
-const val configCompileSdkVersion = 35
-const val configTargetSdkVersion = 35
-const val configMinSdkVersion = 26
+const val VERSION_NAME = "0.3.0.1"
+const val VERSION_CODE = 37
+const val configCompileSdkVersion = 37
+const val configTargetSdkVersion = 37
+const val configMinSdkVersion = 29
 
 const val hiltRunnerPackage = "$GROUP_ID.testutils.HiltRunner"

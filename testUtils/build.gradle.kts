@@ -1,8 +1,6 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kspPlugin)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.compose.compiler)
 }
 
 android {
@@ -25,9 +23,10 @@ android {
         sourceCompatibility = JavaVersion.VERSION_21
         targetCompatibility = JavaVersion.VERSION_21
     }
-    kotlinOptions {
-        jvmTarget = "21"
-    }
+}
+
+kotlin {
+    jvmToolchain(21)
 }
 
 dependencies {
@@ -42,8 +41,7 @@ dependencies {
     implementation(libs.androidx.runner)
     // Hilt
     implementation(libs.hilt.android.testing)
-    ksp(libs.hilt.android.compiler)
+    ksp(libs.hilt.compiler)
     implementation(libs.bundles.jupiter)
     testRuntimeOnly(libs.jupiter.engine)
 }
-
