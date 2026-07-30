@@ -42,7 +42,13 @@ class ReguertaDataStoreImpl @Inject constructor(private val context: Context) : 
 
     override suspend fun clearUserDataStore(): Unit = withContext(Dispatchers.IO) {
         context.userPreferences.edit { preferences ->
+            // Keep device identity stable across logouts to avoid creating a new
+            // device document for the same physical phone after each new login.
+            val preservedDeviceId = preferences[DEVICE_ID_KEY]
             preferences.clear()
+            if (!preservedDeviceId.isNullOrBlank()) {
+                preferences[DEVICE_ID_KEY] = preservedDeviceId
+            }
         }
     }
 
@@ -50,11 +56,9 @@ class ReguertaDataStoreImpl @Inject constructor(private val context: Context) : 
         context.userPreferences.data.first()[key] ?: false
     }
 
-    override suspend fun saveSyncTimestamp(tableKey: String, timestamp: Long) {
-        withContext(Dispatchers.IO) {
-            context.userPreferences.edit { preferences ->
-                preferences[longPreferencesKey("sync_ts_$tableKey")] = timestamp
-            }
+    override suspend fun saveSyncTimestamp(tableKey: String, timestamp: Long): Unit = withContext(Dispatchers.IO) {
+        context.userPreferences.edit { preferences ->
+            preferences[longPreferencesKey("sync_ts_$tableKey")] = timestamp
         }
     }
 
@@ -62,12 +66,10 @@ class ReguertaDataStoreImpl @Inject constructor(private val context: Context) : 
         context.userPreferences.data.first()[longPreferencesKey("sync_ts_$tableKey")] ?: 0L
     }
 
-    override suspend fun saveAllSyncTimestamps(timestamps: Map<String, Long>) {
-        withContext(Dispatchers.IO) {
-            context.userPreferences.edit { preferences ->
-                timestamps.forEach { (key, value) ->
-                    preferences[longPreferencesKey("sync_ts_$key")] = value
-                }
+    override suspend fun saveAllSyncTimestamps(timestamps: Map<String, Long>): Unit = withContext(Dispatchers.IO) {
+        context.userPreferences.edit { preferences ->
+            timestamps.forEach { (key, value) ->
+                preferences[longPreferencesKey("sync_ts_$key")] = value
             }
         }
     }

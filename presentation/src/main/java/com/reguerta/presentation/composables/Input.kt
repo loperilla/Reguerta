@@ -1,13 +1,13 @@
 package com.reguerta.presentation.composables
 
+import androidx.compose.ui.focus.onFocusChanged
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
@@ -17,9 +17,9 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -27,26 +27,18 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
-import com.reguerta.presentation.composables.input.PlaceholderTransformation
-import com.reguerta.presentation.composables.input.UiError
-import com.reguerta.presentation.ui.BORDER_SIZE
-import com.reguerta.presentation.ui.CORNER_SIZE_8
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.SIZE_36
-import com.reguerta.presentation.ui.SIZE_40
-import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
-import com.reguerta.presentation.ui.cabinsketchFontFamily
+import com.reguerta.presentation.state.hasError
+import com.reguerta.presentation.state.UiError
+import androidx.compose.foundation.layout.heightIn
+import com.reguerta.presentation.ui.Dimens
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.unit.Dp
 
 /*****
  * Project: Reguerta
@@ -95,7 +87,7 @@ fun ReguertaPasswordInput(
         onTextChange = onTextChange,
         placeholderText = placeholderText,
         keyboardType = KeyboardType.Password,
-        uiError = UiError("Ingrese una contraseña válida (6-16 caracteres)", isValidPassword),
+        uiError = UiError("Ingrese una contraseña válida (6-16 caracteres)", isValidPassword),
         imeAction = imeAction,
         trailingIcon = {
             val endIcon = if (isPasswordVisible) {
@@ -106,7 +98,11 @@ fun ReguertaPasswordInput(
             IconButton(
                 onClick = { isPasswordVisible = !isPasswordVisible }
             ) {
-                Icon(imageVector = endIcon, contentDescription = "show or hide password")
+                Icon(
+                    imageVector = endIcon,
+                    contentDescription = "show or hide password",
+                    modifier = Modifier.size(Dimens.Components.Input.trailingIconSize)
+                )
             }
         },
         visualTransformation = if (isPasswordVisible) {
@@ -143,93 +139,6 @@ fun TextReguertaInput(
 }
 
 @Composable
-fun PhoneNumberReguertaInput(
-    text: String,
-    onTextChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    placeholderText: String = "",
-    imeAction: ImeAction = ImeAction.Default,
-    keyboardType: KeyboardType = KeyboardType.NumberPassword,
-) {
-    SecondaryReguertaInput(
-        text = text,
-        uiError = UiError("Este teléfono no es válido", text.length == 9),
-        onTextChange = onTextChange,
-        placeholderText = placeholderText,
-        keyboardType = keyboardType,
-        imeAction = imeAction,
-        modifier = modifier,
-    )
-}
-
-@Composable
-private fun SecondaryReguertaInput(
-    text: String,
-    onTextChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    uiError: UiError = UiError(),
-    placeholderText: String = "",
-    keyboardType: KeyboardType = KeyboardType.Text,
-    imeAction: ImeAction = ImeAction.Default,
-    visualTransformation: VisualTransformation = VisualTransformation.None
-) {
-    val textColor = if (text.isEmpty()) {
-        MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
-    } else {
-        MaterialTheme.colorScheme.onSurface
-    }
-    val colors = OutlinedTextFieldDefaults.colors(
-        focusedTextColor = textColor,
-        unfocusedTextColor = textColor,
-        focusedBorderColor = MaterialTheme.colorScheme.primary,
-        unfocusedBorderColor = MaterialTheme.colorScheme.primary,
-        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurface,
-        focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface,
-        errorPlaceholderColor = MaterialTheme.colorScheme.onSurface,
-        unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-        focusedContainerColor = MaterialTheme.colorScheme.background,
-        unfocusedContainerColor = MaterialTheme.colorScheme.background,
-        disabledContainerColor = MaterialTheme.colorScheme.background,
-        errorContainerColor = MaterialTheme.colorScheme.background,
-    )
-    Column(
-        verticalArrangement = Arrangement.spacedBy(PADDING_SMALL)
-    ) {
-        OutlinedTextField(
-            value = text,
-            onValueChange = onTextChange,
-            colors = colors,
-            isError = text.isNotEmpty() && !uiError.isVisible,
-            singleLine = true,
-            textStyle = TextStyle(
-                fontFamily = cabinsketchFontFamily,
-                fontWeight = FontWeight.Bold,
-                fontSize = TEXT_SIZE_LARGE
-            ),
-            visualTransformation = if (text.isEmpty()) {
-                PlaceholderTransformation(placeholderText)
-            } else {
-                visualTransformation
-            },
-            keyboardOptions = KeyboardOptions(
-                keyboardType = keyboardType,
-                imeAction = imeAction
-            ),
-            modifier = modifier
-        )
-
-        if (text.isNotEmpty() && !uiError.isVisible) {
-            TextBody(
-                text = uiError.message,
-                textSize = TEXT_SIZE_SMALL,
-                textColor = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(horizontal = PADDING_MEDIUM)
-            )
-        }
-    }
-}
-
-@Composable
 private fun ReguertaInput(
     text: String,
     labelText: String,
@@ -248,42 +157,54 @@ private fun ReguertaInput(
     } else {
         MaterialTheme.colorScheme.onSurface
     }
-    val colors = OutlinedTextFieldDefaults.colors(
+    val colors = TextFieldDefaults.colors(
         focusedTextColor = textColor,
         unfocusedTextColor = textColor,
-        focusedBorderColor = MaterialTheme.colorScheme.onSurface,
-        unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurface,
+        disabledTextColor = textColor.copy(alpha = 0.38f),
+        errorTextColor = MaterialTheme.colorScheme.error,
+        focusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+        unfocusedIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
+        disabledIndicatorColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+        errorIndicatorColor = MaterialTheme.colorScheme.error,
+        focusedContainerColor = MaterialTheme.colorScheme.background,
+        unfocusedContainerColor = MaterialTheme.colorScheme.background,
+        disabledContainerColor = MaterialTheme.colorScheme.background,
+        errorContainerColor = MaterialTheme.colorScheme.background,
+        disabledPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
         focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface,
         errorPlaceholderColor = MaterialTheme.colorScheme.onSurface,
         unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
     )
+    var touched by rememberSaveable { mutableStateOf(false) }
+    val showError = text.isNotEmpty() && uiError.hasError && touched
     Column(
-        verticalArrangement = Arrangement.spacedBy(PADDING_SMALL)
+        verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm)
     ) {
         TextField(
             value = text,
             onValueChange = onTextChange,
             colors = colors,
-            isError = text.isNotEmpty() && !uiError.isVisible,
+            isError = showError,
             singleLine = true,
             trailingIcon = trailingIcon,
+            shape = RoundedCornerShape(Dimens.Components.Input.cornerRadius),
             label = {
-                TextTitle(
+                TextBody(
                     text = labelText,
-                    textSize = TEXT_SIZE_EXTRA_SMALL
+                    style = Dimens.Components.Input.labelStyle
                 )
             },
-            textStyle = TextStyle(
-                fontFamily = cabinsketchFontFamily,
-                fontWeight = FontWeight.Normal,
-                fontSize = TEXT_SIZE_LARGE
-            ),
-            visualTransformation = if (text.isEmpty()) {
-                PlaceholderTransformation(placeholderText)
-            } else {
-                visualTransformation
+            textStyle = Dimens.Components.Input.textStyle,
+            placeholder = {
+                if (text.isEmpty() && placeholderText.isNotEmpty()) {
+                    TextBody(
+                        text = placeholderText,
+                        style = Dimens.Components.Input.textStyle,
+                        textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                    )
+                }
             },
+            visualTransformation = visualTransformation,
             keyboardOptions = KeyboardOptions(
                 keyboardType = keyboardType,
                 imeAction = imeAction
@@ -292,22 +213,23 @@ private fun ReguertaInput(
                 if (suffixValue.isNotEmpty()) {
                     TextBody(
                         text = suffixValue,
-                        textSize = TEXT_SIZE_LARGE,
+                        style = Dimens.Components.Input.textStyle,
                         textColor = MaterialTheme.colorScheme.onSurface
                     )
                 }
             },
-            modifier = modifier
+            supportingText = {
+                if (showError) {
+                    TextBody(
+                        text = uiError.message,
+                        style = Dimens.Components.Input.supportingStyle,
+                        textColor = MaterialTheme.colorScheme.error,
+                        modifier = Modifier.padding(horizontal = Dimens.Spacing.xs)
+                    )
+                }
+            },
+            modifier = modifier.heightIn(min = Dimens.Components.Input.minHeight).onFocusChanged { if (!it.isFocused) touched = true }
         )
-
-        if (text.isNotEmpty() && !uiError.isVisible) {
-            TextBody(
-                text = uiError.message,
-                textSize = TEXT_SIZE_SMALL,
-                textColor = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(horizontal = PADDING_MEDIUM)
-            )
-        }
     }
 }
 
@@ -318,48 +240,67 @@ fun CustomPhoneNumberInput(
     modifier: Modifier = Modifier,
     placeholder: String = "",
     isError: Boolean = false,
-    imeAction: ImeAction = ImeAction.Default
+    imeAction: ImeAction = ImeAction.Default,
+    supportingText: String = ""
 ) {
-    val textStyle = TextStyle(
-        fontFamily = cabinsketchFontFamily,
+    val textStyle = Dimens.Components.Input.textStyle.copy(
         fontWeight = FontWeight.Bold,
-        fontSize = TEXT_SIZE_LARGE,
         textAlign = TextAlign.Center
     )
 
-    Box(
-        modifier = modifier
-            .height(SIZE_36)
-            .background(MaterialTheme.colorScheme.background, RoundedCornerShape(CORNER_SIZE_8))
-            .border(
-                BORDER_SIZE,
-                if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                RoundedCornerShape(CORNER_SIZE_8)
-            )
-            .padding(PADDING_SMALL)
+    var touched by rememberSaveable { mutableStateOf(false) }
+    val showSupporting = isError && touched && supportingText.isNotEmpty()
+    Column(
+        verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm)
     ) {
-        if (value.isEmpty()) {
-            TextBody(
-                text = placeholder,
-                textSize = TEXT_SIZE_LARGE,
-                textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                textAlignment = TextAlign.Center,
-                modifier = Modifier.fillMaxSize()
+        Box(
+            modifier = modifier
+                .heightIn(min = Dimens.Size.dp32)
+                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(Dimens.Components.Input.cornerRadius))
+                .border(
+                    Dimens.Border.thin,
+                    if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                    RoundedCornerShape(Dimens.Components.Input.cornerRadius)
+                )
+                .padding(Dimens.Spacing.sm)
+                .onFocusChanged { if (!it.isFocused) touched = true }
+        ) {
+            if (value.isEmpty()) {
+                TextBody(
+                    text = placeholder,
+                    style = Dimens.Components.Input.textStyle.copy(textAlign = TextAlign.Center),
+                    textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Center)
+                )
+            }
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                textStyle = textStyle.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center
+                ),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Phone,
+                    imeAction = imeAction
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                maxLines = 1
             )
         }
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            textStyle = textStyle.copy(color = MaterialTheme.colorScheme.onSurface),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Phone,
-                imeAction = imeAction
-            ),
-            modifier = Modifier.fillMaxSize()
-        )
+        if (showSupporting) {
+            TextBody(
+                text = supportingText,
+                style = Dimens.Components.Input.supportingStyle,
+                textColor = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(horizontal = Dimens.Spacing.md)
+            )
+        }
     }
 }
-
 
 @Composable
 fun CustomTextField(
@@ -369,92 +310,64 @@ fun CustomTextField(
     placeholder: String = "",
     isError: Boolean = false,
     keyboardType: KeyboardType = KeyboardType.Text,
-    imeAction: ImeAction = ImeAction.Default
+    imeAction: ImeAction = ImeAction.Default,
+    supportingText: String = "",
+    minHeight: Dp = Dimens.Components.Input.minHeight
 ) {
-    val textStyle = TextStyle(
-        fontFamily = cabinsketchFontFamily,
+    val textStyle = Dimens.Components.Input.textStyle.copy(
         fontWeight = FontWeight.Bold,
-        fontSize = TEXT_SIZE_LARGE,
         textAlign = TextAlign.Center
     )
 
-    Box(
-        modifier = modifier
-            .height(SIZE_40)
-            .background(MaterialTheme.colorScheme.background, RoundedCornerShape(CORNER_SIZE_8))
-            .border(
-                BORDER_SIZE,
-                if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                RoundedCornerShape(CORNER_SIZE_8)
-            )
-            .padding(PADDING_SMALL)
+    var touched by rememberSaveable { mutableStateOf(false) }
+    val showSupporting = isError && touched && supportingText.isNotEmpty()
+    Column(
+        verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm)
     ) {
-        if (value.isEmpty()) {
-            TextBody(
-                text = placeholder,
-                textSize = TEXT_SIZE_LARGE,
-                textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
-                textAlignment = TextAlign.Center,
-                modifier = Modifier.fillMaxSize()
+        Box(
+            modifier = modifier
+                .heightIn(min = minHeight)
+                .background(MaterialTheme.colorScheme.background, RoundedCornerShape(Dimens.Components.Input.cornerRadius))
+                .border(
+                    Dimens.Border.thin,
+                    if (isError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
+                    RoundedCornerShape(Dimens.Components.Input.cornerRadius)
+                )
+                .padding(Dimens.Spacing.sm)
+                .onFocusChanged { if (!it.isFocused) touched = true }
+        ) {
+            if (value.isEmpty()) {
+                TextBody(
+                    text = placeholder,
+                    style = Dimens.Components.Input.textStyle.copy(textAlign = TextAlign.Center),
+                    textColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .align(Alignment.Center)
+                )
+            }
+            BasicTextField(
+                value = value,
+                onValueChange = onValueChange,
+                textStyle = textStyle.copy(
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center
+                ),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = keyboardType,
+                    imeAction = imeAction
+                ),
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                maxLines = 1
             )
         }
-        BasicTextField(
-            value = value,
-            onValueChange = onValueChange,
-            textStyle = textStyle.copy(color = MaterialTheme.colorScheme.onSurface),
-            keyboardOptions = KeyboardOptions(
-                keyboardType = keyboardType,
-                imeAction = imeAction
-            ),
-            modifier = Modifier.fillMaxSize()
-        )
-    }
-}
-
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun ReguertaInputPreview() {
-    Screen {
-        Column(
-            verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
-            modifier = Modifier.padding(PADDING_SMALL)
-        ) {
-            ReguertaEmailInput(
-                text = "Manuel Lopera",
-                onTextChange = {},
-                isValidEmail = false,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            ReguertaPasswordInput(
-                text = "",
-                placeholderText = "Contraseña",
-                onTextChange = {},
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            TextReguertaInput(
-                text = "Manuel Lopera",
-                labelText = "Nombre",
-                onTextChange = {},
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            SecondaryReguertaInput(
-                text = "Manuel Lopera",
-                onTextChange = {},
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            PhoneNumberReguertaInput(
-                text = "123456789",
-                onTextChange = {},
-                modifier = Modifier.fillMaxWidth()
-            )
-            PhoneNumberReguertaInput(
-                text = "12345679",
-                onTextChange = {},
-                modifier = Modifier.fillMaxWidth()
+        if (showSupporting) {
+            TextBody(
+                text = supportingText,
+                style = Dimens.Components.Input.supportingStyle,
+                textColor = MaterialTheme.colorScheme.error,
+                modifier = Modifier.padding(horizontal = Dimens.Spacing.md)
             )
         }
     }

@@ -58,10 +58,6 @@ android {
             signingConfig = signingConfigs.getByName("release")
         }
     }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
     buildFeatures {
         compose = true
         buildConfig = true
@@ -70,6 +66,10 @@ android {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_21
+        targetCompatibility = JavaVersion.VERSION_21
     }
 }
 
@@ -85,6 +85,7 @@ dependencies {
     implementation(project(":data"))
     implementation(project(":presentation"))
     implementation(project(":localData"))
+    implementation(project(":domain"))
     // Compose
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.activity)
@@ -106,7 +107,6 @@ dependencies {
     implementation(libs.bundles.firebase)
 
     //Test
-    testImplementation(libs.junit)
     testImplementation(libs.bundles.jupiter)
     testRuntimeOnly(libs.jupiter.engine)
     testImplementation(libs.mockk)
@@ -115,7 +115,9 @@ dependencies {
     testImplementation(libs.assertk)
 
     // Android test
-    androidTestImplementation(project(":testUtils"))
+    androidTestImplementation(project(":testUtils")) {
+        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-test")
+    }
     // Hilt Testing
     androidTestImplementation(libs.hilt.android.testing)
 

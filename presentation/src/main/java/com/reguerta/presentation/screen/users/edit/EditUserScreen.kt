@@ -1,37 +1,40 @@
 package com.reguerta.presentation.screen.users.edit
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.reguerta.presentation.composables.CustomPhoneNumberInput
+import com.reguerta.presentation.composables.LabeledPhoneNumberInput
 import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaCheckBox
 import com.reguerta.presentation.composables.ReguertaEmailInput
+import com.reguerta.presentation.composables.ReguertaFullButton
+import com.reguerta.presentation.composables.ReguertaScaffold
 import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
-import com.reguerta.presentation.composables.TextTitle
+import com.reguerta.presentation.screen.users.add.AddUserEvent
 import com.reguerta.presentation.type.isValidEmail
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.PADDING_ZERO
-import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_SMALL
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
+import com.reguerta.presentation.ui.Dimens
 
 /*****
  * Project: Reguerta
@@ -59,12 +62,13 @@ fun editUserScreen(id: String, navigateTo: () -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditUserScreen(
     state: EditUserState,
     onEvent: (EditUserEvent) -> Unit
 ) {
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Autorizar regüertense",
@@ -72,11 +76,16 @@ fun EditUserScreen(
             )
         }
     ) {
+        val scrollState = rememberScrollState()
         Column(
-            verticalArrangement = Arrangement.spacedBy(PADDING_ZERO),
+            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.zero),//(PADDING_ZERO),
             modifier = Modifier
                 .padding(it)
-                .padding(horizontal = PADDING_MEDIUM)
+                .padding(horizontal = Dimens.Spacing.md)
+                .fillMaxWidth()
+                .verticalScroll(scrollState)
+                .imePadding()
+                .navigationBarsPadding()
         ) {
             ReguertaEmailInput(
                 state.email,
@@ -109,31 +118,12 @@ fun EditUserScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = PADDING_SMALL),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                TextTitle(
-                    text = "TELÉFONO DEL REGÜERTENSE",
-                    textSize = TEXT_SIZE_EXTRA_SMALL,
-                    modifier = Modifier
-                        .weight(0.64f)
-                        .padding(start = PADDING_MEDIUM)
-                )
-                CustomPhoneNumberInput(
-                    value = state.phoneNumber,
-                    onValueChange = { phoneNumberValue ->
-                        if (phoneNumberValue.length <= 9) {
-                            onEvent(EditUserEvent.PhoneNumberInputChanges(phoneNumberValue))
-                        }
-                    },
-                    placeholder = "Teléfono",
-                    isError = state.phoneNumber.length != 9,
-                    modifier = Modifier.weight(0.36f)
-                )
-            }
+            LabeledPhoneNumberInput(
+                value = state.phoneNumber,
+                onValueChange = { phoneNumberValue ->
+                    onEvent(EditUserEvent.PhoneNumberInputChanges(phoneNumberValue))
+                }
+            )
 
             if (state.isProducer) {
                 TextReguertaInput(
@@ -145,28 +135,42 @@ fun EditUserScreen(
                     placeholderText = "Pulsa para escribir",
                     modifier = Modifier.fillMaxWidth()
                 )
+            }
+
+            if (state.isProducer) {
                 Row(
-                    modifier = Modifier.wrapContentSize(),
-                    horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
+                    modifier = Modifier
+                        .padding(horizontal = Dimens.Spacing.sm)
+                        .wrapContentSize(),
+                    horizontalArrangement = Arrangement.spacedBy(
+                        Dimens.Spacing.sm,
+                        Alignment.End
+                    ),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
+                    TextBody(
+                        text = "Consumidor encargado de compras",
+                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                        textColor = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.weight(1f))
                     ReguertaCheckBox(
                         isChecked = state.typeProducer == "compras",
                         onCheckedChange = { newValue ->
                             onEvent(EditUserEvent.ToggledIsShoppingProducer(newValue))
                         }
                     )
-                    TextBody(
-                        text = "Consumidor encargado de compras",
-                        textSize = TEXT_SIZE_MEDIUM,
-                        textColor = MaterialTheme.colorScheme.onSurface
-                    )
                 }
             }
 
             Row(
-                modifier = Modifier.wrapContentSize(),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
+                modifier = Modifier
+                    .padding(start = Dimens.Spacing.sm, top = Dimens.Spacing.md)
+                    .wrapContentSize(),
+                horizontalArrangement = Arrangement.spacedBy(
+                    Dimens.Spacing.sm,
+                    Alignment.Start
+                ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ReguertaCheckBox(
@@ -177,14 +181,19 @@ fun EditUserScreen(
                 )
                 TextBody(
                     text = "Es productor",
-                    textSize = TEXT_SIZE_LARGE,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal),
                     textColor = MaterialTheme.colorScheme.onSurface
                 )
             }
 
             Row(
-                modifier = Modifier.wrapContentSize(),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.Start),
+                modifier = Modifier
+                    .padding(start = Dimens.Spacing.sm)
+                    .wrapContentSize(),
+                horizontalArrangement = Arrangement.spacedBy(
+                    Dimens.Spacing.sm,
+                    Alignment.Start
+                ),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ReguertaCheckBox(
@@ -195,21 +204,22 @@ fun EditUserScreen(
                 )
                 TextBody(
                     text = "Es administrador",
-                    textSize = TEXT_SIZE_LARGE,
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Normal),
                     textColor = MaterialTheme.colorScheme.onSurface
                 )
             }
-
-            Spacer(modifier = Modifier.weight(1f))
-            ReguertaButton(
-                textButton = "Actualizar",
-                onClick = { onEvent(EditUserEvent.EditUser) },
-                enabledButton = state.isButtonEnabled,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(PADDING_SMALL)
-            )
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.height(Dimens.Spacing.xl))
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                ReguertaFullButton(
+                    textButton = "Actualizar",
+                    enabled = state.isButtonEnabled,
+                    onClick = { onEvent(EditUserEvent.EditUser) }
+                )
+            }
+            Spacer(modifier = Modifier.height(Dimens.Spacing.lg))
         }
     }
 }

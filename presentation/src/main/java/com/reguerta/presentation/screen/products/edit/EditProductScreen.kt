@@ -10,21 +10,26 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import com.reguerta.presentation.composables.ReguertaFullButton
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -60,13 +65,8 @@ import com.reguerta.presentation.composables.StockProductText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
 import com.reguerta.presentation.getStoragePermissionBySdk
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.SIZE_16
-import com.reguerta.presentation.ui.SIZE_96
-import com.reguerta.presentation.ui.TEXT_SIZE_EXTRA_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.composables.ReguertaScaffold
+import com.reguerta.presentation.ui.Dimens
 import com.reguerta.presentation.uriToBitmap
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
@@ -100,6 +100,7 @@ fun editProductScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditProductScreen(
     state: EditProductState,
@@ -113,7 +114,7 @@ fun EditProductScreen(
             scrollState.scrollBy(keyboardHeight.toFloat())
         }
     }
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Editando producto",
@@ -126,6 +127,7 @@ fun EditProductScreen(
                 .padding(it)
                 .fillMaxSize()
                 .imePadding()
+                .navigationBarsPadding()
                 .verticalScroll(scrollState)
         ) {
             HeaderAddProductForm(
@@ -142,8 +144,8 @@ fun EditProductScreen(
                 placeholderText = "Pulsa para escribir",
                 imeAction = ImeAction.Next,
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .padding(horizontal = PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.sm)
+                    .padding(horizontal = Dimens.Spacing.md)
                     .fillMaxWidth()
             )
 
@@ -156,8 +158,8 @@ fun EditProductScreen(
                 labelText = "DESCRIPCIÓN DEL PRODUCTO",
                 placeholderText = "Pulsa para escribir",
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .padding(horizontal = PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.sm)
+                    .padding(horizontal = Dimens.Spacing.md)
                     .fillMaxWidth()
             )
 
@@ -179,19 +181,23 @@ fun EditProductScreen(
                 keyboardType = KeyboardType.Number,
                 suffixValue = "€",
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .padding(horizontal = PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.sm)
+                    .padding(horizontal = Dimens.Spacing.md)
                     .fillMaxWidth()
             )
 
-            ReguertaButton(
-                textButton = "Actualizar producto",
-                enabledButton = state.isButtonEnabled,
-                onClick = { onEvent(EditProductEvent.SaveProduct) },
-                modifier = Modifier
-                    .padding(PADDING_MEDIUM)
-                    .fillMaxWidth()
-            )
+            Spacer(modifier = Modifier.height(Dimens.Spacing.xl))
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                ReguertaFullButton(
+                    textButton = "Actualizar producto",
+                    enabled = state.isButtonEnabled,
+                    onClick = { onEvent(EditProductEvent.SaveProduct) }
+                )
+            }
+            Spacer(modifier = Modifier.height(Dimens.Spacing.lg))
         }
     }
 }
@@ -241,7 +247,7 @@ fun HeaderAddProductForm(
 
     Row(
         modifier = modifier
-            .padding(PADDING_SMALL)
+            .padding(Dimens.Spacing.sm)
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
@@ -260,9 +266,9 @@ fun HeaderAddProductForm(
             painter = painter,
             contentDescription = "Edit",
             modifier = Modifier
-                .padding(PADDING_SMALL)
-                .size(SIZE_96)
-                .clip(RoundedCornerShape(SIZE_16))
+                .padding(Dimens.Spacing.sm)
+                .size(Dimens.Size.dp96)
+                .clip(RoundedCornerShape(Dimens.Size.dp16))
                 .clickable {
                     if (checkStoragePermission(context)) {
                         launcher.launch(
@@ -293,18 +299,18 @@ fun HeaderAddProductForm(
 
         Column(
             modifier = Modifier
-                .padding(PADDING_SMALL)
+                .padding(Dimens.Spacing.sm)
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.End),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextBody(
                     text = "Disponible",
-                    textSize = TEXT_SIZE_LARGE,
+                    style = MaterialTheme.typography.bodyLarge,
                     textColor = MaterialTheme.colorScheme.onSurface
                 )
                 ReguertaCheckBox(
@@ -314,14 +320,15 @@ fun HeaderAddProductForm(
                     }
                 )
             }
+            Spacer(modifier = Modifier.height(Dimens.Spacing.md))
             Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceAround,
                 modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.lg, Alignment.End),
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 StockProductText(
                     stockCount = state.stock,
-                    textSize = TEXT_SIZE_EXTRA_LARGE
+                    style = MaterialTheme.typography.titleMedium
                 )
 
                 ReguertaCounter(
@@ -361,8 +368,8 @@ private fun UnityAndContainer(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(top = PADDING_MEDIUM)
-            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_EXTRA_SMALL),
+            .padding(top = Dimens.Spacing.md)
+            .padding(horizontal = Dimens.Spacing.md, vertical = Dimens.Spacing.xs),
     ) {
         CustomTextField(
             value = state.containerValue,
@@ -372,19 +379,21 @@ private fun UnityAndContainer(
             placeholder = "0",
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Next,
+            minHeight = Dimens.Size.dp32,
             modifier = Modifier
-                .padding(horizontal = PADDING_SMALL)
+                .padding(horizontal = Dimens.Spacing.sm)
                 .fillMaxWidth(0.25f)
         )
 
         DropdownSelectable(
             currentSelected = state.containerType.ifEmpty { "Selecciona envase" },
             dropdownItems = containerDropdownItems,
+            cornerRadius = Dimens.Radius.sm,
             onItemClick = {
                 onEvent(EditProductEvent.OnContainerTypeChanges(it.text))
             },
             modifier = Modifier
-                .padding(horizontal = PADDING_EXTRA_SMALL)
+                .padding(horizontal = Dimens.Spacing.xs)
                 .fillMaxWidth()
         )
     }
@@ -395,7 +404,7 @@ private fun UnityAndContainer(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_EXTRA_SMALL),
+            .padding(horizontal = Dimens.Spacing.md, vertical = Dimens.Spacing.xs),
     ) {
         CustomTextField(
             value = state.measureValue,
@@ -405,19 +414,21 @@ private fun UnityAndContainer(
             placeholder = "0",
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Next,
+            minHeight = Dimens.Size.dp32,
             modifier = Modifier
-                .padding(horizontal = PADDING_SMALL)
+                .padding(horizontal = Dimens.Spacing.sm)
                 .fillMaxWidth(0.25f)
         )
 
         DropdownSelectable(
             currentSelected = state.measureType.ifEmpty { "Selecciona unidad" },
             dropdownItems = measureDropdownItems,
+            cornerRadius = Dimens.Radius.sm,
             onItemClick = {
                 onEvent(EditProductEvent.OnMeasuresTypeChanges(it.text))
             },
             modifier = Modifier
-                .padding(horizontal = PADDING_EXTRA_SMALL)
+                .padding(horizontal = Dimens.Spacing.xs)
                 .fillMaxWidth()
         )
     }

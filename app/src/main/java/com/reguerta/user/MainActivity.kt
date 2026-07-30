@@ -2,30 +2,38 @@ package com.reguerta.user
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.runtime.LaunchedEffect
-import com.reguerta.presentation.MainNavigation
-import com.reguerta.presentation.UiState
+import com.reguerta.presentation.navigation.MainNavigation
+import com.reguerta.presentation.state.UiState
 import com.reguerta.presentation.sync.ForegroundSyncManager
 import com.reguerta.presentation.ui.ReguertaTheme
-import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.navigation.Routes
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
+import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
-        Timber.i("SYNC_MainActivity: onCreate lanzado")
-        val splashScreen = installSplashScreen()
-        super.onCreate(savedInstanceState)
+        // Force dark theme on pre-Android 10 so pre-12 launch background also appears dark
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.Q) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        val splashScreen = installSplashScreen()           // Android 12+
+        super.onCreate(savedInstanceState)
+        setTheme(R.style.Theme_Reguerta)
+
+        enableEdgeToEdge()
+        window.isNavigationBarContrastEnforced = false
         setContent {
             ReguertaTheme {
                 Timber.i("SYNC_MainActivity: Entrando en setContent/Composable raíz")
@@ -73,12 +81,16 @@ class MainActivity : ComponentActivity() {
                     else -> Routes.AUTH.route // Incluye Loading y Error
                 }
 
-                Timber.i("SYNC_MainActivity: Lanzando MainNavigation con startDestination: $startDestination (splashState=$splashState)")
-
                 MainNavigation(
                     startDestination = startDestination
                 )
             }
         }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        Timber.tag("FOREGROUND").i("MainActivity.onStart → requestSyncFromAppLifecycle")
+        ForegroundSyncManager.requestSyncFromAppLifecycle()
     }
 }

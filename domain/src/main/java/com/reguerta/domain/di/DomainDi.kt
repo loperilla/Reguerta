@@ -10,6 +10,7 @@ import com.reguerta.data.firebase.firestore.users.UsersCollectionService
 import com.reguerta.domain.repository.ConfigRepositoryImpl
 import com.reguerta.domain.model.mapper.MeasureMapper
 import com.reguerta.domain.model.NewOrderModel
+import com.reguerta.domain.time.ClockProvider
 import com.reguerta.domain.usecase.auth.CheckCurrentUserLoggedUseCase
 import com.reguerta.domain.usecase.auth.LoginUseCase
 import com.reguerta.domain.usecase.auth.RefreshUserUseCase
@@ -38,14 +39,24 @@ import com.reguerta.domain.usecase.users.GetUserByIdUseCase
 import com.reguerta.domain.usecase.users.SignOutUseCase
 import com.reguerta.domain.usecase.users.ToggleAdminUseCase
 import com.reguerta.domain.usecase.users.ToggleProducerUseCase
-import com.reguerta.domain.usecase.week.GetCurrentWeekDayUseCase
+import com.reguerta.domain.usecase.users.SyncUsersUseCase
+import com.reguerta.domain.usecase.users.UpdateUserDeviceSnapshotUseCase
+import com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase
+import com.reguerta.domain.usecase.app.GetOrCreateDeviceIdUseCase
 import com.reguerta.localdata.time.WeekTime
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.components.SingletonComponent
 import com.reguerta.domain.usecase.products.SyncProductsUseCase
+import com.reguerta.domain.usecase.containers.SyncContainersUseCase
+import com.reguerta.domain.usecase.measures.SyncMeasuresUseCase
+import com.reguerta.domain.usecase.orderlines.SyncOrdersAndOrderLinesUseCase
 import com.reguerta.localdata.datastore.ReguertaDataStore
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.ZonedDateTime
+import javax.inject.Named
 
 /*****
  * Project: Reguerta
@@ -55,7 +66,7 @@ import com.reguerta.localdata.datastore.ReguertaDataStore
  */
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 object DomainDi {
 
     @Provides
@@ -81,10 +92,15 @@ object DomainDi {
     fun providesAdminProducerUseCase(userService: UsersCollectionService) = ToggleAdminUseCase(userService)
 
     @Provides
-    fun providesLoginUseCase(authService: AuthService) = LoginUseCase(authService)
+    fun providesUpdateUserDeviceSnapshotUseCase(userService: UsersCollectionService) =
+        UpdateUserDeviceSnapshotUseCase(userService)
 
     @Provides
-    fun providesGetCurrentDayUseCase(authService: AuthService) = GetCurrentWeekDayUseCase(authService)
+    fun providesGetOrCreateDeviceIdUseCase(dataStore: ReguertaDataStore) =
+        GetOrCreateDeviceIdUseCase(dataStore)
+
+    @Provides
+    fun providesLoginUseCase(authService: AuthService) = LoginUseCase(authService)
 
     @Provides
     fun providesRegisterUseCase(authService: AuthService) = RegisterUseCase(authService)
@@ -175,13 +191,56 @@ object DomainDi {
     ): SyncProductsUseCase = SyncProductsUseCase(productsService, dataStore)
 
     @Provides
+    fun provideSyncContainersUseCase(
+        containersService: ContainersService,
+        dataStore: ReguertaDataStore
+    ): SyncContainersUseCase = SyncContainersUseCase(containersService, dataStore)
+
+    @Provides
+    fun provideSyncMeasuresUseCase(
+        measuresService: MeasuresService,
+        dataStore: ReguertaDataStore
+    ): SyncMeasuresUseCase = SyncMeasuresUseCase(measuresService, dataStore)
+
+    @Provides
+    fun provideSyncOrdersAndOrderLinesUseCase(
+        ordersService: OrdersService,
+        orderLinesService: OrderLinesService,
+        dataStore: ReguertaDataStore
+    ): SyncOrdersAndOrderLinesUseCase =
+        SyncOrdersAndOrderLinesUseCase(ordersService, orderLinesService, dataStore)
+
+    @Provides
+    fun provideSyncUsersUseCase(
+        usersService: UsersCollectionService,
+        dataStore: ReguertaDataStore
+    ): SyncUsersUseCase = SyncUsersUseCase(usersService, dataStore)
+
+    @Provides
     fun provideUpdateTableTimestampsUseCase(configRepositoryImpl: ConfigRepositoryImpl): UpdateTableTimestampsUseCase {
         return UpdateTableTimestampsUseCase(configRepositoryImpl)
     }
 
     @Provides
     fun providePreloadCriticalDataUseCase(
-        usersService: UsersCollectionService
-    ): com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase =
-        com.reguerta.domain.usecase.app.PreloadCriticalDataUseCase(usersService)
+        syncUsersUseCase: SyncUsersUseCase,
+        syncProductsUseCase: SyncProductsUseCase,
+        syncContainersUseCase: SyncContainersUseCase,
+        syncMeasuresUseCase: SyncMeasuresUseCase,
+        syncOrdersAndOrderLinesUseCase: SyncOrdersAndOrderLinesUseCase,
+    ): PreloadCriticalDataUseCase = PreloadCriticalDataUseCase(
+        syncUsersUseCase,
+        syncProductsUseCase,
+        syncContainersUseCase,
+        syncMeasuresUseCase,
+        syncOrdersAndOrderLinesUseCase,
+    )
+
+    @Provides
+    @Named("systemClock")
+    fun provideSystemClockProvider(): ClockProvider = object : ClockProvider {
+        override fun today(): LocalDate = LocalDate.now(ZoneId.systemDefault())
+        override fun now(): ZonedDateTime = ZonedDateTime.now(ZoneId.systemDefault())
+    }
+
 }

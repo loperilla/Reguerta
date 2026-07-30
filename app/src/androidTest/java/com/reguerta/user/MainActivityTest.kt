@@ -1,11 +1,11 @@
 package com.reguerta.user
 
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.test.junit4.createAndroidComposeRule
+import androidx.compose.ui.test.junit4.v2.createAndroidComposeRule
 import androidx.navigation.compose.ComposeNavigator
 import androidx.navigation.testing.TestNavHostController
-import com.reguerta.presentation.MainNavigation
-import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.navigation.MainNavigation
+import com.reguerta.presentation.navigation.Routes
 import com.reguerta.testutils.ReguertaAndroidTest
 import com.reguerta.user.robots.FirstScreenRobot
 import dagger.hilt.android.testing.HiltAndroidTest

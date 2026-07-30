@@ -1,9 +1,9 @@
 package com.reguerta.presentation.composables
 
-import androidx.compose.foundation.layout.Column
+import com.reguerta.presentation.ui.Dimens
+
 import androidx.compose.foundation.layout.RowScope
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -11,14 +11,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarScrollBehavior
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.Companion.Unspecified
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
-import com.reguerta.presentation.ui.TEXT_TOP_BAR
 
 /*****
  * Project: Reguerta
@@ -34,15 +34,16 @@ fun ReguertaTopBar(
     navActionClick: () -> Unit,
     modifier: Modifier = Modifier,
     actions: @Composable RowScope.() -> Unit = {},
-    topBarTextColor: Color = MaterialTheme.colorScheme.onSurface,
-    navIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowBack
+    topBarTextColor: Color = Unspecified,
+    navIcon: ImageVector = Icons.AutoMirrored.Filled.ArrowBack,
+    scrollBehavior: TopAppBarScrollBehavior? = null
 ) {
     MediumTopAppBar(
         title = {
             if (topBarText.isNotEmpty()) {
                 TextTitle(
                     text = topBarText,
-                    textSize = TEXT_TOP_BAR,
+                    style = Dimens.Components.TopBar.titleStyle,
                     textColor = topBarTextColor
                 )
             }
@@ -51,12 +52,15 @@ fun ReguertaTopBar(
             IconButton(onClick = navActionClick) {
                 Icon(
                     imageVector = navIcon,
-                    contentDescription = "Back"
+                    contentDescription = "Back",
+                    modifier = Modifier.size(Dimens.Components.TopBar.iconSize)
                 )
             }
         },
         modifier = modifier,
-        actions = actions
+        actions = actions,
+        colors = Dimens.Components.TopBar.colors(),
+        scrollBehavior = scrollBehavior,
     )
 }
 
@@ -73,63 +77,11 @@ fun ReguertaHomeTopBar(
             IconButton(onClick = navActionClick) {
                 Icon(
                     imageVector = navIcon,
-                    contentDescription = "Back"
+                    contentDescription = "Back",
+                    modifier = Modifier.size(Dimens.Components.TopBar.iconSize)
                 )
             }
-        }
+        },
+        colors = Dimens.Components.TopBar.colors(),
     )
-}
-
-
-@Preview
-@Composable
-fun ReguertaTopBarPreview() {
-    Screen {
-        Scaffold(
-            topBar = {
-                ReguertaTopBar(
-                    topBarText = "Reguerta",
-                    navActionClick = {},
-                    navIcon = Icons.AutoMirrored.Filled.ArrowBack
-                )
-            }
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(it)
-                    .fillMaxSize()
-            ) {
-                ReguertaButton(
-                    textButton = "Button",
-                    onClick = {}
-                )
-            }
-        }
-    }
-}
-
-@Preview
-@Composable
-fun ReguertaHomeTopBarPreview() {
-    Screen {
-        Scaffold(
-            topBar = {
-                ReguertaHomeTopBar(
-                    navActionClick = {},
-                    navIcon = Icons.AutoMirrored.Filled.ArrowBack
-                )
-            }
-        ) {
-            Column(
-                modifier = Modifier
-                    .padding(it)
-                    .fillMaxSize()
-            ) {
-                ReguertaButton(
-                    textButton = "Button",
-                    onClick = {}
-                )
-            }
-        }
-    }
 }

@@ -13,14 +13,25 @@ android {
         minSdk = configMinSdkVersion
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
-        buildConfigField("Boolean", "IS_DEBUG", "true")
-        buildConfigField("String", "VERSION_NAME", "\"$VERSION_NAME\"")
+        val versionNameProp = VERSION_NAME
+        buildConfigField("String", "VERSION_NAME", "\"$versionNameProp\"")
+        buildConfigField("String", "DISPLAY_VERSION", "\"$versionNameProp\"")
+        buildConfigField("String", "DEBUG_LOGIN_DATE", "\"\"")
     }
 
     buildTypes {
         release {
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            val versionNameProp = VERSION_NAME
+            buildConfigField("String", "DISPLAY_VERSION", "\"$versionNameProp\"")
+            buildConfigField("String", "DEBUG_LOGIN_DATE", "\"\"")
+        }
+        debug {
+            val versionNameProp = VERSION_NAME
+            buildConfigField("String", "DISPLAY_VERSION", "\"$versionNameProp (Debug)\"")
+            val debugLoginDateProp = DEBUG_LOGIN_DATE
+            buildConfigField("String", "DEBUG_LOGIN_DATE", "\"$debugLoginDateProp\"")
         }
     }
     compileOptions {
@@ -31,10 +42,9 @@ android {
         compose = true
         buildConfig = true
     }
-}
-
-composeCompiler {
-    reportsDestination = layout.buildDirectory.dir("compose_compiler")
+    composeCompiler {
+        reportsDestination = layout.buildDirectory.dir("compose_compiler")
+    }
 }
 
 kotlin {
@@ -53,6 +63,8 @@ dependencies {
     implementation(libs.splashscreen)
     implementation(libs.timber)
     implementation(libs.firebase.common.ktx)
+    implementation(libs.androidx.animation)
+    implementation(libs.androidx.compose.material.core)
 
     debugImplementation(libs.compose.ui.tooling)
     debugImplementation(libs.compose.ui.test.manifest)

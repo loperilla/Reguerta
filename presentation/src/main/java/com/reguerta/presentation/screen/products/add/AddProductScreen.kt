@@ -9,6 +9,9 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollBy
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,13 +20,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.imePadding
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,6 +47,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil.compose.rememberAsyncImagePainter
 import coil.request.ImageRequest
+import androidx.compose.ui.unit.dp
 import com.reguerta.presentation.R
 import com.reguerta.presentation.checkRationalPermission
 import com.reguerta.presentation.checkStoragePermission
@@ -50,6 +55,7 @@ import com.reguerta.presentation.composables.CustomTextField
 import com.reguerta.presentation.composables.DropDownItem
 import com.reguerta.presentation.composables.DropdownSelectable
 import com.reguerta.presentation.composables.ReguertaButton
+import com.reguerta.presentation.composables.ReguertaFullButton
 import com.reguerta.presentation.composables.ReguertaCheckBox
 import com.reguerta.presentation.composables.ReguertaCounter
 import com.reguerta.presentation.composables.ReguertaTopBar
@@ -58,12 +64,9 @@ import com.reguerta.presentation.composables.StockProductText
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.composables.TextReguertaInput
 import com.reguerta.presentation.getStoragePermissionBySdk
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.SIZE_96
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
+import com.reguerta.presentation.composables.ReguertaScaffold
+import com.reguerta.presentation.ui.Dimens
+import com.reguerta.presentation.navigation.Routes
 import com.reguerta.presentation.uriToBitmap
 import kotlinx.coroutines.launch
 
@@ -92,6 +95,7 @@ fun addProductScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AddProductScreen(
     state: AddProductState,
@@ -105,7 +109,7 @@ private fun AddProductScreen(
             scrollState.scrollBy(keyboardHeight.toFloat())
         }
     }
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Añadir Producto",
@@ -118,6 +122,7 @@ private fun AddProductScreen(
                 .padding(it)
                 .fillMaxSize()
                 .imePadding()
+                .navigationBarsPadding()
                 .verticalScroll(scrollState)
         ) {
             HeaderAddProductForm(
@@ -134,8 +139,8 @@ private fun AddProductScreen(
                 placeholderText = "Pulsa para escribir",
                 imeAction = ImeAction.Next,
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .padding(horizontal = PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.sm)
+                    .padding(horizontal = Dimens.Spacing.md)
                     .fillMaxWidth()
             )
 
@@ -148,8 +153,8 @@ private fun AddProductScreen(
                 labelText = "DESCRIPCIÓN DEL PRODUCTO",
                 placeholderText = "Pulsa para escribir",
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .padding(horizontal = PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.sm)
+                    .padding(horizontal = Dimens.Spacing.md)
                     .fillMaxWidth()
             )
 
@@ -171,19 +176,23 @@ private fun AddProductScreen(
                 keyboardType = KeyboardType.Number,
                 suffixValue = "€",
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .padding(horizontal = PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.sm)
+                    .padding(horizontal = Dimens.Spacing.md)
                     .fillMaxWidth()
             )
 
-            ReguertaButton(
-                textButton = "Añadir producto",
-                enabledButton = state.isButtonEnabled,
-                onClick = { onEvent(AddProductEvent.AddProduct) },
-                modifier = Modifier
-                    .padding(PADDING_MEDIUM)
-                    .fillMaxWidth()
-            )
+            Spacer(modifier = Modifier.height(Dimens.Spacing.xl))
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                ReguertaFullButton(
+                    textButton = "Añadir producto",
+                    enabled = state.isButtonEnabled,
+                    onClick = { onEvent(AddProductEvent.AddProduct) }
+                )
+            }
+            Spacer(modifier = Modifier.height(Dimens.Spacing.lg))
         }
     }
 }
@@ -224,7 +233,7 @@ private fun HeaderAddProductForm(
     }
     Row(
         modifier = modifier
-            .padding(PADDING_SMALL)
+            .padding(Dimens.Spacing.sm)
             .fillMaxWidth()
             .wrapContentHeight()
     ) {
@@ -239,8 +248,8 @@ private fun HeaderAddProductForm(
                 painter = painter,
                 contentDescription = "Edit",
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .size(SIZE_96)
+                    .padding(Dimens.Spacing.sm)
+                    .size(Dimens.Size.dp96)
                     .clickable {
                         if (checkStoragePermission(context)) {
                             launcher.launch(
@@ -270,8 +279,8 @@ private fun HeaderAddProductForm(
                 painter = painterResource(R.mipmap.product_no_available),
                 contentDescription = "Edit",
                 modifier = Modifier
-                    .padding(PADDING_SMALL)
-                    .size(SIZE_96)
+                    .padding(Dimens.Spacing.sm)
+                    .size(Dimens.Size.dp96)
                     .clickable {
                         if (checkStoragePermission(context)) {
                             launcher.launch(
@@ -289,18 +298,18 @@ private fun HeaderAddProductForm(
         }
         Column(
             modifier = Modifier
-                .padding(PADDING_SMALL)
+                .padding(Dimens.Spacing.sm)
                 .fillMaxWidth()
                 .wrapContentHeight()
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_EXTRA_SMALL, Alignment.End),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 TextBody(
                     text = "Disponible",
-                    textSize = TEXT_SIZE_LARGE,
+                    style = MaterialTheme.typography.titleMedium,
                     textColor = MaterialTheme.colorScheme.onSurface
                 )
                 ReguertaCheckBox(
@@ -310,14 +319,15 @@ private fun HeaderAddProductForm(
                     }
                 )
             }
+            Spacer(modifier = Modifier.height(Dimens.Spacing.md))
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(PADDING_MEDIUM, Alignment.End),
+                horizontalArrangement = Arrangement.spacedBy(Dimens.Spacing.lg, Alignment.End),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 StockProductText(
                     stockCount = state.stock,
-                    textSize = TEXT_SIZE_LARGE
+                    style = MaterialTheme.typography.titleMedium
                 )
 
                 ReguertaCounter(
@@ -357,8 +367,8 @@ private fun UnityAndContainer(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(top = PADDING_MEDIUM)
-            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_EXTRA_SMALL),
+            .padding(top = Dimens.Spacing.md)
+            .padding(horizontal = Dimens.Spacing.md, vertical = Dimens.Spacing.xs),
     ) {
         CustomTextField(
             value = state.containerValue,
@@ -368,19 +378,21 @@ private fun UnityAndContainer(
             placeholder = "0",
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Next,
+            minHeight = Dimens.Size.dp32,
             modifier = Modifier
-                .padding(horizontal = PADDING_SMALL)
+                .padding(horizontal = Dimens.Spacing.sm)
                 .fillMaxWidth(0.25f)
         )
 
         DropdownSelectable(
             currentSelected = state.containerType.ifEmpty { "Selecciona envase" },
             dropdownItems = containerDropdownItems,
+            cornerRadius = Dimens.Radius.sm,
             onItemClick = {
                 onEvent(AddProductEvent.OnContainerTypeChanges(it.text))
             },
             modifier = Modifier
-                .padding(horizontal = PADDING_EXTRA_SMALL)
+                .padding(horizontal = Dimens.Spacing.xs)
                 .fillMaxWidth()
         )
     }
@@ -391,7 +403,7 @@ private fun UnityAndContainer(
         modifier = Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(horizontal = PADDING_MEDIUM, vertical = PADDING_EXTRA_SMALL),
+            .padding(horizontal = Dimens.Spacing.md, vertical = Dimens.Spacing.xs),
     ) {
         CustomTextField(
             value = state.measureValue,
@@ -401,32 +413,24 @@ private fun UnityAndContainer(
             placeholder = "0",
             keyboardType = KeyboardType.NumberPassword,
             imeAction = ImeAction.Next,
+            minHeight = Dimens.Size.dp32,
             modifier = Modifier
-                .padding(horizontal = PADDING_SMALL)
+                .padding(horizontal = Dimens.Spacing.sm)
                 .fillMaxWidth(0.25f)
         )
 
         DropdownSelectable(
             currentSelected = state.measureType.ifEmpty { "Selecciona unidad" },
             dropdownItems = measureDropdownItems,
+            cornerRadius = Dimens.Radius.sm,
             onItemClick = {
                 onEvent(AddProductEvent.OnMeasuresTypeChanges(it.text))
             },
             modifier = Modifier
-                .padding(horizontal = PADDING_EXTRA_SMALL)
+                .padding(horizontal = Dimens.Spacing.xs)
                 .fillMaxWidth()
         )
     }
 }
 
 
-@Preview
-@Composable
-fun AddProductScreenPreview() {
-    Screen {
-        AddProductScreen(
-            state = AddProductState(),
-            onEvent = {}
-        )
-    }
-}

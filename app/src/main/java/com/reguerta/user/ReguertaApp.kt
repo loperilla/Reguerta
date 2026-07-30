@@ -2,10 +2,12 @@ package com.reguerta.user
 
 import android.app.Application
 import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ProcessLifecycleOwner
 import com.google.firebase.FirebaseApp
 import com.reguerta.data.firebase.firestore.FirestoreEnvironment
 import com.reguerta.data.firebase.firestore.FirestoreManager
+import com.reguerta.presentation.sync.ForegroundSyncManager
 import dagger.hilt.android.HiltAndroidApp
 import timber.log.Timber
 
@@ -19,15 +21,12 @@ import timber.log.Timber
 @HiltAndroidApp
 class ReguertaApp : Application(), DefaultLifecycleObserver {
     override fun onCreate() {
-        Timber.i("SYNC_ReguertaApp: onCreate lanzado")
         super<Application>.onCreate()
         FirebaseApp.initializeApp(this)
 
         val environment = if (BuildConfig.DEBUG) FirestoreEnvironment.DEVELOP else FirestoreEnvironment.PRODUCTION
         FirestoreManager.setEnvironment(environment)
         FirestoreManager.configureFirestore()
-
-        Timber.i("SYNC_ReguertaApp: Firebase y entorno inicializados (${environment.path})")
 
         if (BuildConfig.DEBUG) {
             Timber.plant(
@@ -48,5 +47,13 @@ class ReguertaApp : Application(), DefaultLifecycleObserver {
 
         ProcessLifecycleOwner.get().lifecycle.addObserver(this)
         Timber.i("SYNC_ReguertaApp: Observer de ciclo de vida añadido")
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        Timber.tag("APP_LIFECYCLE").i("Process onStart → app to FOREGROUND")
+        ForegroundSyncManager.requestSyncFromAppLifecycle()
+    }
+    override fun onStop(owner: LifecycleOwner) {
+        Timber.tag("APP_LIFECYCLE").i("Process onStop → app to BACKGROUND")
     }
 }

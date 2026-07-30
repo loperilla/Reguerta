@@ -1,25 +1,49 @@
 package com.reguerta.domain.usecase.app
 
-import com.reguerta.data.firebase.firestore.users.UsersCollectionService
-import kotlinx.coroutines.flow.first
+import com.google.firebase.Timestamp
+import com.reguerta.domain.usecase.users.SyncUsersUseCase
+import com.reguerta.domain.usecase.products.SyncProductsUseCase
+import com.reguerta.domain.usecase.containers.SyncContainersUseCase
+import com.reguerta.domain.usecase.measures.SyncMeasuresUseCase
+import com.reguerta.domain.usecase.orderlines.SyncOrdersAndOrderLinesUseCase
 import javax.inject.Inject
 import timber.log.Timber
 
+/**
+ * Orquestador de precarga para un arranque "frío".
+ * Delegamos en los casos de uso de sincronización y sellamos los timestamps locales
+ * con el tiempo actual para evitar bloqueos iniciales del botón "Mi pedido".
+ */
 class PreloadCriticalDataUseCase @Inject constructor(
-    private val usersService: UsersCollectionService
-    // FUTURO: Aquí puedes inyectar también OrdersService, OrderLinesService, etc.
+    private val syncUsersUseCase: SyncUsersUseCase,
+    private val syncProductsUseCase: SyncProductsUseCase,
+    private val syncContainersUseCase: SyncContainersUseCase,
+    private val syncMeasuresUseCase: SyncMeasuresUseCase,
+    private val syncOrdersAndOrderLinesUseCase: SyncOrdersAndOrderLinesUseCase,
 ) {
     suspend operator fun invoke() {
-        // Precarga los usuarios para que Mi Pedido funcione tras la instalación limpia.
-        val result = usersService.getUserList().first()
-        result.onSuccess { users ->
-            Timber.d("SYNC_Usuarios precargados: ${users.size}")
-            // Aquí puedes guardar en local si tienes DAO.
-        }
-        result.onFailure { error ->
-            Timber.e(error, "Error al precargar usuarios")
-        }
-        // FUTURO: Añade aquí la llamada a los servicios de orders y orderlines para
-        // precargar esos datos críticos también tras la primera instalación.
+        val ts = Timestamp.now()
+        Timber.d("SYNC_Preload: start ts=%s", ts.seconds)
+
+        runCatching { syncUsersUseCase(ts) }
+            .onSuccess { Timber.d("SYNC_Preload: users ✓") }
+            .onFailure { Timber.e(it, "SYNC_Preload: users ✗") }
+
+        runCatching { syncProductsUseCase(ts) }
+            .onSuccess { Timber.d("SYNC_Preload: products ✓") }
+            .onFailure { Timber.e(it, "SYNC_Preload: products ✗") }
+
+        runCatching { syncContainersUseCase(ts) }
+            .onSuccess { Timber.d("SYNC_Preload: containers ✓") }
+            .onFailure { Timber.e(it, "SYNC_Preload: containers ✗") }
+
+        runCatching { syncMeasuresUseCase(ts) }
+            .onSuccess { Timber.d("SYNC_Preload: measures ✓") }
+            .onFailure { Timber.e(it, "SYNC_Preload: measures ✗") }
+
+        runCatching { syncOrdersAndOrderLinesUseCase(ts) }
+            .onSuccess { Timber.d("SYNC_Preload: orders & orderlines ✓") }
+            .onFailure { Timber.e(it, "SYNC_Preload: orders & orderlines ✗") }
+
     }
 }

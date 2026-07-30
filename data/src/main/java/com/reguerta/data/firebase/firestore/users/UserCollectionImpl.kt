@@ -1,11 +1,20 @@
 package com.reguerta.data.firebase.firestore.users
 
+import android.util.Log
 import com.google.firebase.firestore.CollectionReference
+import com.google.firebase.firestore.Source
+import com.google.firebase.firestore.MetadataChanges
 import com.google.firebase.firestore.Query
+import com.google.firebase.firestore.FieldValue
+import com.google.firebase.firestore.SetOptions
+import com.reguerta.data.firebase.firestore.DEVICES
+import com.reguerta.data.firebase.firestore.LAST_DEVICE_ID
 import com.reguerta.data.firebase.firestore.NAME
 import com.reguerta.data.firebase.firestore.USER_EMAIL
 import com.reguerta.data.firebase.firestore.USER_IS_ADMIN
 import com.reguerta.data.firebase.firestore.USER_IS_PRODUCER
+import com.reguerta.data.firebase.firestore.devicesnapshot.DeviceSnapshotModel
+import com.reguerta.data.firebase.firestore.devicesnapshot.toMap
 import com.reguerta.localdata.datastore.COMPANY_NAME_KEY
 import com.reguerta.localdata.datastore.IS_ADMIN_KEY
 import com.reguerta.localdata.datastore.IS_PRODUCER_KEY
@@ -30,17 +39,30 @@ class UserCollectionImpl @Inject constructor(
     private val collection: CollectionReference,
     private val dataStore: ReguertaDataStore
 ) : UsersCollectionService {
+    companion object {
+        private const val TAG = "UserCollectionImpl"
+    }
     override suspend fun getUserList(): Flow<Result<List<UserModel>>> = callbackFlow {
+        Log.i(TAG, "USERS_LIST_INIT - Subscribiendo a colección de usuarios (orderBy=NAME)")
         val subscription = collection
             .orderBy(NAME, Query.Direction.ASCENDING)
-            .addSnapshotListener { snapshot, error ->
+            .addSnapshotListener(MetadataChanges.INCLUDE) { snapshot, error ->
                 if (error != null) {
+                    Log.e(TAG, "USERS_LIST_ERROR - Firestore listener devolvió error", error)
                     error.printStackTrace()
                     trySend(Result.failure(error))
                     close(error)
                     return@addSnapshotListener
                 }
                 snapshot?.let { query ->
+                    if (query.metadata.isFromCache && query.size() <= 1) {
+                        Log.w(TAG, "USERS_LIST_SKIP_CACHE - Ignorando snapshot de cache sospechoso (size<=1); esperando servidor…")
+                        return@addSnapshotListener
+                    }
+                    if (!query.metadata.isFromCache) {
+                        Log.i(TAG, "USERS_LIST_SERVER - snapshot de servidor recibido, docs=${query.size()}")
+                    }
+                    Log.d(TAG, "USERS_LIST_SNAPSHOT - docs=${query.size()}, fromCache=${query.metadata.isFromCache}, pendingWrites=${query.metadata.hasPendingWrites()}")
                     val userList = mutableListOf<UserModel>()
                     query.documents.forEach { document ->
                         val user = document.toObject(UserModel::class.java)
@@ -49,11 +71,39 @@ class UserCollectionImpl @Inject constructor(
                             userList.add(model)
                         }
                     }
+                    val producers = userList.count { it.isProducer }
+                    val admins = userList.count { it.isAdmin }
+                    Log.i(TAG, "USERS_LIST_EMIT - count=${userList.size}, producers=$producers, admins=$admins, sampleIds=${userList.take(10).map { it.id }}")
+                    if (userList.size <= 1) {
+                        Log.w(TAG, "USERS_LIST_WARN - tamaño de lista sospechoso (${userList.size}). Revisa reglas de seguridad, entorno (dev/prod) o filtros en la query.")
+                    }
                     trySend(Result.success(userList))
                 }
             }
         awaitClose {
+            Log.i(TAG, "USERS_LIST_CLOSE - Listener desuscrito")
             subscription.remove()
+        }
+    }
+
+    override suspend fun getUserListFromServer(): Result<List<UserModel>> {
+        return try {
+            val snapshot = collection
+                .orderBy(NAME, Query.Direction.ASCENDING)
+                .get(Source.SERVER)
+                .await()
+
+            val userList = snapshot.documents.mapNotNull { document ->
+                document.toObject(UserModel::class.java)?.apply {
+                    id = document.id
+                }
+            }
+
+            Log.i(TAG, "USERS_LIST_SERVER_FETCH - count=${userList.size}")
+            Result.success(userList)
+        } catch (ex: Exception) {
+            Log.e(TAG, "USERS_LIST_SERVER_FETCH_ERROR", ex)
+            Result.failure(ex)
         }
     }
 
@@ -112,6 +162,29 @@ class UserCollectionImpl @Inject constructor(
         collection
             .document(id)
             .set(user.toMapWithoutId())
+            .await()
+    }
+
+    override suspend fun upsertDeviceSnapshot(userId: String, snapshot: DeviceSnapshotModel) {
+        val deviceId = snapshot.deviceId.orEmpty()
+        if (deviceId.isBlank()) {
+            Log.w(TAG, "DEVICE_SNAPSHOT_SKIP - deviceId vacío para userId=$userId")
+            return
+        }
+        val deviceRef = collection.document(userId)
+            .collection(DEVICES)
+            .document(deviceId)
+
+        val existingSnapshot = deviceRef.get().await()
+        val data = snapshot.toMap().toMutableMap().apply {
+            this["lastSeenAt"] = FieldValue.serverTimestamp()
+            if (!existingSnapshot.exists()) {
+                this["firstSeenAt"] = FieldValue.serverTimestamp()
+            }
+        }
+        deviceRef.set(data, SetOptions.merge()).await()
+        collection.document(userId)
+            .set(mapOf(LAST_DEVICE_ID to deviceId), SetOptions.merge())
             .await()
     }
 

@@ -18,3 +18,4 @@ const val USER_EMAIL = "email"
 
 const val COMPANY_NAME = "companyName"
 const val ORDER_ID = "orderId"
+const val LAST_DEVICE_ID = "lastDeviceId"

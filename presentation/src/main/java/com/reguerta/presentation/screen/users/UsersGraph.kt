@@ -9,7 +9,7 @@ import androidx.navigation.navArgument
 import com.reguerta.presentation.screen.users.add.addUserScreen
 import com.reguerta.presentation.screen.users.edit.editUserScreen
 import com.reguerta.presentation.screen.users.root.usersScreen
-import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.navigation.Routes
 
 /*****
  * Project: Reguerta

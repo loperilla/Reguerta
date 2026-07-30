@@ -25,6 +25,8 @@ firebase-common-ktx = "21.0.0"
 lifecycle-process = "2.11.0"
 core = "1.19.0"
 javapoet = "1.13.0"
+animation = "1.11.4"
+compose-material-core = "1.6.2"
 compose-ui-test = "1.11.4"
 
 [libraries]
@@ -83,6 +85,8 @@ firebase-common-ktx = { group = "com.google.firebase", name = "firebase-common-k
 androidx-lifecycle-process = { group = "androidx.lifecycle", name = "lifecycle-process", version.ref = "lifecycle-process" }
 androidx-core = { group = "androidx.core", name = "core", version.ref = "core" }
 javapoet = { group = "com.squareup", name = "javapoet", version.ref = "javapoet" }
+androidx-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "animation" }
+androidx-compose-material-core = { group = "androidx.wear.compose", name = "compose-material-core", version.ref = "compose-material-core" }
 
 [bundles]
 compose = [
@@ -115,9 +119,9 @@ jupiter = [
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidJUnit5 = { id = "de.mannodermaus.android-junit5", version.ref = "android-junit5" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
+androidx-room = { id = "androidx.room", version = "2.8.4" }
 ben-manes-versions = "io.github.ben-manes.versions:0.56.0"
 kspPlugin = { id = "com.google.devtools.ksp", version.ref = "ksp" }
-room = { id = "androidx.room", version.ref = "room-version" }
 hilt = { id = "com.google.dagger.hilt.android", version = "2.60.1" }
 google-services = { id = "com.google.gms.google-services", version = "4.5.0" }
 crashlytics = { id = "com.google.firebase.crashlytics", version = "3.0.7" }

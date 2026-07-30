@@ -1,49 +1,37 @@
 package com.reguerta.presentation.screen.auth.recovery
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Error
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.reguerta.presentation.composables.BtnType
+import com.reguerta.presentation.composables.ButtonLayout
 import com.reguerta.presentation.composables.ReguertaAlertDialog
-import com.reguerta.presentation.composables.ReguertaButton
 import com.reguerta.presentation.composables.ReguertaEmailInput
+import com.reguerta.presentation.composables.ReguertaFullButton
+import com.reguerta.presentation.composables.ReguertaScaffold
 import com.reguerta.presentation.composables.ReguertaTopBar
 import com.reguerta.presentation.composables.Screen
-import com.reguerta.presentation.composables.TextBody
-import com.reguerta.presentation.composables.TextTitle
 import com.reguerta.presentation.type.isValidEmail
-import com.reguerta.presentation.ui.PADDING_EXTRA_SMALL
-import com.reguerta.presentation.ui.PADDING_LARGE
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.SIZE_48
-import com.reguerta.presentation.ui.SIZE_88
-import com.reguerta.presentation.ui.TEXT_SIZE_DLG_BODY
-import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
+import com.reguerta.presentation.ui.Dimens
+import com.reguerta.presentation.navigation.Routes
+import com.reguerta.domain.enums.UiType
 
 /*****
  * Project: Reguerta
@@ -52,6 +40,7 @@ import com.reguerta.presentation.ui.TEXT_SIZE_DLG_TITLE
  * All rights reserved 2024
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun recoveryPasswordScreen(
     navigateTo: (route: String) -> Unit
@@ -68,117 +57,30 @@ fun recoveryPasswordScreen(
 
     if (state.showSuccessDialog) {
         ReguertaAlertDialog(
-            icon = {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(SIZE_88)
-                        .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.2f), shape = CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = "Info",
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(SIZE_48)
-                    )
-                }
-            },
             onDismissRequest = {},
-            text = {
-                TextBody(
-                    text = "Se ha enviado el correo de restablecimiento de contraseña con éxito. Revisa tu correo.",
-                    textSize = TEXT_SIZE_DLG_BODY,
-                    textColor = MaterialTheme.colorScheme.onSurface,
-                    textAlignment = TextAlign.Center
-                )
-            },
-            title = {
-                TextTitle(
-                    text = "Recuperar contraseña",
-                    textSize = TEXT_SIZE_DLG_TITLE,
-                    textColor = MaterialTheme.colorScheme.onSurface,
-                    textAlignment = TextAlign.Center
-                )
-            },
-            confirmButton = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = PADDING_EXTRA_SMALL, vertical = PADDING_SMALL),
-                    horizontalArrangement = Arrangement.spacedBy(PADDING_SMALL)
-                ) {
-                    ReguertaButton(
-                        textButton = "Aceptar",
-                        isSingleButton = false,
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            viewModel.onEvent(RecoveryEvent.GoBack)
-                        }
-                    )
-                }
-            },
-            dismissButton = { /* No se usa  */ }
+            icon = Icons.Default.Info,
+            titleText = "Recuperar contraseña",
+            bodyText = "Se ha enviado el correo de restablecimiento de contraseña con éxito. Revisa tu correo.",
+            confirmText = "Aceptar",
+            onConfirm = { viewModel.onEvent(RecoveryEvent.GoBack) },
+            type = UiType.INFO
         )
     }
 
     if (state.showFailureDialog) {
         ReguertaAlertDialog(
-            icon = {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(SIZE_88)
-                        .background(MaterialTheme.colorScheme.error.copy(alpha = 0.2f), shape = CircleShape)
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Warning,
-                        contentDescription = "Advertencia",
-                        tint = MaterialTheme.colorScheme.error,
-                        modifier = Modifier.size(SIZE_48)
-                    )
-                }
-            },
             onDismissRequest = {},
-            text = {
-                TextBody(
-                    text = "Ha ocurrido un error al enviar el correo de restablecimiento de contraseña.",
-                    textSize = TEXT_SIZE_DLG_BODY,
-                    textColor = MaterialTheme.colorScheme.onSurface,
-                    textAlignment = TextAlign.Center
-                )
-            },
-            title = {
-                TextTitle(
-                    text = "Recuperar contraseña",
-                    textSize = TEXT_SIZE_DLG_TITLE,
-                    textColor = MaterialTheme.colorScheme.onSurface,
-                    textAlignment = TextAlign.Center
-                )
-            },
-            confirmButton = {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = PADDING_EXTRA_SMALL, vertical = PADDING_SMALL),
-                    horizontalArrangement = Arrangement.spacedBy(PADDING_SMALL)
-                ) {
-                    ReguertaButton(
-                        textButton = "Aceptar",
-                        isSingleButton = false,
-                        btnType = BtnType.ERROR,
-                        modifier = Modifier.weight(1f),
-                        onClick = {
-                            viewModel.onEvent(RecoveryEvent.HideFailureDialog)
-                        }
-                    )
-                }
-            },
-            dismissButton = { /* No se usa  */ }
+            icon = Icons.Filled.Error,
+            titleText = "Recuperar contraseña",
+            bodyText = "Ha ocurrido un error al enviar el correo de restablecimiento de contraseña.",
+            confirmText = "Aceptar",
+            onConfirm = { viewModel.onEvent(RecoveryEvent.HideFailureDialog) },
+            type = UiType.ERROR
         )
     }
 
     Screen {
-        Scaffold(
+        ReguertaScaffold(
             topBar = {
                 ReguertaTopBar(
                     topBarText = "Introduce el email de registro",
@@ -190,11 +92,12 @@ fun recoveryPasswordScreen(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
+                verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm),
                 modifier = Modifier
                     .padding(it)
-                    .padding(PADDING_MEDIUM)
+                    .padding(Dimens.Spacing.md)
                     .fillMaxSize()
+                    .imePadding()
             ) {
                 ReguertaEmailInput(
                     text = state.email,
@@ -206,22 +109,23 @@ fun recoveryPasswordScreen(
                     isValidEmail = state.email.isValidEmail,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(PADDING_SMALL)
+                        .padding(Dimens.Spacing.sm)
                 )
                 Spacer(
-                    modifier = Modifier.padding(PADDING_LARGE)
+                    modifier = Modifier.size(Dimens.Spacing.lg)
                 )
 
-                ReguertaButton(
-                    textButton = "Recuperar contraseña",
-                    enabledButton = state.email.isValidEmail,
+                ReguertaFullButton(
+                    textButton = "Recuperar contraseña",
+                    enabled = state.email.isValidEmail,
                     onClick = {
                         viewModel.onEvent(RecoveryEvent.SendEmail)
                         keyboardController?.hide()
                     },
+                    layout = ButtonLayout.Fill,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(PADDING_SMALL)
+                        .padding(Dimens.Spacing.sm)
                 )
             }
         }

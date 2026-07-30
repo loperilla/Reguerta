@@ -2,8 +2,8 @@ package com.reguerta.data.di
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.CollectionReference
-import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.FirebaseStorage
 import com.reguerta.data.firebase.auth.AuthService
 import com.reguerta.data.firebase.auth.AuthServiceImpl
 import com.reguerta.data.firebase.firestore.CONTAINERS
@@ -94,10 +94,8 @@ object DataModule {
     @Named(PRODUCT_IMAGE_STORAGE_PATH)
     @Singleton
     @Provides
-    fun provideProductStoragePreference(): StorageReference = FirebaseStorage
-        .getInstance()
-        .reference
-        .child(PRODUCT_IMAGE_STORAGE_PATH)
+    fun provideProductStoragePreference(): StorageReference =
+        FirebaseStorage.getInstance().reference.child(PRODUCT_IMAGE_STORAGE_PATH)
 
     @Singleton
     @Provides

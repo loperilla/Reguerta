@@ -9,16 +9,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MediumTopAppBar
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.sp
+import com.reguerta.presentation.composables.ReguertaScaffold
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextTitle
-import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.navigation.Routes
 
 /*****
  * Project: Reguerta
@@ -49,13 +48,13 @@ fun OrdersScreen(
     state: OrderState,
     onEvent: (OrderEvent) -> Unit
 ) {
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             MediumTopAppBar(
                 title = {
                     TextTitle(
                         text = "Pedidos",
-                        textSize = 26.sp,
+                        textSize = MaterialTheme.typography.headlineSmall.fontSize,
                         textColor = MaterialTheme.colorScheme.primary
                     )
                 },

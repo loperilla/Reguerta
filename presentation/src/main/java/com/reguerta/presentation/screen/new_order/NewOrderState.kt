@@ -14,14 +14,6 @@ import java.time.DayOfWeek
  * All rights reserved 2024
  */
 
-enum class NewOrderUiMode {
-    LOADING,
-    SELECT_PRODUCTS,
-    EDIT_ORDER,
-    SHOW_PREVIOUS_ORDER,
-    ERROR
-}
-
 data class NewOrderState(
     val goOut: Boolean = false,
     val isLoading: Boolean = true,
@@ -43,7 +35,10 @@ data class NewOrderState(
     val containers: List<Container> = emptyList(),
     val kgMangoes: Int = 0,
     val kgAvocados: Int = 0,
-    val loadingMessage: String? = null
+    val loadingMessage: String? = null,
+    val flow: OrderFlow? = null,
+    val showSearch: Boolean = false,
+    val searchQuery: String = ""
 )
 
 enum class PopupType {
@@ -51,4 +46,12 @@ enum class PopupType {
     ARE_YOU_SURE_DELETE,
     ORDER_ADDED,
     MISSING_COMMIT
+}
+enum class OrderFlow { CURRENT_WEEK, LAST_WEEK }
+enum class NewOrderUiMode {
+    LOADING,
+    SELECT_PRODUCTS,
+    EDIT_ORDER,
+    SHOW_PREVIOUS_ORDER,
+    ERROR
 }

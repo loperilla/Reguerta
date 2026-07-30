@@ -8,7 +8,7 @@ import com.reguerta.presentation.screen.auth.firstScreen.firstScreen
 import com.reguerta.presentation.screen.auth.login.loginScreen
 import com.reguerta.presentation.screen.auth.recovery.recoveryPasswordScreen
 import com.reguerta.presentation.screen.auth.register.registerScreen
-import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.navigation.Routes
 
 /*****
  * Project: Reguerta

@@ -15,6 +15,7 @@ val UID_KEY = stringPreferencesKey("uid")
 val NAME_KEY = stringPreferencesKey("name")
 val SURNAME_KEY = stringPreferencesKey("surname")
 val COMPANY_NAME_KEY = stringPreferencesKey("companyName")
+val DEVICE_ID_KEY = stringPreferencesKey("deviceId")
 
 val IS_ADMIN_KEY = booleanPreferencesKey("isAdmin")
 val IS_PRODUCER_KEY = booleanPreferencesKey("isProducer")

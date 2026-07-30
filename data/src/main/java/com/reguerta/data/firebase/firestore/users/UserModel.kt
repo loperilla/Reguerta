@@ -19,9 +19,12 @@ data class UserModel(
     var numResignations: Int? = null,
     val typeConsumer: String? = null,
     val typeProducer: String? = null,
+    // Compatibilidad con documentos legacy donde el campo se llamaba "isAvailable".
+    @field:JvmField var isAvailable: Boolean? = null,
     @field:JvmField var available: Boolean? = true,
     val tropical1: Double? = null,
-    val tropical2: Double? = null
+    val tropical2: Double? = null,
+    val lastDeviceId: String? = null
 )
 
 fun UserModel.toMapWithoutId(): Map<String, Any?> {
@@ -38,6 +41,7 @@ fun UserModel.toMapWithoutId(): Map<String, Any?> {
         "typeProducer" to typeProducer,
         "available" to available,
         "tropical1" to tropical1,
-        "tropical2" to tropical2
+        "tropical2" to tropical2,
+        "lastDeviceId" to lastDeviceId
     ).filterValues { it != null }
 }

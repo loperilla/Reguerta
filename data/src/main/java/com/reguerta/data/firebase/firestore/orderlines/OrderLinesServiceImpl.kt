@@ -77,15 +77,23 @@ class OrderLinesServiceImpl @Inject constructor(
         )
     }
 
-    override suspend fun deleteFirebaseOrderLine(orderId: String) {
-        collection
-            .whereEqualTo(ORDER_ID, orderId)
-            .get()
-            .addOnSuccessListener {
-                it.documents.forEach { document ->
-                    document.reference.delete()
-                }
+    override suspend fun deleteFirebaseOrderLine(orderId: String): Result<Unit> {
+        return try {
+            val snapshot = collection
+                .whereEqualTo(ORDER_ID, orderId)
+                .get()
+                .await()
+
+            snapshot.documents.forEach { document ->
+                document.reference
+                    .delete()
+                    .await()
             }
+
+            Result.success(Unit)
+        } catch (ex: Exception) {
+            Result.failure(ex)
+        }
     }
 
     override suspend fun addOrderLineInFirebase(listToPush: List<OrderLineDTO>): Result<Unit> {

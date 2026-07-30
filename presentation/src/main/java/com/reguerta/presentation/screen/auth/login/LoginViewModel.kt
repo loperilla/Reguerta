@@ -3,10 +3,17 @@ package com.reguerta.presentation.screen.auth.login
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.reguerta.domain.usecase.auth.LoginUseCase
+import com.reguerta.domain.usecase.app.GetOrCreateDeviceIdUseCase
+import com.reguerta.domain.usecase.users.UpdateUserDeviceSnapshotUseCase
+import com.reguerta.domain.time.ClockProvider
+import com.reguerta.localdata.datastore.ReguertaDataStore
+import com.reguerta.localdata.datastore.UID_KEY
 import com.reguerta.presentation.BuildConfig
+import com.reguerta.presentation.device.DeviceSnapshotFactory
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,7 +31,11 @@ import java.time.LocalDate
  */
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
+    private val clock: ClockProvider,
+    private val dataStore: ReguertaDataStore,
+    private val getOrCreateDeviceIdUseCase: GetOrCreateDeviceIdUseCase,
+    private val updateUserDeviceSnapshotUseCase: UpdateUserDeviceSnapshotUseCase
 ) : ViewModel() {
     private var _state: MutableStateFlow<LoginState> = MutableStateFlow(LoginState())
     val state: StateFlow<LoginState> = _state.asStateFlow()
@@ -61,6 +72,9 @@ class LoginViewModel @Inject constructor(
                                     isLoading = false,
                                     goOut = true
                                 )
+                            }
+                            viewModelScope.launch(Dispatchers.IO) {
+                                reportDeviceSnapshot()
                             }
                         }
                     ) { result ->
@@ -100,14 +114,32 @@ class LoginViewModel @Inject constructor(
 
     private fun checkEnabledButton(): Boolean {
         return with(_state.value) {
-            emailInput.isValidEmail &&
-                    passwordInput.isValidPassword
+            emailInput.isValidEmail && passwordInput.isValidPassword
+        }
+    }
+
+    private suspend fun reportDeviceSnapshot() {
+        val userId = dataStore.getStringByKey(UID_KEY)
+        if (userId.isBlank()) {
+            Timber.w("DEVICE_SNAPSHOT: userId vacío, omitiendo envío")
+            return
+        }
+        val deviceId = getOrCreateDeviceIdUseCase()
+        val snapshot = DeviceSnapshotFactory.create(deviceId)
+        runCatching {
+            updateUserDeviceSnapshotUseCase(userId, snapshot)
+        }.onFailure {
+            Timber.e(it, "DEVICE_SNAPSHOT: fallo al enviar snapshot")
         }
     }
 
     fun autoLoginIfDebug() {
         if (BuildConfig.DEBUG) {
-            val testDate = LocalDate.of(2025, 9, 26)
+            Timber.tag("LOGIN_DBG").d("BuildConfig.DEBUG=%s, DEBUG_LOGIN_DATE='%s'", BuildConfig.DEBUG, BuildConfig.DEBUG_LOGIN_DATE)
+            val testDate = BuildConfig.DEBUG_LOGIN_DATE
+                .takeIf { it.isNotBlank() }?.let { LocalDate.parse(it) }
+                ?: clock.today()
+            Timber.tag("LOGIN_DBG").d("autoLogin testDate=%s (clock.today=%s)", testDate, clock.today())
             viewModelScope.launch {
                 val email = "ophiura@yahoo.es"
                 val password = "Reguerta161274"
@@ -121,6 +153,9 @@ class LoginViewModel @Inject constructor(
                                 )
                             }
                             Timber.tag("LOGIN").d("Login automático exitoso")
+                            viewModelScope.launch(Dispatchers.IO) {
+                                reportDeviceSnapshot()
+                            }
                         },
                         onFailure = { result ->
                             _state.update {

@@ -56,8 +56,14 @@ class GetAvailableProductsUseCase @Inject constructor(
     suspend operator fun invoke(forceFromServer: Boolean = false): Flow<List<CommonProduct>> {
         val currentUserResult = authService.checkCurrentLoggedUser()
         val currentUser = currentUserResult.getOrNull() ?: return flowOf(emptyList())
+        val usersFlow = if (forceFromServer) {
+            flowOf(usersService.getUserListFromServer())
+        } else {
+            usersService.getUserList()
+        }
 
-        return usersService.getUserList().flatMapLatest { usersResult ->
+        return usersFlow.flatMapLatest { usersResult ->
+
             val availableProducers = usersResult.fold(
                 onSuccess = { userModelList ->
                     val isEvenWeek = weekTime.isEvenCurrentWeek()
@@ -77,7 +83,8 @@ class GetAvailableProductsUseCase @Inject constructor(
                         if (user.isProducer) {
                             val typeProducer = user.typeProducer?.toTypeProd() ?: TypeProducerUser.REGULAR
                             val hasCommitment = typeProducer.hasCommitmentThisWeek(isEvenWeek)
-                            user.available ?: true && hasCommitment
+                            val producerAvailable = user.available ?: user.isAvailable ?: true
+                            producerAvailable && hasCommitment
                         } else {
                             false
                         }
@@ -107,18 +114,28 @@ class GetAvailableProductsUseCase @Inject constructor(
                     Timber.i("SYNC_TRACE_USECASE - IDs productos crudos: ${products.getOrNull()?.take(5)?.map { it.id }}")
                     products.fold(
                         onSuccess = { productModelList ->
-                            Timber.i("SYNC_DEBUG_USECASE - Filtered by available producers: ${productModelList.count { productModel -> availableProducers.any { it.id == productModel.userId } }}")
-                            val mappedList = productModelList
-                                .filter { productModel ->
-                                    availableProducers.any { it.id == productModel.userId }
-                                }
-                                .map { productModel ->
-                                    val modifiedProduct = modifyTropicalValues(productModel, currentUser, measures)
-                                    modifiedProduct.toDomain()
-                                }
+                            val producerIds = availableProducers.map { it.id }.toSet()
+                            Timber.i("JOIN_DEBUG - producerIds habilitados: $producerIds")
+                            Timber.i("JOIN_DEBUG - sample product.userId: ${productModelList.take(10).map { it.userId }}")
+
+                            val filteredByProducer = productModelList.filter { pm ->
+                                val pid = pm.userId
+                                !pid.isNullOrBlank() && pid in producerIds
+                            }
+                            Timber.i("SYNC_DEBUG_USECASE - Filtered by available producers: ${filteredByProducer.size}")
+
+                            val baseList = filteredByProducer
+                            if (productModelList.isNotEmpty() && filteredByProducer.isEmpty()) {
+                                Timber.w("JOIN_INCONSISTENCY - ${productModelList.size} productos crudos pero 0 tras filtro; devolviendo lista vacía (sin paracaídas)")
+                            }
+
+                            val mappedList = baseList.map { pm ->
+                                val modifiedProduct = modifyTropicalValues(pm, currentUser, measures)
+                                modifiedProduct.toDomain()
+                            }
                             Timber.i("SYNC_DEBUG_USECASE - Final available products toDomain: ${mappedList.size}")
                             Timber.i("SYNC_TRACE_USECASE - Productos finales a mostrar: ${mappedList.size} | IDs: ${mappedList.map { it.id }}")
-                            mappedList
+                            return@fold mappedList
                         },
                         onFailure = {
                             emptyList()

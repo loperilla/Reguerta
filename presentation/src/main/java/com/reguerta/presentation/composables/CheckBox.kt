@@ -3,14 +3,12 @@ package com.reguerta.presentation.composables
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Checkbox
-import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.reguerta.presentation.ui.PADDING_SMALL
-import androidx.compose.material3.MaterialTheme
+import com.reguerta.presentation.ui.Dimens
 
 /*****
  * Project: Reguerta
@@ -26,15 +24,11 @@ fun ReguertaCheckBox(
     modifier: Modifier = Modifier,
     isEnabled: Boolean = true
 ) {
-    val cbColors = CheckboxDefaults.colors(
-        checkedColor = MaterialTheme.colorScheme.primary,
-        checkmarkColor = MaterialTheme.colorScheme.onPrimary,
-        uncheckedColor = Color.Gray
-    )
+    val cbColors = Dimens.Components.Checkbox.colors()
     Checkbox(
         checked = isChecked,
         onCheckedChange = onCheckedChange,
-        modifier = modifier,
+        modifier = modifier.size(Dimens.Components.Checkbox.size),
         enabled = isEnabled,
         colors = cbColors
     )
@@ -45,7 +39,7 @@ fun ReguertaCheckBox(
 fun CheckboxPreview() {
     Screen {
         Column(
-            verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
+            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm),
             modifier = Modifier.fillMaxSize()
         ) {
             ReguertaCheckBox(

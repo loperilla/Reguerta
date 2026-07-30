@@ -1,14 +1,13 @@
 plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kspPlugin)
-    alias(libs.plugins.room)
     alias(libs.plugins.hilt)
+    alias(libs.plugins.androidx.room)
 }
 
 android {
     namespace = "$GROUP_ID.localdata"
     compileSdk = configCompileSdkVersion
-
     defaultConfig {
         minSdk = configMinSdkVersion
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -27,6 +26,12 @@ android {
     }
 }
 
+extensions.configure<com.android.build.api.dsl.LibraryExtension>("android") {
+    sourceSets.named("androidTest") {
+        assets.directories += "$projectDir/schemas"
+    }
+}
+
 kotlin {
     jvmToolchain(21)
 }
@@ -37,7 +42,7 @@ room {
 
 dependencies {
     //Datastore
-    implementation(libs.datastore)
+    api(libs.datastore)
 
     // Hilt
     implementation(libs.hilt.android)
@@ -46,4 +51,9 @@ dependencies {
     // Room
     implementation(libs.room.ktx)
     ksp(libs.room.compiler)
+
+    // Tests
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.test.ext.junit)
+    androidTestImplementation(libs.test.espresso)
 }

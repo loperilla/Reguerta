@@ -1,5 +1,6 @@
 package com.reguerta.localdata.time
 
+import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.temporal.WeekFields
 import java.util.Locale
@@ -14,7 +15,6 @@ import javax.inject.Inject
 
 class WeekTimeImpl @Inject constructor() : WeekTime {
     private var overrideDate: LocalDate? = null
-    private val weekFields = WeekFields.of(Locale.forLanguageTag("es-ES"))
 
     override fun setTestDate(date: LocalDate) {
         overrideDate = date
@@ -26,16 +26,18 @@ class WeekTimeImpl @Inject constructor() : WeekTime {
 
     override fun getCurrentWeek(): Int {
         val today = overrideDate ?: LocalDate.now()
+        val weekFields = WeekFields.of(Locale.Builder().setLanguage("es").setRegion("ES").build())
         return today.get(weekFields.weekOfWeekBasedYear())
     }
 
     override fun getLastWeek(): Int {
         val lastWeek: LocalDate = (overrideDate ?: LocalDate.now()).minusWeeks(1)
+        val weekFields = WeekFields.of(Locale.Builder().setLanguage("es").setRegion("ES").build())
         return lastWeek.get(weekFields.weekOfWeekBasedYear())
     }
 
-    override fun getCurrentWeekDay(): Int {
-        return (overrideDate ?: LocalDate.now()).dayOfWeek.value
+    override fun getCurrentDayOfWeek(): DayOfWeek {
+        return (overrideDate ?: LocalDate.now()).dayOfWeek
     }
 
     override fun isEvenCurrentWeek(): Boolean {
@@ -44,6 +46,7 @@ class WeekTimeImpl @Inject constructor() : WeekTime {
 
     override fun getTwoWeeksAgo(): Int {
         val twoWeeksAgo: LocalDate = (overrideDate ?: LocalDate.now()).minusWeeks(2)
+        val weekFields = WeekFields.of(Locale.Builder().setLanguage("es").setRegion("ES").build())
         return twoWeeksAgo.get(weekFields.weekOfWeekBasedYear())
     }
 }

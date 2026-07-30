@@ -7,8 +7,9 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
@@ -24,7 +25,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.reguerta.presentation.composables.ReguertaButton
+import com.reguerta.presentation.composables.ReguertaFullButton
 import com.reguerta.presentation.composables.ReguertaEmailInput
 import com.reguerta.presentation.composables.ReguertaPasswordInput
 import com.reguerta.presentation.composables.ReguertaTopBar
@@ -32,12 +33,12 @@ import com.reguerta.presentation.composables.Screen
 import com.reguerta.presentation.composables.TextBody
 import com.reguerta.presentation.type.isValidEmail
 import com.reguerta.presentation.type.isValidPassword
-import com.reguerta.presentation.ui.PADDING_EXTRA_LARGE
-import com.reguerta.presentation.ui.PADDING_MEDIUM
-import com.reguerta.presentation.ui.PADDING_SMALL
+import com.reguerta.presentation.composables.ReguertaScaffold
+import com.reguerta.presentation.ui.Dimens
 import androidx.compose.material3.MaterialTheme
-import com.reguerta.presentation.ui.Routes
-import com.reguerta.presentation.ui.TEXT_SIZE_SMALL
+import com.reguerta.presentation.navigation.Routes
+import com.reguerta.presentation.composables.ButtonLayout
+import com.reguerta.presentation.composables.TextTitle
 
 /*****
  * Project: Reguerta
@@ -71,6 +72,7 @@ fun loginScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LoginScreen(
     state: LoginState,
@@ -91,7 +93,7 @@ private fun LoginScreen(
             }
         }
     }
-    Scaffold(
+    ReguertaScaffold(
         topBar = {
             ReguertaTopBar(
                 topBarText = "Introduce tus credenciales",
@@ -104,11 +106,12 @@ private fun LoginScreen(
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(PADDING_SMALL),
+            verticalArrangement = Arrangement.spacedBy(Dimens.Spacing.sm),
             modifier = Modifier
                 .padding(it)
-                .padding(PADDING_MEDIUM)
+                .padding(Dimens.Spacing.md)
                 .fillMaxSize()
+                .imePadding()
         ) {
             ReguertaEmailInput(
                 text = state.emailInput,
@@ -120,7 +123,7 @@ private fun LoginScreen(
                 isValidEmail = state.emailInput.isValidEmail,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PADDING_SMALL)
+                    .padding(Dimens.Spacing.sm)
             )
             ReguertaPasswordInput(
                 text = state.passwordInput,
@@ -134,32 +137,29 @@ private fun LoginScreen(
                 isValidPassword = state.passwordInput.isValidPassword,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(PADDING_SMALL)
+                    .padding(Dimens.Spacing.sm)
             )
 
-            TextBody(
-                textColor = MaterialTheme.colorScheme.primary,
+            TextTitle(
                 text = "¿Has olvidado tu contraseña?",
-                textSize = TEXT_SIZE_SMALL,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                textColor = MaterialTheme.colorScheme.primary,
                 modifier = Modifier
                     .align(Alignment.End)
-                    .padding(PADDING_SMALL)
+                    .padding(Dimens.Spacing.sm)
                     .clickable {
                         navigateTo(Routes.AUTH.RECOVERY_PASSWORD.route)
                     }
             )
-            Spacer(modifier = Modifier.height(PADDING_EXTRA_LARGE))
-            ReguertaButton(
+            Spacer(modifier = Modifier.height(Dimens.Spacing.xl))
+
+            ReguertaFullButton(
                 textButton = "Iniciar sesión",
-                enabledButton = state.enabledButton,
+                enabled = state.enabledButton,
                 onClick = {
                     newEvent(LoginEvent.OnLoginClick)
                     keyboardController?.hide()
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(PADDING_SMALL)
+                }
             )
         }
     }

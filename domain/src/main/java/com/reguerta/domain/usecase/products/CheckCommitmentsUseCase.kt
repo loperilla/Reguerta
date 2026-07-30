@@ -45,17 +45,30 @@ class CheckCommitmentsUseCase @Inject constructor(
             val kgMangoes = currentUser.tropical1 ?: 0.0
             val kgAvocados = currentUser.tropical2 ?: 0.0
 
-            // Verificar el compromiso general
-            if (userTypeConsumer.hasCommitmentThisWeek(isCurrentWeekEven)) {
-                val commitmentProducts = availableProducts.filter {
-                    it.container == ContainerType.COMMIT.value || it.container == ContainerType.RESIGN.value
+            // Verificar el compromiso general (ventana por paridad)
+            val isCommitmentWindow = userTypeConsumer.isCommitmentAllowedThisWeek(isCurrentWeekEven)
+
+            val commitmentProducts = availableProducts.filter {
+                it.container == ContainerType.COMMIT.value || it.container == ContainerType.RESIGN.value
+            }
+            val hasCommit = productsInOrder.any { line ->
+                commitmentProducts.any { it.id == line.productId && it.container == ContainerType.COMMIT.value }
+            }
+            val hasResign = productsInOrder.any { line ->
+                commitmentProducts.any { it.id == line.productId && it.container == ContainerType.RESIGN.value }
+            }
+
+            // 1) Si ES su semana (p. ej., consumidor PAR en semana PAR), exigir COMMIT o RESIGN
+            if (isCommitmentWindow) {
+                if (!hasCommit && !hasResign) {
+                    failureMessages.add("Esta semana te corresponde compromiso: añade la cesta de compromiso o la renuncia.")
                 }
-                val hasCommitmentProduct = productsInOrder.any { line ->
-                    commitmentProducts.any { it.id == line.productId }
-                }
-                if (!hasCommitmentProduct) {
-                    failureMessages.add("Has olvidado añadir la cesta compromiso. Si no deseas la cesta, debes añadir la renuncia.")
-                }
+            }
+            // Fuera de su semana: libertad total (no se prohíbe COMMIT/RESIGN)
+
+            // 3) Evitar COMMIT y RESIGN a la vez
+            if (hasCommit && hasResign) {
+                failureMessages.add("No puedes añadir a la vez la cesta de compromiso y la renuncia. Elige solo una.")
             }
 
             // Verificar compromiso de mangos

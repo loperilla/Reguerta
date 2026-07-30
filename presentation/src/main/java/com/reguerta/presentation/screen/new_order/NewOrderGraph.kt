@@ -3,7 +3,7 @@ package com.reguerta.presentation.screen.new_order
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
-import com.reguerta.presentation.ui.Routes
+import com.reguerta.presentation.navigation.Routes
 
 /*****
  * Project: Reguerta

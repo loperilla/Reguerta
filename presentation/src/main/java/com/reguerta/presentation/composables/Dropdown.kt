@@ -1,14 +1,16 @@
 package com.reguerta.presentation.composables
 
+
+import androidx.compose.ui.unit.Dp
 import androidx.compose.foundation.LocalIndication
-import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.indication
 import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.PressInteraction
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
@@ -18,17 +20,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.foundation.focusable
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import com.reguerta.presentation.ui.PADDING_SMALL
-import com.reguerta.presentation.ui.SIZE_40
-import com.reguerta.presentation.ui.TEXT_SIZE_LARGE
-import com.reguerta.presentation.ui.TEXT_SIZE_MEDIUM
+import com.reguerta.presentation.ui.Dimens
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.width
+import androidx.compose.ui.Alignment
 
 /*****
  * Project: Reguerta
@@ -46,15 +49,13 @@ fun DropdownSelectable(
     currentSelected: String,
     dropdownItems: List<DropDownItem>,
     modifier: Modifier = Modifier,
+    cornerRadius: Dp = Dimens.Radius.sm,
     onItemClick: (DropDownItem) -> Unit
 ) {
     var isContextMenuVisible by rememberSaveable {
         mutableStateOf(false)
     }
-    var pressOffset by remember {
-        mutableStateOf(DpOffset.Zero)
-    }
-    var itemHeight by remember {
+    var anchorWidth by remember {
         mutableStateOf(0.dp)
     }
     val interactionSource = remember {
@@ -65,51 +66,51 @@ fun DropdownSelectable(
     ReguertaCard(
         modifier = modifier
             .onSizeChanged {
-                itemHeight = with(density) { it.height.toDp() }
+                with(density) { anchorWidth = it.width.toDp() }
             },
-        contentColor = MaterialTheme.colorScheme.onPrimary,
-        containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
+        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        containerColor = MaterialTheme.colorScheme.surfaceVariant,
+        cornerRadius = cornerRadius,
         content = {
             Box(
                 modifier = Modifier
-                    .heightIn(SIZE_40)
+                    .heightIn(min = Dimens.Components.Dropdown.anchorHeight)
                     .fillMaxWidth()
+                    .semantics { role = Role.Button }
+                    .focusable(true)
                     .indication(interactionSource, LocalIndication.current)
-                    .pointerInput(true) {
-                        detectTapGestures(
-                            onTap = {
-                                isContextMenuVisible = true
-                                pressOffset = DpOffset(it.x.toDp(), it.y.toDp())
-                            },
-                            onPress = {
-                                val press = PressInteraction.Press(it)
-                                interactionSource.emit(press)
-                                tryAwaitRelease()
-                                interactionSource.emit(PressInteraction.Release(press))
-                            }
-                        )
+                    .clickable(
+                        interactionSource = interactionSource,
+                        indication = LocalIndication.current
+                    ) {
+                        isContextMenuVisible = true
                     }
-                    .padding(PADDING_SMALL)
+                    .padding(
+                        horizontal = Dimens.Components.Dropdown.contentPaddingHorizontal,
+                        vertical = Dimens.Components.Dropdown.contentPaddingVertical
+                    ),
+                contentAlignment = Alignment.Center
             ) {
-                TextTitle(
+                TextBody(
                     text = currentSelected,
-                    textSize = TEXT_SIZE_LARGE,
+                    style = MaterialTheme.typography.bodyLarge,
                     textColor = MaterialTheme.colorScheme.onSurface,
                     textAlignment = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
             DropdownMenu(
+                modifier = Modifier
+                    .width(anchorWidth)
+                    .heightIn(max = Dimens.Components.Dropdown.menuMaxHeight),
                 expanded = isContextMenuVisible,
                 onDismissRequest = {
                     isContextMenuVisible = false
-                },
-                offset = pressOffset.copy(
-                    y = pressOffset.y - itemHeight
-                )
+                }
             ) {
                 dropdownItems.forEach {
                     DropdownMenuItem(
+                        modifier = Modifier.height(Dimens.Components.Dropdown.itemHeight),
                         onClick = {
                             onItemClick(it)
                             isContextMenuVisible = false
@@ -117,7 +118,7 @@ fun DropdownSelectable(
                         text = {
                             TextBody(
                                 text = it.text,
-                                textSize = TEXT_SIZE_MEDIUM,
+                                style = MaterialTheme.typography.bodyLarge,
                                 textColor = MaterialTheme.colorScheme.onSurface
                             )
                         }

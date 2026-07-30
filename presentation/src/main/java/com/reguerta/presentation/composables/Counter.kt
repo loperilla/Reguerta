@@ -2,10 +2,10 @@ package com.reguerta.presentation.composables
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -15,10 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.reguerta.presentation.ui.CORNER_SIZE_8
-import com.reguerta.presentation.ui.PADDING_SMALL
-import androidx.compose.material3.MaterialTheme
+import com.reguerta.presentation.ui.Dimens
 
 /*****
  * Project: Reguerta
@@ -37,11 +34,15 @@ fun ReguertaCounter(
     Row(
         horizontalArrangement = Arrangement.SpaceBetween,
         modifier = modifier
-            .padding(horizontal = PADDING_SMALL)
             .wrapContentSize()
+            .heightIn(min = Dimens.Components.Counter.minHeight)
             .background(
-                MaterialTheme.colorScheme.surfaceVariant,
-                shape = RoundedCornerShape(CORNER_SIZE_8)
+                color = Dimens.Components.Counter.containerColor,
+                shape = RoundedCornerShape(Dimens.Components.Counter.cornerRadius)
+            )
+            .padding(
+                horizontal = Dimens.Components.Counter.horizontalPadding,
+                vertical = Dimens.Components.Counter.verticalPadding
             )
     ) {
         IconButton(
@@ -51,7 +52,8 @@ fun ReguertaCounter(
             Icon(
                 imageVector = Icons.Default.Remove,
                 contentDescription = "counter remove",
-                tint = MaterialTheme.colorScheme.onSurface
+                tint = if (value > 0) Dimens.Components.Counter.contentColor else Dimens.Components.Counter.disabledContentColor,
+                modifier = Modifier.size(Dimens.Components.Counter.iconSize)
             )
         }
         IconButton(
@@ -60,23 +62,8 @@ fun ReguertaCounter(
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "counter add",
-                tint = MaterialTheme.colorScheme.onSurface
-            )
-        }
-    }
-}
-
-@Preview
-@Composable
-fun ReguertaCounterPreview() {
-    Screen {
-        Column(
-            modifier = Modifier.fillMaxSize()
-        ) {
-            ReguertaCounter(
-                0,
-                onMinusButtonClicked = {},
-                onPlusButtonClicked = {},
+                tint = Dimens.Components.Counter.contentColor,
+                modifier = Modifier.size(Dimens.Components.Counter.iconSize)
             )
         }
     }
