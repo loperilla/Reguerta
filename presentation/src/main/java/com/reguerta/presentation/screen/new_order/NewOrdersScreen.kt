@@ -282,19 +282,7 @@ fun ExistingOrderScreen(
             )
         },
         bottomBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background( MaterialTheme.colorScheme.primary)
-                    .padding(Dimens.Spacing.sm),
-                contentAlignment = Alignment.Center
-            ) {
-                TextTitle(
-                    text = "Suma total pedido: %.2f €".format(grandTotal),
-                    textSize = MaterialTheme.typography.titleLarge.fontSize,
-                    textColor = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            OrderTotalBottomBar(grandTotal = grandTotal)
         }
     ) { it ->
         Column(
@@ -338,19 +326,7 @@ fun LastOrderScreen(
             )
         },
         bottomBar = {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background( MaterialTheme.colorScheme.primary)
-                    .padding(Dimens.Spacing.sm),
-                contentAlignment = Alignment.Center
-            ) {
-                TextTitle(
-                    text = "Suma total pedido: %.2f €".format(grandTotal),
-                    textSize = MaterialTheme.typography.titleLarge.fontSize,
-                    textColor = MaterialTheme.colorScheme.onSurface
-                )
-            }
+            OrderTotalBottomBar(grandTotal = grandTotal)
         }
     ) { it ->
         Column(
@@ -373,6 +349,24 @@ fun LastOrderScreen(
                 )
             }
         }
+    }
+}
+
+@Composable
+private fun OrderTotalBottomBar(grandTotal: Double) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.primary)
+            .navigationBarsPadding()
+            .padding(Dimens.Spacing.sm),
+        contentAlignment = Alignment.Center
+    ) {
+        TextTitle(
+            text = "Suma total pedido: %.2f €".format(grandTotal),
+            textSize = MaterialTheme.typography.titleLarge.fontSize,
+            textColor = MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 

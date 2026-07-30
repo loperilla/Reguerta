@@ -115,7 +115,9 @@ dependencies {
     testImplementation(libs.assertk)
 
     // Android test
-    androidTestImplementation(project(":testUtils"))
+    androidTestImplementation(project(":testUtils")) {
+        exclude(group = "org.jetbrains.kotlinx", module = "kotlinx-coroutines-test")
+    }
     // Hilt Testing
     androidTestImplementation(libs.hilt.android.testing)
 

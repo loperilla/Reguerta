@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -235,6 +236,14 @@ fun ReguertaFullButton(
         enabled = enabled,
         shape = shape,
         colors = Dimens.Components.Button.colors(btnType),
+        contentPadding = if (isDialog) {
+            PaddingValues(
+                horizontal = Dimens.Components.Button.horizontalPadding,
+                vertical = Dimens.Components.Button.verticalPadding
+            )
+        } else {
+            ButtonDefaults.ContentPadding
+        },
         modifier = modifier
             .heightIn(min = Dimens.Components.Button.defaultHeight)
             .applyButtonWidth(twoButtons = twoButtons, isDialog = isDialog, layout = layout)
@@ -243,10 +252,14 @@ fun ReguertaFullButton(
             text = textButton,
             style = Dimens.Components.Button.labelStyle,
             textColor = Color.Unspecified,
-            modifier = Modifier.padding(
-                horizontal = Dimens.Components.Button.horizontalPadding,
-                vertical = Dimens.Components.Button.verticalPadding
-            )
+            modifier = if (isDialog) {
+                Modifier
+            } else {
+                Modifier.padding(
+                    horizontal = Dimens.Components.Button.horizontalPadding,
+                    vertical = Dimens.Components.Button.verticalPadding
+                )
+            }
         )
     }
 }
@@ -280,6 +293,14 @@ fun ReguertaFlatButton(
         shape = shape,
         colors = colors,
         border = BorderStroke(Dimens.Border.thin, Dimens.Components.Button.borderColor(btnType)),
+        contentPadding = if (isDialog) {
+            PaddingValues(
+                horizontal = Dimens.Components.Button.horizontalPadding,
+                vertical = Dimens.Components.Button.verticalPadding
+            )
+        } else {
+            ButtonDefaults.ContentPadding
+        },
         modifier = modifier
             .heightIn(min = Dimens.Components.Button.defaultHeight)
             .applyButtonWidth(twoButtons = twoButtons, isDialog = isDialog, layout = layout)
@@ -288,10 +309,14 @@ fun ReguertaFlatButton(
             text = textButton,
             style = Dimens.Components.Button.labelStyle,
             textColor = Color.Unspecified,
-            modifier = Modifier.padding(
-                horizontal = Dimens.Components.Button.horizontalPadding,
-                vertical = Dimens.Components.Button.verticalPadding
-            )
+            modifier = if (isDialog) {
+                Modifier
+            } else {
+                Modifier.padding(
+                    horizontal = Dimens.Components.Button.horizontalPadding,
+                    vertical = Dimens.Components.Button.verticalPadding
+                )
+            }
         )
     }
 }

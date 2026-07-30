@@ -119,6 +119,8 @@ fun ReguertaAlertDialog(
                             textButton = dismissText,
                             onClick = onDismissButton,
                             btnType = type,
+                            twoButtons = true,
+                            isDialog = true,
                             layout = ButtonLayout.Fill,
                             modifier = Modifier.weight(1f)
                         )
@@ -126,6 +128,8 @@ fun ReguertaAlertDialog(
                             textButton = confirmText,
                             onClick = onConfirm,
                             btnType = type,
+                            twoButtons = true,
+                            isDialog = true,
                             layout = ButtonLayout.Fill,
                             modifier = Modifier.weight(1f)
                         )
@@ -136,6 +140,7 @@ fun ReguertaAlertDialog(
                         textButton = confirmText,
                         onClick = onConfirm,
                         btnType = type,
+                        isDialog = true,
                         layout = ButtonLayout.Fill,
                         modifier = Modifier
                             .fillMaxWidth()
@@ -153,6 +158,7 @@ fun ReguertaAlertDialog(
                     textButton = dismissText,
                     onClick = onDismissButton,
                     btnType = type,
+                    isDialog = true,
                     layout = ButtonLayout.Fill,
                     modifier = Modifier
                         .fillMaxWidth()

@@ -2,6 +2,7 @@ package com.reguerta.user
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.compose.setContent
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -14,7 +15,6 @@ import com.reguerta.presentation.ui.ReguertaTheme
 import com.reguerta.presentation.navigation.Routes
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
-import androidx.core.view.WindowCompat
 import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import android.os.Build
@@ -32,7 +32,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setTheme(R.style.Theme_Reguerta)
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
+        enableEdgeToEdge()
+        window.isNavigationBarContrastEnforced = false
         setContent {
             ReguertaTheme {
                 Timber.i("SYNC_MainActivity: Entrando en setContent/Composable raíz")

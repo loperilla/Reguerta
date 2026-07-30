@@ -7,14 +7,11 @@ package com.reguerta.presentation.ui
  * All rights reserved 2024
  */
 
-import android.app.Activity
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalView
-import androidx.core.view.WindowInsetsControllerCompat
 import timber.log.Timber
 
 private val LightColorScheme = lightColorScheme(
@@ -87,11 +84,6 @@ fun ReguertaTheme(
     val colorScheme =
         if (darkTheme) DarkColorScheme else LightColorScheme
     Timber.i("ReguertaTheme: dynamicColor=FALSE (forced), darkTheme=%s", darkTheme)
-
-    val window = (LocalView.current.context as Activity).window
-    val insetsController = WindowInsetsControllerCompat(window, window.decorView)
-    insetsController.isAppearanceLightStatusBars = !darkTheme
-    insetsController.isAppearanceLightNavigationBars = !darkTheme
 
     MaterialTheme(
         colorScheme = colorScheme,
