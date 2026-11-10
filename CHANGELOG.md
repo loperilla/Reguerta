@@ -8,6 +8,7 @@ All notable changes to this project will be documented in this file.
 - 2026-07-30 | 📝 docs(android): add project documentation
 
 ### Maintenance
+- 2026-11-10 | 📦 build(deps): update Android libraries
 - 2026-07-29 | 📦 build(android): align AGP 9 configuration
 
 ### Fixed

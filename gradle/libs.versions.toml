@@ -1,33 +1,33 @@
 [versions]
-agp = "9.3.1"
-android-junit5 = "2.0.1"
+agp = "9.5.1"
+android-junit5 = "2.0.2"
 androidx-activity = "1.13.0"
-androidx-constraintlayout = "1.1.1"
+androidx-constraintlayout = "1.1.2"
 androidx-lifecycle = "2.11.0"
-androidx-navigation = "2.9.8"
+androidx-navigation = "2.10.2"
 androidx-test-espresso = "3.7.0"
 androidx-test-ext = "1.3.0"
-appcompat = "1.7.1"
+appcompat = "1.8.0"
 coil = "2.7.0"
-kotlin = "2.4.10"
-core-ktx = "1.19.0"
+kotlin = "2.4.21"
+core-ktx = "1.19.1"
 junit = "4.13.2"
-jupiter-junit = "6.1.2"
+jupiter-junit = "6.1.3"
 kotlinx-coroutines-test = "1.11.0"
 ksp = "2.3.6"
 material = "1.14.0"
-room-version = "2.8.4"
+room-version = "2.8.5"
 runner = "1.7.0"
 firebase-perf-ktx = "21.0.5"
-firebase-abt = "23.0.1"
+firebase-abt = "24.0.0"
 lottie = "6.7.1"
 firebase-common-ktx = "21.0.0"
 lifecycle-process = "2.11.0"
-core = "1.19.0"
+core = "1.19.1"
 javapoet = "1.13.0"
-animation = "1.11.4"
-compose-material-core = "1.6.2"
-compose-ui-test = "1.11.4"
+animation = "1.12.1"
+compose-material-core = "1.7.1"
+compose-ui-test = "1.12.1"
 
 [libraries]
 #Compose
@@ -37,7 +37,7 @@ androidx-runner = { module = "androidx.test:runner", version.ref = "runner" }
 appcompat = { module = "androidx.appcompat:appcompat", version.ref = "appcompat" }
 assertk = "com.willowtreeapps.assertk:assertk:0.28.1"
 coil = { module = "io.coil-kt:coil-compose", version.ref = "coil" }
-compose-bom = "androidx.compose:compose-bom:2026.06.01"
+compose-bom = "androidx.compose:compose-bom:2026.09.00"
 compose-constraints = { module = "androidx.constraintlayout:constraintlayout-compose", version.ref = "androidx-constraintlayout" }
 compose-material3 = "androidx.compose.material3:material3:1.4.0"
 compose-material_icons_extends = "androidx.compose.material:material-icons-extended:1.7.8"
@@ -49,8 +49,8 @@ compose-ui-test = { module = "androidx.compose.ui:ui-test-junit4", version.ref =
 compose-ui-test-manifest = { module = "androidx.compose.ui:ui-test-manifest" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 core-ktx = { module = "androidx.core:core-ktx", version.ref = "core-ktx" }
-datastore = "androidx.datastore:datastore-preferences:1.2.1"
-firebase-bom = { module = "com.google.firebase:firebase-bom", version = "34.16.0" }
+datastore = "androidx.datastore:datastore-preferences:1.3.0"
+firebase-bom = { module = "com.google.firebase:firebase-bom", version = "35.1.0" }
 firebase-auth = { module = "com.google.firebase:firebase-auth" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
 firebase-database = { module = "com.google.firebase:firebase-database" }
@@ -69,7 +69,7 @@ lifecycle-compose-runtime = { module = "androidx.lifecycle:lifecycle-runtime-com
 lifecycle-compose-viewmodel = { module = "androidx.lifecycle:lifecycle-viewmodel-compose" }
 lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "androidx-lifecycle" }
 material = { module = "com.google.android.material:material", version.ref = "material" }
-mockk = "io.mockk:mockk:1.14.11"
+mockk = "io.mockk:mockk:1.14.12"
 navigation-testing = { module = "androidx.navigation:navigation-testing", version.ref = "androidx-navigation" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room-version" }
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room-version" }
@@ -119,11 +119,11 @@ jupiter = [
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidJUnit5 = { id = "de.mannodermaus.android-junit5", version.ref = "android-junit5" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
-androidx-room = { id = "androidx.room", version = "2.8.4" }
-ben-manes-versions = "io.github.ben-manes.versions:0.56.0"
+androidx-room = { id = "androidx.room", version = "2.8.5" }
+ben-manes-versions = "io.github.ben-manes.versions:0.67.0"
 kspPlugin = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 hilt = { id = "com.google.dagger.hilt.android", version = "2.60.1" }
 google-services = { id = "com.google.gms.google-services", version = "4.5.0" }
-crashlytics = { id = "com.google.firebase.crashlytics", version = "3.0.7" }
+crashlytics = { id = "com.google.firebase.crashlytics", version = "3.0.8" }
 compose-compiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
-version-catalog-update = "nl.littlerobots.version-catalog-update:1.1.0"
+version-catalog-update = "nl.littlerobots.version-catalog-update:1.1.2"
